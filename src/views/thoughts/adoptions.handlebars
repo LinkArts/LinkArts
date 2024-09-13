@@ -1,0 +1,30 @@
+<div class="dashboard">
+
+    <div class="title-container">
+        
+        <h2>Suas Adoções</h2>
+    </div>
+    {{#if empty}}
+        <h3>Você ainda não requisitou nenhuma adoção</h3>
+    {{else}}
+        <h3>Aqui estão seus futuros melhores amigos, {{user.name}}:</h3>
+        <ul>
+            {{#each util}}
+            {{#if this.image}}
+            <li>
+                <span class="label">
+                    <img src="{{this.image}}" style="max-width: 300px; border-radius: 50%" alt="">
+                </span>
+                <p style="font-size: 40px; font-weight: bold">nome: <span style="color: #F6982d;">{{this.title}}</span></p>
+                <span class="actions" style="font-weight: bold; font-size: 40px;">
+                Status: 
+                {{#if this.adopter}}
+                 <span style="color: greenyellow; font-size: 20px;">👌mandar email para {{this.ownerEmail}}</span>
+                {{/if}}
+                
+            </li>
+            {{/if}}
+            {{/each}}
+        </ul>
+    {{/if}}
+</div>
