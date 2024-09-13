@@ -1,0 +1,97 @@
+<style>
+        .body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        form{
+
+            padding: 10%;
+        }
+    </style>
+<div class="body">
+
+    <div class="form-container">
+         <a href="/thoughts/dashboard">Voltar</a>
+        <h2>Proposta para Tocar em {{empresa.name}}</h2>
+        <form action="/thoughts/proposta/{{sender.id}}/{{receiver.id}}" method="POST">
+            <label for="data_evento">Data do Evento:</label>
+            <input type="date" id="data_evento" name="data" required>
+
+            <label for="hora_evento">Horário do Evento:</label>
+            <input type="time" id="hora_evento" name="hora" required>
+
+            <label for="valor_hora">Valor por Hora (R$):</label>
+            <input type="number" id="valor_hora" name="valor" placeholder="Valor cobrado por hora" required min="0">
+
+            <label for="mensagem">Mensagem:</label>
+            <textarea id="mensagem" name="mensagem" placeholder="Mensagem adicional (opcional)" rows="4"></textarea>
+
+            <select id="endereco" name="endereco" class="form-control" class="form-control"  style="margin-bottom: 1em;" onmousemove="loadEnderecos({{empresa.id}})">
+                <option >Selecione uma opção</option>
+            </select required>
+
+            <input type="submit" value="Enviar Proposta">
+        </form>
+    </div>
+</div>
+
+<script>
+    async function loadEnderecos(id){
+    const endereco = document.getElementById('endereco');
+    const selectedEndereco = endereco.options[endereco.selectedIndex].text;
+    const enderecos = await fetch(`/loadEnderecos/${id}`);
+    const response = await enderecos.text();
+    endereco.innerHTML = response;
+    }
+</script>

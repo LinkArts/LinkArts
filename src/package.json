@@ -1,0 +1,38 @@
+{
+  "name": "linkarts",
+  "version": "1.0.0",
+  "description": "TG ADS 2023 1  manhã",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./src/index.js localhost 3000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GabrielJonat/LinkArts.git"
+  },
+  "author": "darksouls da programação",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GabrielJonat/LinkArts/issues"
+  },
+  "homepage": "https://github.com/GabrielJonat/LinkArts#readme",
+  "dependencies": {
+    "axios": "^1.7.4",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "crypto": "^1.0.1",
+    "express": "^4.19.2",
+    "express-flash": "^0.0.2",
+    "express-handlebars": "^8.0.1",
+    "express-session": "^1.18.0",
+    "handlebars": "^4.7.8",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.11.0",
+    "nodemailer": "^6.9.14",
+    "nodemon": "^3.1.4",
+    "sequelize": "^6.37.3",
+    "session-file-store": "^1.5.0"
+  }
+}
