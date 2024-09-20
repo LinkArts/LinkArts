@@ -1,0 +1,11 @@
+<a href="/thoughts/dashboard/{{detentor}}">Voltar</a>
+<ul>
+    {{#each favoritos}}
+    <li>
+        <a href="/thoughts/profile/{{this.user.id}}/{{detentor}}">
+            <p>{{this.user.name}}</p>
+        </a>
+    <img src="{{this.user.img}}" alt="imagem do usuário adicionado como favorito" style="width: 300px; border-radius: 50%">
+    </li>
+    {{/each}}
+</ul>
