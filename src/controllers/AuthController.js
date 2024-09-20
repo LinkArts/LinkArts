@@ -22,19 +22,7 @@ module.exports = class AuthController{
 
         if(!user || user == null){
 
-            
-            console.log('não cadastrado!')
-            fetch('/clear')
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Seleciona o elemento com a mensagem
-          const msg = document.getElementById('msg');
-          // Remove o texto da mensagem
-          msg.textContent = ''; 
-        }
-      })
-      .catch(err => console.error('Erro ao limpar a mensagem:', err));
+            req.flash('message', '')
             req.flash('message', 'O email informado não está cadastrado')
             req.session.save(() => {
 

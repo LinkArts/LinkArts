@@ -66,17 +66,22 @@
                                 </div>
                             </div>
                         </div>
-                        {{#each favoritos}}
+                        {{#each amigos}}
                         <a href="#" class="list-group-item list-group-item-action border-0">
-                            <div class="badge bg-success float-right">5</div>
+                            {{#if this.unseen}}
+                            <div class="badge bg-success float-right">{{this.unseen}}</div>
+                            {{/if}}
+                            <a href="/chat/conversar/{{this.id}}/{{this.root}}" style="text-decoration: none; color: inherit">
                             <div class="d-flex align-items-start">
-                                <img src="{{this.user.img}}"
+                                <img src="{{this.img}}"
                                     class="rounded-circle mr-1" alt="Imagem do usuário" width="40" height="40">
                                 <div class="flex-grow-1 ml-3">
-                                    {{this.user.name}}
-                                    <div class="small"><span class="fas fa-circle chat-online"></span> Online</div>
+                                    
+                                    {{this.name}}
+                                    <div class="small"><span class="fas fa-circle chat-online"></span> <span class="{{this.id}}">offline</span></div>
                                 </div>
                             </div>
+                            </a>
                         </a>
                         {{/each}}
                         <hr class="d-block d-lg-none mt-1 mb-0">
@@ -90,7 +95,7 @@
                                 </div>
                                 <div class="flex-grow-1 pl-3" style="margin-left: 3em;">
                                     <strong>{{user.name}}</strong>
-                                    <div class="text-muted small"><em>Digitando...</em></div>
+                                    <div class="text-muted small"><em class="digitando-{{user.id}}"></em></div>
                                 </div>
                                 <div>
                                     <a href="/thoughts/profile/{{amigo.user.id}}/{{user.id}}">
@@ -120,9 +125,9 @@
                             <div class="chat-messages p-4">
                                 {{#each messages}}
                                 {{#if this.self}}
-                                <div class="chat-message-left pb-4">
-                                {{else}}
                                 <div class="chat-message-right pb-4">
+                                {{else}}
+                                <div class="chat-message-left pb-4">
                                 {{/if}}
                                     <div>
                                         <a href=""><img src="{{this.user.img}}" alt="Imagem do usuário" class=""
@@ -160,7 +165,11 @@
                                 <button id="enviarBtn" class="btn btn-primary ">Enviar</button>
                             </div>
                             <p style="display: none;" id="remetenteId">{{user.id}}</p>
+                            {{#if amigo.detido}}
                             <p style="display: none;" id="destinatarioId">{{amigo.detido}}</p>
+                            {{else}}
+                            <p style="display: none;" id="destinatarioId">{{amigo.id}}</p>
+                            {{/if}}
                             <p style="display: none;" id="remetenteImg">{{user.img}}</p>
                             <p style="display: none;" id="destinatarioImg">{{amigo.user.img}}</p>
                             <p style="display: none;" id="destinatarioNome">{{amigo.user.name}}</p>
@@ -173,7 +182,11 @@
 
     <script src="/js/socket.js"></script>
     <script>
-        const socket = io();
+
+          const userId = document.getElementById('remetenteId').textContent;
+        const destinatarioId = document.getElementById('destinatarioId').textContent;
+
+        const socket = io.connect();
 
         // Ouve por novas mensagens do servidor
         socket.on('nova_mensagem', (mensagem) => {
@@ -210,7 +223,7 @@
             const messageElement = document.createElement("div");
             if(remetenteId != id){
 
-                messageElement.classList.add("chat-message-right", "pb-4");
+                messageElement.classList.add("chat-message-left", "pb-4");
                 messageElement.innerHTML = `
                 <div>
                     <img src="${destinatarioImg}" alt="imagem do usuário" class="img-fluid mt-2 pt-3" style="width: auto; height: 60px; border-radius: 24px; margin-left: 15px;">
@@ -226,7 +239,7 @@
             `;
             }
             else{
-                messageElement.classList.add("chat-message-left", "pb-4");
+                messageElement.classList.add("chat-message-right", "pb-4");
                 messageElement.innerHTML = `
                 <div>
                     <img src="${remetenteImg}" alt="imagem do usuário" style="width: auto; height: 50px; border-radius: 50%;">
@@ -262,5 +275,39 @@
             }
         });
 
-        
+        socket.on('user_online', (userId) => {
+    document.querySelector(`.${userId}`).textContent = 'online';
+    console.log('b')
+    // Atualize a interface
+});
+
+socket.on('user_offline', (userId) => {
+     document.querySelector(`.${userId}`).textContent = 'offline';
+     console.log('a')
+    // Atualize a interface
+});
+
+const input = document.getElementById('conteudo');
+input.addEventListener('input', () => {
+    if (input.value !== "") {
+        document.querySelector(`.digitando-${userId}`).innerText = 'digitando';
+        console.log('digitando')
+        socket.emit('digitando', { remetenteId: userId, destinatarioId: destinatarioId });
+    } else {
+        console.log('não está digitando')
+        document.querySelector(`.digitando-${userId}`).innerText= '';
+        socket.emit('parou_de_digitar', { remetenteId: userId, destinatarioId: destinatarioId });
+    }
+});
+
+socket.on('usuario_digitando', (remetenteId) => {
+    document.querySelector(`.digitando-${remetenteId}`).textContent = 'digitando...';
+    // Exiba um indicador de "digitando" na interface
+});
+
+socket.on('usuario_parou_de_digitar', (remetenteId) => {
+    document.querySelector(`.digitando-${remetenteId}`).textContent = '';
+    // Remova o indicador de "digitando" na interface
+});
+
     </script>

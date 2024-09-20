@@ -439,7 +439,6 @@ app.delete('/thoughts/deleteDir/:id/:dir', async (req, res) => {
 
     const files = await File.findAll({where: {diretorio: target.id}})
 
-    console.log('aaaaaaaaaaaaaaaaaaaa',target.nome,files.length)
 
     files.forEach(async file => {
 
@@ -473,14 +472,13 @@ app.post('/chat/marcarComoVisto', async (req, res) => {
 });
 const onlineUsers = {};
 
-io.on('connection', (socket) => {
+io.on('connection',(socket) => {
     const userId = socket.handshake.query.userId; // Captura o ID do usuário
     onlineUsers[userId] = socket.id;
-
     // Notifica outros usuários que ele está online
     socket.broadcast.emit('user_online', userId);
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect',() => {
         delete onlineUsers[userId];
         // Notifica outros usuários que ele ficou offline
         socket.broadcast.emit('user_offline', userId);
