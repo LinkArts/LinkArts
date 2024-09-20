@@ -11,10 +11,6 @@ const session = require('express-session');
 module.exports = class AuthController{
 
     static async login(req,res){
-        console.log(req.session.userId)
-        if(!req.session.userId){
-            req.session.userId = 0
-        }
         res.render('auth/login', {session: req.session})
     }
 
@@ -28,6 +24,17 @@ module.exports = class AuthController{
 
             
             console.log('não cadastrado!')
+            fetch('/clear')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Seleciona o elemento com a mensagem
+          const msg = document.getElementById('msg');
+          // Remove o texto da mensagem
+          msg.textContent = ''; 
+        }
+      })
+      .catch(err => console.error('Erro ao limpar a mensagem:', err));
             req.flash('message', 'O email informado não está cadastrado')
             req.session.save(() => {
 
@@ -48,13 +55,12 @@ module.exports = class AuthController{
         }
 
         else{
-            req.session.userId = user.id
-            console.log(req.session.userId)
-            req.flash('message', 'autenticação realizada com sucesso!')
+            req.session.userid = user.id
+            req.flash('message', 'Autenticação realizada com sucesso!')
             req.session.save(() => {
-                
-                res.redirect(`/thoughts/dashboard/${req.session.userId}`)
+                res.redirect(`/thoughts/dashboard/${user.id}`)
             })
+
         }
         }
     }

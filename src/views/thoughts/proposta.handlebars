@@ -59,20 +59,23 @@
             padding: 10%;
         }
     </style>
-<div class="body">
-
-    <div class="form-container">
-         <a href="/thoughts/dashboard">Voltar</a>
+<div class="form my-3" style="justify-content: center;
+            align-items: center; display: flex;">
+    <div class="form-container my-3" style="margin~left: 200px;">
         <h2>Proposta para Tocar em {{empresa.name}}</h2>
+        <a href="/thoughts/profile/{{receiver.id}}/{{sender.id}}" class="my-5" style="text-align: center;">Voltar</a>
         <form action="/thoughts/proposta/{{sender.id}}/{{receiver.id}}" method="POST">
             <label for="data_evento">Data do Evento:</label>
             <input type="date" id="data_evento" name="data" required>
 
-            <label for="hora_evento">Horário do Evento:</label>
-            <input type="time" id="hora_evento" name="hora" required>
+            <label for="hora_evento">Horário de início do Evento:</label>
+            <input type="time" id="hora_evento" name="horaInicial" required>
+
+            <label for="hora_fim_evento">Horário de fim do Evento:</label>
+            <input type="time" id="hora_fim_evento" name="horaFim" required>
 
             <label for="valor_hora">Valor por Hora (R$):</label>
-            <input type="number" id="valor_hora" name="valor" placeholder="Valor cobrado por hora" required min="0">
+            <input type="number" id="valor_hora" name="valor" placeholder="Valor cobrado por hora" required min="0" step="any">
 
             <label for="mensagem">Mensagem:</label>
             <textarea id="mensagem" name="mensagem" placeholder="Mensagem adicional (opcional)" rows="4"></textarea>

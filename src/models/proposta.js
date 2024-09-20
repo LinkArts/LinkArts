@@ -7,7 +7,11 @@ const Proposta = db.define('Proposta', {
         type: DataTypes.DATE,
         require: true,
     },
-    hora: {
+    horaInicial: {
+        type: DataTypes.TIME,
+        require: true,
+    },
+    horaFim: {
         type: DataTypes.TIME,
         require: true,
     },

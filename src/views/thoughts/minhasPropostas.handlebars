@@ -4,7 +4,7 @@
 
           <div class="row my-5">
 
-              <a href="/thoughts/profile/{{id}}">Voltar</a>
+              <a href="/thoughts/profile/{{requester}}/{{requester}}">Voltar</a>
           </div>
 
             <div class="row my-5">
@@ -28,7 +28,8 @@
                                   <h5 class="card-title text-info" style="text-align: justify;">Detalhes da Proposta</h5>
                                   <p class="card-text text-dark" style="text-align: justify;">data: {{this.dataFormatada}}</p>
                                   <p class="card-text text-dark" style="text-align: justify;">Proposta enviada para: {{this.receiver.name}}</p>
-                                  <p class="card-text text-dark" style="text-align: justify;">Hora: {{this.hora}}</p>
+                                  <p class="card-text text-dark" style="text-align: justify;">Hora de início: {{this.horaInicial}}</p>
+                                  <p class="card-text text-dark" style="text-align: justify;">Hora de Fim: {{this.horaFim}}</p>
                                   <p class="card-text text-dark" style="text-align: justify;">Local: {{this.local}}</p>
                                   <p class="card-text text-dark" style="text-align: justify;">Valor/Hora: R${{this.valorHora}}</p>
                                   <p class="card-text text-dark" style="text-align: justify;">Mensagem: {{this.mensagem}}</p>
@@ -62,8 +63,8 @@
                                     </a>
                                   
                                     <div class="dropdown-content">
-                                    <a class="dropdown-item" href="/thoughts/aceitarProposta/{{this.id}}">Aceitar</a>
-                                    <a class="dropdown-item" href="/thoughts/negarProposta/{{this.id}}">Negar</a>
+                                    <a class="dropdown-item" href="/thoughts/aceitarProposta/{{this.id}}/{{this.requester}}">Aceitar</a>
+                                    <a class="dropdown-item" href="/thoughts/negarProposta/{{this.id}}/{{this.requester}}">Negar</a>
                                     <a class="dropdown-item" href="">Enviar Mensagem</a>
                                     </div>
                                   </div>
@@ -75,7 +76,8 @@
                                   <h5 class="card-title text-info" style="text-align: justify;">Detalhes da Proposta</h5>
                                   <p class="card-text text-dark" style="text-align: justify;">data: {{this.dataFormatada}}</p>
                                   <p class="card-text text-dark" style="text-align: justify;">Proposta enviada por: {{this.sender.name}}</p>
-                                  <p class="card-text text-dark" style="text-align: justify;">Hora: {{this.hora}}</p>
+                                  <p class="card-text text-dark" style="text-align: justify;">Hora de início: {{this.horaInicial}}</p>
+                                  <p class="card-text text-dark" style="text-align: justify;">Hora de fim: {{this.horaFim}}</p>
                                   <p class="card-text text-dark" style="text-align: justify;">Local: {{this.local}}</p>
                                   <p class="card-text text-dark" style="text-align: justify;">Valor/Hora: R${{this.valorHora}}</p>
                                   <p class="card-text text-dark" style="text-align: justify;">Mensagem: {{this.mensagem}}</p>
@@ -115,3 +117,4 @@
     display: block;
   }
   </style>
+  
