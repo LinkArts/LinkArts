@@ -13,6 +13,7 @@ const Aval = require('../models/avaliacao')
 const Evento = require('../models/eventos')
 const Tag = require('../models/Tag')
 const File = require('../models/diretorios')
+const Notific = require('../models/notificacao')
 
 module.exports = class ProfiletController{
 
@@ -71,7 +72,35 @@ module.exports = class ProfiletController{
         else{
             type = 0
         }
-        res.render('thoughts/profile', {session: req.session,user,selfView,type,id,locais, media,porcentagem,eventos,tags,hasTags})
+        const notificacoes = await Notific.findAll({where: {destinatario: user.id,status: true}})
+        notificacoes.sort((a, b) => {
+            
+            const createdAtA = new Date(a.createdAt);
+            const createdAtB = new Date(b.createdAt);
+        
+            if (createdAtA < createdAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (createdAtA > createdAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Se as datas de criação forem iguais, ordena pela data de atualização
+            const updatedAtA = new Date(a.updatedAt);
+            const updatedAtB = new Date(b.updatedAt);
+        
+            if (updatedAtA < updatedAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (updatedAtA > updatedAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Mantém a ordem se todas as comparações resultarem em empate
+            return 0;
+        });
+        let numLembretes = notificacoes.length
+        res.render('thoughts/profile', {session: req.session,user,selfView,type,id,locais, media,porcentagem,eventos,tags,hasTags,notificacoes,numLembretes})
         }
         else{
             res.redirect('404')
@@ -120,8 +149,35 @@ module.exports = class ProfiletController{
             // Mantém a ordem se todas as comparações resultarem em empate
             return 0;
         });
-
-        res.render('thoughts/avaliacoes', {session: req.session,id,requesterId,avaliacoes})
+        const notificacoes = await Notific.findAll({where: {destinatario: requesterId,status: true}})
+        notificacoes.sort((a, b) => {
+            
+            const createdAtA = new Date(a.createdAt);
+            const createdAtB = new Date(b.createdAt);
+        
+            if (createdAtA < createdAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (createdAtA > createdAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Se as datas de criação forem iguais, ordena pela data de atualização
+            const updatedAtA = new Date(a.updatedAt);
+            const updatedAtB = new Date(b.updatedAt);
+        
+            if (updatedAtA < updatedAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (updatedAtA > updatedAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Mantém a ordem se todas as comparações resultarem em empate
+            return 0;
+        });
+        let numLembretes = notificacoes.length
+        res.render('thoughts/avaliacoes', {session: req.session,id,requesterId,avaliacoes,notificacoes,numLembretes})
         }
         else{
             res.redirect('404')
@@ -210,7 +266,35 @@ module.exports = class ProfiletController{
 
                 fav.user = await User.findOne({ where: {id: fav.detido}})
             })
-            res.render(`thoughts/favoritos`, {session: req.session, favoritos,detentor});
+            const notificacoes = await Notific.findAll({where: {destinatario: detentor,status: true}})
+        notificacoes.sort((a, b) => {
+            
+            const createdAtA = new Date(a.createdAt);
+            const createdAtB = new Date(b.createdAt);
+        
+            if (createdAtA < createdAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (createdAtA > createdAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Se as datas de criação forem iguais, ordena pela data de atualização
+            const updatedAtA = new Date(a.updatedAt);
+            const updatedAtB = new Date(b.updatedAt);
+        
+            if (updatedAtA < updatedAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (updatedAtA > updatedAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Mantém a ordem se todas as comparações resultarem em empate
+            return 0;
+        });
+        let numLembretes = notificacoes.length
+            res.render(`thoughts/favoritos`, {session: req.session, favoritos,detentor,notificacoes,numLembretes});
     }
     else{
         res.redirect('404')
@@ -319,7 +403,35 @@ module.exports = class ProfiletController{
         const instrumentosPercussao = await musicalTalent.findAll({where: {categoria:'Instrumento',subtipo:'Percussão'}})
         const generos = await musicalTalent.findAll({where: {categoria:'Gênero Musical'}})
         const profissoes = await musicalTalent.findAll({where: {categoria:'Profissão'}})
-        res.render('thoughts/tags',{sesssion: req.session, instrumentosCorda, instrumentosSopro, instrumentosPercussao, generos, profissoes})
+        const notificacoes = await Notific.findAll({where: {destinatario: req.session.userId,status: true}})
+        notificacoes.sort((a, b) => {
+            
+            const createdAtA = new Date(a.createdAt);
+            const createdAtB = new Date(b.createdAt);
+        
+            if (createdAtA < createdAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (createdAtA > createdAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Se as datas de criação forem iguais, ordena pela data de atualização
+            const updatedAtA = new Date(a.updatedAt);
+            const updatedAtB = new Date(b.updatedAt);
+        
+            if (updatedAtA < updatedAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (updatedAtA > updatedAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Mantém a ordem se todas as comparações resultarem em empate
+            return 0;
+        });
+        let numLembretes = notificacoes.length
+        res.render('thoughts/tags',{sesssion: req.session, instrumentosCorda, instrumentosSopro, instrumentosPercussao, generos, profissoes,notificacoes,numLembretes})
     }
 
     static async cadastrarTagPost(req, res) {
@@ -382,7 +494,35 @@ module.exports = class ProfiletController{
         const id = req.params.id
         req.session.userId = id
         const user = await User.findOne({where: {id: id}})
-        res.render('thoughts/userEdit',{session: req.session, id, user})
+        const notificacoes = await Notific.findAll({where: {destinatario: user.id,status: true}})
+        notificacoes.sort((a, b) => {
+            
+            const createdAtA = new Date(a.createdAt);
+            const createdAtB = new Date(b.createdAt);
+        
+            if (createdAtA < createdAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (createdAtA > createdAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Se as datas de criação forem iguais, ordena pela data de atualização
+            const updatedAtA = new Date(a.updatedAt);
+            const updatedAtB = new Date(b.updatedAt);
+        
+            if (updatedAtA < updatedAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (updatedAtA > updatedAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Mantém a ordem se todas as comparações resultarem em empate
+            return 0;
+        });
+        let numLembretes = notificacoes.length
+        res.render('thoughts/userEdit',{session: req.session, id, user,notificacoes,numLembretes})
     }
 
     static async userEditPost(req,res){
@@ -475,6 +615,34 @@ module.exports = class ProfiletController{
         else{
             type = 0
         }
-        res.render('thoughts/profile', {session: req.session,user,type,selfView,locais,id,media,porcentagem,eventos,tags,hasTags})        
+        const notificacoes = await Notific.findAll({where: {destinatario: id,status: true}})
+        notificacoes.sort((a, b) => {
+            
+            const createdAtA = new Date(a.createdAt);
+            const createdAtB = new Date(b.createdAt);
+        
+            if (createdAtA < createdAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (createdAtA > createdAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Se as datas de criação forem iguais, ordena pela data de atualização
+            const updatedAtA = new Date(a.updatedAt);
+            const updatedAtB = new Date(b.updatedAt);
+        
+            if (updatedAtA < updatedAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (updatedAtA > updatedAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Mantém a ordem se todas as comparações resultarem em empate
+            return 0;
+        });
+        let numLembretes = notificacoes.length
+        res.render('thoughts/profile', {session: req.session,user,type,selfView,locais,id,media,porcentagem,eventos,tags,hasTags,notificacoes,numLembretes})        
     }
 }

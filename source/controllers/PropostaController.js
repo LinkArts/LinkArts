@@ -68,7 +68,35 @@ module.exports = class PropostaController{
         const sender = user
         const receiver = empresa
         let enderecoAllowed = false
-        res.render('thoughts/proposta', {session: req.session,empresa,sender,receiver,enderecoAllowed})   
+        const notificacoes = await Notific.findAll({where: {destinatario: user.id,status: true}})
+        notificacoes.sort((a, b) => {
+            
+            const createdAtA = new Date(a.createdAt);
+            const createdAtB = new Date(b.createdAt);
+        
+            if (createdAtA < createdAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (createdAtA > createdAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Se as datas de criação forem iguais, ordena pela data de atualização
+            const updatedAtA = new Date(a.updatedAt);
+            const updatedAtB = new Date(b.updatedAt);
+        
+            if (updatedAtA < updatedAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (updatedAtA > updatedAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Mantém a ordem se todas as comparações resultarem em empate
+            return 0;
+        });
+        let numLembretes = notificacoes.length
+        res.render('thoughts/proposta', {session: req.session,empresa,sender,receiver,enderecoAllowed,notificacoes,numLembretes})   
         }    
         else{
             res.render('thoughts/404', {session: req.session})
@@ -85,7 +113,35 @@ module.exports = class PropostaController{
         const sender = empresa
         const receiver = user
         let enderecoAllowed = true
-        res.render('thoughts/proposta', {session: req.session,empresa,sender,receiver,enderecoAllowed})
+        const notificacoes = await Notific.findAll({where: {destinatario: user.id,status: true}})
+        notificacoes.sort((a, b) => {
+            
+            const createdAtA = new Date(a.createdAt);
+            const createdAtB = new Date(b.createdAt);
+        
+            if (createdAtA < createdAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (createdAtA > createdAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Se as datas de criação forem iguais, ordena pela data de atualização
+            const updatedAtA = new Date(a.updatedAt);
+            const updatedAtB = new Date(b.updatedAt);
+        
+            if (updatedAtA < updatedAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (updatedAtA > updatedAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Mantém a ordem se todas as comparações resultarem em empate
+            return 0;
+        });
+        let numLembretes = notificacoes.length
+        res.render('thoughts/proposta', {session: req.session,empresa,sender,receiver,enderecoAllowed,notificacoes,numLembretes})
         }
         else{
             res.render('thoughts/404', {session: req.session})
@@ -112,7 +168,7 @@ module.exports = class PropostaController{
             horaInicial: req.body.horaInicial + ':00',
             horaFim: req.body.horaFim + ':00',
             valorHora: req.body.valor,
-            local: req.body.endereco,
+            local: req.body.endereco ?? 'Selecione uma opção',
             mensagem: req.body.mensagem,
             senderId: senderId,
             receiverId: receiverId,
@@ -121,6 +177,11 @@ module.exports = class PropostaController{
         
         const local = await Local.findOne({where: {endereco: proposta.local}})
 
+        if (proposta.local === 'Selecione uma opção') {
+            valid = false;
+            msg = 'Selecione um endereço válido'
+        }
+        else{
         if(!(horarioAntesOuDepois(local.horaFim,proposta.horaFim) == 1 && 
         horarioAntesOuDepois(local.horaInicio,proposta.horaInicial) == -1)){
             valid = false;
@@ -128,11 +189,7 @@ module.exports = class PropostaController{
 
         }
 
-        if (proposta.local === 'Selecione uma opção') {
-            valid = false;
-            msg = 'Selecione um endereço válido'
-        }
-    
+    }
         const hoje = new Date();
         const data = new Date(proposta.data);
         data.setDate(data.getDate() + 1)
@@ -395,8 +452,36 @@ module.exports = class PropostaController{
             prop.requester = requester
         })
 
+        const notificacoes = await Notific.findAll({where: {destinatario: requester,status: true}})
+        notificacoes.sort((a, b) => {
+            
+            const createdAtA = new Date(a.createdAt);
+            const createdAtB = new Date(b.createdAt);
         
-        res.render('thoughts/minhasPropostas', { session: req.session, propostasEnviadas, propostasRecebidas,requester});
+            if (createdAtA < createdAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (createdAtA > createdAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Se as datas de criação forem iguais, ordena pela data de atualização
+            const updatedAtA = new Date(a.updatedAt);
+            const updatedAtB = new Date(b.updatedAt);
+        
+            if (updatedAtA < updatedAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (updatedAtA > updatedAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Mantém a ordem se todas as comparações resultarem em empate
+            return 0;
+        });
+        let numLembretes = notificacoes.length
+
+        res.render('thoughts/minhasPropostas', { session: req.session, propostasEnviadas, propostasRecebidas,requester,notificacoes,numLembretes});
                 }
                 else{
                     res.redirect('404')
@@ -414,7 +499,7 @@ module.exports = class PropostaController{
                     // Certifica-se de que existe pelo menos uma notificação
                         // Atualiza o status da notificação para `false`
                         await Notific.update({ status: false }, { where: { id: notific} });
-            
+                    
                         // Redireciona o usuário
                         res.redirect(`/thoughts/propostas/${id}`);
             }

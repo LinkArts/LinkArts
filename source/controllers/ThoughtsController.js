@@ -144,6 +144,29 @@ module.exports = class ThoughtController{
                     status: 'concluída'
                 };
                 await Proposta.update(newProp, { where: { id: prop.id } });
+                const sender = await User.findOne({where: {id: newProp.senderId}})
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0'); // Horas no formato 00-23
+                const minutes = now.getMinutes().toString().padStart(2, '0'); // Minutos no formato 00-59
+                const seconds = now.getSeconds().toString().padStart(2, '0'); // Segundos no formato 00-59
+    
+                const currentTime = `${hours}:${minutes}:${seconds}`;
+                const notificacao = {
+                    conteudo: `Parabéns por concluir mais um serviço!`,
+                    categoria: 'proposta',
+                    status: true,
+                    remetente: newProp.receiverId,
+                    destinatario: newProp.senderId,
+                }
+                await Notific.create(notificacao);
+                const notificacao2 = {
+                    conteudo: `O serviço que você requisitou foi concluído!`,
+                    categoria: 'proposta',
+                    status: true,
+                    remetente: newProp.senderId,
+                    destinatario: newProp.receiverId,
+                }
+                await Notific.create(notificacao2);
             }
         });
         // Filtra as propostas removendo aquelas com data inválida

@@ -1,6 +1,7 @@
 const Mensagem = require("../models/mensagem")
 const Fav = require('../models/favoritos')
 const User = require('../models/user')
+const Notific = require('../models/notificacao')
 const session = require("express-session")
 const { Op, where } = require('sequelize');
 
@@ -64,7 +65,35 @@ module.exports = class ChatController{
                 amigo.unseen = unseenMessages.length
                 amigo.root = id
             }
-            res.render('chat/conversas',{session: req.session, user, amigo, amigos,messages})
+            const notificacoes = await Notific.findAll({where: {destinatario: user.id,status: true}})
+        notificacoes.sort((a, b) => {
+            
+            const createdAtA = new Date(a.createdAt);
+            const createdAtB = new Date(b.createdAt);
+        
+            if (createdAtA < createdAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (createdAtA > createdAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Se as datas de criação forem iguais, ordena pela data de atualização
+            const updatedAtA = new Date(a.updatedAt);
+            const updatedAtB = new Date(b.updatedAt);
+        
+            if (updatedAtA < updatedAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (updatedAtA > updatedAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Mantém a ordem se todas as comparações resultarem em empate
+            return 0;
+        });
+        let numLembretes = notificacoes.length
+            res.render('chat/conversas',{session: req.session, user, amigo, amigos,messages,notificacoes,numLembretes})
         }
     }
 
@@ -121,7 +150,35 @@ module.exports = class ChatController{
             amigo.root = id
         }
         let amigo = await User.findOne({where: {id: amigoId}})
-        res.render('chat/conversas',{session: req.session, user, amigo, amigos,messages})
+        const notificacoes = await Notific.findAll({where: {destinatario: id,status: true}})
+        notificacoes.sort((a, b) => {
+            
+            const createdAtA = new Date(a.createdAt);
+            const createdAtB = new Date(b.createdAt);
+        
+            if (createdAtA < createdAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (createdAtA > createdAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Se as datas de criação forem iguais, ordena pela data de atualização
+            const updatedAtA = new Date(a.updatedAt);
+            const updatedAtB = new Date(b.updatedAt);
+        
+            if (updatedAtA < updatedAtB) {
+                return 1; // 'a' vem antes de 'b'
+            } 
+            if (updatedAtA > updatedAtB) {
+                return -1;  // 'b' vem antes de 'a'
+            }
+        
+            // Mantém a ordem se todas as comparações resultarem em empate
+            return 0;
+        });
+        let numLembretes = notificacoes.length
+        res.render('chat/conversas',{session: req.session, user, amigo, amigos,messages,notificacoes,numLembretes})
         }
 
 }
