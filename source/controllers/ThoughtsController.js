@@ -7,6 +7,13 @@ const Proposta = require('../models/proposta')
 const moment = require('moment');
 const Aval = require('../models/avaliacao')
 const Notific = require('../models/notificacao')
+const Mensagem = require("../models/mensagem")
+
+function converterParaMinutos(horario) {
+    if (!horario) return null; // Adicionado para lidar com valores undefined
+    const [horas, minutos] = horario.split(':').map(Number);
+    return horas * 60 + minutos;
+}
 
 function calcularDiferencaHoras(horarioInicial, horarioFinal) {
 
@@ -32,6 +39,8 @@ module.exports = class ThoughtController{
         const requester = req.session.userId
         const user = await User.findOne({where: {id:req.session.userId}})
         const notificacoes = await Notific.findAll({where: {destinatario: user.id,status: true}})
+        const mensagem = await Mensagem.findAll({where: {visto: false, destinatario: requester}})
+        const nVisto = mensagem.length
         let connections
         let isEmpresa
         if(user.accountType == 'Empresa'){
@@ -196,7 +205,7 @@ module.exports = class ThoughtController{
             return 0;
         });
         let numLembretes = notificacoes.length
-        res.render('thoughts/dashboard', {session: req.session, user,connections,propostas,isEmpresa:isEmpresa,requester,notificacoes,numLembretes})}
+        res.render('thoughts/dashboard', {session: req.session, user,connections,propostas,isEmpresa:isEmpresa,requester,notificacoes,numLembretes,nVisto})}
         else{
 
             res.redirect('404')

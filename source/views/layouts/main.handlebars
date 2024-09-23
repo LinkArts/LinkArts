@@ -18,7 +18,7 @@
             <header>
 
                     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                    <div class="container-fluid">
+                    <div class="container-fluid" > 
                         <a class="navbar-brand me-6 pt-2" style="font-size: 28px;">LinkArts</a>
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,8 +36,7 @@
                         </form>
                         </div>
                         <div class="dropdown show">
-                        <a class="dropdown" href="/thoughts/exibirFavoritos/{{session.userId}}" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="false">
+                        <a class="dropdown" href="/thoughts/exibirFavoritos/{{session.userId}}">
                             <div>
                             <svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" fill="white"
                                 class="bi bi-suit-heart-fill pt-3 mt-2" viewBox="0 0 16 16">
@@ -46,9 +45,6 @@
                             </svg>
                             </div>
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                            <a class="dropdown-item" href="">Frank Artanis</a>
-                        </div>
                         </div>
 
                         <div class="position-relative">
@@ -64,13 +60,16 @@
                             </div>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                            <a class="dropdown-item" href="">Req. para Frank Artanis Enviada</a>
-                            <a class="dropdown-item" href="">Mensagem de Frank Artanis</a>
+                                {{#each notificacoes}}
+                            <a class="dropdown-item" href="{{this.link}}">{{this.conteudo}}</a>
+                            {{/each}}
                             </div>
+                            {{#if numLembretes}}
                             <span class="position-absolute translate-middle badge rounded-pill bg-danger"
                             style="position: absolute; top: 30px; left: 60px;">
-                            99+
+                                {{numLembretes}}
                             </span>
+                            {{/if}}
                         </div>
                         </div>
 
@@ -82,18 +81,25 @@
                                 d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z" />
                             </svg>
 
+                            {{#if nVisto}}
                             <span class="position-absolute translate-middle badge rounded-pill bg-danger"
                             style="position: absolute; top: 33px; left: 60px;">
-                            99+
+                            {{nVisto}}
                             </span>
+                            {{/if}}
                         </a>
 
-                        <a href="/logout">
+                        <a href="" class="dropdown" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
                             <svg xmlns="http://www.w3.org/2000/svg" width="78" height="78" fill="white" class="bi bi-power pt-3 mt-2 position-relative" viewBox="0 0 16 16">
                             <path d="M7.5 1v7h1V1z"/>
                             <path d="M3 8.812a5 5 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812"/>
                             </svg>
                         </a>
+                         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" href="/logout">Sair</a>
+                            <a class="dropdown-item" href="/thoughts/profile/{{user.id}}/{{user.id}}">Meu Perfil <img src="{{user.img}}" style="border-radius: 50%; width: 30px; height: auto;"></a>
+                            </div>
                         </div>
 
                     </div>
@@ -217,3 +223,14 @@
       .catch(err => console.error('Erro ao limpar a mensagem:', err));
   }
 </script>
+
+<script src="js/bootstrap.bundle.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>

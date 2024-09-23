@@ -7,31 +7,6 @@
       </div>
       <div class="row my-5">
 
-        <div class="col">
-
-          <div class="bg-dark text-white my-3 text-center card">
-
-            <div class="card-body">
-
-              <h1 class="mt-3">Você tem {{numLembretes}} Lembretes</h1>
-              <ul>
-                {{#each notificacoes}}
-                <li><a href="{{this.link}}">{{this.conteudo}}</a></li>
-                {{/each}}
-              </ul>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <div class="col">
-          {{#if session.userId}}
-          <a href="/thoughts/profile/{{user.id}}/{{user.id}}"><img src="{{user.img}}" style="border-radius: 50%; width: 120px; height: auto; margin-left: 20em;"></a>
-                {{/if}}
-        </div>
-
       </div>
       <div class="row my-5">
 
