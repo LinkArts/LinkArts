@@ -3,7 +3,6 @@
 ## Grupo
 
 * > 🌊 [Ana Mel Bossolan Silva](https://github.com/anaamel)
-* > ✨ [Gabriel Jonathan de Matos](https://github.com/GabrielJonat)
 * > 🧠 [Gustavo de Oliveira Garrido](https://github.com/gustavoogarrido)
 * > 🎮 [Kevin Cairé Leandro](https://github.com/TheKrauser)
 * > 💻 [Pedro Henrique Sardela Correa](https://github.com/PedroHSCorrea)
