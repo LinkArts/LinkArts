@@ -1,6 +1,6 @@
 const {Sequelize} = require('sequelize')
 //alterar de acordo com aconexão do seu banco de dados
-const sequelize = new Sequelize('linkarts','root', 'Paodoceu7@', {
+const sequelize = new Sequelize('linkarts','root', 'senhabd123', {
     host: 'localhost',
     dialect: 'mysql'
 })
