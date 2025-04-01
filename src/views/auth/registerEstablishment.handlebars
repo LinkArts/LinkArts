@@ -1,0 +1,68 @@
+<div class="left">
+    <div class="logo-container">
+        <img src="/img/logo.png" alt="logo" class="logo">
+    </div>
+
+    <h2 id="tituloTipoCadastro">Cadastro de Estabelecimento</h2>
+
+    <!--<div class="radio-group">
+        <input type="radio" id="artista" name="tipo" value="artista" checked onclick="toggleCadastro('artista')">
+        <label for="artista">Artista</label>
+
+        <input type="radio" id="empresa" name="tipo" value="empresa" onclick="toggleCadastro('empresa')">
+        <label for="empresa">Empresa</label>
+    </div>
+    <p></p>-->
+
+    <form action="/registroArtista" method="POST">
+        <div class="input-box"><input type="text" placeholder="Nome de usuário"></div>
+        <div class="input-box"><input type="email" placeholder="Email"></div>
+        <div class="input-box"><input type="text" placeholder="Telefone"></div>
+
+        <div id="cnpj-field" class="input-box"><input type="text" placeholder="CNPJ"></div>
+
+        <div class="input-box"><input type="password" placeholder="Senha"></div>
+        <div class="input-box"><input type="password" placeholder="Confirmar Senha"></div>
+        <div class="btn-container">
+            <input class="btn-play" type="submit" value="Cadastrar ▶">
+            <a href="/login" class="btn-or">Já tenho conta | Login</a>
+        </div>
+    </form>
+</div>
+<div class="right">
+    <h2 id="welcomeText">Bem-vindo, Empresa!</h2>
+    <img id="welcomeImage" src="/img/imgEmpresa.png" alt="Imagem de Estabelecimento" style="width: 50%; height: auto;">
+</div>
+
+<!--
+<script>
+    function toggleCadastro(tipo)
+    {
+        const cpfField = document.getElementById("cpf-field");
+        const cnpjField = document.getElementById("cnpj-field");
+        const radioArt = document.getElementById("artista");
+        const radioEstab = document.getElementById("estabelecimento");
+
+        if (tipo === "artista")
+        {
+            cpfField.style.display = "block";
+            cnpjField.style.display = "none";
+
+            welcomeText.innerText = 'Bem-vindo, Artista!';
+            welcomeImage.src = 'img/imgArtista.png';
+
+            tituloTipoCadastro.innerText = 'Cadastro do Artista';
+        }
+        else
+        {
+            cpfField.style.display = "none";
+            cnpjField.style.display = "block";
+
+            welcomeText.innerText = 'Bem-vinda, Empresa!';
+            welcomeImage.src = 'img/imgEmpresa.png';
+
+            tituloTipoCadastro.innerText = 'Cadastro da Empresa';
+        }
+    }
+</script>
+-->
