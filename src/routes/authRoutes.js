@@ -3,10 +3,12 @@ const router = express.Router()
 const AuthController = require('../controllers/AuthController')
 
 router.get('/login', AuthController.login)
-router.get('/registroArtista', AuthController.registerArtist)
-router.get('/registroEstabelecimento', AuthController.registerEstablishment)
+router.post('/login', AuthController.loginPost)
 
-router.post('/registroArtista', AuthController.registerArtistPost)
-router.post('/registroEstabelecimento', AuthController.registerEstablishmentPost)
+router.get('/registro-artista', AuthController.registerArtist)
+router.get('/registro-estabelecimento', AuthController.registerEstablishment)
+
+router.post('/registro-artista', AuthController.registerArtistPost)
+router.post('/registro-estabelecimento', AuthController.registerEstablishmentPost)
 
 module.exports = router

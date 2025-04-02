@@ -4,7 +4,7 @@
     margin: 0;
 }
 
-.ALL
+.all
 {
     display: flex;
     height: 100vh;
@@ -121,14 +121,22 @@ input[type="radio"]:checked + label {
     padding: 1em;
     color: #004085;
     background-color: #cce5ff;
-    border: 1px solid d#b8daff;
+    border: 1px solid #b8daff;
     border-radius: 5px;
     text-align: center;
     margin: 0 auto 1em;
     max-width: 60%;
+    font-weight: bold;
+    font-size: 20px;
+    box-shadow: black;
+    border: solid 3px black;
 }
   
 .container
 {
+    position: fixed;
+    width: 80%;
     padding: 2em;
+    left: 50%;
+    transform: translateX(-50%);
 }
