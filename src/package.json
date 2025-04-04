@@ -15,6 +15,7 @@
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.7",
     "cookie-session": "^2.1.0",
+    "cpf-cnpj-validator": "^1.0.3",
     "express": "^4.21.2",
     "express-flash": "^0.0.2",
     "express-handlebars": "^8.0.1",

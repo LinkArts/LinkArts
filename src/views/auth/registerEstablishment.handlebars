@@ -18,7 +18,7 @@
         <form action="/registro-estabelecimento" method="POST">
             <div class="input-box"><input type="text" name="name" placeholder="Nome de usuário"></div>
             <div class="input-box"><input type="email" name="email" placeholder="Email"></div>
-            <div class="input-box"><input type="text" name="cellphone" placeholder="Telefone"></div>
+            <div class="input-box"><input type="text" id="cellphone" name="cellphone" placeholder="Telefone"></div>
 
             <div id="cnpj-field" class="input-box"><input type="text" name="cnpj" placeholder="CNPJ"></div>
 
@@ -37,35 +37,10 @@
     </div>
 </div>
 
-<!--
 <script>
-    function toggleCadastro(tipo)
+    $(document).ready(function ()
     {
-        const cpfField = document.getElementById("cpf-field");
-        const cnpjField = document.getElementById("cnpj-field");
-        const radioArt = document.getElementById("artista");
-        const radioEstab = document.getElementById("estabelecimento");
-
-        if (tipo === "artista")
-        {
-            cpfField.style.display = "block";
-            cnpjField.style.display = "none";
-
-            welcomeText.innerText = 'Bem-vindo, Artista!';
-            welcomeImage.src = 'img/imgArtista.png';
-
-            tituloTipoCadastro.innerText = 'Cadastro do Artista';
-        }
-        else
-        {
-            cpfField.style.display = "none";
-            cnpjField.style.display = "block";
-
-            welcomeText.innerText = 'Bem-vinda, Empresa!';
-            welcomeImage.src = 'img/imgEmpresa.png';
-
-            tituloTipoCadastro.innerText = 'Cadastro da Empresa';
-        }
-    }
+        $('#cnpj-field input').mask('00.000.000/0000-00');
+        $('#cellphone').mask('(00) 00000-0000');
+    });
 </script>
--->

@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs')
+const validator = require('cpf-cnpj-validator')
 const Artist = require('../models/Artist')
 const Establishment = require('../models/Establishment')
 
@@ -42,6 +43,16 @@ module.exports = class AuthController
             return;
         }
 
+        const checkIfCPFIsValid = validator.cpf.isValid(cpf)
+
+        if (!checkIfCPFIsValid)
+        {
+            req.flash('message', 'O número de CPF fornecido não é válido!')
+            res.render('auth/registerArtist')
+
+            return;
+        }
+
         //create password
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(password, salt)
@@ -76,16 +87,26 @@ module.exports = class AuthController
         if (password != confirmPassword)
         {
             req.flash('message', "As senhas não são iguais, verifique e tente novamente!")
-            res.render('auth/registerArtist')
+            res.render('auth/registerEstablishment')
 
             return;
         }
 
-        const checkIfUserExists = await Artist.findOne({ where: { email: email } })
+        const checkIfUserExists = await Establishment.findOne({ where: { email: email } })
 
         if (checkIfUserExists)
         {
             req.flash('message', 'Já existe uma conta cadastrada com esse e-mail!')
+            res.render('auth/registerEstablishment')
+
+            return;
+        }
+
+        const checkIfCNPJIsValid = validator.cnpj.isValid(cnpj)
+
+        if (!checkIfCNPJIsValid)
+        {
+            req.flash('message', 'O número de CPF fornecido não é válido!')
             res.render('auth/registerArtist')
 
             return;
@@ -125,7 +146,7 @@ module.exports = class AuthController
             Artist.findOne({ where: { email } }),
             Establishment.findOne({ where: { email } })
         ]);
-        
+
         const user = artist || establishment;
 
         if (!user)
