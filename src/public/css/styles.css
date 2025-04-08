@@ -128,8 +128,24 @@ input[type="radio"]:checked + label {
     max-width: 60%;
     font-weight: bold;
     font-size: 20px;
-    box-shadow: black;
-    border: solid 3px black;
+}
+
+.message-error
+{
+    color: #850000;
+    background-color: #ffd2cc;
+}
+
+.message-success
+{
+    color: #0b8500;
+    background-color: #ceffcc;
+}
+
+.message-notification
+{
+    color: #004085;
+    background-color: #cce5ff;
 }
   
 .container
@@ -139,4 +155,120 @@ input[type="radio"]:checked + label {
     padding: 2em;
     left: 50%;
     transform: translateX(-50%);
+}
+
+/* DASHBOARD */
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #5c46aa;
+    padding: 10px 20px;
+    height: 60px;
+}
+
+.logo-box {
+    display: flex;
+    align-items: center;
+}
+
+.logoDash {
+    height: 40px;
+    margin-right: 10px;
+    border-radius: 30px;
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+.search-input {
+    flex-grow: 1;
+    margin: 0 20px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background-color: white;
+}
+
+.icon-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.icon {
+
+    height: 50px;
+    cursor: pointer;
+}
+
+.main-content {
+    display: flex;
+    padding: 20px;
+    height: calc(100vh - 60px);
+}
+
+.left-section {
+    flex: 2;
+    padding: 20px;
+}
+
+.favorito {
+    margin-bottom: 10px;
+}
+
+.users {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.user-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 1px solid #999;
+}
+
+.left-section h1 {
+    font-size: 28px;
+    color: #5c46aa;
+    font-style: italic;
+    font-weight: bold;
+}
+
+.right-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+}
+
+.card-agenda {
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    padding: 20px;
+    width: 100%;
+    max-width: 300px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+.agenda-title {
+    color: #5c46aa;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+.agenda-img {
+    margin-top: 20px;
+    width: 100%;
+    border-radius: 10px;
 }

@@ -9,12 +9,25 @@ const app = express();
 const authRoutes = require('./routes/authRoutes')
 const AuthController = require('./controllers/AuthController')
 
+const dashboardRoutes = require('./routes/dashboardRoutes')
+const DashboardController = require('./controllers/DashboardController')
+
 //models
 const Artist = require('./models/Artist')
 const Establishment = require('./models/Establishment')
 
 //template engine
-app.engine('handlebars', handlebars.engine({ extname: 'handlebars', defaultLayout: "main"}));
+app.engine('handlebars', handlebars.engine(
+    {
+        extname: 'handlebars',
+        defaultLayout: "main",
+        helpers:
+        {
+            log: (something) => console.log(something),
+            eq: (a, b) => a === b
+        }
+    }
+));
 app.set('view engine', 'handlebars')
 
 //receber resposta do body
@@ -34,7 +47,7 @@ app.use(
         resave: false,
         saveUninitialized: false,
         store: new FileStore({
-            logFn: function() {},
+            logFn: function () { },
             path: require('path').join(require('os').tmpdir(), 'sessions')
         }),
         cookie: {
@@ -64,19 +77,20 @@ app.use((req, res, next) =>
 })
 
 app.use('/', authRoutes)
+app.use('/', dashboardRoutes)
 
 app.get('/', AuthController.login)
 
 const conn = require('./db/conn')
 
 conn
-//.sync({ force: true }) para forçar atualização no banco de dados em caso de alteração nas tabelas (como adicionar associação binária)
-.sync()
-.then(() => 
-{
-    app.listen(3000)
-})
-.catch((err) =>
-{
-    console.log(err);
-})
+    //.sync({ force: true }) para forçar atualização no banco de dados em caso de alteração nas tabelas (como adicionar associação binária)
+    .sync()
+    .then(() => 
+    {
+        app.listen(3000)
+    })
+    .catch((err) =>
+    {
+        console.log(err);
+    })

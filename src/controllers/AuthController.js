@@ -28,7 +28,8 @@ module.exports = class AuthController
         if (password != confirmPassword)
         {
             req.flash('message', "As senhas não são iguais, verifique e tente novamente!")
-            res.render('auth/registerArtist')
+            req.flash('messageType', 'error')
+            res.redirect('/registerArtist')
 
             return;
         }
@@ -38,7 +39,8 @@ module.exports = class AuthController
         if (checkIfUserExists)
         {
             req.flash('message', 'Já existe uma conta cadastrada com esse e-mail!')
-            res.render('auth/registerArtist')
+            req.flash('messageType', 'error')
+            res.redirect('/registerArtist')
 
             return;
         }
@@ -48,7 +50,8 @@ module.exports = class AuthController
         if (!checkIfCPFIsValid)
         {
             req.flash('message', 'O número de CPF fornecido não é válido!')
-            res.render('auth/registerArtist')
+            req.flash('messageType', 'error')
+            res.redirect('/registerArtist')
 
             return;
         }
@@ -70,8 +73,9 @@ module.exports = class AuthController
         {
             await Artist.create(artist);
             req.flash('message', 'Cadastro realizado com sucesso!')
+            req.flash('messageType', 'success')
 
-            res.redirect('/')
+            res.redirect('/dashboard')
         }
         catch (err)
         {
@@ -87,7 +91,8 @@ module.exports = class AuthController
         if (password != confirmPassword)
         {
             req.flash('message', "As senhas não são iguais, verifique e tente novamente!")
-            res.render('auth/registerEstablishment')
+            req.flash('messageType', 'error')
+            res.redirect('/registerEstablishment')
 
             return;
         }
@@ -97,7 +102,8 @@ module.exports = class AuthController
         if (checkIfUserExists)
         {
             req.flash('message', 'Já existe uma conta cadastrada com esse e-mail!')
-            res.render('auth/registerEstablishment')
+            req.flash('messageType', 'error')
+            res.redirect('auth/registerEstablishment')
 
             return;
         }
@@ -107,7 +113,8 @@ module.exports = class AuthController
         if (!checkIfCNPJIsValid)
         {
             req.flash('message', 'O número de CPF fornecido não é válido!')
-            res.render('auth/registerArtist')
+            req.flash('messageType', 'error')
+            res.redirect('/registerEstablishment')
 
             return;
         }
@@ -129,8 +136,9 @@ module.exports = class AuthController
         {
             await Establishment.create(establishment);
             req.flash('message', 'Cadastro realizado com sucesso!')
+            req.flash('messageType', 'success')
 
-            res.redirect('/')
+            res.redirect('/dashboard')
         }
         catch (err)
         {
@@ -152,7 +160,8 @@ module.exports = class AuthController
         if (!user)
         {
             req.flash('message', "Este e-mail não está cadastrado!")
-            res.render('auth/login')
+            req.flash('messageType', 'error')
+            res.redirect('/login')
 
             return;
         }
@@ -162,23 +171,30 @@ module.exports = class AuthController
         if (!passwordMatch)
         {
             req.flash('message', "Senha incorreta!")
-            res.render('auth/login')
+            req.flash('messageType', 'error')
+            res.render('auth/dashboard', {
+                messages: {
+                    message: 'As senhas não são iguais, verifique e tente novamente!',
+                    type: 'error'
+                }
+            })
 
             return;
         }
 
         req.session.userid = user.id
         req.flash('message', 'Login realizado com sucesso!')
+        req.flash('messageType', 'success')
 
         req.session.save(() =>
         {
-            res.redirect('/')
+            res.redirect('/dashboard')
         })
     }
 
     static logout(req, res)
     {
         req.session.destroy()
-        res.redirect('auth/login')
+        res.redirect('/login')
     }
 }
