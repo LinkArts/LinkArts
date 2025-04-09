@@ -25,7 +25,8 @@ app.engine('handlebars', handlebars.engine(
         {
             log: (something) => console.log(something),
             eq: (a, b) => a === b
-        }
+        },
+        partialsDir: require('path').join(__dirname, 'views', 'partials'),
     }
 ));
 app.set('view engine', 'handlebars')
@@ -71,6 +72,7 @@ app.use((req, res, next) =>
     if (req.session.userid)
     {
         res.locals.session = req.session
+        res.locals.username = req.username
     }
 
     next()

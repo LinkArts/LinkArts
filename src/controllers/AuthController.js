@@ -71,11 +71,17 @@ module.exports = class AuthController
 
         try
         {
-            await Artist.create(artist);
+            const user = await Artist.create(artist);
             req.flash('message', 'Cadastro realizado com sucesso!')
             req.flash('messageType', 'success')
 
-            res.redirect('/dashboard')
+            req.session.userid = user.id
+            req.session.username = user.name
+
+            req.session.save(() =>
+            {
+                res.redirect('/dashboard')
+            })
         }
         catch (err)
         {
@@ -103,7 +109,7 @@ module.exports = class AuthController
         {
             req.flash('message', 'Já existe uma conta cadastrada com esse e-mail!')
             req.flash('messageType', 'error')
-            res.redirect('auth/registerEstablishment')
+            res.redirect('/registerEstablishment')
 
             return;
         }
@@ -134,11 +140,17 @@ module.exports = class AuthController
 
         try
         {
-            await Establishment.create(establishment);
+            const user = await Establishment.create(establishment);
             req.flash('message', 'Cadastro realizado com sucesso!')
             req.flash('messageType', 'success')
 
-            res.redirect('/dashboard')
+            req.session.userid = user.id
+            req.session.username = user.name
+
+            req.session.save(() =>
+            {
+                res.redirect('/dashboard')
+            })
         }
         catch (err)
         {
@@ -172,17 +184,13 @@ module.exports = class AuthController
         {
             req.flash('message', "Senha incorreta!")
             req.flash('messageType', 'error')
-            res.render('auth/dashboard', {
-                messages: {
-                    message: 'As senhas não são iguais, verifique e tente novamente!',
-                    type: 'error'
-                }
-            })
+            res.redirect('/dashboard')
 
             return;
         }
 
         req.session.userid = user.id
+        req.session.username = user.name
         req.flash('message', 'Login realizado com sucesso!')
         req.flash('messageType', 'success')
 

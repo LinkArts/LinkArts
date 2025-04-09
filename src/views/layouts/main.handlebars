@@ -12,18 +12,10 @@
 </head>
 
 <body>
+    <h2>LOGADO COMO: {{session.username}}</h2>
+    
     {{#if session.userid}}
-    <header class="topbar">
-        <div class="logo-box">
-            <img src="img/logo2.png" alt="Logo" class="logoDash">
-        </div>
-        <input type="text" class="search-input" placeholder="Pesquise aqui">
-        <div class="icon-bar">
-            <img src="img/mail-icon.png" alt="Mensagens" class="icon">
-            <img src="img/bell-icon.png" alt="Notificações" class="icon">
-            <img src="img/user-icon.png" alt="Perfil" class="icon">
-        </div>
-    </header>
+    {{> navbar}}
     {{/if}}
 
     <div class="container">
