@@ -3,6 +3,7 @@ const handlebars = require('express-handlebars')
 const session = require('express-session')
 const FileStore = require('session-file-store')(session)
 const flash = require('express-flash')
+require('dotenv').config()
 
 const app = express();
 
@@ -44,18 +45,18 @@ app.use(express.json())
 app.use(
     session({
         name: 'session',
-        secret: 'nosso_secret',
+        secret: 'nosso_secret', //trocar futuramente para garantir segurança
         resave: false,
         saveUninitialized: false,
+        rolling: true,
         store: new FileStore({
             logFn: function () { },
             path: require('path').join(require('os').tmpdir(), 'sessions')
         }),
         cookie: {
             secure: false,
-            maxAge: 360000,
-            expires: new Date(Date.now() + 360000),
-            httpOnly: true
+            maxAge: 60 * 60 * 1000,
+            httpOnly: true,
         }
     })
 )
@@ -66,7 +67,7 @@ app.use(flash())
 //public path
 app.use(express.static('public'))
 
-//set session to res
+//middleware global que aplica em todas as rotas
 app.use((req, res, next) => 
 {
     if (req.session.userid)
@@ -75,11 +76,29 @@ app.use((req, res, next) =>
         res.locals.username = req.username
     }
 
+    const message = req.flash('message')[0]
+    const type = req.flash('messageType')[0]
+
+    res.locals.message = message
+    res.locals.type = type
+
     next()
 })
 
+function checkAuth(req, res, next)
+{
+    if (!req.session.userid)
+    {
+        req.flash('message', 'Sua sessão expirou. Faça login novamente.')
+        req.flash('messageType', 'error')
+        return res.redirect('/login') // redireciona para tela de login
+    }
+
+    next()
+}
+
 app.use('/', authRoutes)
-app.use('/', dashboardRoutes)
+app.use('/', checkAuth, dashboardRoutes)
 
 app.get('/', AuthController.login)
 

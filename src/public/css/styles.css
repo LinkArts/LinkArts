@@ -128,6 +128,8 @@ input[type="radio"]:checked + label {
     max-width: 60%;
     font-weight: bold;
     font-size: 20px;
+    border: black 1px solid;
+    box-shadow: 2px 2px 2px black;
 }
 
 .message-error
@@ -271,4 +273,11 @@ input[type="radio"]:checked + label {
     margin-top: 20px;
     width: 100%;
     border-radius: 10px;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #eee;
+    color: #333;
 }

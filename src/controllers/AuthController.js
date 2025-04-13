@@ -7,17 +7,22 @@ module.exports = class AuthController
 {
     static login(req, res)
     {
+        if (req.session.userid)
+        {
+            return res.redirect('/dashboard')
+        }
+
         res.render('auth/login')
     }
 
     static async registerArtist(req, res)
     {
-        res.render('auth/registerArtist')
+        res.render('auth/registerArtist', { hideNavbar: true })
     }
 
     static async registerEstablishment(req, res)
     {
-        res.render('auth/registerEstablishment')
+        res.render('auth/registerEstablishment', { hideNavbar: true })
     }
 
     static async registerArtistPost(req, res)
@@ -80,7 +85,7 @@ module.exports = class AuthController
 
             req.session.save(() =>
             {
-                res.redirect('/dashboard')
+                res.redirect('/')
             })
         }
         catch (err)
@@ -149,7 +154,7 @@ module.exports = class AuthController
 
             req.session.save(() =>
             {
-                res.redirect('/dashboard')
+                res.redirect('/')
             })
         }
         catch (err)
@@ -184,7 +189,7 @@ module.exports = class AuthController
         {
             req.flash('message', "Senha incorreta!")
             req.flash('messageType', 'error')
-            res.redirect('/dashboard')
+            res.redirect('/login')
 
             return;
         }
