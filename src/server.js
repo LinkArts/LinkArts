@@ -3,6 +3,7 @@ const handlebars = require('express-handlebars')
 const session = require('express-session')
 const FileStore = require('session-file-store')(session)
 const flash = require('express-flash')
+
 require('dotenv').config()
 
 const app = express();
@@ -12,6 +13,9 @@ const AuthController = require('./controllers/AuthController')
 
 const dashboardRoutes = require('./routes/dashboardRoutes')
 const DashboardController = require('./controllers/DashboardController')
+
+const profileRoutes = require('./routes/profileRoutes')
+const ProfileController = require('./controllers/ProfileController')
 
 //models
 const Artist = require('./models/Artist')
@@ -99,6 +103,7 @@ function checkAuth(req, res, next)
 
 app.use('/', authRoutes)
 app.use('/', checkAuth, dashboardRoutes)
+app.use('/profile', profileRoutes)
 
 app.get('/', AuthController.login)
 

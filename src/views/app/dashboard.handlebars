@@ -1,31 +1,29 @@
-<body>
-    <main class="main-content">
-        <section class="left-section">
-            <div class="favorito">
-                <img src="img/heart-icon.png" alt="Favoritos" class="icon">
-            </div>
-            <div class="users">
-                <div class="user-icon" style="background-color: #ccffcc;"></div>
-                <div class="user-icon" style="background-color: #eeeeee;"></div>
-                <div class="user-icon" style="background-color: #cceeff;"></div>
-                <div class="user-icon" style="background-color: #ffcccc;"></div>
-            </div>
-            <h1 style="margin-bottom: 10px;"><strong><em>Novidades</em></strong> para você</h1>
-            <div id="perfil-container" class="perfil-container">
-                {{#each info}}
-                    <div class="perfil-card" style="background-color:bisque; margin-bottom: 15px">
-                        <h3 style="margin-bottom: 15px;">{{this.name}}</h3>
-                        <p>{{this.cpf}}</p>
-                    </div>
-                {{/each}}
-            </div>
-        </section>
+<main class="main-content">
+    <section class="left-section">
+        <div class="favorito">
+            <img src="img/heart-icon.png" alt="Favoritos" class="icon">
+        </div>
+        <div class="users">
+            <div class="user-icon" style="background-color: #ccffcc;"></div>
+            <div class="user-icon" style="background-color: #eeeeee;"></div>
+            <div class="user-icon" style="background-color: #cceeff;"></div>
+            <div class="user-icon" style="background-color: #ffcccc;"></div>
+        </div>
+        <h1 style="margin-bottom: 10px;"><strong><em>Novidades</em></strong> para você</h1>
+        <div id="perfil-container" class="perfil-container">
+            {{#each info}}
+                <div class="perfil-card" style="background-color:bisque; margin-bottom: 15px">
+                    <h3 style="margin-bottom: 15px;">{{this.name}}</h3>
+                    <p>{{this.cpf}}</p>
+                </div>
+            {{/each}}
+        </div>
+    </section>
 
-        <section class="right-section">
-            <div class="card-agenda">
-                <h2><span class="agenda-title">Agenda</span><br>Próximos eventos</h2>
-                <img src="img/dj-ilustracao.png" alt="DJ tocando" class="agenda-img">
-            </div>
-        </section>
-    </main>
-</body>
+    <section class="right-section">
+        <div class="card-agenda">
+            <h2><span class="agenda-title">Agenda</span><br>Próximos eventos</h2>
+            <img src="img/dj-ilustracao.png" alt="DJ tocando" class="agenda-img">
+        </div>
+    </section>
+</main>
