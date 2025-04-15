@@ -89,20 +89,8 @@ app.use((req, res, next) =>
     next()
 })
 
-function checkAuth(req, res, next)
-{
-    if (!req.session.userid)
-    {
-        req.flash('message', 'Sua sessão expirou. Faça login novamente.')
-        req.flash('messageType', 'error')
-        return res.redirect('/login') // redireciona para tela de login
-    }
-
-    next()
-}
-
 app.use('/', authRoutes)
-app.use('/', checkAuth, dashboardRoutes)
+app.use('/', dashboardRoutes)
 app.use('/profile', profileRoutes)
 
 app.get('/', AuthController.login)
