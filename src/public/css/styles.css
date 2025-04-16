@@ -22,7 +22,7 @@
     justify-content: center;
 }
 
-.logo{
+.logo-auth{
     position: relative;
     left: 12rem;
     top: 0.3rem;
@@ -57,7 +57,7 @@
 
 .input-box {
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 input {
@@ -67,7 +67,7 @@ input {
     border: 1px solid #ccc;
     border-radius: 25px;
     left: 10%;
-    margin-bottom: 10px;
+    /* margin-bottom: 10px; */
 }
 
 btn{
@@ -175,6 +175,13 @@ input[type="radio"]:checked + label {
 
 /* DASHBOARD */
 
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #eee;
+    color: #333;
+}
+
 .topbar {
     display: flex;
     align-items: center;
@@ -189,7 +196,7 @@ input[type="radio"]:checked + label {
     align-items: center;
 }
 
-.logoDash {
+.logo {
     height: 40px;
     margin-right: 10px;
     border-radius: 30px;
@@ -201,9 +208,10 @@ input[type="radio"]:checked + label {
     color: white;
 }
 
-.search-input {
-    flex-grow: 1;
-    margin: 0 20px;
+.search-input
+{
+    width: 50%;
+    margin-right: auto;
     padding: 8px 12px;
     border-radius: 20px;
     border: none;
@@ -219,9 +227,10 @@ input[type="radio"]:checked + label {
 }
 
 .icon {
-
-    height: 50px;
+    width: 35px;
+    height: 35px;
     cursor: pointer;
+    border: 10px;
 }
 
 .main-content {
@@ -235,9 +244,6 @@ input[type="radio"]:checked + label {
     padding: 20px;
 }
 
-.favorito {
-    margin-bottom: 10px;
-}
 
 .users {
     display: flex;
@@ -245,12 +251,6 @@ input[type="radio"]:checked + label {
     margin-bottom: 20px;
 }
 
-.user-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 1px solid #999;
-}
 
 .left-section h1 {
     font-size: 28px;
@@ -271,6 +271,7 @@ input[type="radio"]:checked + label {
     border-radius: 20px;
     padding: 20px;
     width: 100%;
+    height: 100%;
     max-width: 300px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     overflow-y: auto;
@@ -283,15 +284,116 @@ input[type="radio"]:checked + label {
     font-size: 22px;
 }
 
-.agenda-img {
-    margin-top: 20px;
-    width: 100%;
-    border-radius: 10px;
+
+.popup {
+    position: absolute;
+    width: 200px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 10px;
+    z-index: 1000;
+    display: none; 
 }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #eee;
-    color: #333;
+
+.popup button {
+    display: block;
+    width: 100%;
+    padding: 6px;
+    margin: 4px 0;
+    background-color: #5c46aa;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.popup button:hover {
+    background-color: #493693;
+}
+.avaliacao-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.estrelas-container {
+    display: flex;
+    gap: 2px;
+}
+
+.estrela, .meia-estrela, .estrela-vazia {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.nota-numero {
+    font-size: 16px;
+    font-weight: bold;
+    color: #5c46aa;
+    margin-left: 4px;
+}
+
+
+.eventos-container {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.evento-card {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.evento-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.evento-nome {
+    font-weight: bold;
+    color: #5c46aa;
+    font-size: 16px;
+}
+
+.evento-data {
+    background: #f0e6ff;
+    color: #5c46aa;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.evento-horario {
+    color: #666;
+    font-size: 14px;
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.evento-horario svg {
+    width: 14px;
+    height: 14px;
+}
+
+.evento-descricao {
+    color: #555;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.perfil-card
+{
+    margin-bottom: 20px;
 }
