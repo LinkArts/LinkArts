@@ -49,16 +49,25 @@
     align-items: center;
 }
 
+#tituloTipoCadastro{
+    position: relative;
+    left: 10%;
+    margin-bottom: 20px;
+}
+
 .input-box {
     width: 100%;
     margin-bottom: 10px;
 }
 
 input {
-    width: 100%;
+    position: relative;
+    width: 70%;
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 10px;
+    border-radius: 25px;
+    left: 10%;
+    margin-bottom: 10px;
 }
 
 btn{
@@ -69,8 +78,12 @@ btn{
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    left: -2%;
 }
 .btn-play {
+    position: relative;
+    width: 20%;
     background: black;
     color: lime;
     padding: 10px 20px;
@@ -78,6 +91,7 @@ btn{
     cursor: pointer;
     border-radius: 5px;
     font-weight: bold;
+    left: -0.1rem;
 }
 
 .btn-or {
