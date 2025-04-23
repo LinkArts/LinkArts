@@ -1,23 +1,24 @@
 const express = require('express')
+const { postVerifyEmail } = require('../controllers/AuthController')
 const router = express.Router()
 const AuthController = require('../controllers/AuthController')
-const { sendEmail } = require('../utils/mailer')
 
-router.get('/login', AuthController.login)
-router.post('/login', AuthController.loginPost)
+router.get('/login', AuthController.renderLogin)
+router.post('/login', AuthController.postLogin)
 
 router.get('/logout', AuthController.logout)
 
-router.get('/registro-artista', AuthController.registerArtist)
-router.get('/registro-estabelecimento', AuthController.registerEstablishment)
+router.get('/registro-artista', AuthController.renderRegisterArtist)
+router.get('/registro-estabelecimento', AuthController.renderRegisterEstablishment)
 
-router.post('/registro-artista', AuthController.registerArtistPost)
-router.post('/registro-estabelecimento', AuthController.registerEstablishmentPost)
+router.post('/registro-artista', AuthController.postRegisterArtist)
+router.post('/registro-estabelecimento', AuthController.postRegisterEstablishment)
 
-router.get('/email')
-router.post('/email', () =>
-{
-    sendEmail("kevincaireleandro@hotmail.com", "Teste123", `<h1>TESTE</h1>`)
-})
+router.get('/confirm/:id/:token', AuthController.confirmAccount)
+
+router.get('/alterar-senha', AuthController.renderChangePassword)
+
+router.post('/enviar-email', AuthController.postVerifyEmail)
+router.post('/alterar-senha', AuthController.alterarSenha)
 
 module.exports = router

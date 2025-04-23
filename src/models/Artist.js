@@ -1,34 +1,18 @@
 const { DataTypes } = require('sequelize')
 
 const db = require('../db/conn')
+const User = require('./User')
 
-const Artist = db.define('Artist', 
-{
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    name: {
-        type: DataTypes.STRING,
-        require: true
-    },
-    email: {
-        type: DataTypes.STRING,
-        require: true
-    },
-    password: {
-        type: DataTypes.STRING,
-        require: true
-    },
-    cellphone: {
-        type: DataTypes.STRING,
-        require: true
-    },
-    cpf: {
-        type: DataTypes.STRING,
-        require: true
-    }
-})
+const Artist = db.define('Artist',
+    {
+        cpf: {
+            type: DataTypes.STRING(20),
+            primaryKey: true,
+            require: true
+        }
+    })
+
+Artist.belongsTo(User, { foreignKey: 'userid' })
+User.hasOne(Artist, { foreignKey: 'userid' }) //precisa especificar foreign key em ambos para o sequelize não criar chaves duplicadas
 
 module.exports = Artist

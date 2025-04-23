@@ -1,6 +1,20 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+const path = require('path');
+const handlebars = require('handlebars');
+const fs = require('fs');
+
+function getTemplate(templateName)
+{
+    const templatePath = path.join(__dirname, `../public/html/${templateName}.html`);
+    const templateSource = fs.readFileSync(templatePath, 'utf8');
+    
+    const template = handlebars.compile(templateSource);
+
+    return template
+}
+
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth:
@@ -21,4 +35,4 @@ function sendEmail(to, subject, htmlContent)
         });
 }
 
-module.exports = { sendEmail };
+module.exports = { sendEmail, getTemplate };

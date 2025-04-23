@@ -1,16 +1,16 @@
 const { Op } = require('sequelize');
-const Artist = require("../models/Artist")
+const User = require("../models/User")
 
 module.exports = class DashboardController
 {
     static async showDashboard(req, res)
     {
-        const artists = await Artist.findAll()
-        const info = artists.map((result) => 
+        const users = await User.findAll()
+        const info = users.map((result) => 
         {
             return result.dataValues
         });
 
-        res.render('app/dashboard', { info })
+        res.render('app/dashboard', { info , css: 'dashboard.css'})
     }
 }

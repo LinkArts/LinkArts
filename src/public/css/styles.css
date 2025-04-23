@@ -70,6 +70,22 @@ input {
     /* margin-bottom: 10px; */
 }
 
+.remember
+{
+    color: white;
+}
+
+.form-check
+{
+    display: flex;
+}
+
+.form-check-input
+{
+    width: auto;
+    margin-right: 15%;
+}
+
 btn{
     border-radius: 10px;
 }

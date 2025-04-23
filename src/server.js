@@ -1,10 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const handlebars = require('express-handlebars')
 const session = require('express-session')
 const FileStore = require('session-file-store')(session)
 const flash = require('express-flash')
-
-require('dotenv').config()
 
 const app = express();
 
@@ -18,6 +17,7 @@ const profileRoutes = require('./routes/profileRoutes')
 const ProfileController = require('./controllers/ProfileController')
 
 //models
+const User = require('./models/User')
 const Artist = require('./models/Artist')
 const Establishment = require('./models/Establishment')
 
@@ -92,13 +92,18 @@ app.use((req, res, next) =>
 app.use('/', authRoutes)
 app.use('/', dashboardRoutes)
 app.use('/profile', profileRoutes)
+app.get('/', AuthController.renderLogin)
 
-app.get('/', AuthController.login)
+app.use((req, res) =>
+{
+    res.render('layouts/404') // ou res.send('Página não encontrada')
+})
+
 
 const conn = require('./db/conn')
 
 conn
-    //.sync({ force: true }) para forçar atualização no banco de dados em caso de alteração nas tabelas (como adicionar associação binária)
+    //.sync({ force: true }) //para forçar atualização no banco de dados em caso de alteração nas tabelas (como adicionar associação binária)
     .sync()
     .then(() => 
     {

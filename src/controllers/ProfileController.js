@@ -1,15 +1,25 @@
 const { Op } = require('sequelize');
+const User = require('../models/User')
 
 module.exports = class ProfileController
 {
     static async showProfile(req, res)
     {
-        if (!req.params.id)
+        const id = req.params.id
+
+        const user = await User.findOne({ where: { id: id } })
+
+        if (!user)
         {
-            console.log("Nao há ID!")
-            res.render('auth/login')
+            req.flash('message', 'Não há um usuário com esse ID!')
+            req.flash('messageType', 'notification')
+
+            if (!req.session.userid)
+                return res.redirect('/login')
+            else
+                return res.redirect('/dashboard')
         }
 
-        res.render('app/profile')
+        res.render('app/profile', {css: 'perfil.css'})
     }
 }

@@ -7,6 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkArts</title>
     <link rel="stylesheet" href="/css/styles.css">
+    
+    {{#if css}}
+        <link rel="stylesheet" href="/css/{{css}}">
+    {{/if}}
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
@@ -20,14 +25,15 @@
     <a href="/profile/{{session.userid}}">Perfil</a>
 
     {{#if session.userid}}
-        {{#unless hideNavbar}}
-            {{> navbar}}
-        {{/unless}}
+    {{#unless hideNavbar}}
+    {{> navbar}}
+    {{/unless}}
     {{/if}}
 
     <div class="container" id="flash">
         {{#if message}}
-        <div class="message {{#if (eq type 'error')}}message-error{{else}}message-success{{/if}}">
+        <div
+            class="message {{#if (eq type 'error')}}message-error{{else}}{{#if (eq type 'notification')}}message-notification{{else}}message-success{{/if}}{{/if}}">
             {{message}}
         </div>
         {{/if}}
