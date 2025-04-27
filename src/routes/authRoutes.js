@@ -1,5 +1,4 @@
 const express = require('express')
-const { postVerifyEmail } = require('../controllers/AuthController')
 const router = express.Router()
 const AuthController = require('../controllers/AuthController')
 

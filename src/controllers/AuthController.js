@@ -233,7 +233,7 @@ module.exports = class AuthController
 
         if (checkIfCNPJExists)
         {
-            req.flash('message', 'Já existe uma conta cadastrada com esse CPF!')
+            req.flash('message', 'Já existe uma conta cadastrada com esse CNPJ!')
             req.flash('messageType', 'error')
             res.redirect('/registro-estabelecimento')
 
@@ -295,7 +295,7 @@ module.exports = class AuthController
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' })
 
-            const finalHtml = template({
+            const finalHtml = getTemplate('confirmation')({
                 name: user.name,
                 confirmationUrl: `http://localhost:3000/confirm/${ user.id }/${ token }`
             })
@@ -383,9 +383,13 @@ module.exports = class AuthController
 
     static async confirmAccount(req, res)
     {
+        console.log('RODANDO FUNÇÃO CONFIRMACCOUNT()');
+        console.log('req.url:', req.url);
+        
         const { id, token } = req.params
 
         const pendingUser = await PendingUser.findOne({ where: { id: id } })
+        console.log(pendingUser.dataValues.name);
 
         try
         {
@@ -414,10 +418,8 @@ module.exports = class AuthController
 
                 req.session.save(() =>
                 {
-                    res.redirect('/dashboard')
+                    return res.redirect('/dashboard')
                 })
-
-                return
             }
             else if (pendingUser.type === 'establishment')
             {
@@ -433,23 +435,32 @@ module.exports = class AuthController
                     userid: user.id
                 })
 
-                await PendingUser.destroy({ where: { document: establishment.cnpj } })
+                await PendingUser.destroy({where: { document: establishment.cnpj }})
 
                 req.session.userid = user.id
                 req.session.username = user.name
                 req.flash('message', 'Login realizado com sucesso!')
                 req.flash('messageType', 'success')
+                console.log("SUCESSO!!!");
+                
 
-                req.session.save(() =>
+                req.session.save((err) =>
                 {
-                    res.redirect('/dashboard')
+                    if (err)
+                    {
+                        console.log('ERRO AO SALVAR A SESSÃO: ' + err);
+                    }
+                    
+                    console.log("SALVANDO SESSION...");
+                    
+                    return res.redirect('/dashboard')
                 })
-
-                return
             }
         }
         catch (err)
         {
+            console.log(err);
+            
             if (err.name === 'TokenExpiredError')
             {
                 req.flash('message', 'Seu código expirou, faça o cadastro novamente!')

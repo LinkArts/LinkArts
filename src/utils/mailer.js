@@ -7,7 +7,7 @@ const fs = require('fs');
 
 function getTemplate(templateName)
 {
-    const templatePath = path.join(__dirname, `../public/html/${templateName}.html`);
+    const templatePath = path.join(__dirname, `../public/template/email/${templateName}.html`);
     const templateSource = fs.readFileSync(templatePath, 'utf8');
     
     const template = handlebars.compile(templateSource);

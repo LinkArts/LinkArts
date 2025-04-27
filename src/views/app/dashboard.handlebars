@@ -2,11 +2,11 @@
     <section class="left-section">
         <h1><strong><em>Novidades</em></strong> para você</h1>
         <div id="perfil-container" class="perfil-container">
-            {{#each info}}
+            {{#each userInfo}}
             <div class="perfil-card" style="background-color:bisque; margin-bottom: 15px">
-                <h3 style="margin-bottom: 15px;">{{this.name}}</h3>
+                <h3 style="margin-bottom: 15px;">{{this.email}}</h3>
                 <div class="estrelas-placeholder"></div>
-                <p>{{this.cpf}}</p>
+                <p>{{this.password}}</p>
             </div>
             {{/each}}
         </div>
