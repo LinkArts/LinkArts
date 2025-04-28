@@ -16,8 +16,8 @@ router.post('/registro-estabelecimento', AuthController.postRegisterEstablishmen
 router.get('/confirm/:id/:token', AuthController.confirmAccount)
 
 router.get('/alterar-senha', AuthController.renderChangePassword)
+router.post('/alterar-senha', AuthController.alterarSenha)
 
 router.post('/enviar-email', AuthController.postVerifyEmail)
-router.post('/alterar-senha', AuthController.alterarSenha)
 
 module.exports = router

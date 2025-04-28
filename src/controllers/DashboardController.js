@@ -53,14 +53,5 @@ module.exports = class DashboardController
 
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' })
         }
-
-        /*const users = await User.findAll()
-
-        const info = users.map((result) => 
-        {
-            return result.dataValues
-        });
-
-        res.render('app/dashboard', { info, css: 'dashboard.css' })*/
     }
 }

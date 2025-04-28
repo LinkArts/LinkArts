@@ -25,10 +25,6 @@ const User = db.define('User',
         type: DataTypes.STRING(20),
         require: true
     },
-    /*isVerified: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-    },*/
     state: {
         type: DataTypes.STRING(30),
         defaultValue: null

@@ -5,21 +5,32 @@ module.exports = class ProfileController
 {
     static async showProfile(req, res)
     {
-        const id = req.params.id
+        const { id } = req.params
 
-        const user = await User.findOne({ where: { id: id } })
-
-        if (!user)
+        try
         {
-            req.flash('message', 'Não há um usuário com esse ID!')
-            req.flash('messageType', 'notification')
+            const user = await User.findOne({ where: { id: id } })
 
-            if (!req.session.userid)
-                return res.redirect('/login')
-            else
-                return res.redirect('/dashboard')
+            if (!user)
+            {
+                req.flash('message', 'Não há um usuário com esse ID!')
+                req.flash('messageType', 'notification')
+
+                if (!req.session.userid)
+                    return res.redirect('/login')
+                else
+                    return res.redirect('/dashboard')
+            }
+
+            return res.render('app/profile', { css: 'perfil.css' })
         }
+        catch (err)
+        {
+            console.log(err)
 
-        res.render('app/profile', {css: 'perfil.css'})
+            req.flash('message', 'Algo deu errado!')
+            req.flash('messageType', 'error')
+            return res.render('auth/login', { css: 'login.css' })
+        }
     }
 }
