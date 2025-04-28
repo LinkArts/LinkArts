@@ -96,7 +96,7 @@ app.get('/', AuthController.renderLogin)
 
 app.use((req, res) =>
 {
-    res.render('layouts/404') // ou res.send('Página não encontrada')
+    res.render('layouts/404')
 })
 
 

@@ -16,10 +16,13 @@ module.exports = class ProfileController
                 req.flash('message', 'Não há um usuário com esse ID!')
                 req.flash('messageType', 'notification')
 
-                if (!req.session.userid)
-                    return res.redirect('/login')
-                else
-                    return res.redirect('/dashboard')
+                return req.session.save(() =>
+                {
+                    if (!req.session.userid)
+                        res.redirect('/login')
+                    else
+                        res.redirect('/dashboard')
+                })
             }
 
             return res.render('app/profile', { css: 'perfil.css' })
@@ -30,7 +33,10 @@ module.exports = class ProfileController
 
             req.flash('message', 'Algo deu errado!')
             req.flash('messageType', 'error')
-            return res.render('auth/login', { css: 'login.css' })
+            return req.session.save(() => 
+            {
+                res.redirect('/login')
+            })
         }
     }
 }

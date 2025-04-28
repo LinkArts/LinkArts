@@ -41,7 +41,10 @@ module.exports = class AuthController
         {
             req.flash('message', "As senhas não são iguais, verifique e tente novamente!")
             req.flash('messageType', 'error')
-            return res.redirect('/registro-artista')
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-artista')
+            })
         }
 
         const checkIfCPFExists = await Artist.findOne({ where: { cpf: cpf } })
@@ -50,7 +53,10 @@ module.exports = class AuthController
         {
             req.flash('message', 'Já existe uma conta cadastrada com esse CPF!')
             req.flash('messageType', 'error')
-            return res.redirect('/registro-artista')
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-artista')
+            })
         }
 
         const checkIfEmailExists = await User.findOne({ where: { email: email } })
@@ -59,7 +65,10 @@ module.exports = class AuthController
         {
             req.flash('message', 'Já existe uma conta cadastrada com esse e-mail!')
             req.flash('messageType', 'error')
-            return res.redirect('/registro-artista')
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-artista')
+            })
         }
 
         const checkIfPendingUser = await PendingUser.findOne({ where: { email: email } })
@@ -68,7 +77,10 @@ module.exports = class AuthController
         {
             req.flash('message', 'Já uma conta cadastrada com esse e-mail aguardando confirmação!')
             req.flash('messageType', 'error')
-            return res.redirect('/registro-artista')
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-artista')
+            })
         }
 
         const checkIfCPFIsValid = validator.cpf.isValid(cpf)
@@ -77,7 +89,10 @@ module.exports = class AuthController
         {
             req.flash('message', 'O número de CPF fornecido não é válido!')
             req.flash('messageType', 'error')
-            return res.redirect('/registro-artista')
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-artista')
+            })
         }
 
         const salt = bcrypt.genSaltSync(10);
@@ -110,7 +125,10 @@ module.exports = class AuthController
 
             req.flash('message', 'Uma mensagem de confirmação foi enviada ao seu e-mail!')
             req.flash('messageType', 'notification')
-            return res.redirect('/registro-artista')
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-artista')
+            })
         }
         catch (err)
         {
@@ -126,7 +144,10 @@ module.exports = class AuthController
         {
             req.flash('message', "As senhas não são iguais, verifique e tente novamente!")
             req.flash('messageType', 'error')
-            req.session.save(() => { return res.redirect('/registro-estabelecimento') })
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-estabelecimento')
+            })
         }
 
         const checkIfCNPJExists = await Establishment.findOne({ where: { cnpj: cnpj } })
@@ -135,7 +156,10 @@ module.exports = class AuthController
         {
             req.flash('message', 'Já existe uma conta cadastrada com esse CNPJ!')
             req.flash('messageType', 'error')
-            req.session.save(() => { return res.redirect('/registro-estabelecimento') })
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-estabelecimento')
+            })
         }
 
         const checkIfEmailExists = await User.findOne({ where: { email: email } })
@@ -144,7 +168,10 @@ module.exports = class AuthController
         {
             req.flash('message', 'Já existe uma conta cadastrada com esse e-mail!')
             req.flash('messageType', 'error')
-            req.session.save(() => { return res.redirect('/registro-estabelecimento') })
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-estabelecimento')
+            })
         }
 
         const checkIfPendingUser = await PendingUser.findOne({ where: { email: email } })
@@ -153,7 +180,10 @@ module.exports = class AuthController
         {
             req.flash('message', 'Já uma conta cadastrada com esse e-mail aguardando confirmação!')
             req.flash('messageType', 'error')
-            req.session.save(() => { return res.redirect('/registro-estabelecimento') })
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-estabelecimento')
+            })
         }
 
         const checkIfCNPJIsValid = validator.cnpj.isValid(cnpj)
@@ -162,7 +192,10 @@ module.exports = class AuthController
         {
             req.flash('message', 'O número de CNPJ fornecido não é válido!')
             req.flash('messageType', 'error')
-            req.session.save(() => { return res.redirect('/registro-estabelecimento') })
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-estabelecimento')
+            })
         }
 
         const salt = bcrypt.genSaltSync(10);
@@ -195,7 +228,10 @@ module.exports = class AuthController
 
             req.flash('message', 'Uma mensagem de confirmação foi enviada ao seu e-mail!')
             req.flash('messageType', 'notification')
-            req.session.save(() => { return res.redirect('/registro-estabelecimento') })
+            return req.session.save(() =>
+            {
+                res.redirect('/registro-estabelecimento')
+            })
         }
         catch (err)
         {
@@ -223,7 +259,10 @@ module.exports = class AuthController
             {
                 req.flash('message', "Este e-mail não está cadastrado!")
                 req.flash('messageType', 'error')
-                return res.redirect('/login')
+                return req.session.save(() =>
+                {
+                    res.redirect('/login')
+                })
             }
 
             const passwordMatch = bcrypt.compareSync(password, user.password)
@@ -232,7 +271,10 @@ module.exports = class AuthController
             {
                 req.flash('message', "Senha incorreta!")
                 req.flash('messageType', 'error')
-                return res.redirect('/login')
+                return req.session.save(() =>
+                {
+                    res.redirect('/login')
+                })
             }
 
             req.session.userid = user.id
@@ -240,9 +282,9 @@ module.exports = class AuthController
             req.flash('message', 'Login realizado com sucesso!')
             req.flash('messageType', 'success')
 
-            req.session.save(() =>
+            return req.session.save(() =>
             {
-                return res.redirect('/dashboard')
+                res.redirect('/dashboard')
             })
         }
         catch (err)
@@ -275,7 +317,10 @@ module.exports = class AuthController
             {
                 req.flash('message', 'Usuário não encontrado, tente novamente!')
                 req.flash('messageType', 'error')
-                return req.session.save(() => { res.redirect('/login') })
+                return req.session.save(() =>
+                {
+                    res.redirect('/login')
+                })
             }
 
             const verify = jwt.verify(token, process.env.JWT_SECRET)
@@ -341,19 +386,28 @@ module.exports = class AuthController
             {
                 req.flash('message', 'Seu código expirou, faça o cadastro novamente!')
                 req.flash('messageType', 'error')
-                return res.redirect('/login')
+                return req.session.save(() =>
+                {
+                    res.redirect('/login')
+                })
             }
             else if (err.name == 'JsonWebTokenError')
             {
                 req.flash('message', 'Código de confirmação inválido, verifique e tente novamente!')
                 req.flash('messageType', 'error')
-                return res.redirect('/login')
+                return req.session.save(() =>
+                {
+                    res.redirect('/login')
+                })
             }
             else
             {
                 req.flash('message', 'Erro ao confirmar conta!')
                 req.flash('messageType', 'error')
-                return res.redirect('/login')
+                return req.session.save(() =>
+                {
+                    res.redirect('/login')
+                })
             }
         }
     }
@@ -370,14 +424,18 @@ module.exports = class AuthController
             {
                 req.flash('message', 'Não há uma conta cadastrada com esse e-mail!')
                 req.flash('messageType', 'error')
-                return res.json({ redirect: '/alterar-senha' })
+                return req.session.save(() => 
+                {
+                    res.json({ redirect: '/alterar-senha' })
+                })
             }
 
             const code = generateCode()
-            const passwordTemplate = getTemplate('password')({
-                name: user.name,
-                passwordCode: code
-            })
+            const passwordTemplate = getTemplate('password')(
+                {
+                    name: user.name,
+                    passwordCode: code
+                })
 
             codes.set(email,
                 {
@@ -395,7 +453,10 @@ module.exports = class AuthController
 
             req.flash('message', 'Erro ao enviar o código!')
             req.flash('messageType', 'error')
-            return res.json({ redirect: '/alterar-senha' })
+            return req.session.save(() => 
+            {
+                res.json({ redirect: '/alterar-senha' })
+            })
         }
     }
 
@@ -409,28 +470,40 @@ module.exports = class AuthController
         {
             req.flash('message', 'Algo deu errado!')
             req.flash('messageType', 'error')
-            return res.json({ redirect: '/alterar-senha' })
+            return req.session.save(() => 
+            {
+                res.json({ redirect: '/alterar-senha' })
+            })
         }
 
         if (code != validate.code)
         {
             req.flash('message', 'O código digitado não é o mesmo!')
             req.flash('messageType', 'error')
-            return res.json({ redirect: '/alterar-senha' })
+            return req.session.save(() => 
+            {
+                res.json({ redirect: '/alterar-senha' })
+            })
         }
 
         if (Date.now() > validate.expiresAt)
         {
             req.flash('message', 'Seu código expirou!')
             req.flash('messageType', 'error')
-            return res.json({ redirect: '/alterar-senha' })
+            return req.session.save(() => 
+            {
+                res.json({ redirect: '/alterar-senha' })
+            })
         }
 
         if (password != confirmPassword)
         {
             req.flash('message', 'A confirmação de senha não confere, tente novamente!')
             req.flash('messageType', 'error')
-            return res.json({ redirect: '/alterar-senha' })
+            return req.session.save(() => 
+            {
+                res.json({ redirect: '/alterar-senha' })
+            })
         }
 
         try
@@ -441,7 +514,10 @@ module.exports = class AuthController
             {
                 req.flash('message', 'Não existe um usário cadastrado com esse e-mail!')
                 req.flash('messageType', 'error')
-                return res.json({ redirect: '/alterar-senha' })
+                return req.session.save(() => 
+                {
+                    res.json({ redirect: '/alterar-senha' })
+                })
             }
 
             const salt = bcrypt.genSaltSync(10);
@@ -451,7 +527,10 @@ module.exports = class AuthController
 
             req.flash('message', 'Senha alterada com sucesso!')
             req.flash('messageType', 'success')
-            res.json({ redirect: '/login' })
+            return req.session.save(() => 
+            {
+                res.json({ redirect: '/login' })
+            })
         }
         catch (err)
         {
@@ -459,7 +538,10 @@ module.exports = class AuthController
 
             req.flash('message', 'Algo deu errado!')
             req.flash('messageType', 'error')
-            return res.json({ redirect: '/login' })
+            return req.session.save(() => 
+            {
+                res.json({ redirect: '/login' })
+            })
         }
     }
 }
