@@ -113,3 +113,39 @@ conn
     {
         console.log(err);
     })
+
+// seedGenres.js
+
+const { Genre } = require('./models'); // ajuste o caminho para o seu model
+const sequelize = require('./config/database'); // ajuste para sua instância do sequelize
+
+async function seedGenres() {
+  const genres = [
+    'Pop', 'Rock', 'Jazz', 'Blues', 'Hip Hop', 'Rap', 'R&B', 'Funk',
+    'Soul', 'Samba', 'MPB', 'Pagode', 'Forró', 'Axé', 'Brega', 'Sertanejo',
+    'Sertanejo Universitário', 'Eletrônica', 'Techno', 'House', 'Trance',
+    'Dubstep', 'Lo-fi', 'Reggae', 'Dancehall', 'K-pop', 'J-pop', 'Cumbia',
+    'Tango', 'Fado', 'Country', 'Gospel', 'Cristã Contemporânea', 'Coral',
+    'Clássica', 'Opera', 'Instrumental', 'Indie', 'Alternativo', 'Punk',
+    'Hardcore', 'Metal', 'Heavy Metal', 'Black Metal', 'Trap', 'Drill',
+    'Grime', 'Folk', 'Ambient', 'Experimental', 'Chillout', 'New Age',
+    'Bossa Nova', 'Choro', 'Frevo', 'Maracatu', 'Carimbó', 'Tecnobrega',
+    'Piseiro', 'Arrocha', 'Reggaeton', 'Zouk', 'Ska', 'World Music'
+  ];
+
+  const data = genres.map(name => ({ name }));
+
+  try {
+    await sequelize.sync(); // opcional: apenas se quiser sincronizar o schema antes
+    await Genre.bulkCreate(data, {
+      ignoreDuplicates: true, // Ignora se já existir (requer campo único no banco)
+    });
+    console.log('Gêneros inseridos com sucesso!');
+  } catch (error) {
+    console.error('Erro ao inserir gêneros:', error);
+  } finally {
+    await sequelize.close();
+  }
+}
+
+seedGenres();

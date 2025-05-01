@@ -39,4 +39,11 @@ module.exports = class ProfileController
             })
         }
     }
+
+    static async saveMusic(req, res) {
+        const { nomeMusica, descricaoMusica, imagemMusica, generoMusica }  = req.body
+        //checar palavroes
+
+        const checkGenre = await genres.findOne({})
+    }
 }

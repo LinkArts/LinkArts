@@ -1,1 +1,306 @@
-<h1>PERFIL DO USUÁRIO</h1>
+<style>
+    body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f5f5f5;
+}
+
+.container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+
+.section {
+  flex: 1;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+button {
+  margin-bottom: 10px;
+}
+
+.scroll-area {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.music-card,
+.album-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  margin-bottom: 10px;
+  background: #f1f1f1;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.music-card:hover,
+.album-card:hover {
+  background: #e0e0e0;
+}
+
+.music-card img,
+.album-card img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.music-info,
+.album-info {
+  flex-grow: 1;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.modal input,
+.modal textarea,
+.modal select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+.close-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  background-color: #5a6268;
+}
+</style>
+
+<div class="container">
+    <!-- Músicas -->
+    <div class="section">
+      <h2>Músicas</h2>
+      <button onclick="openModal('music')">Adicionar Música</button>
+      <div id="music-list" class="scroll-area"></div>
+    </div>
+
+    <!-- Álbuns -->
+    <div class="section">
+      <h2>Álbuns</h2>
+      <button onclick="openModal('album')">Adicionar Álbum</button>
+      <div id="album-list" class="scroll-area"></div>
+    </div>
+  </div>
+
+  <!-- Modal de Adição -->
+  <div id="modal-overlay" class="modal-overlay" style="display: none;">
+    <div class="modal">
+      <h2 id="modal-title">Adicionar</h2>
+      <form id="modal-form">
+        <div id="music-fields">
+          <input type="text" placeholder="Nome da Música" id="nomeMusica" required>
+          <textarea placeholder="Descrição" id="descricaoMusica" required></textarea>
+          <input type="text" placeholder="URL da Imagem" id="imagemMusica" required>
+          <select id="generoMusica" required>
+            <option value="" disabled selected>Selecione o gênero</option>
+            <option value="Rock">Rock</option>
+            <option value="Pop">Pop</option>
+            <option value="Eletrônica">Eletrônica</option>
+          </select>
+        </div>
+
+        <div id="album-fields" style="display: none;">
+          <input type="text" placeholder="Nome do Álbum" required>
+          <input type="text" placeholder="URL da Imagem" required>
+        </div>
+
+        <button type="submit" onclick="salvarMusica()">Salvar</button>
+        <button type="button" class="close-btn" onclick="closeModal()">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Detalhes -->
+  <div id="details-modal" class="modal-overlay" style="display: none;">
+    <div class="modal">
+      <h2 id="details-title"></h2>
+      <img id="details-image" src="" alt="Imagem" style="width: 100%; border-radius: 8px; margin: 10px 0;">
+      <p id="details-description"></p>
+      <p id="details-genre"></p>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button id="delete-btn" class="delete-btn">Excluir</button>
+        <button onclick="closeDetailsModal()" class="close-btn">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentType = '';
+let currentCard = null;
+
+function openModal(type) {
+  currentType = type;
+  document.getElementById('modal-overlay').style.display = 'flex';
+  document.getElementById('modal-title').innerText = type === 'music' ? 'Adicionar Música' : 'Adicionar Álbum';
+  
+  const musicFields = document.querySelectorAll('#music-fields input, #music-fields textarea, #music-fields select');
+  const albumFields = document.querySelectorAll('#album-fields input');
+
+  if (type === 'music') {
+    document.getElementById('music-fields').style.display = 'block';
+    document.getElementById('album-fields').style.display = 'none';
+    musicFields.forEach(field => field.disabled = false);
+    albumFields.forEach(field => field.disabled = true);
+  } else {
+    document.getElementById('music-fields').style.display = 'none';
+    document.getElementById('album-fields').style.display = 'block';
+    musicFields.forEach(field => field.disabled = true);
+    albumFields.forEach(field => field.disabled = false);
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+}
+
+function closeDetailsModal() {
+  document.getElementById('details-modal').style.display = 'none';
+  currentCard = null;
+}
+
+document.getElementById('modal-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const list = currentType === 'music' ? document.getElementById('music-list') : document.getElementById('album-list');
+  const fields = currentType === 'music'
+    ? document.querySelectorAll('#music-fields input, #music-fields textarea, #music-fields select')
+    : document.querySelectorAll('#album-fields input');
+
+  const div = document.createElement('div');
+  
+  if (currentType === 'music') {
+    div.className = 'music-card';
+    const name = fields[0].value;
+    const description = fields[1].value;
+    const imgUrl = fields[2].value;
+    const genre = fields[3].value;
+
+    div.innerHTML = `
+      <img src="${imgUrl}" alt="Imagem da Música">
+      <div class="music-info">
+        <h4 class="music-title">${name}</h4>
+        <p class="music-genre">Gênero: ${genre}</p>
+      </div>
+    `;
+
+    div.dataset.name = name;
+    div.dataset.description = description;
+    div.dataset.genre = genre;
+    div.dataset.image = imgUrl;
+
+  } else {
+    div.className = 'album-card';
+    const name = fields[0].value;
+    const imgUrl = fields[1].value;
+
+    div.innerHTML = `
+      <img src="${imgUrl}" alt="Imagem do Álbum">
+      <div class="album-info">
+        <h4 class="album-title">${name}</h4>
+      </div>
+    `;
+
+    div.dataset.name = name;
+    div.dataset.image = imgUrl;
+    div.dataset.description = '';
+    div.dataset.genre = '';
+  }
+
+  list.appendChild(div);
+
+  fields.forEach(field => field.value = '');
+  closeModal();
+});
+
+document.addEventListener('click', function(e) {
+  const card = e.target.closest('.music-card') || e.target.closest('.album-card');
+  if (card && !e.target.classList.contains('delete-btn')) {
+    currentCard = card;
+    document.getElementById('details-title').innerText = card.dataset.name;
+    document.getElementById('details-image').src = card.dataset.image;
+    document.getElementById('details-description').innerText = card.dataset.description ? `Descrição: ${card.dataset.description}` : '';
+    document.getElementById('details-genre').innerText = card.dataset.genre ? `Gênero: ${card.dataset.genre}` : '';
+    document.getElementById('details-modal').style.display = 'flex';
+  }
+});
+
+document.getElementById('delete-btn').addEventListener('click', function() {
+  if (currentCard) {
+    currentCard.remove();
+    closeDetailsModal();
+  }
+});
+
+function salvarMusica(){
+    const nomeMusica = document.getElementById('nomeMusica').value
+    const descricaoMusica = document.getElementById('descricaoMusica').value
+    const imagemMusica = document.getElementById('imagemMusica').value
+    const generoMusica = document.getElementById('generoMusica').value
+
+    fetch('/salvar-musica', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nomeMusica, descricaoMusica, imagemMusica, generoMusica })
+        })
+            .then(res => res.json())
+            .then(data =>
+            {
+                
+            })
+            .catch(err => console.error("Erro ao enviar email:", err));
+}
+  </script>
