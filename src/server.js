@@ -16,6 +16,9 @@ const DashboardController = require('./controllers/DashboardController')
 const profileRoutes = require('./routes/profileRoutes')
 const ProfileController = require('./controllers/ProfileController')
 
+const searchRoutes = require('./routes/searchRoutes')
+const SearchController = require('./controllers/SearchController')
+
 //models
 const User = require('./models/User')
 const Artist = require('./models/Artist')
@@ -92,6 +95,7 @@ app.use((req, res, next) =>
 app.use('/', authRoutes)
 app.use('/', dashboardRoutes)
 app.use('/profile', profileRoutes)
+app.use('/', searchRoutes)
 app.get('/', AuthController.renderLogin)
 
 app.use((req, res) =>
@@ -116,7 +120,7 @@ conn
 
 // seedGenres.js
 
-const { Genre } = require('./models'); // ajuste o caminho para o seu model
+/*const { Genre } = require('./models'); // ajuste o caminho para o seu model
 const sequelize = require('./config/database'); // ajuste para sua instância do sequelize
 
 async function seedGenres() {
@@ -148,4 +152,4 @@ async function seedGenres() {
   }
 }
 
-seedGenres();
+seedGenres();*/

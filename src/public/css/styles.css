@@ -409,7 +409,91 @@ body {
     line-height: 1.4;
 }
 
+.perfil-container
+{
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
 .perfil-card
 {
     margin-bottom: 20px;
+    margin-right: 20px;
 }
+
+.card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    width: 325px;
+    padding: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .profile-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #ccc;
+    margin-right: 15px;
+  }
+
+  .card-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+
+  .location {
+    color: gray;
+    font-size: 0.9rem;
+  }
+
+  .rating {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .stars {
+    color: gold;
+    margin-right: 5px;
+  }
+
+  .description {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .tag {
+    background-color: #eee;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+  }
+
+  .profile-link {
+    color: purple;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+
+  .profile-link:hover {
+    text-decoration: underline;
+  }

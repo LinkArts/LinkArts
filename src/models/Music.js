@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize')
 const db = require('../db/conn')
+const Genre = require('./Genre')
 
 const Music = db.define('Music',
     {
@@ -21,6 +22,18 @@ const Music = db.define('Music',
             require: true
         },
     })
+
+Music.belongsTo(Genre, {
+    foreignKey: 'genreid',
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE'
+})
+
+Genre.hasMany(Music, {
+    foreignKey: 'genreid',
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE'
+})
 
 
 module.exports = Music

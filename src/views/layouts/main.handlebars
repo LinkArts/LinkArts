@@ -43,10 +43,11 @@
 
     <script>
         const flashMessage = document.getElementById('flash');
+        const searchInput = document.getElementById('search-input');
 
         if (flashMessage)
         {
-            flashMessage.style.transition = 'opacity 0.5s ease'; // Defina antes
+            flashMessage.style.transition = 'opacity 0.5s ease';
             setTimeout(() =>
             {
                 flashMessage.style.opacity = '0';
@@ -56,6 +57,11 @@
                     flashMessage.remove();
                 }, 500);
             }, 3000);
+        }
+
+        if (searchInput)
+        {
+            searchInput.value = "{{{search}}}";
         }
     </script>
 </body>
