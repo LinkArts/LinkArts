@@ -1,11 +1,22 @@
-.all
-{
-    display: flex;
-    height: 100vh;
+* {
+    box-sizing: border-box;
     margin: 0;
+    padding: 0;
+  }
+  
+  body {
     font-family: Arial, sans-serif;
-}
-.left {
+    background: #f9f8ff;
+    color: #333;
+  }
+  
+  .all {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+  }
+  
+  .left {
     width: 40%;
     background: #5c46aa;
     color: white;
@@ -13,16 +24,10 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-}
-
-.logo-auth{
     position: relative;
-    left: 12rem;
-    top: 0.3rem;
-    width: 13rem;
-}
-
-.logo-container {
+  }
+  
+  .logo-container {
     position: relative;
     top: -2rem;
     left: -10rem;
@@ -31,108 +36,149 @@
     width: 25rem;
     border-radius: 6rem;
     margin: -30px 0 20px 0;
-}
-
-.right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .logo-auth {
+    position: relative;
+    left: 12rem;
+    top: 0.3rem;
+    width: 13rem;
+  }
+  
+  .title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .input-box {
+    width: 80%;
+    margin-bottom: 15px;
+  }
+  
+  input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+  }
+  
+  .btn-play {
+    background: black;
+    color: lime;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 25px;
+    font-weight: bold;
+    width: 40%;
+    margin-top: 10px;
+  }
+  
+  a {
+   color: antiquewhite;
+  }
+  
+  /* .form-check {
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  } */
+  
+  /* .form-check-input {
+    margin-right: 10px;
+  }
+  
+  .remember {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+  } */
+  
+  .btn-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+  }
+  
+  .divider {
+    margin: 10px 0;
+  }
+  
+  .btn-or {
+    background: black;
+    color: white;
+    text-decoration: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    margin-top: 8px;
+  }
+  
+  .right {
     width: 60%;
     background: #ddd;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-
-#tituloTipoCadastro{
-    position: relative;
-    left: 10%;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  #welcomeText {
+    font-size: 2rem;
     margin-bottom: 20px;
-}
-
-.input-box {
-    width: 100%;
-    margin-bottom: 15px;
-}
-
-input {
-    position: relative;
-    width: 70%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    left: 10%;
-    /* margin-bottom: 10px; */
-}
-
-.remember
-{
-    color: white;
-}
-
-.form-check
-{
-    display: flex;
-}
-
-.form-check-input
-{
-    width: auto;
-    margin-right: 15%;
-}
-
-btn{
-    border-radius: 10px;
-}
-
-.btn-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    left: -2%;
-}
-.btn-play {
-    position: relative;
-    width: 20%;
-    background: black;
-    color: lime;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    font-weight: bold;
-    left: -0.1rem;
-}
-
-.btn-or {
-    margin-top: 10px;
-    background: black;
-    color: white;
-    text-decoration: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
-input[type="radio"] {
-    top: 10rem;
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-input[type="radio"] + label {
-    background: white;
-    color: black;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s;
-    margin-right: 10px;
-    display: inline-block;
-}
-
-input[type="radio"]:checked + label {
-    background: #5c46aa;
-    color: white;
-}
+  }
+  
+  #welcomeImage {
+    max-width: 80%;
+    height: auto;
+  }
+  
+  /* Responsivo */
+  @media (max-width: 768px) {
+    .all {
+      flex-direction: column;
+    }
+  
+    .left, .right {
+      width: 100%;
+      padding: 30px;
+    }
+  
+    .logo-container {
+      left: 0;
+      margin: 0 auto 20px auto;
+    }
+  
+    .logo-auth {
+      left: 0;
+    }
+  
+    .btn-play {
+      width: 60%;
+    }
+  
+    /* .form-check {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .remember {
+      margin-top: 10px;
+    } */
+  }
+  
