@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{meta.title}}</title>
+    <meta name="description" content="{{meta.description}}" />
+    <meta name="author" content="{{meta.author}}" />
+
+    <meta property="og:title" content="{{meta.title}}" />
+    <meta property="og:description" content="{{meta.description}}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="{{meta.ogImage}}" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="{{meta.twitterUser}}" />
+    <meta name="twitter:image" content="{{meta.ogImage}}" />
+
+    <link rel="stylesheet" href="LinkArts\src\public\css\styleProfileEst.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <main class="container main-content">
+      <section class="profile-info" aria-labelledby="profile-name">
+        <div class="profile-left">
+          <div class="profile-img">
+            <img id="profile-main-image" src="{{company.profile.imageUrl}}" alt="{{company.profile.imageAlt}}">
+          </div>
+          <div class="profile-details">
+            <h1 id="profile-name">{{company.name}}</h1>
+            <p id="profile-tag" class="profile-tag">{{company.profile.tagline}}</p>
+            <p id="profile-location" class="profile-location"><span class="visually-hidden">Localização:</span> {{company.profile.location}}</p>
+            <div class="profile-rating" aria-label="Avaliação: {{company.profile.rating}} de 5 estrelas (baseado em {{company.profile.reviewCount}} avaliações)">
+                 <div class="stars" aria-hidden="true">
+                  {{{renderStars company.profile.rating}}}
+                </div>
+                <span class="rating">{{company.profile.rating}}</span>
+                <span class="reviews">({{company.profile.reviewCount}} reviews)</span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <a href="{{company.profile.websiteUrl}}" class="btn btn-outline" target="_blank" rel="noopener noreferrer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+            Website & Links
+          </a>
+           <a href="{{company.profile.contactUrl}}" class="btn btn-outline">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.46 4.381a1 1 0 0 1-.343 1.116l-1.976 1.581a13.6 13.6 0 0 0 6.31 6.31l1.58-1.976a1 1 0 0 1 1.117-.343l4.38 1.46A1 1 0 0 1 21 15.72V19a2 2 0 0 1-2 2h-1a18 18 0 0 1-18-18v-1a2 2 0 0 1 2-2Z"></path></svg>
+            Contato
+          </a>
+          {{#if user.isOwner}}
+          <button id="edit-profile-btn" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+            Editar Perfil
+          </button>
+          {{/if}}
+        </div>
+      </section>
+
+      <section class="about-section" aria-labelledby="about-heading">
+        <h2 id="about-heading">Sobre a Empresa</h2>
+        <p id="profile-about">{{{company.about}}}</p> 
+        <div class="tags" aria-label="Tags da Empresa">
+          {{#each company.tags}}
+          <span class="tag">{{this}}</span>
+          {{/each}}
+        </div>
+      </section>
+
+      <section class="availability-section" aria-labelledby="availability-heading">
+        <h2 id="availability-heading">Disponibilidade para Eventos</h2>
+        <div class="availability-details">
+          {{#each company.availability}}
+          <p><strong>{{this.day}}:</strong> {{this.time}}</p>
+          {{/each}}
+          {{#if company.availabilityNote}}
+          <p class="availability-note"><em>{{{company.availabilityNote}}}</em></p>
+          {{/if}}
+        </div>
+      </section>
+
+      <section class="events-section" aria-labelledby="events-heading">
+         <div class="section-header">
+             <h2 id="events-heading">Próximos Eventos</h2>
+             {{#if user.isOwner}}
+             <button id="add-event-btn" class="btn btn-outline btn-purple">Adicionar Evento</button>
+             {{/if}}
+         </div>
+        
+        <ul class="scroll-container events-container" aria-labelledby="events-heading">
+          {{#each company.events}}
+           <li class="event-card">
+            <div class="event-img">
+              <img src="{{this.imageUrl}}" alt="{{this.imageAlt}}">
+            </div>
+            <div class="event-content">
+                <h3>{{this.title}}</h3>
+                <p class="event-date">Data: {{this.date}}</p>
+                <p class="event-description">{{{this.description}}}</p>
+            </div>
+           </li>
+          {{else}}
+            <li><p>Nenhum evento programado no momento.</p></li>
+          {{/each}}
+        </ul>
+      </section>
+
+      <section class="reviews-section" aria-labelledby="reviews-heading">
+         <div class="section-header">
+          <h2 id="reviews-heading">Feedbacks de Clientes</h2>
+          <a href="{{company.allReviewsUrl}}" class="btn-link">Ver Todos</a>
+        </div>
+         
+        <ul class="reviews-list" aria-labelledby="reviews-heading">
+            {{#each company.reviews}}
+            <li class="review-card">
+            <div class="review-header">
+                <h3>{{this.clientName}}</h3>
+                <div class="review-stars" aria-label="Avaliação: {{this.rating}} de 5 estrelas">
+                    {{{renderStars this.rating}}}
+                </div>
+            </div>
+            <p class="review-text">"{{{this.text}}}"</p>
+            </li>
+            {{else}}
+             <li><p>Ainda não há feedbacks de clientes.</p></li>
+            {{/each}}
+        </ul>
+      </section>
+    </main>
+
+    <script>
+
+      // Wait for the DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM carregado. Iniciando script v6 - Foco em transição CSS.");
+
+    // --- Seletores Globais ---
+    const addEventButton = document.getElementById('add-event-btn');
+    const eventsContainer = document.querySelector('.events-container');
+    const editProfileButton = document.getElementById('edit-profile-btn');
+
+    // Seletores para os dados do perfil
+    const profileNameElement = document.getElementById('profile-name');
+    const profileTagElement = document.getElementById('profile-tag');
+    const profileLocationElement = document.getElementById('profile-location');
+    const profileAboutElement = document.getElementById('profile-about');
+    const profileImageElement = document.getElementById('profile-main-image');
+
+    let lastFocusedElement = null; // Para restaurar foco ao fechar modais
+
+    // --- Função Toast ---
+    function showToast(message, type = 'success') {
+        document.querySelectorAll('.toast.show').forEach(t => t.remove());
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        let iconSvg = '';
+        if (type === 'success') iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>`;
+        else if (type === 'warning') iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M8.22 1.754a.25.25 0 0 0-.44 0L1.698 13.939a.25.25 0 0 0 .22.361h12.164a.25.25 0 0 0 .22-.361L8.22 1.754ZM8 11.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM8.25 6v3.5a.25.25 0 0 1-.5 0V6a.25.25 0 0 1 .5 0Z"/></svg>`;
+        else if (type === 'error') iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M4.47 4.47a.75.75 0 0 1 1.06 0L8 6.94l2.47-2.47a.75.75 0 1 1 1.06 1.06L9.06 8l2.47 2.47a.75.75 0 1 1-1.06 1.06L8 9.06l-2.47 2.47a.75.75 0 0 1-1.06-1.06L6.94 8 4.47 5.53a.75.75 0 0 1 0-1.06Z"/></svg>`;
+        toast.innerHTML = `${iconSvg} <span>${message}</span>`;
+        document.body.appendChild(toast);
+        toast.getBoundingClientRect();
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.addEventListener('transitionend', () => { if (document.body.contains(toast)) document.body.removeChild(toast); }, { once: true });
+        }, 3500);
+    }
+
+    // --- Fechar Modal (Atualizado para transição) ---
+    function closeModal(modalOverlay) {
+        if (modalOverlay && modalOverlay.classList.contains('is-visible')) {
+            console.log('Iniciando fechamento do modal:', modalOverlay.className);
+            modalOverlay.classList.remove('is-visible');
+            document.body.classList.remove('modal-open');
+
+            const removeElementAfterTransition = () => {
+                console.log('Transição de fechamento concluída. Removendo modal do DOM.');
+                if (modalOverlay && document.body.contains(modalOverlay)) {
+                    modalOverlay.remove();
+                }
+                modalOverlay.removeEventListener('transitionend', removeElementAfterTransition);
+                 if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+                     console.log("Restaurando foco para:", lastFocusedElement);
+                    lastFocusedElement.focus();
+                    lastFocusedElement = null;
+                }
+            };
+            modalOverlay.addEventListener('transitionend', removeElementAfterTransition, { once: true });
+             setTimeout(() => {
+                  if (modalOverlay && document.body.contains(modalOverlay)) {
+                      console.warn("Fallback: Removendo modal porque transitionend não disparou a tempo.");
+                      removeElementAfterTransition();
+                  }
+              }, 500);
+        } else if (modalOverlay && document.body.contains(modalOverlay)) {
+            console.warn("Modal encontrado no DOM mas não visível. Removendo diretamente.");
+            modalOverlay.remove();
+            document.body.classList.remove('modal-open');
+            if (lastFocusedElement) lastFocusedElement.focus();
+            lastFocusedElement = null;
+        } else {
+             console.log("Nenhum modal ativo para fechar ou já foi removido.");
+             document.body.classList.remove('modal-open');
+        }
+    }
+
+    // --- Focus Trap ---
+     function trapFocus(modalElement) {
+        const focusableElements = modalElement.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (focusableElements.length === 0) return { destroy: () => {} };
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        setTimeout(() => { firstElement?.focus(); }, 100);
+
+        const handleTabKeyPress = (e) => {
+            if (!modalElement.contains(document.activeElement)) {
+                firstElement?.focus(); return;
+            }
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === firstElement) { lastElement.focus(); e.preventDefault(); }
+                else if (!e.shiftKey && document.activeElement === lastElement) { firstElement.focus(); e.preventDefault(); }
+            } else if (e.key === 'Escape') {
+                 const overlay = modalElement.closest('.modal-overlay');
+                 if (overlay) closeModal(overlay);
+            }
+        };
+        modalElement.addEventListener('keydown', handleTabKeyPress);
+         return {
+             destroy: () => modalElement.removeEventListener('keydown', handleTabKeyPress)
+         };
+    }
+
+    // --- Função Auxiliar Genérica para Abrir Modal ---
+    function openModal(overlaySelector, modalClass, modalHTMLContent, triggerButton) {
+        console.log(`Tentando abrir modal com seletor ${overlaySelector}.`);
+         lastFocusedElement = triggerButton || document.activeElement;
+        const existingOverlay = document.querySelector(overlaySelector);
+        if (existingOverlay) {
+            console.warn(`Overlay ${overlaySelector} já existe. Removendo antes de criar novo.`);
+            closeModal(existingOverlay);
+             if(document.querySelector(overlaySelector)) {
+                 document.querySelector(overlaySelector).remove();
+             }
+        }
+
+        console.log(`Criando novo modal ${modalClass}.`);
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = `modal-overlay ${overlaySelector.substring(1)}`;
+        modalOverlay.setAttribute('role', 'dialog');
+        modalOverlay.setAttribute('aria-modal', 'true');
+
+        const modal = document.createElement('div');
+        modal.className = modalClass;
+        modal.innerHTML = modalHTMLContent;
+
+        const titleElement = modal.querySelector('h2');
+         if (titleElement && !titleElement.id) {
+            titleElement.id = `${modalClass}-heading`;
+        }
+        if (titleElement) {
+             modalOverlay.setAttribute('aria-labelledby', titleElement.id);
+        }
+
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        document.body.classList.add('modal-open');
+        modalOverlay.getBoundingClientRect();
+        modalOverlay.classList.add('is-visible');
+        console.log(`Modal ${modalClass} adicionado ao DOM e classe 'is-visible' aplicada.`);
+
+        const closeButton = modal.querySelector('.modal-close-btn');
+        const cancelButton = modal.querySelector('.btn-cancel');
+
+        closeButton?.addEventListener('click', () => closeModal(modalOverlay));
+        cancelButton?.addEventListener('click', () => closeModal(modalOverlay));
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) { closeModal(modalOverlay); }
+        });
+
+        const focusTrapInstance = trapFocus(modal);
+        return modal;
+    }
+
+
+    // --- Lógica Específica: Modal Adicionar Evento ---
+    if (addEventButton && eventsContainer) {
+        addEventButton.addEventListener('click', function() {
+             const modalHTML = `
+              <button type="button" class="modal-close-btn" aria-label="Fechar modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+              <h2 id="add-event-heading">Adicionar Novo Evento</h2>
+              <form id="add-event-form" novalidate>
+                <div class="form-group"> <label for="event-title">Título do Evento</label> <input type="text" id="event-title" required> </div>
+                <div class="form-group"> <label for="event-date">Data do Evento</label> <input type="date" id="event-date" required> </div>
+                <div class="form-group"> <label for="event-description">Descrição (Opcional)</label> <textarea id="event-description" rows="3"></textarea> </div>
+                <div class="form-group"> <label for="event-image-url">URL da Imagem (Opcional)</label> <input type="url" id="event-image-url" placeholder="https://exemplo.com/imagem.jpg"> </div>
+                <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Adicionar Evento</button> </div>
+              </form>`;
+
+            const modalElement = openModal('.add-event-overlay', 'add-event-modal', modalHTML, addEventButton);
+            if (!modalElement) return;
+
+            const addEventForm = modalElement.querySelector('#add-event-form');
+            addEventForm?.addEventListener('submit', function(e) {
+                 e.preventDefault();
+                 const eventTitleInput = modalElement.querySelector('#event-title');
+                 const eventDateInput = modalElement.querySelector('#event-date');
+                 const eventDescriptionInput = modalElement.querySelector('#event-description');
+                 const eventImageUrlInput = modalElement.querySelector('#event-image-url');
+                 const modalOverlay = modalElement.closest('.modal-overlay');
+
+                 const eventTitle = eventTitleInput.value.trim();
+                 const eventDateRaw = eventDateInput.value;
+                 if (!eventTitle || !eventDateRaw) { showToast('Título e Data são obrigatórios.', 'warning'); if (!eventTitle) eventTitleInput.focus(); else eventDateInput.focus(); return; }
+                 const eventDescription = eventDescriptionInput.value.trim();
+                 const eventImageUrl = eventImageUrlInput.value.trim() || 'imagens/placeholder-event.jpg'; // Usar um placeholder
+                 let eventDateFormatted = eventDateRaw;
+                  try { const dateObj = new Date(eventDateRaw + 'T00:00:00'); if (!isNaN(dateObj)) { eventDateFormatted = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }); } } catch (error) { console.error("Erro ao formatar data:", error); }
+
+                 console.log(`Adicionando Evento: Título='${eventTitle}', Data='${eventDateFormatted}'`);
+                 const eventItem = document.createElement('li'); eventItem.className = 'event-card';
+                 // JS cria card com .event-content, então o HTML estático também deveria ter para consistência
+                 eventItem.innerHTML = `<div class="event-img"><img src="" alt=""></div><div class="event-content"><h3></h3><p class="event-date"></p></div>`;
+                 const img = eventItem.querySelector('img'); const titleEl = eventItem.querySelector('h3'); const dateEl = eventItem.querySelector('.event-date'); const contentDiv = eventItem.querySelector('.event-content');
+                  if (img) { img.src = eventImageUrl; img.alt = eventTitle; img.onerror = () => { img.src='imagens/placeholder-event.jpg'; img.alt='Placeholder Evento'; }}
+                  if (titleEl) titleEl.textContent = eventTitle; if (dateEl) dateEl.textContent = `Data: ${eventDateFormatted}`;
+                  if (eventDescription && contentDiv) { const descEl = document.createElement('p'); descEl.className = 'event-description'; descEl.textContent = eventDescription; contentDiv.appendChild(descEl); }
+                 
+                 // Remove o card placeholder se for o primeiro evento adicionado e o placeholder existir
+                 const placeholderCard = eventsContainer.querySelector('li.event-card img[src="..."]');
+                 if (placeholderCard && eventsContainer.children.length === 1 && placeholderCard.closest('li') === eventsContainer.firstChild) {
+                     placeholderCard.closest('li').remove();
+                 }
+
+                 eventsContainer.appendChild(eventItem);
+                 eventsContainer.closest('.scroll-container')?.scrollTo({ left: eventsContainer.scrollWidth, behavior: 'smooth' });
+
+                 closeModal(modalOverlay);
+                 showToast(`Evento "${eventTitle}" adicionado com sucesso!`);
+            });
+        });
+    } else {
+        console.warn("Elementos necessários para 'Adicionar Evento' não encontrados.");
+    }
+
+
+    // --- Lógica Específica: Modal Editar Perfil ---
+    function setupEditProfileModal() {
+         const modalHTML = `
+               <button type="button" class="modal-close-btn" aria-label="Fechar modal">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+               </button>
+               <h2 id="edit-profile-heading">Editar Perfil da Empresa</h2>
+               <form id="edit-profile-form" novalidate>
+                 <div class="form-group"> <label for="edit-profile-name">Nome da Empresa</label> <input type="text" id="edit-profile-name" required> </div>
+                 <div class="form-group"> <label for="edit-profile-tag">Tagline/Setor</label> <input type="text" id="edit-profile-tag" required> </div>
+                 <div class="form-group"> <label for="edit-profile-location">Localização</label> <input type="text" id="edit-profile-location" required> </div>
+                 <div class="form-group"> <label for="edit-profile-about">Sobre a Empresa</label> <textarea id="edit-profile-about" rows="5" required></textarea> </div>
+                 <div class="form-group"> <label for="edit-profile-image-url">URL da Imagem de Perfil</label> <input type="url" id="edit-profile-image-url" placeholder="https://exemplo.com/logo.png"> </div>
+                 <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Salvar Alterações</button> </div>
+               </form>`;
+
+        const modalElement = openModal('.edit-profile-overlay', 'edit-profile-modal', modalHTML, editProfileButton);
+        if (!modalElement) return;
+
+         const nameInput = modalElement.querySelector('#edit-profile-name');
+         const tagInput = modalElement.querySelector('#edit-profile-tag');
+         const locationInput = modalElement.querySelector('#edit-profile-location');
+         const aboutInput = modalElement.querySelector('#edit-profile-about');
+         const imageUrlInput = modalElement.querySelector('#edit-profile-image-url');
+         const editProfileForm = modalElement.querySelector('#edit-profile-form');
+
+          if (nameInput && profileNameElement) nameInput.value = profileNameElement.textContent?.trim() ?? '';
+          if (tagInput && profileTagElement) tagInput.value = profileTagElement.textContent?.trim() ?? '';
+          if (locationInput && profileLocationElement) { const locationText = (profileLocationElement.innerText || profileLocationElement.textContent || '').replace('Localização:', '').trim(); locationInput.value = locationText; }
+          if (aboutInput && profileAboutElement) aboutInput.value = profileAboutElement.textContent?.trim() ?? '';
+          if (imageUrlInput && profileImageElement) imageUrlInput.value = profileImageElement.src ?? '';
+
+
+         editProfileForm?.addEventListener('submit', function(e) {
+             e.preventDefault();
+             console.log("Salvando alterações do perfil...");
+             const modalOverlay = modalElement.closest('.modal-overlay');
+
+             const newName = nameInput.value.trim();
+             const newTag = tagInput.value.trim();
+             const newLocation = locationInput.value.trim();
+             const newAbout = aboutInput.value.trim();
+             const newImageUrl = imageUrlInput.value.trim();
+             let isValid = true;
+              [nameInput, tagInput, locationInput, aboutInput].forEach(input => { if (!input.value.trim()) isValid = false; });
+              if (newImageUrl) { try { new URL(newImageUrl); } catch (_) { isValid = false; showToast('URL da imagem inválida.', 'warning'); imageUrlInput?.focus();}}
+
+             if (!isValid) { showToast('Por favor, preencha os campos obrigatórios corretamente.', 'error'); return; }
+
+              if (profileNameElement) profileNameElement.textContent = newName;
+              if (profileTagElement) profileTagElement.textContent = newTag;
+              if (profileLocationElement) profileLocationElement.innerHTML = `<span class="visually-hidden">Localização:</span> ${newLocation}`;
+              if (profileAboutElement) profileAboutElement.textContent = newAbout;
+              if (profileImageElement) {
+                  if (newImageUrl && isValid) { profileImageElement.src = newImageUrl; profileImageElement.alt = `Foto de ${newName}`; profileImageElement.onerror = () => {profileImageElement.src='imagens/placeholder-company.jpg'; profileImageElement.alt='Foto da Empresa'};}
+                  else { profileImageElement.src = 'imagens/placeholder-company.jpg'; profileImageElement.alt = 'Foto da Empresa'; }
+             }
+
+             closeModal(modalOverlay);
+             showToast('Perfil atualizado com sucesso!');
+         });
+    }
+
+    if (editProfileButton) {
+        editProfileButton.addEventListener('click', setupEditProfileModal);
+    } else {
+        console.warn("Botão 'Editar Perfil' (#edit-profile-btn) não encontrado.");
+    }
+-
+
+    console.log("Script perfEmp.js totalmente carregado e inicializado (v6 com transição).");
+
+});
+
+    </script>
+  </body>
+</html>
