@@ -1,12 +1,14 @@
 const { DataTypes } = require('sequelize')
 const db = require('../db/conn')
 const Genre = require('./Genre')
+const Artist = require('./Artist')
 
 const Music = db.define('Music',
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
             require: true
         },
         name: {
@@ -35,5 +37,16 @@ Genre.hasMany(Music, {
     onUpdate: 'CASCADE'
 })
 
+Music.belongsTo(Artist, {
+    foreignKey: 'userid',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+})
+
+Artist.hasMany(Music, {
+    foreignKey: 'userid',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+})
 
 module.exports = Music
