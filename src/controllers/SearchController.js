@@ -5,7 +5,7 @@ module.exports = class SearchController
 {
     static async renderSearch(req, res)
     {
-        const search = req.query
+        const { search } = req.query
 
         if (search)
         {

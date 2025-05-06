@@ -1,0 +1,99 @@
+.all {
+    display: flex;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.left {
+    width: 40%;
+    background: #5c46aa;
+    color: white;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.logo-auth{
+    position: relative;
+    left: 15rem;
+    top: 0rem;
+    width: 10rem;
+}
+
+.logo-container {
+    position: relative;
+    top: -2rem;
+    left: -12rem;
+    background: #D7D7D7;
+    height: 8rem;
+    width: 25rem;
+    border-radius: 5rem;
+}
+
+.right {
+    width: 60%;
+    background: #ddd;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.input-box {
+    width: 100%;
+    margin-bottom: 10px;
+}
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+.btn-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.btn-play {
+    background: black;
+    color: lime;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 30px;
+    font-weight: bold;
+    box-shadow: 3px 3px 5px rgba(0,0,0,0.2);
+}
+.btn-or {
+    margin-top: 10px;
+    background: black;
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 30px;
+    box-shadow: 3px 3px 5px rgba(0,0,0,0.2);
+}
+
+input[type="radio"] {
+    top: 10rem;
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+input[type="radio"] + label {
+    background: white;
+    color: black;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+    margin-right: 10px;
+    display: inline-block;
+}
+input[type="radio"]:checked + label {
+    background: lime;
+    color: black;
+}

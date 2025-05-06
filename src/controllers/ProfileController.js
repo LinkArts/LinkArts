@@ -22,8 +22,8 @@ module.exports = class ProfileController {
                 })
             }
 
-            const musics = await Music.findAll({ where: {}})
-            return res.render('app/profile', { css: 'perfil.css' })
+            //const musics = await Music.findAll({ where: {}})
+            return res.render('app/profileEstablishment', { css: 'styleProfileEst.css' })
         }
         catch (err) {
             console.log(err)

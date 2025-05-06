@@ -23,6 +23,8 @@ const SearchController = require('./controllers/SearchController')
 const User = require('./models/User')
 const Artist = require('./models/Artist')
 const Establishment = require('./models/Establishment')
+const Music = require('./models/Music')
+const Genre = require('./models/Genre')
 
 //template engine
 app.engine('handlebars', handlebars.engine(

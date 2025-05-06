@@ -1,0 +1,138 @@
+.all
+{
+    display: flex;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+.left {
+    width: 40%;
+    background: #5c46aa;
+    color: white;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.logo-auth{
+    position: relative;
+    left: 12rem;
+    top: 0.3rem;
+    width: 13rem;
+}
+
+.logo-container {
+    position: relative;
+    top: -2rem;
+    left: -10rem;
+    background: #D7D7D7;
+    height: 11rem;
+    width: 25rem;
+    border-radius: 6rem;
+    margin: -30px 0 20px 0;
+}
+
+.right {
+    width: 60%;
+    background: #ddd;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#tituloTipoCadastro{
+    position: relative;
+    left: 10%;
+    margin-bottom: 20px;
+}
+
+.input-box {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+input {
+    position: relative;
+    width: 70%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    left: 10%;
+    /* margin-bottom: 10px; */
+}
+
+.remember
+{
+    color: white;
+}
+
+.form-check
+{
+    display: flex;
+}
+
+.form-check-input
+{
+    width: auto;
+    margin-right: 15%;
+}
+
+btn{
+    border-radius: 10px;
+}
+
+.btn-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    left: -2%;
+}
+.btn-play {
+    position: relative;
+    width: 20%;
+    background: black;
+    color: lime;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+    left: -0.1rem;
+}
+
+.btn-or {
+    margin-top: 10px;
+    background: black;
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+input[type="radio"] {
+    top: 10rem;
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+input[type="radio"] + label {
+    background: white;
+    color: black;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+input[type="radio"]:checked + label {
+    background: #5c46aa;
+    color: white;
+}
