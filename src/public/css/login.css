@@ -1,18 +1,34 @@
-.all
-{
+.all {
     display: flex;
     height: 100vh;
-    margin: 0;
-    font-family: Arial, sans-serif;
+    width: 100%;
 }
-.left {
+
+/* Painel esquerdo - Formulário de login */
+.login-panel {
     width: 40%;
-    background: #5c46aa;
+    background-color: #673AB7;
     color: white;
-    padding: 40px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+@media (max-width: 768px) {
+    .login-panel {
+        width: 100%;
+    }
+
+    .welcome-panel {
+        display: none;
+    }
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
 }
 
 .logo-auth{
@@ -25,7 +41,7 @@
 .logo-container {
     position: relative;
     top: -2rem;
-    left: -10rem;
+    left: -20rem;
     background: #D7D7D7;
     height: 11rem;
     width: 25rem;
@@ -33,106 +49,175 @@
     margin: -30px 0 20px 0;
 }
 
-.right {
-    width: 60%;
-    background: #ddd;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.logo svg {
+    width: 5rem;
+    height: 5rem;
 }
 
-#tituloTipoCadastro{
-    position: relative;
-    left: 10%;
-    margin-bottom: 20px;
+h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    text-align: center;
 }
 
-.input-box {
-    width: 100%;
-    margin-bottom: 15px;
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
 }
 
 input {
-    position: relative;
-    width: 70%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    left: 10%;
-    /* margin-bottom: 10px; */
-}
-
-.remember
-{
-    color: white;
-}
-
-.form-check
-{
-    display: flex;
-}
-
-.form-check-input
-{
-    width: auto;
-    margin-right: 15%;
-}
-
-btn{
-    border-radius: 10px;
-}
-
-.btn-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    left: -2%;
-}
-.btn-play {
-    position: relative;
-    width: 20%;
-    background: black;
-    color: lime;
-    padding: 10px 20px;
+    width: 100%;
+    height: 3rem;
+    background-color: white;
+    color: #333;
     border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    font-weight: bold;
-    left: -0.1rem;
+    border-radius: 0.375rem;
+    padding: 0 1rem;
+    font-size: 1rem;
 }
 
-.btn-or {
-    margin-top: 10px;
-    background: black;
+.login-button {
+    width: 100%;
+    height: 3rem;
+    background-color: black;
     color: white;
-    text-decoration: none;
-    padding: 5px 10px;
-    border-radius: 5px;
+    border: none;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-input[type="radio"] {
-    top: 10rem;
+.login-button:hover {
+    background-color: #333;
+}
+
+.forgot-password {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.forgot-password a {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.875rem;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.forgot-password a:hover {
+    color: white;
+}
+
+.separator {
+    position: relative;
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.separator::before {
+    content: "";
     position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-input[type="radio"] + label {
-    background: white;
-    color: black;
-    padding: 10px 20px;
-    border-radius: 5px;
+.separator span {
+    position: relative;
+    background-color: #673AB7;
+    padding: 0 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+}
+
+.register-options h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.register-button {
+    width: 100%;
+    height: 3rem;
+    background-color: transparent;
+    color: rgb(255, 255, 255);
+    border: 1px solid white;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
     cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s;
-    margin-right: 10px;
-    display: inline-block;
+    transition: background-color 0.2s;
 }
 
-input[type="radio"]:checked + label {
-    background: #5c46aa;
-    color: white;
+.register-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Painel direito - Imagem de boas-vindas */
+.welcome-panel {
+    width: 60%;
+    background-color: #f1f1f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.welcome-container {
+    max-width: 32rem;
+    text-align: center;
+}
+
+.welcome-container h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.welcome-container img {
+    max-width: 100%;
+    height: auto;
+    max-height: 60vh;
+}
+
+/* Ícones */
+.arrow-right {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    position: relative;
+}
+
+.arrow-right::after {
+    content: "";
+    position: absolute;
+    top: 7px;
+    left: 0;
+    width: 12px;
+    height: 2px;
+    background-color: white;
+}
+
+.arrow-right::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    right: 0;
+    width: 6px;
+    height: 6px;
+    border-top: 2px solid white;
+    border-right: 2px solid white;
+    transform: rotate(45deg);
 }

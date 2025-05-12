@@ -1,46 +1,66 @@
 <div class="all">
-    <div class="left">
-        <div class="logo-container">
-            <img src="/img/logo.png" alt="logo" class="logo-auth">
-        </div>
-
-        <h2 id="tituloTipoCadastro">Cadastro de Estabelecimento</h2>
-
-        <!--<div class="radio-group">
-        <input type="radio" id="artista" name="tipo" value="artista" checked onclick="toggleCadastro('artista')">
-        <label for="artista">Artista</label>
-
-        <input type="radio" id="empresa" name="tipo" value="empresa" onclick="toggleCadastro('empresa')">
-        <label for="empresa">Empresa</label>
-    </div>
-    <p></p>-->
-
-        <form action="/registro-estabelecimento" method="POST">
-            <div class="input-box"><input type="text" name="name" placeholder="Nome de usuário"></div>
-            <div class="input-box"><input type="email" name="email" placeholder="Email"></div>
-            <div class="input-box"><input type="text" id="cellphone" name="cellphone" placeholder="Telefone"></div>
-
-            <div id="cnpj-field" class="input-box"><input type="text" name="cnpj" placeholder="CNPJ"></div>
-
-            <div class="input-box"><input type="password" name="password" placeholder="Senha"></div>
-            <div class="input-box"><input type="password" name="confirmPassword" placeholder="Confirmar Senha"></div>
-            <div class="btn-container">
-                <input class="btn-play" type="submit" value="Cadastrar ▶">
-                <a href="/login" class="btn-or">Já tenho conta | Login</a>
+    <div class="cadastro-panel">
+        <div class="cadastro-container">
+            <!-- Logo -->
+            <div class="logo-container">
+                <img src="../img/logo.png" alt="logo" class="logo-auth">
             </div>
-        </form>
+
+            <!-- Título -->
+            <h2>Cadastro de Empresa</h2>
+
+            <!-- Formulário -->
+            <form>
+                <div class="form-group">
+                    <input id="nome" type="text" placeholder="Nome de usuário">
+                </div>
+
+                <div class="form-group">
+                    <input id="email" type="email" placeholder="Email">
+                </div>
+
+                <div class="form-group">
+                    <input id="telefone" type="tel" placeholder="Telefone">
+                </div>
+
+                <div class="form-group">
+                    <input id="cnpj-field" type="text" placeholder="CNPJ">
+                </div>
+
+                <div class="form-group">
+                    <input id="senha" type="password" placeholder="Senha">
+                </div>
+
+                <div class="form-group">
+                    <input id="confirmar_senha" type="password" placeholder="Confirmar Senha">
+                </div>
+
+                <button type="button" class="cadastrar-button">
+                    <span>Cadastrar</span>
+                </button>
+
+                <div class="form-footer">
+                    <span>Já tem uma conta?</span>
+                    <a href="/login" class="login-link">Entrar</a>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="right">
-        <h2 id="welcomeText">Bem-vindo, Empresa!</h2>
-        <img id="welcomeImage" src="/img/imgEmpresa.png" alt="Imagem de Estabelecimento"
-            style="width: 50%; height: auto;">
+
+    <!-- Painel direito - Imagem de boas-vindas -->
+    <div class="welcome-panel">
+        <div class="welcome-container">
+            <h1>Bem-vindo, Artista!</h1>
+            <img width="100%" height="100%" viewBox="0 0 500 500" src="../img/imgEmpresa.png" alt="Imagem de Artista">
+            </img>
+        </div>
     </div>
 </div>
 
 <script>
     $(document).ready(function ()
     {
-        $('#cnpj-field input').mask('00.000.000/0000-00');
-        $('#cellphone').mask('(00) 00000-0000');
+        $('#cnpj-field').mask('00.000.000/0000-00');
+        $('#telefone').mask('(00) 00000-0000');
     });
 </script>
