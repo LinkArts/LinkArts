@@ -10,32 +10,32 @@
             <h2>Cadastro de Empresa</h2>
 
             <!-- Formulário -->
-            <form>
+            <form action="/registro-estabelecimento" method="POST">
                 <div class="form-group">
-                    <input id="nome" type="text" placeholder="Nome de usuário">
+                    <input id="nome" type="text" name="name" placeholder="Nome de usuário" required>
                 </div>
 
                 <div class="form-group">
-                    <input id="email" type="email" placeholder="Email">
+                    <input id="email" type="email" name="email" placeholder="Email" required>
                 </div>
 
                 <div class="form-group">
-                    <input id="telefone" type="tel" placeholder="Telefone">
+                    <input id="telefone" type="tel" name="cellphone" placeholder="Telefone" required>
                 </div>
 
                 <div class="form-group">
-                    <input id="cnpj-field" type="text" placeholder="CNPJ">
+                    <input id="cnpj-field" type="text" name="cnpj" placeholder="CNPJ" required>
                 </div>
 
                 <div class="form-group">
-                    <input id="senha" type="password" placeholder="Senha">
+                    <input id="senha" type="password" name="password" placeholder="Senha" required>
                 </div>
 
                 <div class="form-group">
-                    <input id="confirmar_senha" type="password" placeholder="Confirmar Senha">
+                    <input id="confirmar_senha" type="password" name="confirmPassword" placeholder="Confirmar Senha" required>
                 </div>
 
-                <button type="button" class="cadastrar-button">
+                <button type="submit" class="cadastrar-button">
                     <span>Cadastrar</span>
                 </button>
 

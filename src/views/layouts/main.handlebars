@@ -20,10 +20,6 @@
 
 <body>
     <h2>LOGADO COMO: {{session.username}}</h2>
-    <form action="/email" method="POST">
-        <button type="submit">Enviar E-mail</button>
-    </form>
-    <a href="/profile/{{session.userid}}">Perfil</a>
 
     {{#if session.userid}}
     {{#unless hideNavbar}}
