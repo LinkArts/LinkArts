@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {{!-- Título da página pode ser dinâmico --}}
+    <title>{{#if pageTitle}}{{pageTitle}}{{else}}Sistema de Chat{{/if}}</title>
+    <link rel="stylesheet" href="LinkArts\src\public\css\chat.css">
+  </head>
+  <body>
+    <!-- Standard Header -->
+    <header class="standard-header">
+      <div class="header-content">
+        <div class="header-logo">
+          {{!-- Título do sistema no cabeçalho pode ser dinâmico --}}
+          <h1>{{#if headerSystemTitle}}{{headerSystemTitle}}{{else}}ChatSystem{{/if}}</h1>
+        </div>
+        <div class="header-actions">
+          <button class="header-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          </button>
+          {{!-- Bloco do usuário, pode ser condicional se o usuário estiver logado --}}
+          {{#if user}}
+          <div class="header-user">
+            <img src="{{user.avatarUrl}}" alt="{{user.avatarAlt}}" class="header-avatar">
+          </div>
+          {{else}}
+          {{!-- Opcional: Mostrar um botão de login se não houver usuário --}}
+          <!-- <button class="login-button">Login</button> -->
+          {{/if}}
+        </div>
+      </div>
+    </header>
+
+    <div id="chat-app">
+      <!-- O conteúdo principal do chat será renderizado aqui por chat.js,
+           possivelmente usando outros templates Handlebars parciais -->
+    </div>
+    <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Create and append the chat HTML structure
+  const chatApp = document.getElementById('chat-app');
+  
+  // Mock data
+  const users = [
+    {
+      id: '1',
+      name: 'Taylor Mendes',
+      imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
+      lastMessage: 'Olá, tudo bem? Gostaria de discutir sobre o evento...',
+      time: '12:30',
+      isActive: true
+    },
+    {
+      id: '2',
+      name: 'Rafael Silva',
+      imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
+      lastMessage: 'Podemos agendar uma reunião para discutir os detalhes?',
+      time: '09:45',
+      isActive: false
+    },
+    {
+      id: '3',
+      name: 'Camila Santos',
+      imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
+      lastMessage: 'Confirmado para sexta-feira às 18h!',
+      time: 'Ontem',
+      isActive: false
+    },
+    {
+      id: '4',
+      name: 'Lucas Oliveira',
+      imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
+      lastMessage: 'Obrigado pelo contato. Vou verificar minha agenda.',
+      time: 'Ontem',
+      isActive: false
+    },
+    {
+      id: '5',
+      name: 'Mariana Costa',
+      imageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2',
+      lastMessage: 'Ótimo! Estou animada para trabalhar com você.',
+      time: '25/04',
+      isActive: false
+    }
+  ];
+
+  const messages = [
+    {
+      id: '1',
+      content: 'Olá, tudo bem? Estou entrando em contato sobre o evento de sábado.',
+      sender: '1',
+      timestamp: '12:10',
+      isCurrentUser: false
+    },
+    {
+      id: '2',
+      content: 'Olá Taylor! Tudo bem, sim. Me conte mais sobre o evento.',
+      sender: 'me',
+      timestamp: '12:15',
+      isCurrentUser: true
+    },
+    {
+      id: '3',
+      content: 'É uma celebração de aniversário. Estamos procurando um vocalista para cantar algumas músicas de jazz e R&B.',
+      sender: '1',
+      timestamp: '12:18',
+      isCurrentUser: false
+    },
+    {
+      id: '4',
+      content: 'Perfeito! Isso está dentro do meu repertório. Qual seria o horário e duração da apresentação?',
+      sender: 'me',
+      timestamp: '12:20',
+      isCurrentUser: true
+    },
+    {
+      id: '5',
+      content: 'Gostaríamos de começar às 20h, com duração de aproximadamente 2 horas. Poderia me enviar uma proposta com os valores?',
+      sender: '1',
+      timestamp: '12:24',
+      isCurrentUser: false
+    },
+    {
+      id: '6',
+      content: 'Claro! Vou preparar uma proposta para você. Você tem alguma preferência específica de música?',
+      sender: 'me',
+      timestamp: '12:30',
+      isCurrentUser: true
+    }
+  ];
+
+  const currentUser = users[0];
+  
+  // Create the HTML structure
+  chatApp.innerHTML = `
+    <!-- Left column - User conversations -->
+    <div class="users-column">
+      <div class="users-header">
+        <h2>Conversas</h2>
+      </div>
+      <div class="users-list">
+        ${users.map(user => `
+          <div class="user-conversation ${user.isActive ? 'active' : ''}" data-user-id="${user.id}">
+            <img src="${user.imageUrl}" alt="${user.name}" class="user-avatar">
+            <div class="user-info">
+              <div class="user-name-time">
+                <div class="user-name">${user.name}</div>
+                <div class="user-time">${user.time}</div>
+              </div>
+              <div class="last-message">${user.lastMessage}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Middle column - Chat area -->
+    <div class="chat-column">
+      <div class="chat-header">
+        <div class="chat-user">
+          <img src="${currentUser.imageUrl}" alt="${currentUser.name}">
+          <div class="chat-user-info">
+            <h3>${currentUser.name}</h3>
+            <div class="online-status">Online</div>
+          </div>
+        </div>
+        <button class="report-button">Reportar conversa</button>
+      </div>
+      <div class="messages-container">
+        ${messages.map(message => `
+          <div class="message ${message.isCurrentUser ? 'sent' : 'received'}">
+            <div class="message-bubble">${message.content}</div>
+            <div class="message-time">${message.timestamp}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="input-area">
+        <div class="message-form">
+          <div class="input-container">
+            <textarea class="message-input" placeholder="Digite sua mensagem..."></textarea>
+            <div class="input-buttons">
+              <button class="attachment-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              </button>
+              <button class="send-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="send-proposal">
+            <button class="proposal-button">
+              <span class="icon-plus"></span>
+              Enviar Proposta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column - User profile -->
+    <div class="profile-column">
+      <div class="profile-header">
+        <img src="${currentUser.imageUrl}" alt="${currentUser.name}" class="profile-avatar">
+        <div class="profile-name">Taylor Mendes</div>
+        <div class="profile-profession">Artista</div>
+        <div class="profile-location">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          Nashville, TN
+        </div>
+        <div class="rating-reviews">
+          <div class="rating">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>4.8</span>
+          </div>
+          <div class="reviews">(8 avaliações)</div>
+        </div>
+      </div>
+
+      <div class="profile-divider"></div>
+
+      <div class="profile-bio">
+        <div class="bio-title">Biografia</div>
+        <div class="bio-text">Soulful vocalist with 5 years of experience performing across local venues. Specializing in R&B, jazz, and contemporary pop covers.</div>
+      </div>
+
+      <div class="profile-tags">
+        <div class="profile-tag">Artista</div>
+        <div class="profile-tag">Vocalista</div>
+        <div class="profile-tag">Jazz</div>
+        <div class="profile-tag">R&B</div>
+      </div>
+    </div>
+
+    <!-- Proposal Modal -->
+    <div class="modal" id="proposal-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Enviar Proposta</h2>
+          <button class="close-modal">&times;</button>
+        </div>
+        <form class="proposal-form">
+          <div class="form-group">
+            <label for="proposal-date" class="form-label">Data do Evento</label>
+            <input type="date" id="proposal-date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="proposal-price" class="form-label">Valor</label>
+            <div class="price-input-container">
+              <span>R$</span>
+              <input type="number" id="proposal-price" class="form-input price-input" placeholder="0,00">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="proposal-description" class="form-label">Descrição da Proposta</label>
+            <textarea id="proposal-description" class="form-textarea" placeholder="Descreva os detalhes da sua proposta..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gêneros Musicais</label>
+            <div class="genres-container">
+              <div class="genre-item">
+                <input type="checkbox" id="genre-rock" class="genre-checkbox" value="Rock">
+                <label for="genre-rock">Rock</label>
+              </div>
+              <div class="genre-item">
+                <input type="checkbox" id="genre-pop" class="genre-checkbox" value="Pop">
+                <label for="genre-pop">Pop</label>
+              </div>
+              <div class="genre-item">
+                <input type="checkbox" id="genre-jazz" class="genre-checkbox" value="Jazz">
+                <label for="genre-jazz">Jazz</label>
+              </div>
+              <div class="genre-item">
+                <input type="checkbox" id="genre-rb" class="genre-checkbox" value="R&B">
+                <label for="genre-rb">R&B</label>
+              </div>
+              <div class="genre-item">
+                <input type="checkbox" id="genre-eletronica" class="genre-checkbox" value="Eletrônica">
+                <label for="genre-eletronica">Eletrônica</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="cancel-button">Cancelar</button>
+            <button type="submit" class="submit-button">Enviar Proposta</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast">Proposta enviada com sucesso!</div>
+  `;
+
+  // DOM elements
+  const proposalButton = chatApp.querySelector('.proposal-button');
+  const modal = chatApp.querySelector('#proposal-modal');
+  const closeModalButton = chatApp.querySelector('.close-modal');
+  const cancelButton = chatApp.querySelector('.cancel-button');
+  const proposalForm = chatApp.querySelector('.proposal-form');
+  const messageInput = chatApp.querySelector('.message-input');
+  const sendButton = chatApp.querySelector('.send-button');
+  const messagesContainer = chatApp.querySelector('.messages-container');
+  const reportButton = chatApp.querySelector('.report-button');
+  const toast = chatApp.querySelector('#toast');
+  const userConversations = chatApp.querySelectorAll('.user-conversation');
+  const headerUserAvatar = document.querySelector('.header-avatar');
+  const headerNotification = document.querySelector('.header-button');
+
+  // Add header interaction
+  if (headerUserAvatar) {
+    headerUserAvatar.addEventListener('click', function() {
+      toast.textContent = 'Perfil do usuário';
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    });
+  }
+
+  if (headerNotification) {
+    headerNotification.addEventListener('click', function() {
+      toast.textContent = 'Notificações';
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    });
+  }
+
+  // Event listeners
+  proposalButton.addEventListener('click', function() {
+    modal.classList.add('show');
+  });
+
+  closeModalButton.addEventListener('click', function() {
+    modal.classList.remove('show');
+  });
+
+  cancelButton.addEventListener('click', function() {
+    modal.classList.remove('show');
+  });
+
+  proposalForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Get form values
+    const date = document.getElementById('proposal-date').value;
+    const price = document.getElementById('proposal-price').value;
+    const description = document.getElementById('proposal-description').value;
+    
+    const selectedGenres = [];
+    document.querySelectorAll('.genre-checkbox:checked').forEach(checkbox => {
+      selectedGenres.push(checkbox.value);
+    });
+    
+    // Validate form
+    if (!date || !price || !description || selectedGenres.length === 0) {
+      alert('Por favor, preencha todos os campos!');
+      return;
+    }
+    
+    // Create a new message for the proposal
+    const formattedDate = new Date(date).toLocaleDateString('pt-BR');
+    const formattedPrice = `R$ ${parseFloat(price).toFixed(2)}`;
+    const genresText = selectedGenres.join(', ');
+    
+    const proposalMessageHTML = `
+      <div class="message sent">
+        <div class="message-bubble">
+          Proposta enviada: ${formattedPrice} para evento no dia ${formattedDate}. Gêneros: ${genresText}
+        </div>
+        <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+      </div>
+    `;
+    
+    // Add the message to the chat
+    messagesContainer.insertAdjacentHTML('beforeend', proposalMessageHTML);
+    
+    // Scroll to the bottom of the chat
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Close the modal and reset the form
+    modal.classList.remove('show');
+    proposalForm.reset();
+    
+    // Show the toast notification
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  });
+
+  sendButton.addEventListener('click', sendMessage);
+  
+  messageInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  function sendMessage() {
+    const message = messageInput.value.trim();
+    
+    if (message) {
+      const messageHTML = `
+        <div class="message sent">
+          <div class="message-bubble">${message}</div>
+          <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+        </div>
+      `;
+      
+      messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
+      messageInput.value = '';
+      
+      // Scroll to the bottom of the chat
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }
+
+  reportButton.addEventListener('click', function() {
+    toast.textContent = 'Conversa reportada. Nossa equipe irá analisar o conteúdo.';
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  });
+
+  // Handle user conversation clicks
+  userConversations.forEach(conversation => {
+    conversation.addEventListener('click', function() {
+      // Remove active class from all conversations
+      userConversations.forEach(c => c.classList.remove('active'));
+      
+      // Add active class to clicked conversation
+      this.classList.add('active');
+      
+      // In a real app, we would load the conversation history here
+    });
+  });
+
+  // Initial scroll to bottom of messages
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+  // Close modal when clicking outside of it
+  window.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      modal.classList.remove('show');
+    }
+  });
+});
+
+    </script>
+  </body>
+</html>
