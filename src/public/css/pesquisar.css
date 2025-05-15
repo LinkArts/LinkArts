@@ -1,0 +1,373 @@
+/* Layout principal */
+.page-container {
+    display: flex;
+    /* Usa flexbox para layout lateral */
+    min-height: 100vh;
+    /* Garante que o container ocupe a altura total da viewport */
+}
+
+/* Estilos do Filtro (Sidebar Esquerda) */
+.filter-sidebar {
+    width: 250px;
+    /* Largura fixa da sidebar */
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    /* Impede que a sidebar diminua */
+}
+
+.filter-sidebar h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.filter-sidebar form {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group {
+    margin-bottom: 15px;
+}
+
+.filter-group input[type="radio"] {
+    margin-right: 8px;
+}
+
+.filter-sidebar button {
+    padding: 10px 15px;
+    background-color: #673AB7;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.filter-sidebar button:hover {
+    background-color: #673AB7;
+}
+
+/* Área Central de Perfis */
+.profiles-area {
+    flex-grow: 1;
+    /* Permite que a área de perfis ocupe o espaço restante */
+    padding: 20px;
+}
+
+.profiles-area h1 {
+    margin-top: 0;
+    margin-bottom: 30px;
+    color: #333;
+    text-align: center;
+}
+
+.profiles-grid {
+    display: grid;
+    /* Cria colunas que se ajustam, mínimo de 250px, máximo de 1fr (espaço disponível) */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    /* Espaço entre os cards */
+}
+
+/* Estilo de cada Card de Perfil */
+.profile-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    /* Empilha imagem, detalhes e botão */
+    align-items: center;
+    /* Centraliza conteúdo horizontalmente */
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: translateY(-5px);
+    /* Efeito sutil ao passar o mouse */
+}
+
+.profile-image-container {
+    width: 100px;
+    /* Tamanho do container da imagem */
+    height: 100px;
+    border-radius: 50%;
+    /* Transforma o container em círculo */
+    overflow: hidden;
+    /* Garante que a imagem cortada */
+    margin-bottom: 15px;
+    border: 3px solid #673AB7;
+    /* Borda colorida ao redor da imagem */
+}
+
+.profile-image-container img {
+    display: block;
+    /* Remove espaço extra abaixo da imagem */
+    width: 100%;
+    /* Imagem ocupa 100% do container */
+    height: 100%;
+    object-fit: cover;
+    /* Cobre o container sem distorcer, cortando se necessário */
+}
+
+.profile-details {
+    flex-grow: 1;
+    /* Permite que os detalhes ocupem o espaço restante para empurrar o botão para baixo */
+    margin-bottom: 15px;
+}
+
+.profile-name {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #673AB7;
+}
+
+.profile-type {
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.profile-description {
+    font-size: 0.95em;
+    color: #555;
+    margin-bottom: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Adiciona "..." se o texto for muito longo */
+    display: -webkit-box;
+    /* Para limitar linhas em Webkit browsers */
+    -webkit-line-clamp: 3;
+    /* Limita a 3 linhas (ajuste conforme necessário) */
+    -webkit-box-orient: vertical;
+}
+
+.profile-rating {
+    font-size: 1.1em;
+    color: #000000;
+    /* Cor das estrelas */
+    margin-bottom: 15px;
+}
+
+.profile-rating span {
+    color: #ccc;
+    /* Cor para estrelas não preenchidas */
+}
+
+
+.view-profile-button {
+    display: inline-block;
+    /* Para que o padding funcione */
+    padding: 10px 20px;
+    background-color: #673AB7;
+    color: white;
+    text-decoration: none;
+    /* Se usar <a> */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    margin-top: auto;
+    /* Empurra o botão para o final do flex container (.profile-card) */
+}
+
+.view-profile-button:hover {
+    background-color: #218838;
+}
+
+/* Responsividade básica */
+@media (max-width: 768px) {
+    .page-container {
+        flex-direction: column;
+        /* Empilha sidebar e perfis em telas menores */
+    }
+
+    .filter-sidebar {
+        width: 100%;
+        /* Sidebar ocupa largura total */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding-bottom: 10px;
+    }
+
+    .filter-sidebar h2 {
+        text-align: center;
+    }
+
+    .filter-sidebar form {
+        flex-direction: row;
+        /* Radio buttons lado a lado */
+        gap: 15px;
+        /* Espaço entre os grupos de rádio */
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        /* Permite que os radios quebrem linha se a tela for muito estreita */
+    }
+
+    .filter-group {
+        margin-bottom: 0;
+        /* Remove margin inferior quando lado a lado */
+    }
+
+    .filter-sidebar button {
+        width: auto;
+        /* Botão não ocupa largura total */
+        margin-top: 15px;
+    }
+
+    .profiles-area {
+        padding-top: 10px;
+        /* Ajusta padding superior */
+    }
+}
+
+.card {
+    background-color: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+    position: relative;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-image-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.card-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid black;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.status-indicator {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.status-available {
+    background-color: #4CAF50;
+}
+
+.status-unavailable {
+    background-color: #F44336;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+    text-align: center;
+}
+
+.card-location {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.card-rating {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+}
+
+.star {
+    color: #000000;
+    margin: 0 1px;
+}
+
+.card-description {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.tag {
+    background-color: #f1f1f1;
+    border-radius: 50px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    color: #555;
+}
+
+.card-action {
+    text-align: center;
+}
+
+.profile-button {
+    background: none;
+    border: none;
+    color: #673AB7;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.service-button {
+    background-color: #673AB7;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: inline-block;
+}
+
+.service-button:hover {
+    background-color: #5E35B1;
+}
+
+.arrow-icon {
+    margin-left: 4px;
+}

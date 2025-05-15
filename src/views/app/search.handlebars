@@ -1,8 +1,7 @@
 <div class="page-container">
-
     <aside class="filter-sidebar">
         <h2>Filtrar</h2>
-        <form id="filtroUsuariosForm" method="GET" action="/filtro">
+        <form id="filtroUsuariosForm">
             <div class="filter-group">
                 <input type="radio" id="filterTodos" name="tipoUsuario" value="todos" checked>
                 <label for="filterTodos">Todos</label>
@@ -25,323 +24,62 @@
     <main class="profiles-area">
         <h1>Resultados da Pesquisa</h1>
         <div id="profilesList" class="profiles-grid">
-            <div class="profile-card">
-                <div class="profile-image-container">
-                    <img src="https://via.placeholder.com/150" alt="Foto de Perfil">
-                </div>
-                <div class="profile-details">
-                    <h3 class="profile-name">Nome do Usuário</h3>
-                    <p class="profile-type">Tipo: Artista</p>
-                    <p class="profile-description">Uma pequena descrição sobre o usuário ou estabelecimento...</p>
-                    <div class="profile-rating">
-                        Nota: ⭐⭐⭐⭐<span>☆</span> </div>
-                </div>
-                <button class="view-profile-button">Ver Perfil</button>
-            </div>
-
-            <div class="profile-card">
-                <div class="profile-image-container">
-                    <img src="https://via.placeholder.com/150/FF5733/FFFFFF?text=Est"
-                        alt="Foto de Perfil Estabelecimento">
-                </div>
-                <div class="profile-details">
-                    <h3 class="profile-name">Nome do Estabelecimento</h3>
-                    <p class="profile-type">Tipo: Estabelecimento</p>
-                    <p class="profile-description">Especializado em... Localizado em...</p>
-                    <div class="profile-rating">
-                        Nota: ⭐⭐⭐⭐⭐
-                    </div>
-                </div>
-                <button class="view-profile-button">Ver Perfil</button>
-            </div>
-            <div class="profile-card">
-                <div class="profile-image-container">
-                    <img src="https://via.placeholder.com/150/33FF57/FFFFFF?text=Art" alt="Foto de Perfil Artista">
-                </div>
-                <div class="profile-details">
-                    <h3 class="profile-name">Outro Artista</h3>
-                    <p class="profile-type">Tipo: Artista</p>
-                    <p class="profile-description">Trabalha com... Apresenta-se em...</p>
-                    <div class="profile-rating">
-                        Nota: ⭐⭐⭐<span>⭐⭐</span>
-                    </div>
-                </div>
-                <button class="view-profile-button">Ver Perfil</button>
-            </div>
-
-
+            {{#each results}}
+            {{> dashboardCard}}
+            {{/each}}
         </div>
     </main>
 </div>
 
-<style>
-        /* Reset básico */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: sans-serif;
-            line-height: 1.6;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-
-        /* Layout principal */
-        .page-container {
-            display: flex; /* Usa flexbox para layout lateral */
-            min-height: 100vh; /* Garante que o container ocupe a altura total da viewport */
-        }
-
-        /* Estilos do Filtro (Sidebar Esquerda) */
-        .filter-sidebar {
-            width: 250px; /* Largura fixa da sidebar */
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0; /* Impede que a sidebar diminua */
-        }
-
-        .filter-sidebar h2 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #555;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .filter-sidebar form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .filter-group {
-            margin-bottom: 15px;
-        }
-
-        .filter-group input[type="radio"] {
-            margin-right: 8px;
-        }
-
-        .filter-sidebar button {
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-            margin-top: 10px;
-        }
-
-        .filter-sidebar button:hover {
-            background-color: #0056b3;
-        }
-
-        /* Área Central de Perfis */
-        .profiles-area {
-            flex-grow: 1; /* Permite que a área de perfis ocupe o espaço restante */
-            padding: 20px;
-        }
-
-        .profiles-area h1 {
-            margin-top: 0;
-            margin-bottom: 30px;
-            color: #333;
-            text-align: center;
-        }
-
-        .profiles-grid {
-            display: grid;
-            /* Cria colunas que se ajustam, mínimo de 250px, máximo de 1fr (espaço disponível) */
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px; /* Espaço entre os cards */
-        }
-
-        /* Estilo de cada Card de Perfil */
-        .profile-card {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            display: flex;
-            flex-direction: column; /* Empilha imagem, detalhes e botão */
-            align-items: center; /* Centraliza conteúdo horizontalmente */
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-
-        .profile-card:hover {
-            transform: translateY(-5px); /* Efeito sutil ao passar o mouse */
-        }
-
-        .profile-image-container {
-            width: 100px; /* Tamanho do container da imagem */
-            height: 100px;
-            border-radius: 50%; /* Transforma o container em círculo */
-            overflow: hidden; /* Garante que a imagem cortada */
-            margin-bottom: 15px;
-            border: 3px solid #007bff; /* Borda colorida ao redor da imagem */
-        }
-
-        .profile-image-container img {
-            display: block; /* Remove espaço extra abaixo da imagem */
-            width: 100%; /* Imagem ocupa 100% do container */
-            height: 100%;
-            object-fit: cover; /* Cobre o container sem distorcer, cortando se necessário */
-        }
-
-        .profile-details {
-            flex-grow: 1; /* Permite que os detalhes ocupem o espaço restante para empurrar o botão para baixo */
-            margin-bottom: 15px;
-        }
-
-        .profile-name {
-            margin-top: 0;
-            margin-bottom: 5px;
-            color: #007bff;
-        }
-
-        .profile-type {
-            margin-bottom: 10px;
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        .profile-description {
-            font-size: 0.95em;
-            color: #555;
-            margin-bottom: 15px;
-             overflow: hidden;
-            text-overflow: ellipsis; /* Adiciona "..." se o texto for muito longo */
-            display: -webkit-box; /* Para limitar linhas em Webkit browsers */
-            -webkit-line-clamp: 3; /* Limita a 3 linhas (ajuste conforme necessário) */
-            -webkit-box-orient: vertical;
-        }
-
-        .profile-rating {
-            font-size: 1.1em;
-            color: #ffc107; /* Cor das estrelas */
-            margin-bottom: 15px;
-        }
-
-         .profile-rating span {
-            color: #ccc; /* Cor para estrelas não preenchidas */
-        }
-
-
-        .view-profile-button {
-            display: inline-block; /* Para que o padding funcione */
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            text-decoration: none; /* Se usar <a> */
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-            margin-top: auto; /* Empurra o botão para o final do flex container (.profile-card) */
-        }
-
-        .view-profile-button:hover {
-            background-color: #218838;
-        }
-
-        /* Responsividade básica */
-        @media (max-width: 768px) {
-            .page-container {
-                flex-direction: column; /* Empilha sidebar e perfis em telas menores */
-            }
-
-            .filter-sidebar {
-                width: 100%; /* Sidebar ocupa largura total */
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-                padding-bottom: 10px;
-            }
-
-            .filter-sidebar h2 {
-                 text-align: center;
-            }
-
-            .filter-sidebar form {
-                 flex-direction: row; /* Radio buttons lado a lado */
-                 gap: 15px; /* Espaço entre os grupos de rádio */
-                 justify-content: center;
-                 align-items: center;
-                 flex-wrap: wrap; /* Permite que os radios quebrem linha se a tela for muito estreita */
-            }
-
-             .filter-group {
-                margin-bottom: 0; /* Remove margin inferior quando lado a lado */
-            }
-
-            .filter-sidebar button {
-                width: auto; /* Botão não ocupa largura total */
-                 margin-top: 15px;
-            }
-
-            .profiles-area {
-                padding-top: 10px; /* Ajusta padding superior */
-            }
-        }
-    </style>
-
 <script>
+    // Este script é para a funcionalidade de filtro dinâmico
+    // Se você estiver usando submit de formulário tradicional,
+    // este bloco de script não é estritamente necessário para o layout inicial.
 
     const formFiltro = document.getElementById('filtroUsuariosForm');
-    
+    const profilesListDiv = document.getElementById('profilesList');
+    const searchInput = document.getElementById('search-input');
 
-        // Este script é para a funcionalidade de filtro dinâmico
-        // Se você estiver usando submit de formulário tradicional,
-        // este bloco de script não é estritamente necessário para o layout inicial.
+    // Adiciona um listener para o evento submit do formulário
+    formFiltro.addEventListener('submit', async (event) =>
+    {
+        event.preventDefault(); // Impede o envio padrão do formulário
 
-        /*const formFiltro = document.getElementById('filtroUsuariosForm');
-        const profilesListDiv = document.getElementById('profilesList');
+        // Obtém o valor do radio button selecionado
+        const formData = new FormData(formFiltro);
+        const tipoUsuario = formData.get('tipoUsuario');
 
-        // Adiciona um listener para o evento submit do formulário
-        formFiltro.addEventListener('submit', async (event) =>
+        console.log('Filtrando por:', tipoUsuario); // Para debug
+
+        // Constrói a URL da requisição GET com o parâmetro de filtro
+        const url = `/pesquisar?search=${ searchInput.value }&type=${ tipoUsuario }`; // Rota do seu backend
+
+        try
         {
-            event.preventDefault(); // Impede o envio padrão do formulário
+            // Faz a requisição assíncrona para o backend
+            const response = await fetch(url);
 
-            // Obtém o valor do radio button selecionado
-            const formData = new FormData(formFiltro);
-            const tipoUsuario = formData.get('tipoUsuario');
-
-            console.log('Filtrando por:', tipoUsuario); // Para debug
-
-            // Constrói a URL da requisição GET com o parâmetro de filtro
-            const url = `/usuarios?tipoUsuario=${ tipoUsuario }`; // Rota do seu backend
-
-            try
+            // Verifica se a resposta foi bem-sucedida
+            if (!response.ok)
             {
-                // Faz a requisição assíncrona para o backend
-                const response = await fetch(url);
+                throw new Error(`Erro HTTP! Status: ${ response.status }`);
+            }
 
-                // Verifica se a resposta foi bem-sucedida
-                if (!response.ok)
+            // Assume que o backend retorna um array de objetos JSON
+            const usuarios = await response.json();
+
+            console.log('Dados recebidos:', usuarios); // Para debug
+
+            // Limpa o conteúdo atual da lista de perfis
+            profilesListDiv.innerHTML = '';
+
+            // Verifica se há usuários para exibir
+            if (usuarios.length > 0)
+            {
+                // Itera sobre os usuários recebidos e cria os cards
+                usuarios.forEach(usuario =>
                 {
-                    throw new Error(`Erro HTTP! Status: ${ response.status }`);
-                }
-
-                // Assume que o backend retorna um array de objetos JSON
-                const usuarios = await response.json();
-
-                console.log('Dados recebidos:', usuarios); // Para debug
-
-                // Limpa o conteúdo atual da lista de perfis
-                profilesListDiv.innerHTML = '';
-
-                // Verifica se há usuários para exibir
-                if (usuarios.length > 0)
-                {
-                    // Itera sobre os usuários recebidos e cria os cards
-                    usuarios.forEach(usuario =>
-                    {
-                        const cardHtml = `
+                    const cardHtml = `
                             <div class="profile-card">
                                 <div class="profile-image-container">
                                     <img src="${ usuario.imageUrl || 'https://via.placeholder.com/150' }" alt="Foto de Perfil">
@@ -357,49 +95,39 @@
                                 <button class="view-profile-button" data-user-id="${ usuario.id }">Ver Perfil</button>
                             </div>
                         `;
-                        profilesListDiv.innerHTML += cardHtml; // Adiciona o HTML do card à lista
-                    });
+                    profilesListDiv.innerHTML += cardHtml; // Adiciona o HTML do card à lista
+                });
 
-                    // Adiciona listeners aos botões "Ver Perfil" APÓS eles serem adicionados ao DOM
-                    profilesListDiv.querySelectorAll('.view-profile-button').forEach(button =>
-                    {
-                        button.addEventListener('click', () =>
-                        {
-                            const userId = button.dataset.userId;
-                            alert(`Visualizar perfil do usuário com ID: ${ userId }`);
-                            // Aqui você faria a navegação para a página de detalhes do perfil
-                            // Ex: window.location.href = `/perfil/${userId}`;
-                        });
-                    });
-
-
-                } else
+                // Adiciona listeners aos botões "Ver Perfil" APÓS eles serem adicionados ao DOM
+                profilesListDiv.querySelectorAll('.view-profile-button').forEach(button =>
                 {
-                    // Mensagem caso nenhum usuário seja encontrado
-                    profilesListDiv.innerHTML = '<p>Nenhum usuário encontrado com este filtro.</p>';
-                }
+                    button.addEventListener('click', () =>
+                    {
+                        const userId = button.dataset.userId;
+                        alert(`Visualizar perfil do usuário com ID: ${ userId }`);
+                        // Aqui você faria a navegação para a página de detalhes do perfil
+                        // Ex: window.location.href = `/perfil/${userId}`;
+                    });
+                });
 
-            } catch (error)
+
+            } else
             {
-                console.error('Erro ao buscar usuários:', error);
-                profilesListDiv.innerHTML = '<p>Ocorreu um erro ao carregar os usuários.</p>';
+                // Mensagem caso nenhum usuário seja encontrado
+                profilesListDiv.innerHTML = '<p>Nenhum usuário encontrado com este filtro.</p>';
             }
-        });
 
-        // Função auxiliar para gerar as estrelas (exemplo simples com unicode)
-        function generateStarRating(rating)
+        } catch (error)
         {
-            const maxRating = 5;
-            const filledStars = '⭐'.repeat(Math.round(rating));
-            const emptyStars = '<span>☆</span>'.repeat(maxRating - Math.round(rating));
-            return filledStars + emptyStars;
+            console.error('Erro ao buscar usuários:', error);
+            profilesListDiv.innerHTML = '<p>Ocorreu um erro ao carregar os usuários.</p>';
         }
+    });
 
-
-        // Opcional: Carregar a lista inicial de usuários (filtro 'todos') ao carregar a página
-        // Dispara o evento submit do formulário no carregamento
-        document.addEventListener('DOMContentLoaded', () =>
-        {
-            formFiltro.dispatchEvent(new Event('submit'));
-        });*/
-    </script>-->
+    // Opcional: Carregar a lista inicial de usuários (filtro 'todos') ao carregar a página
+    // Dispara o evento submit do formulário no carregamento
+    document.addEventListener('DOMContentLoaded', () =>
+    {
+        formFiltro.dispatchEvent(new Event('submit'));
+    });
+</script>

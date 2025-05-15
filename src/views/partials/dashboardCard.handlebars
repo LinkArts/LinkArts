@@ -1,0 +1,31 @@
+<div class="card">
+    <span class="status-indicator status-available" title="Contratando"></span>
+    <div class="card-image-container">
+        <div class="card-image">
+            <img src="img/default.jpg" alt="{{name}}">
+        </div>
+    </div>
+    <h3 class="card-title">{{name}}</h3>
+    <p class="card-location">{{city}}</p>
+    <div class="card-rating">
+        <span class="star">★</span>
+        <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">{{rating}}
+            ({{reviews}})</span>
+    </div>
+    <p class="card-description">{{#if description}} {{description}} {{else}} Não há descrição! {{/if}}</p>
+    <div class="card-tags">
+        {{#if tags}}
+        {{#each tags}}
+        <span class="tag">{{this}}</span>
+        {{/each}}
+        {{else}}
+        <span class="tag">Sem Tags</span>
+        {{/if}}
+    </div>
+    <div class="card-action">
+        <a href="/profile/{{id}}" class="profile-button">
+            Ver perfil
+            <span class="arrow-icon">→</span>
+        </a>
+    </div>
+</div>

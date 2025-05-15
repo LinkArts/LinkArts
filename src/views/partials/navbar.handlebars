@@ -1,31 +1,183 @@
-<header class="topbar">
-    <div class="logo-box">
-        <a href="/"><img src="img/logo2.png" alt="Logo" class="logo"></a>
+<nav class="navbar">
+  <div class="navbar-content">
+    <div class="logo">
+      <a href="/"><img src="img/logo2.png" alt="Logo" class="logo"></a>
     </div>
-    <form action="/pesquisar" method="GET">
-        <input type="text" id="search-input" class="search-input" name="search" placeholder="Pesquise aqui">
-        <button type="submit">Pesquisar</button>
+
+    <form action="/pesquisar" class="search-bar" method="GET">
+      <input type="text" id="search-input" name="search" placeholder="Pesquise aqui">
+      <button type="submit" class="search-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
     </form>
-    <div class="icon-bar">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="icon heart-icon"
-            viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314" />
-        </svg>
 
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="icon mail-icon"
-            viewBox="0 0 16 16">
-            <path
-                d="M16 2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9.586a1 1 0 0 1 .707.293l2.853 2.853a.5.5 0 0 0 .854-.353zM3.5 3h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1m0 2.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1m0 2.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1" />
+    <div class="nav-icons">
+      <div class="nav-icon" id="heart-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
-
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="icon bell-icon"
-            viewBox="0 0 16 16">
-            <path
-                d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
+        <div class="popup" id="heart-popup">
+          <div class="popup-header">
+            <h3 class="popup-title">Favoritos</h3>
+          </div>
+          <div class="popup-content">
+            <div class="popup-item">
+              <div class="popup-item-image">
+                <img src="/placeholder.svg" alt="Blue Note Café">
+              </div>
+              <div class="popup-item-content">
+                <h4 class="popup-item-title">Blue Note Café</h4>
+                <p class="popup-item-description">Jazz e café</p>
+              </div>
+            </div>
+            <div class="popup-item">
+              <div class="popup-item-image">
+                <img src="/placeholder.svg" alt="Show de Jazz">
+              </div>
+              <div class="popup-item-content">
+                <h4 class="popup-item-title">Show de Jazz</h4>
+                <p class="popup-item-description">Evento especial</p>
+              </div>
+            </div>
+            <div class="popup-item">
+              <div class="popup-item-image">
+                <img src="/placeholder.svg" alt="Workshop Musical">
+              </div>
+              <div class="popup-item-content">
+                <h4 class="popup-item-title">Workshop Musical</h4>
+                <p class="popup-item-description">Aprenda música</p>
+              </div>
+            </div>
+          </div>
+          <div class="popup-footer">
+            <button class="popup-button">Ver todos</button>
+          </div>
+        </div>
+      </div>
+      <div class="nav-icon" id="message-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
-
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon perfil-icon" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+        <div class="popup" id="message-popup">
+          <div class="popup-header">
+            <h3 class="popup-title">Mensagens</h3>
+          </div>
+          <div class="popup-content">
+            <div class="popup-item">
+              <div class="popup-item-image">
+                <img src="/placeholder.svg" alt="João Silva">
+              </div>
+              <div class="popup-item-content">
+                <h4 class="popup-item-title">João Silva</h4>
+                <p class="popup-item-description">Olá, tudo bem?</p>
+              </div>
+            </div>
+            <div class="popup-item">
+              <div class="popup-item-image">
+                <img src="/placeholder.svg" alt="Maria Souza">
+              </div>
+              <div class="popup-item-content">
+                <h4 class="popup-item-title">Maria Souza</h4>
+                <p class="popup-item-description">Vamos ao evento?</p>
+              </div>
+            </div>
+          </div>
+          <div class="popup-footer">
+            <button class="popup-button">Ver todas</button>
+          </div>
+        </div>
+      </div>
+      <div class="nav-icon" id="bell-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
+        <div class="popup" id="bell-popup">
+          <div class="popup-header">
+            <h3 class="popup-title">Notificações</h3>
+          </div>
+          <div class="popup-content">
+            <div class="popup-notification">
+              <h4 class="popup-notification-title">Nova mensagem</h4>
+              <p class="popup-notification-description">Você recebeu uma nova mensagem de João.</p>
+            </div>
+            <div class="popup-notification">
+              <h4 class="popup-notification-title">Evento próximo</h4>
+              <p class="popup-notification-description">Festival Eletrônico acontecerá amanhã!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-icon" id="user-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+        <div class="popup" id="user-popup">
+          <div class="popup-content">
+            <button class="popup-menu-item">Perfil</button>
+            <button class="popup-menu-item">Agenda</button>
+            <button class="popup-menu-item">Configurações</button>
+            <div class="popup-divider"></div>
+            <button class="popup-menu-item danger">Logout</button>
+          </div>
+        </div>
+      </div>
     </div>
-</header>
+  </div>
+</nav>
+
+<script>
+  function setupPopups()
+  {
+    const icons = ['heart', 'message', 'bell', 'user'];
+
+    icons.forEach(icon =>
+    {
+      const iconElement = document.getElementById(`${ icon }-icon`);
+      const popupElement = document.getElementById(`${ icon }-popup`);
+
+      iconElement.addEventListener('click', (e) =>
+      {
+        e.stopPropagation();
+
+        // Close all other popups
+        icons.forEach(otherIcon =>
+        {
+          if (otherIcon !== icon)
+          {
+            const otherPopup = document.getElementById(`${ otherIcon }-popup`);
+            if (otherPopup) otherPopup.classList.remove('active');
+          }
+        });
+
+        // Toggle current popup
+        popupElement.classList.toggle('active');
+      });
+    });
+
+    // Close popups when clicking outside
+    document.addEventListener('click', (e) =>
+    {
+      if (!e.target.closest('.popup') && !e.target.closest('.nav-icon'))
+      {
+        icons.forEach(icon =>
+        {
+          const popup = document.getElementById(`${ icon }-popup`);
+          if (popup) popup.classList.remove('active');
+        });
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () =>
+  {
+    setupPopups();
+  });
+</script>
