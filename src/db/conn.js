@@ -4,6 +4,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
     schema: 'linkarts',
     dialect: 'postgres',
     dialectModule: require('pg'),
+    logging: false,
 });
 
 try

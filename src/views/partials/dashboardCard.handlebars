@@ -9,8 +9,8 @@
     <p class="card-location">{{city}}</p>
     <div class="card-rating">
         <span class="star">★</span>
-        <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">{{rating}}
-            ({{reviews}})</span>
+        <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">{{#if rating }} {{rating}} {{else}} 0.0 {{/if}}
+            ({{#if reviews }} {{reviews}} {{else}} 0 {{/if}})</span>
     </div>
     <p class="card-description">{{#if description}} {{description}} {{else}} Não há descrição! {{/if}}</p>
     <div class="card-tags">

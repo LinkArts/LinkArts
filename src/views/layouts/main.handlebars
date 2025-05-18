@@ -20,8 +20,6 @@
 </head>
 
 <body>
-    <h2>LOGADO COMO: {{session.username}}</h2>
-
     {{#if session.userid}}
     {{#unless hideNavbar}}
     {{> navbar}}
@@ -41,7 +39,7 @@
 
     <script>
         const flashMessage = document.getElementById('flash');
-        const searchInput = document.getElementById('search-input');
+        const searchInputMain = document.getElementById('search-input');
 
         if (flashMessage)
         {
@@ -57,7 +55,7 @@
             }, 3000);
         }
 
-        if (searchInput)
+        if (searchInputMain)
         {
             searchInput.value = "{{{search}}}";
         }

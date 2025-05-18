@@ -17,7 +17,7 @@
                 <label for="filterEstabelecimento">Estabelecimentos</label>
             </div>
 
-            <button type="submit">Filtrar</button>
+            <button type="button" id="filtrar">Filtrar</button>
         </form>
     </aside>
 
@@ -31,103 +31,108 @@
     </main>
 </div>
 
-<script>
-    // Este script é para a funcionalidade de filtro dinâmico
-    // Se você estiver usando submit de formulário tradicional,
-    // este bloco de script não é estritamente necessário para o layout inicial.
+<script id="card-template" type="text/x-handlebars-template">
+    <div class="card">
+        <span class="status-indicator status-available" title="Contratando"></span>
+        <div class="card-image-container">
+            <div class="card-image">
+                <img src="img/default.jpg" alt="{{name}}">
+            </div>
+        </div>
+        <h3 class="card-title">{{name}}</h3>
+        <p class="card-location">{{city}}</p>
+        <div class="card-rating">
+            <span class="star">★</span>
+            <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">{{rating}}
+                ({{reviews}})</span>
+        </div>
+        <p class="card-description">{{#if description}} {{description}} {{else}} Não há descrição! {{/if}}</p>
+        <div class="card-tags">
+            {{#if tags}}
+            {{#each tags}}
+            <span class="tag">{{this}}</span>
+            {{/each}}
+            {{else}}
+            <span class="tag">Sem Tags</span>
+            {{/if}}
+        </div>
+        <div class="card-action">
+            <a href="/profile/{{id}}" class="profile-button">
+                Ver perfil
+                <span class="arrow-icon">→</span>
+            </a>
+        </div>
+    </div>
+</script>
 
+<script>
+    const filtroButton = document.getElementById('filtrar');
     const formFiltro = document.getElementById('filtroUsuariosForm');
     const profilesListDiv = document.getElementById('profilesList');
     const searchInput = document.getElementById('search-input');
 
-    // Adiciona um listener para o evento submit do formulário
-    formFiltro.addEventListener('submit', async (event) =>
+    filtroButton.addEventListener('click', async (event) =>
     {
-        event.preventDefault(); // Impede o envio padrão do formulário
+        //alert("CLICK")
+        event.preventDefault();
 
-        // Obtém o valor do radio button selecionado
         const formData = new FormData(formFiltro);
         const tipoUsuario = formData.get('tipoUsuario');
 
-        console.log('Filtrando por:', tipoUsuario); // Para debug
-
-        // Constrói a URL da requisição GET com o parâmetro de filtro
-        const url = `/pesquisar?search=${ searchInput.value }&type=${ tipoUsuario }`; // Rota do seu backend
+        //alert(`Filtrando por: ${ tipoUsuario }`);
 
         try
         {
-            // Faz a requisição assíncrona para o backend
-            const response = await fetch(url);
+            const response = await fetch(`/filtrar?search=${ searchInput.value }&type=${ tipoUsuario }`);
+            const data = await response.json();
 
-            // Verifica se a resposta foi bem-sucedida
-            if (!response.ok)
-            {
-                throw new Error(`Erro HTTP! Status: ${ response.status }`);
-            }
-
-            // Assume que o backend retorna um array de objetos JSON
-            const usuarios = await response.json();
-
-            console.log('Dados recebidos:', usuarios); // Para debug
-
-            // Limpa o conteúdo atual da lista de perfis
+            // Limpa a lista de perfis
             profilesListDiv.innerHTML = '';
 
-            // Verifica se há usuários para exibir
-            if (usuarios.length > 0)
+            // 2. Verifica se data.results2 é um array válido
+            if (Array.isArray(data.results2))
             {
-                // Itera sobre os usuários recebidos e cria os cards
-                usuarios.forEach(usuario =>
+                data.results2.forEach((perfil) =>
                 {
-                    const cardHtml = `
-                            <div class="profile-card">
-                                <div class="profile-image-container">
-                                    <img src="${ usuario.imageUrl || 'https://via.placeholder.com/150' }" alt="Foto de Perfil">
-                                </div>
-                                <div class="profile-details">
-                                    <h3 class="profile-name">${ usuario.nome || 'Nome Indisponível' }</h3>
-                                    <p class="profile-type">Tipo: ${ usuario.tipo || 'Não especificado' }</p>
-                                    <p class="profile-description">${ usuario.descricao || 'Sem descrição.' }</p>
-                                    <div class="profile-rating">
-                                        Nota: ${ generateStarRating(usuario.nota) }
-                                    </div>
-                                </div>
-                                <button class="view-profile-button" data-user-id="${ usuario.id }">Ver Perfil</button>
+                    const html = `
+                    <div class="card">
+                        <span class="status-indicator status-available" title="Contratando"></span>
+                        <div class="card-image-container">
+                            <div class="card-image">
+                                <img src="img/default.jpg" alt="${ perfil.name }">
                             </div>
-                        `;
-                    profilesListDiv.innerHTML += cardHtml; // Adiciona o HTML do card à lista
+                        </div>
+                        <h3 class="card-title">${ perfil.name }</h3>
+                        <p class="card-location">${ perfil.city ? perfil.city : 'Cidade não informada' }</p>
+                        <div class="card-rating">
+                            <span class="star">★</span>
+                            <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">${perfil.rating ? perfil.rating : '0.0'}
+                                ( ${perfil.rating ? perfil.rating : '0'} )</span>
+                        </div>
+                        <p class="card-description">${ perfil.description ? perfil.description : 'Descrição não informada' }</p>
+                        <div class="card-tags">
+                            ${ Array.isArray(perfil.tags) && perfil.tags.length > 0
+                            ? perfil.tags.map(tag => `<span class="tag">${ tag }</span>`).join("")
+                            : `<span class="tag">Sem Tags</span>` }
+                        </div>
+                        <div class="card-action">
+                            <a href="/profile/${perfil.id}" class="profile-button">
+                                Ver perfil
+                                <span class="arrow-icon">→</span>
+                            </a>
+                        </div>
+                    </div>
+                    `
+                    profilesListDiv.innerHTML += html;
                 });
-
-                // Adiciona listeners aos botões "Ver Perfil" APÓS eles serem adicionados ao DOM
-                profilesListDiv.querySelectorAll('.view-profile-button').forEach(button =>
-                {
-                    button.addEventListener('click', () =>
-                    {
-                        const userId = button.dataset.userId;
-                        alert(`Visualizar perfil do usuário com ID: ${ userId }`);
-                        // Aqui você faria a navegação para a página de detalhes do perfil
-                        // Ex: window.location.href = `/perfil/${userId}`;
-                    });
-                });
-
-
             } else
             {
-                // Mensagem caso nenhum usuário seja encontrado
-                profilesListDiv.innerHTML = '<p>Nenhum usuário encontrado com este filtro.</p>';
+                console.warn("data.results2 não é um array:", data.results2);
             }
-
-        } catch (error)
-        {
-            console.error('Erro ao buscar usuários:', error);
-            profilesListDiv.innerHTML = '<p>Ocorreu um erro ao carregar os usuários.</p>';
         }
-    });
-
-    // Opcional: Carregar a lista inicial de usuários (filtro 'todos') ao carregar a página
-    // Dispara o evento submit do formulário no carregamento
-    document.addEventListener('DOMContentLoaded', () =>
-    {
-        formFiltro.dispatchEvent(new Event('submit'));
+        catch (error)
+        {
+            alert(error);
+        }
     });
 </script>

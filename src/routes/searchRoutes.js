@@ -4,6 +4,6 @@ const SearchController = require('../controllers/SearchController')
 
 router.get('/pesquisar', SearchController.renderSearch)
 
-router.post('/filtrar', SearchController.getFilter)
+router.get('/filtrar', SearchController.getFilter)
 
 module.exports = router
