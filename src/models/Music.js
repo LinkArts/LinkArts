@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize')
 const db = require('../db/conn')
 const Genre = require('./Genre')
 const Artist = require('./Artist')
+const Album = require('./Album')
 
 const Music = db.define('Music',
     {
@@ -47,6 +48,20 @@ Artist.hasMany(Music, {
     foreignKey: 'userid',
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
+})
+
+Music.belongsToMany(Album, {
+    foreignKey: 'musicid',
+    otherKey: 'albumid',
+    through: 'AlbumMusic',
+    onDelete: 'CASCADE',
+})
+
+Album.belongsToMany(Music, {
+    foreignKey: 'albumid',
+    otherKey: 'musicid',
+    through: 'AlbumMusic',
+    onDelete: 'CASCADE',
 })
 
 module.exports = Music
