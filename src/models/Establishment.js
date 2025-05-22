@@ -8,7 +8,6 @@ const Establishment = db.define('Establishment',
         cnpj: {
             type: DataTypes.STRING(20),
             primaryKey: true,
-            require: true
         }
     })
 

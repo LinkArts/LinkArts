@@ -70,20 +70,18 @@
       <button id="add-album-action-button" class="btn btn-outline btn-purple">Adicionar Álbum</button>
     </div>
     <div class="scroll-container albums-container">
-      <div class="album-card" data-album-name="Álbum Padrão">
+      {{#if values.albums}}
+      {{#each values.albums}}
+      <div class="album-card" data-album="{{id}}">
         <div class="album-img">
-          <img src="/img/default.jpg" alt="Álbum Padrão">
+          <img src="/img/default.jpg" alt="{{ name }}">
         </div>
-        <h3>Álbum Padrão</h3>
+        <h3>{{ name }}</h3>
       </div>
-
-      <div class="album-card" data-album-name="Rock Essencial">
-        <div class="album-img">
-          <img src="/img/rock_album_cover.jpg" alt="Rock Essencial">
-        </div>
-        <h3>Rock Essencial</h3>
-      </div>
-
+      {{/each}}
+      {{else}}
+      <p class="modal-empty-state">Nenhum álbum encontrado.</p>
+      {{/if}}
     </div>
   </section>
 
@@ -162,7 +160,7 @@
           {{!-- {{{renderStars this.rating}}} --}}
         </div>
       </div>
-      <p class="review-text">"{{{this.text}}}"</p>
+      <p class="review-text">"{{{this.text}}}"</p>''
     </div>
     {{else}}
     <p>Ainda não há reviews.</p>
@@ -176,6 +174,9 @@
     let availableAlbums = [];
     let lastFocusedElement = null;
 
+    // TODO: BACKEND INTEGRATION
+    // This mock data should be replaced with data from the backend
+    // We'll need to fetch this data from /profile/albums endpoint
     const mockAllSongs = [
       { title: "Samba da Gafieira", genre: "Samba", album: "Álbum Padrão" },
       { title: "Choro do Violão", genre: "Choro", album: "Álbum Padrão" },
@@ -423,50 +424,9 @@
       }
     }
 
-    function loadInitialAlbums()
-    {
-      document.querySelectorAll('.album-card[data-album-name]').forEach(albumCard =>
-      {
-        const albumName = albumCard.dataset.albumName;
-        if (albumName && !availableAlbums.some(a => a.toLowerCase() === albumName.toLowerCase()))
-        {
-          availableAlbums.push(albumName);
-        }
-      });
-
-      if (availableAlbums.length === 0 && Selectors.albumContainer)
-      {
-        const noAlbumsMessage = Selectors.albumContainer.querySelector('.modal-empty-state');
-        // Adiciona o álbum padrão APENAS se não houver outros álbuns e não houver uma mensagem de "nenhum álbum" já exibida
-        if (!noAlbumsMessage || noAlbumsMessage.tagName !== 'P')
-        { // Verifica se não é a mensagem ou se não é um P para evitar duplicar
-          availableAlbums.push("Álbum Padrão");
-          renderAlbumCard("Álbum Padrão"); // Renderiza o álbum padrão imediatamente
-        }
-      }
-      availableAlbums.sort((a, b) => a.localeCompare(b));
-      console.log("Initial albums loaded:", availableAlbums);
-
-      // Garante que os álbuns dos mockAllSongs estejam em availableAlbums
-      mockAllSongs.forEach(song =>
-      {
-        if (song.album && !availableAlbums.some(a => a.toLowerCase() === song.album.toLowerCase()))
-        {
-          availableAlbums.push(song.album);
-        }
-      });
-
-      // Removi a parte de adicionar "Álbum Padrão" se não houver álbuns,
-      // pois agora estamos usando mockAllSongs para popular.
-      // Se você ainda quiser que "Álbum Padrão" apareça mesmo sem músicas,
-      // pode adicioná-lo manualmente aqui:
-      // if (!availableAlbums.includes("Álbum Padrão")) {
-      //     availableAlbums.push("Álbum Padrão");
-      // }
-
-      availableAlbums.sort((a, b) => a.localeCompare(b));
-      console.log("Initial albums loaded:", availableAlbums);
-    }
+    // TODO: BACKEND INTEGRATION
+    // This function should be modified to fetch albums from the backend
+    // Replace the DOM-based album loading with a call to /profile/albums
 
     function getCreateAlbumModalHTML()
     {
@@ -592,6 +552,184 @@
 
     // --- Funções de Abertura de Modals e Lógica Relacionada ---
 
+    // TODO: BACKEND INTEGRATION
+    // This function should be modified to create albums through the backend
+    // Replace the frontend-only album creation with a POST to /profile/album
+    function openCreateAlbumModal(triggerButton = null)
+    {
+      const modalElement = openModal('.create-album-overlay', 'create-album-modal', getCreateAlbumModalHTML(), triggerButton);
+      if (!modalElement) return;
+
+      const form = modalElement.querySelector('#create-album-form');
+      const nameInput = modalElement.querySelector('#new-album-name');
+
+      setTimeout(() => nameInput?.focus(), 100);
+
+      form?.addEventListener('submit', (e) =>
+      {
+        e.preventDefault();
+        const newName = nameInput.value.trim();
+        const nameLower = newName.toLowerCase();
+
+        if (!newName)
+        {
+          showToast('Nome do álbum é obrigatório.', 'error');
+          nameInput.classList.add('input-error');
+          nameInput.focus();
+          return;
+        }
+        if (availableAlbums.some(a => a.toLowerCase() === nameLower))
+        {
+          showToast(`Álbum "${ newName }" já existe.`, 'warning');
+          nameInput.classList.add('input-error');
+          nameInput.focus();
+          return;
+        }
+
+        availableAlbums.push(newName);
+        availableAlbums.sort((a, b) => a.localeCompare(b));
+        console.log("Album created:", newName);
+
+        renderAlbumCard(newName); // Adiciona o álbum à interface
+
+        const addMusicSelect = document.getElementById('song-album');
+        if (addMusicSelect && document.body.contains(addMusicSelect))
+        {
+          populateAlbumDropdown('song-album');
+          addMusicSelect.value = newName; // Seleciona o álbum recém-criado
+        }
+
+        showToast(`Álbum "${ newName }" criado!`, 'success');
+        closeModal(modalElement.closest('.modal-overlay'));
+        triggerButton?.focus();
+      });
+
+      nameInput?.addEventListener('input', () => nameInput.classList.remove('input-error'));
+    }
+
+    // TODO: BACKEND INTEGRATION
+    // This function should be modified to fetch album content from the backend
+    // Replace the mockAllSongs filtering with a call to /profile/album/:id
+    function openAlbumContentModal(albumName, triggerButton = null)
+    {
+      // Converte o nome do álbum do HTML para minúsculas para comparação
+      const albumNameLower = albumName.toLowerCase();
+      let songsForAlbum = [];
+
+      // Filtra as músicas do mockAllSongs, comparando os nomes dos álbuns em minúsculas
+      songsForAlbum = mockAllSongs.filter(song => song.album.toLowerCase() === albumNameLower);
+
+      // Se você ainda quiser que ele tente pegar do DOM caso o mockAllSongs não seja suficiente,
+      // ou para músicas adicionadas dinamicamente via "Adicionar Música"
+      if (songsForAlbum.length === 0 && Selectors.musicContainer)
+      {
+        const allSongsElements = Array.from(Selectors.musicContainer.querySelectorAll('.song-card'));
+        songsForAlbum = allSongsElements
+          .filter(songCard => songCard.dataset.album.toLowerCase() === albumNameLower) // MUDANÇA AQUI TAMBÉM
+          .map(songCard => ({
+            title: songCard.querySelector('h3')?.textContent || 'Título Desconhecido',
+            genre: songCard.querySelector('p:not(.song-card-album)')?.textContent.replace('Gênero: ', '').trim() || 'Gênero Desconhecido',
+            album: songCard.dataset.album
+          }));
+      }
+
+      const modalElement = openModal('.album-content-overlay', 'album-content-modal', getAlbumContentModalHTML(albumName, songsForAlbum), triggerButton);
+      if (modalElement)
+      {
+        setupPlayButtons(modalElement);
+      }
+    }
+
+    // TODO: BACKEND INTEGRATION
+    // This function should be modified to create music through the backend
+    // Replace the frontend-only music creation with a POST to /profile/music
+    function setupAddMusicModal()
+    {
+      if (Selectors.addMusicBtn)
+      { // Verifica se o botão existe
+        Selectors.addMusicBtn.addEventListener('click', () =>
+        {
+          const modalElement = openModal('.add-music-overlay', 'add-music-modal', getAddMusicModalHTML(), Selectors.addMusicBtn);
+          if (!modalElement) return;
+          const form = modalElement.querySelector('#add-music-form');
+          const titleInput = modalElement.querySelector('#song-title');
+          const genreInput = modalElement.querySelector('#song-genre');
+          const albumSelect = modalElement.querySelector('#song-album');
+          const createAlbumBtn = modalElement.querySelector('#create-album-inline-btn');
+          const allInputs = [titleInput, genreInput, albumSelect];
+          populateAlbumDropdown('song-album');
+          createAlbumBtn?.addEventListener('click', () => openCreateAlbumModal(createAlbumBtn));
+          form?.addEventListener('submit', (e) =>
+          {
+            e.preventDefault();
+            allInputs.forEach(inp => inp.classList.remove('input-error'));
+            let isValid = true;
+            let firstInvalid = null;
+            const title = titleInput.value.trim();
+            const genre = genreInput.value.trim();
+            const album = albumSelect.value;
+            if (!title)
+            {
+              isValid = false;
+              titleInput.classList.add('input-error');
+              if (!firstInvalid) firstInvalid = titleInput;
+            }
+            if (!genre)
+            {
+              isValid = false;
+              genreInput.classList.add('input-error');
+              if (!firstInvalid) firstInvalid = genreInput;
+            }
+            if (!album)
+            {
+              isValid = false;
+              albumSelect.classList.add('input-error');
+              if (!firstInvalid) firstInvalid = albumSelect;
+            }
+            if (!isValid)
+            {
+              showToast('Por favor, preencha todos os campos.', 'warning');
+              firstInvalid?.focus();
+              return;
+            }
+            console.log("Adding music:", {
+              title,
+              genre,
+              album
+            });
+            const songCard = document.createElement('div');
+            songCard.className = 'song-card';
+            songCard.dataset.album = album;
+            songCard.innerHTML = `
+                  <div class="song-icon"><div class="play-button"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div></div>
+                  <div class="song-info"><h3>${ title }</h3><p>Gênero: ${ genre }</p><p class="song-card-album">Álbum: ${ album }</p></div>`;
+            const playBtn = songCard.querySelector('.play-button');
+            playBtn?.addEventListener('click', () => showToast(`Play: ${ title }`, 'success', 1500));
+            Selectors.musicContainer.appendChild(songCard);
+            const newPlayBtn = songCard.querySelector('.play-button');
+            if (newPlayBtn)
+            {
+              newPlayBtn.addEventListener('click', handlePlayButtonClick);
+            }
+            songCard.addEventListener('click', handleSongCardClick);
+            showToast(`Música "${ title }" adicionada!`, 'success');
+            closeModal(modalElement.closest('.modal-overlay'));
+          });
+          allInputs.forEach(input =>
+          {
+            const eventType = input.tagName === 'SELECT' ? 'change' : 'input';
+            input?.addEventListener(eventType, () => input.classList.remove('input-error'));
+          });
+        });
+      } else
+      {
+        console.warn("Botão 'Adicionar Música' não encontrado.");
+      }
+    }
+
+    // TODO: BACKEND INTEGRATION
+    // This function should be modified to update music through the backend
+    // Replace the frontend-only music update with a PUT to /profile/music/:id
     function openEditMusicModal(songData, triggerElement = null)
     {
       const modalElement = openModal('.edit-music-overlay', 'edit-music-modal', getEditMusicModalHTML(songData), triggerElement);
@@ -748,88 +886,6 @@
       });
     }
 
-    function openCreateAlbumModal(triggerButton = null)
-    {
-      const modalElement = openModal('.create-album-overlay', 'create-album-modal', getCreateAlbumModalHTML(), triggerButton);
-      if (!modalElement) return;
-
-      const form = modalElement.querySelector('#create-album-form');
-      const nameInput = modalElement.querySelector('#new-album-name');
-
-      setTimeout(() => nameInput?.focus(), 100);
-
-      form?.addEventListener('submit', (e) =>
-      {
-        e.preventDefault();
-        const newName = nameInput.value.trim();
-        const nameLower = newName.toLowerCase();
-
-        if (!newName)
-        {
-          showToast('Nome do álbum é obrigatório.', 'error');
-          nameInput.classList.add('input-error');
-          nameInput.focus();
-          return;
-        }
-        if (availableAlbums.some(a => a.toLowerCase() === nameLower))
-        {
-          showToast(`Álbum "${ newName }" já existe.`, 'warning');
-          nameInput.classList.add('input-error');
-          nameInput.focus();
-          return;
-        }
-
-        availableAlbums.push(newName);
-        availableAlbums.sort((a, b) => a.localeCompare(b));
-        console.log("Album created:", newName);
-
-        renderAlbumCard(newName); // Adiciona o álbum à interface
-
-        const addMusicSelect = document.getElementById('song-album');
-        if (addMusicSelect && document.body.contains(addMusicSelect))
-        {
-          populateAlbumDropdown('song-album');
-          addMusicSelect.value = newName; // Seleciona o álbum recém-criado
-        }
-
-        showToast(`Álbum "${ newName }" criado!`, 'success');
-        closeModal(modalElement.closest('.modal-overlay'));
-        triggerButton?.focus();
-      });
-
-      nameInput?.addEventListener('input', () => nameInput.classList.remove('input-error'));
-    }
-
-    function openAlbumContentModal(albumName, triggerButton = null)
-    {
-      // Converte o nome do álbum do HTML para minúsculas para comparação
-      const albumNameLower = albumName.toLowerCase();
-      let songsForAlbum = [];
-
-      // Filtra as músicas do mockAllSongs, comparando os nomes dos álbuns em minúsculas
-      songsForAlbum = mockAllSongs.filter(song => song.album.toLowerCase() === albumNameLower);
-
-      // Se você ainda quiser que ele tente pegar do DOM caso o mockAllSongs não seja suficiente,
-      // ou para músicas adicionadas dinamicamente via "Adicionar Música"
-      if (songsForAlbum.length === 0 && Selectors.musicContainer)
-      {
-        const allSongsElements = Array.from(Selectors.musicContainer.querySelectorAll('.song-card'));
-        songsForAlbum = allSongsElements
-          .filter(songCard => songCard.dataset.album.toLowerCase() === albumNameLower) // MUDANÇA AQUI TAMBÉM
-          .map(songCard => ({
-            title: songCard.querySelector('h3')?.textContent || 'Título Desconhecido',
-            genre: songCard.querySelector('p:not(.song-card-album)')?.textContent.replace('Gênero: ', '').trim() || 'Gênero Desconhecido',
-            album: songCard.dataset.album
-          }));
-      }
-
-      const modalElement = openModal('.album-content-overlay', 'album-content-modal', getAlbumContentModalHTML(albumName, songsForAlbum), triggerButton);
-      if (modalElement)
-      {
-        setupPlayButtons(modalElement);
-      }
-    }
-
     // --- Funções Auxiliares de Setup ---
 
     function renderAlbumCard(albumName)
@@ -941,91 +997,6 @@
       } else
       {
         console.warn("Botão 'Adicionar Álbum' não encontrado.");
-      }
-    }
-
-    // Função para configurar o botão de adicionar música
-    function setupAddMusicModal()
-    {
-      if (Selectors.addMusicBtn)
-      { // Verifica se o botão existe
-        Selectors.addMusicBtn.addEventListener('click', () =>
-        {
-          const modalElement = openModal('.add-music-overlay', 'add-music-modal', getAddMusicModalHTML(), Selectors.addMusicBtn);
-          if (!modalElement) return;
-          const form = modalElement.querySelector('#add-music-form');
-          const titleInput = modalElement.querySelector('#song-title');
-          const genreInput = modalElement.querySelector('#song-genre');
-          const albumSelect = modalElement.querySelector('#song-album');
-          const createAlbumBtn = modalElement.querySelector('#create-album-inline-btn');
-          const allInputs = [titleInput, genreInput, albumSelect];
-          populateAlbumDropdown('song-album');
-          createAlbumBtn?.addEventListener('click', () => openCreateAlbumModal(createAlbumBtn));
-          form?.addEventListener('submit', (e) =>
-          {
-            e.preventDefault();
-            allInputs.forEach(inp => inp.classList.remove('input-error'));
-            let isValid = true;
-            let firstInvalid = null;
-            const title = titleInput.value.trim();
-            const genre = genreInput.value.trim();
-            const album = albumSelect.value;
-            if (!title)
-            {
-              isValid = false;
-              titleInput.classList.add('input-error');
-              if (!firstInvalid) firstInvalid = titleInput;
-            }
-            if (!genre)
-            {
-              isValid = false;
-              genreInput.classList.add('input-error');
-              if (!firstInvalid) firstInvalid = genreInput;
-            }
-            if (!album)
-            {
-              isValid = false;
-              albumSelect.classList.add('input-error');
-              if (!firstInvalid) firstInvalid = albumSelect;
-            }
-            if (!isValid)
-            {
-              showToast('Por favor, preencha todos os campos.', 'warning');
-              firstInvalid?.focus();
-              return;
-            }
-            console.log("Adding music:", {
-              title,
-              genre,
-              album
-            });
-            const songCard = document.createElement('div');
-            songCard.className = 'song-card';
-            songCard.dataset.album = album;
-            songCard.innerHTML = `
-                  <div class="song-icon"><div class="play-button"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div></div>
-                  <div class="song-info"><h3>${ title }</h3><p>Gênero: ${ genre }</p><p class="song-card-album">Álbum: ${ album }</p></div>`;
-            const playBtn = songCard.querySelector('.play-button');
-            playBtn?.addEventListener('click', () => showToast(`Play: ${ title }`, 'success', 1500));
-            Selectors.musicContainer.appendChild(songCard);
-            const newPlayBtn = songCard.querySelector('.play-button');
-            if (newPlayBtn)
-            {
-              newPlayBtn.addEventListener('click', handlePlayButtonClick);
-            }
-            songCard.addEventListener('click', handleSongCardClick);
-            showToast(`Música "${ title }" adicionada!`, 'success');
-            closeModal(modalElement.closest('.modal-overlay'));
-          });
-          allInputs.forEach(input =>
-          {
-            const eventType = input.tagName === 'SELECT' ? 'change' : 'input';
-            input?.addEventListener(eventType, () => input.classList.remove('input-error'));
-          });
-        });
-      } else
-      {
-        console.warn("Botão 'Adicionar Música' não encontrado.");
       }
     }
 
@@ -1162,9 +1133,8 @@
     {
       console.log("Initializing page script...");
 
-      // 1. Carrega os álbuns iniciais do DOM e preenche 'availableAlbums'
-      // Esta deve ser a primeira chamada relacionada a álbuns para preencher o array
-      loadInitialAlbums();
+      // TODO: BACKEND INTEGRATION
+      // Replace loadInitialAlbums with a call to fetch albums from the backend
 
       // 2. Configura os listeners para os cards de álbum (padrões e novos)
       // Isso deve ser feito APÓS loadInitialAlbums, pois pode adicionar um álbum padrão
@@ -1195,7 +1165,7 @@
       console.log("Initialization complete.");
     }
 
-    // Chama a função de inicialização quando o DOM estiver pronto
+    // Start initialization
     initialize();
   });
 </script>

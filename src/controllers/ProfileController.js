@@ -4,6 +4,7 @@ const Music = require('../models/Music')
 const Genre = require('../models/Genre');
 const Artist = require('../models/Artist');
 const Establishment = require('../models/Establishment');
+const Album = require('../models/Album');
 
 module.exports = class ProfileController
 {
@@ -17,11 +18,20 @@ module.exports = class ProfileController
                 {
                     where: { id: id },
                     include: [
-                        { model: Artist, required: false },
+                        {
+                            model: Artist,
+                            required: false,
+                            include: [
+                                { model: Music, required: false },
+                                { model: Album, required: false }
+                            ]
+                        },
                         { model: Establishment, required: false }
                     ],
                     exclude: ['password']
                 })
+
+            user?.Artist?.Albums.forEach((album) => console.log(album.dataValues))
 
             if (!user)
             {
@@ -41,7 +51,7 @@ module.exports = class ProfileController
             {
                 const values = {
                     ...user.dataValues,
-                    ...user.Establishment.dataValues
+                    ...user.Establishment.dataValues,
                 }
                 return res.render('app/profileEstablishment', { values, css: 'perfilEstabelecimento.css' })
             }
@@ -49,7 +59,9 @@ module.exports = class ProfileController
             {
                 const values = {
                     ...user.dataValues,
-                    ...user.Artist.dataValues
+                    ...user.Artist.dataValues,
+                    musics: user.Artist?.Musics?.map(music => music.dataValues) || [],
+                    albums: user.Artist?.Albums?.map(album => album.dataValues) || []
                 }
 
                 return res.render('app/profileArtist', { values, css: 'perfilArtista.css' })

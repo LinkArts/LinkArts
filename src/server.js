@@ -25,6 +25,7 @@ const Artist = require('./models/Artist')
 const Establishment = require('./models/Establishment')
 const Music = require('./models/Music')
 const Genre = require('./models/Genre')
+const Album = require('./models/Album')
 
 //template engine
 app.engine('handlebars', handlebars.engine(
