@@ -599,7 +599,6 @@
           addMusicSelect.value = newName; // Seleciona o álbum recém-criado
         }
 
-        showToast(`Álbum "${ newName }" criado!`, 'success');
         closeModal(modalElement.closest('.modal-overlay'));
         triggerButton?.focus();
       });
@@ -888,10 +887,23 @@
 
     // --- Funções Auxiliares de Setup ---
 
-    function renderAlbumCard(albumName)
+    async function renderAlbumCard(albumName)
     {
       if (Selectors.albumContainer)
       {
+        await fetch('/criar-album', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ albumName })
+        })
+            .then(res => res.json())
+            .then(data =>
+            {
+                showToast(data.message)
+            })
+            .catch(err => console.error("Erro ao criar album:", err));
+
+
         const noAlbumsMessage = Selectors.albumContainer.querySelector('p.modal-empty-state');
         if (noAlbumsMessage)
         {

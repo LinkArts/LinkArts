@@ -93,6 +93,20 @@ module.exports = class ProfileController
         }
     }
 
+    static async createAlbum(req, res) {
+        const { albumName } = req.body
+        const album = await Album.findOne({ where: {name: albumName}})
+        const user = await User.findAll({ where: {id: req.session.id}})
+
+        if(album){
+            return res.json({ message: "Album ja existente!!" })
+        }
+        
+        const result = await Album.create({ name: albumName, userid: user.cpf })
+        console.log(result.dataValues)
+        return res.json({ message: `O album ${albumName} foi criado com sucesso!!!`})
+    }
+
     static async showMusic(req, res)
     {
 

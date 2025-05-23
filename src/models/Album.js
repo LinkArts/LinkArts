@@ -9,6 +9,7 @@ const Album = db.define('Album',
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
             require: true
         },
         name: {
