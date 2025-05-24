@@ -302,7 +302,7 @@ section h2 {
   overflow-y: hidden;
   padding-bottom: 16px;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+  scrollbar-width: auto;
   scrollbar-color: var(--primary-color) var(--gray-100);
 }
 
@@ -328,6 +328,11 @@ section h2 {
   min-width: 180px;
   width: 180px;
   flex-shrink: 0;
+  cursor: pointer;
+}
+
+.album-card:hover {
+  transform: translateY(-2px);
 }
 
 .album-content-overlay {
@@ -644,7 +649,7 @@ section h2 {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   max-width: 500px;
   /* Largura similar a outros modais de formulário */
-  width: 90%;
+  width: 100%;
   max-height: 90vh;
   /* Para garantir que caiba em telas menores */
   display: flex;
@@ -712,8 +717,8 @@ section h2 {
 .edit-music-modal .form-group input[type="url"],
 .edit-music-modal .form-group textarea,
 .edit-music-modal .form-group select {
-  width: calc(100% - 20px);
-  /* 100% menos padding */
+  width: 100%;
+  box-sizing: border-box;
   padding: 10px;
   border: 1px solid #444;
   border-radius: 6px;
@@ -744,7 +749,7 @@ section h2 {
 /* Grupo de Botões */
 .edit-music-modal .button-group {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   /* Alinha os botões à direita */
   gap: 15px;
   /* Espaço entre os botões */
@@ -815,10 +820,12 @@ section h2 {
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
 }
 
 .song-card:hover {
   box-shadow: var(--card-hover-shadow);
+  transform: translateY(-2px);
 }
 
 .song-icon {

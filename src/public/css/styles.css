@@ -17,6 +17,10 @@ body {
     overflow-x: hidden;
 }
 
+html {
+    overflow-y: scroll;
+}
+
 .message {
     padding: 1em;
     color: #004085;

@@ -12,12 +12,4 @@ const Artist = db.define('Artist',
         }
     })
 
-Artist.belongsTo(User, {
-    foreignKey: 'userid',
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-})
-
-User.hasOne(Artist, { foreignKey: 'userid' }) //precisa especificar foreign key em ambos para o sequelize não criar chaves duplicadas
-
 module.exports = Artist

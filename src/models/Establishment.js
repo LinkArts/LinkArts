@@ -11,12 +11,4 @@ const Establishment = db.define('Establishment',
         }
     })
 
-Establishment.belongsTo(User, {
-    foreignKey: 'userid',
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-})
-
-User.hasOne(Establishment, { foreignKey: 'userid' }) //precisa especificar foreign key em ambos para o sequelize não criar chaves duplicadas
-
 module.exports = Establishment

@@ -1,15 +1,12 @@
 const { Op, Model } = require('sequelize');
-const User = require('../models/User')
-const Music = require('../models/Music')
-const Genre = require('../models/Genre');
-const Artist = require('../models/Artist');
-const Establishment = require('../models/Establishment');
-const Album = require('../models/Album');
+
+const { User, Artist, Establishment, Album, Music, Genre } = require('../models/index')
 
 module.exports = class ProfileController
 {
     static async showProfile(req, res)
     {
+        console.log("SHOW PROFILE!!!")
         const { id } = req.params
 
         try
@@ -22,16 +19,15 @@ module.exports = class ProfileController
                             model: Artist,
                             required: false,
                             include: [
-                                { model: Music, required: false },
+                                { model: Music, as: 'Musics', required: false },
                                 { model: Album, required: false }
-                            ]
+                            ],
+
                         },
                         { model: Establishment, required: false }
                     ],
-                    exclude: ['password']
+                    exclude: ['password'],
                 })
-
-            user?.Artist?.Albums.forEach((album) => console.log(album.dataValues))
 
             if (!user)
             {
@@ -93,52 +89,216 @@ module.exports = class ProfileController
         }
     }
 
-    static async createAlbum(req, res) {
+    static async createAlbum(req, res)
+    {
+        console.log("CREATE ALBUM")
         const { albumName } = req.body
-        const album = await Album.findOne({ where: {name: albumName}})
-        const user = await User.findAll({ where: {id: req.session.id}})
 
-        if(album){
-            return res.json({ message: "Album ja existente!!" })
+        try
+        {
+            const album = await Album.findOne({ where: { name: albumName } })
+            const user = await User.findOne({ where: { id: req.session.userid }, include: [{ model: Artist }] })
+
+            if (album)
+            {
+                return res.json({ message: "Album ja existente!!" })
+            }
+
+            const result = await Album.create({ name: albumName, userid: user.Artist.cpf })
+            return res.json({ id: result.dataValues.id, message: `O album ${ albumName } foi criado com sucesso!!!` })
         }
-        
-        const result = await Album.create({ name: albumName, userid: user.cpf })
-        console.log(result.dataValues)
-        return res.json({ message: `O album ${albumName} foi criado com sucesso!!!`})
+        catch (err)
+        {
+            console.log(err)
+            return res.json({ message: "ERRO!!!!!" })
+        }
     }
 
-    static async showMusic(req, res)
+    static async getAlbums(req, res)
     {
+        console.log("GET ALBUMS!!!")
+
+        try
+        {
+            const user = await User.findOne({ where: { id: req.session.userid }, include: [{ model: Artist }] })
+
+            const albums = await Album.findAll({ where: { userid: user.Artist.cpf } })
+
+            return res.json({ albums: albums?.map((album) => album.dataValues) || [] })
+        }
+        catch (err)
+        {
+            console.log(err)
+            return res.json({ message: "ERRO!!!!!" })
+        }
+    }
+
+    static async searchAlbumMusics(req, res)
+    {
+        console.log("SEARCH ALBUM MUSICS!!!")
+        const { id } = req.params
+
+        try
+        {
+            const album = await Album.findOne({
+                where: {
+                    id: id
+                },
+                include: [{
+                    model: Music,
+                    required: false,
+                }]
+            })
+
+            if (!album)
+            {
+                return res.json({ message: "Album não encontrado!" })
+            }
+
+            const data = album.get({ plain: true })
+
+            return res.json({ data })
+        }
+        catch (error)
+        {
+            console.log(error)
+            return res.json({ message: "ERRO!!!" })
+        }
+    }
+
+    static async searchMusic(req, res)
+    {
+        console.log('SEARCH!!!')
+        const { id } = req.params
+
+        try
+        {
+            const music = await Music.findOne({
+                where: {
+                    id: id
+                },
+                include: [{
+                    model: Album,
+                    required: false
+                }]
+            })
+
+            console.log(music.get({ plain: true }));
+
+            const data = music.get({ plain: true })
+            return res.json({ data })
+        }
+        catch (error)
+        {
+            console.log(error)
+            return res.json({ message: "ERRO!!!" })
+        }
+    }
+
+    static async updateMusic(req, res)
+    {
+        const { id } = req.params
+        const { title, genre, album } = req.body
+
+        try
+        {
+            const music = await Music.findOne({
+                where: {
+                    id: id
+                },
+                include: [{
+                    model: Album,
+                    where: { name: album },
+                    required: false
+                }]
+            })
+
+            if (!music)
+            {
+                return res.json({ message: "Música não encontrada!" })
+            }
+            
+            const updatedMusic = await music.update({
+                name: title,
+                description: genre,
+            })
+
+            updatedMusic.setAlbum(music.Album.id)
+
+            const data = updatedMusic.get({ plain: true })
+            return res.json({ message: `A música ${ title } foi atualizada com sucesso!` })
+        }
+        catch (error)
+        {
+            console.log(error)
+            return res.json({ message: "ERRO!!!" })
+        }
 
     }
 
-    static async saveMusic(req, res)
+    static async createMusic(req, res)
     {
-        const { nomeMusica, descricaoMusica, imagemMusica, generoMusica } = req.body
+        const { title, genre, album } = req.body
         //checar palavroes
 
-        const checkGenre = await Genre.findOne({ where: { genre: generoMusica } })
+        /*const checkGenre = await Genre.findOne({ where: { genre: generoMusica } })
         if (!checkGenre)
         {
             req.flash('message', 'O gênero não é valido!')
             req.flash('messageType', 'error')
             return res.redirect('/profile/:id')
+        }*/
+
+        const user = await User.findOne({
+            where: {
+                id: req.session.userid,
+            },
+            include: [{
+                model: Artist,
+                include: [{
+                    model: Album,
+                    where: { name: album },
+                }]
+            }]
+        })
+
+        if (!user)
+        {
+            return res.json({ message: "Usuario não encontrado!" })
         }
+
+        if (!user.Artist.Albums)
+        {
+            return res.json({ message: "Usuario não tem album!" })
+        }
+
+        const data = {
+            ...user.dataValues,
+            ...user.Artist.dataValues,
+            album: user.Artist.Albums.dataValues || null,
+        }
+
         try
         {
             const savedMusic = await Music.create({
-                name: nomeMusica,
-                description: descricaoMusica,
-                image: imagemMusica,
-                genreid: checkGenre.id
+                name: title,
+                description: genre,
+                image: null,
+                genreid: null,
+                userid: data.Artist.cpf
             })
+
+            await user.Artist.Albums[0].addMusic(savedMusic);
+
+            return res.json({ message: `A música ${ title } foi criada com sucesso!`, songid: savedMusic.id })
         }
         catch (error)
         {
-            req.flash('message', 'A música não foi salva corretamente!')
+            /*req.flash('message', 'A música não foi salva corretamente!')
             req.flash('messageType', 'error')
-            return res.redirect('/profile/:id')
+            return res.redirect('/profile/:id')*/
 
+            return res.json({ message: `ERRO!!!` })
         }
 
     }

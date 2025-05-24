@@ -26,42 +26,4 @@ const Music = db.define('Music',
         },
     })
 
-Music.belongsTo(Genre, {
-    foreignKey: 'genreid',
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE'
-})
-
-Genre.hasMany(Music, {
-    foreignKey: 'genreid',
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE'
-})
-
-Music.belongsTo(Artist, {
-    foreignKey: 'userid',
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-})
-
-Artist.hasMany(Music, {
-    foreignKey: 'userid',
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-})
-
-Music.belongsToMany(Album, {
-    foreignKey: 'musicid',
-    otherKey: 'albumid',
-    through: 'AlbumMusic',
-    onDelete: 'CASCADE',
-})
-
-Album.belongsToMany(Music, {
-    foreignKey: 'albumid',
-    otherKey: 'musicid',
-    through: 'AlbumMusic',
-    onDelete: 'CASCADE',
-})
-
 module.exports = Music
