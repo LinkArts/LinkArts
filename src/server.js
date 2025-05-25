@@ -13,6 +13,9 @@ const AuthController = require('./controllers/AuthController')
 const dashboardRoutes = require('./routes/dashboardRoutes')
 const DashboardController = require('./controllers/DashboardController')
 
+const chatRoutes = require('./routes/chatRoutes')
+const chatController = require('./controllers/ChatController')
+
 const profileRoutes = require('./routes/profileRoutes')
 const ProfileController = require('./controllers/ProfileController')
 
@@ -26,6 +29,7 @@ const Establishment = require('./models/Establishment')
 const Music = require('./models/Music')
 const Genre = require('./models/Genre')
 const Album = require('./models/Album')
+const Chat = require('./models/Chat')
 
 //template engine
 app.engine('handlebars', handlebars.engine(
@@ -91,7 +95,7 @@ app.use((req, res, next) =>
 
     res.locals.message = message
     res.locals.type = type
-
+ 
     next()
 })
 
@@ -99,6 +103,7 @@ app.use('/', authRoutes)
 app.use('/', dashboardRoutes)
 app.use('/profile', profileRoutes)
 app.use('/', searchRoutes)
+app.use('/', chatRoutes)
 app.get('/', AuthController.renderLogin)
 
 app.use((req, res) =>
