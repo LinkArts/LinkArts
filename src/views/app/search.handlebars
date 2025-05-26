@@ -40,7 +40,8 @@
             </div>
         </div>
         <h3 class="card-title">{{name}}</h3>
-        <p class="card-location">{{city}}</p>
+        <p class="card-location">{{#if city}}{{city}}{{else}}Cidade não
+          informada{{/if}}</p>
         <div class="card-rating">
             <span class="star">★</span>
             <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">{{rating}}

@@ -59,12 +59,18 @@ module.exports = class ProfileController
             }
             else if (user.Artist)
             {
+                const uniqueTags = [
+                    ...new Map(
+                        user.Artist?.Musics?.flatMap(music => music.Tags || []).map(tag => [tag.id, tag])
+                    ).values()
+                ];
+
                 const values = {
                     ...user.dataValues,
                     ...user.Artist.dataValues,
                     musics: musicsTags,
                     albums: user.Artist?.Albums?.map(album => album.dataValues) || [],
-                    tags: [...new Set(user.Artist?.Musics?.flatMap(music => music.Tags?.map(tag => tag.dataValues) || []))] || []
+                    tags: uniqueTags.map(tag => tag.dataValues) || []
                 }
 
                 return res.render('app/profileArtist', { values, css: 'perfilArtista.css' })
@@ -146,7 +152,6 @@ module.exports = class ProfileController
                 }]
             })
 
-            console.log(user.get({ plain: true }))
             if (user.Artist.Albums.length > 0)
             {
                 return res.json({ albumExists: true })
@@ -203,7 +208,6 @@ module.exports = class ProfileController
             }
 
             const data = album.get({ plain: true })
-            console.log(data)
 
             return res.json({ data })
         }
@@ -390,6 +394,34 @@ module.exports = class ProfileController
         catch (error)
         {
             console.log(error)
+            return res.json({ message: "ERRO!!!" })
+        }
+    }
+
+    static async updateProfile(req, res)
+    {
+        const id = req.session.userid
+        const { name, city, description } = req.body
+
+        try
+        {
+            const user = await User.findByPk(id)
+
+            if (!user)
+            {
+                return res.json({ message: "Usuário não encontrado!" })
+            }
+
+            const updatedUser = await user.update({
+                name: name,
+                city: city,
+                description: description,
+            })
+
+            return res.json({ message: `O perfil foi atualizado com sucesso!`, user: user })
+        }
+        catch (error)
+        {
             return res.json({ message: "ERRO!!!" })
         }
     }

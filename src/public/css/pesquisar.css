@@ -232,12 +232,20 @@
 }
 
 .card {
+    display: flex;
+    flex-direction: column; /* Empilha os elementos verticalmente */
+    justify-content: space-between; /* Garante que os elementos sejam distribuídos */
+    height: 100%; /* Garante que o cartão ocupe toda a altura disponível */
+    box-sizing: border-box; /* Inclui padding e borda no cálculo do tamanho */
     background-color: white;
     border-radius: 15px;
     padding: 1.5rem;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s;
-    position: relative;
+}
+
+.card-action {
+    margin-top: auto; /* Empurra o .card-action para o final */
 }
 
 .card:hover {
@@ -318,6 +326,12 @@
     color: #555;
     margin-bottom: 1rem;
     text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    /* Limita a 3 linhas */
+    -webkit-box-orient: vertical;
 }
 
 .card-tags {

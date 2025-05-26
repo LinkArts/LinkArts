@@ -6,8 +6,9 @@ const Album = require('./Album');
 const Genre = require('./Genre');
 const Chat = require('./Chat');
 const Tag = require('./Tag');
+const Message = require('./Message');
 
-const models = { User, Artist, Establishment, Music, Album, Genre, Chat, Tag };
+const models = { User, Artist, Establishment, Music, Album, Genre, Chat, Tag, Message };
 
 // Setup associations
 const setupAssociations = require('./associations');

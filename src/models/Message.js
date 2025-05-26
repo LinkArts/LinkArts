@@ -22,4 +22,4 @@ const Message = db.define('Message',
         },
     })
 
-module.exports = Chat
+module.exports = Message

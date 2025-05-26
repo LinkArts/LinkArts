@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const ProfileController = require('../controllers/ProfileController')
 
+router.put('/alterar-perfil', ProfileController.updateProfile)
 router.get('/albums', ProfileController.getAlbums)
 router.get('/procurar-album/:name', ProfileController.searchAlbum)
 router.get('/procurar-album-musicas/:id', ProfileController.searchAlbumMusics)

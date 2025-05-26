@@ -6,7 +6,8 @@
       </div>
       <div class="profile-details">
         <h1 id="profile-name">{{values.name}}</h1>
-        <p id="profile-location" class="profile-location">Sorocaba</p>
+        <p id="profile-location" class="profile-location">{{#if values.city}}{{values.city}}{{else}}Cidade não
+          informada{{/if}}</p>
         <div class="profile-rating"
           aria-label="Avaliação: {{artist.profile.rating}} de 5 estrelas (baseado em {{artist.profile.reviewCount}} avaliações)">
           <div class="stars" aria-hidden="true">
@@ -50,7 +51,7 @@
 
   <section class="about-section">
     <h2>Sobre {{artist.name}}</h2>
-    <p id="profile-about">TESTE TESTE TESTE TESTE TESTE TESTE TESTE </p>
+    <p id="profile-about">{{#if values.description}}{{values.description}}{{else}}Descrição não informada.{{/if}}</p>
     <div class="tags">
       {{#each values.tags}}
       <span class="tag">{{name}}</span>
@@ -158,14 +159,11 @@
       addMusicBtn: document.getElementById('add-music-action-button'),
       addAlbumBtn: document.getElementById('add-album-action-button'),
       editProfileBtn: document.getElementById('edit-profile-btn'),
-      addEventBtn: document.getElementById('add-event-btn'), // Se houver um ID para este
 
       musicContainer: document.querySelector('.music-container'),
       albumContainer: document.querySelector('.albums-container'),
-      eventsContainer: document.querySelector('.events-container'),
     };
 
-    // --- Funções Auxiliares (mantidas as mesmas, mas garantindo que estejam disponíveis) ---
     function showToast(message, type = 'success', duration = 3500)
     {
       document.querySelectorAll('.toast.show').forEach(t => t.remove());
@@ -384,10 +382,6 @@
       }
     }
 
-    // TODO: BACKEND INTEGRATION
-    // This function should be modified to fetch albums from the backend
-    // Replace the DOM-based album loading with a call to /profile/albums
-
     function getCreateAlbumModalHTML()
     {
       return `
@@ -410,7 +404,6 @@
           <h2 id="edit-profile-heading">Editar Perfil</h2>
           <form id="edit-profile-form" novalidate>
             <div class="form-group"><label for="edit-profile-name">Nome</label><input type="text" id="edit-profile-name" required></div>
-            <div class="form-group"><label for="edit-profile-tag">Tagline/Tipo</label><input type="text" id="edit-profile-tag" required></div>
             <div class="form-group"><label for="edit-profile-location">Localização</label><input type="text" id="edit-profile-location" required></div>
             <div class="form-group"><label for="edit-profile-about">Sobre</label><textarea id="edit-profile-about" rows="4" required></textarea></div>
             <div class="form-group"><label for="edit-profile-image-url">URL Imagem Perfil</label><input type="url" id="edit-profile-image-url" placeholder="https://..."></div>
@@ -499,7 +492,7 @@
 
           <div class="form-group"><label for="edit-song-title">Título</label><input type="text" id="edit-song-title" value="${ song.title }" required></div>
           <div class="form-group">
-              <label for="song-tag">Tags</label>
+              <label for="edit-song-tag">Tags</label>
               <div class="tag-select-group">
                 <select id="edit-song-tag" class="js-example-basic-multiple" name="tags[]" multiple="multiple" required><option value="">Carregando...</option></select>
               </div>
@@ -517,13 +510,6 @@
       `;
     }
 
-    // --- Fim das Funções de Geração de HTML ---
-
-    // --- Funções de Abertura de Modals e Lógica Relacionada ---
-
-    // TODO: BACKEND INTEGRATION
-    // This function should be modified to create albums through the backend
-    // Replace the frontend-only album creation with a POST to /profile/album
     async function openCreateAlbumModal(triggerButton = null)
     {
       const modalElement = openModal('.create-album-overlay', 'create-album-modal', getCreateAlbumModalHTML(), triggerButton);
@@ -628,9 +614,6 @@
         });
     }
 
-    // TODO: BACKEND INTEGRATION
-    // This function should be modified to create music through the backend
-    // Replace the frontend-only music creation with a POST to /profile/music
     async function setupAddMusicModal()
     {
       if (Selectors.addMusicBtn)
@@ -753,13 +736,9 @@
       }
     }
 
-    // TODO: BACKEND INTEGRATION
-    // This function should be modified to update music through the backend
-    // Replace the frontend-only music update with a PUT to /profile/music/:id
     async function openEditMusicModal(songData, triggerElement = null)
     {
-      const modalElement = openModal('.edit-music-overlay', 'edit-music-modal', getEditMusicModalHTML(songData), triggerElement);
-
+      const modalElement = openModal('.edit-music-overlay', 'edit-music-modal', getEditMusicModalHTML(songData), triggerElement)
       setTimeout(() =>
       {
         $('.js-example-basic-multiple').select2();
@@ -770,8 +749,9 @@
 
       availableTags.forEach(tag =>
       {
-        const isSelected = songData.tags?.some(t => t.id === tag.id); // Verifica se a tag está associada à música
-        const option = new Option(tag.name, tag.id, isSelected, isSelected);
+        const option = document.createElement('option');
+        option.value = tag.id;
+        option.textContent = tag.name;
         tagSelect.appendChild(option);
       });
 
@@ -908,7 +888,7 @@
         }
         catch (error)
         {
-          showToast(res.message, 'error')
+          showToast('ERRO', 'error')
         }
 
 
@@ -940,8 +920,6 @@
         input?.addEventListener(eventType, () => input.classList.remove('input-error'));
       });
     }
-
-    // --- Funções Auxiliares de Setup ---
 
     async function renderAlbumCard(albumName)
     {
@@ -1006,7 +984,6 @@
       });
     }
 
-    // NOVO: Função para lidar com o clique no play button
     function handlePlayButtonClick(e)
     {
       e.stopPropagation(); // MUITO IMPORTANTE: Impede que o clique no play button ative o clique no song-card
@@ -1017,7 +994,6 @@
       }
     }
 
-    // NOVO: Função para lidar com o clique em qualquer parte do song-card (para abrir o modal de edição)
     async function handleSongCardClick(e)
     {
       const songCard = e.currentTarget;
@@ -1071,7 +1047,6 @@
       });
     }
 
-    // Função para configurar o botão de adicionar álbum
     function setupAddAlbumModal()
     {
       if (Selectors.addAlbumBtn)
@@ -1086,8 +1061,7 @@
       }
     }
 
-    // Função para configurar o botão de editar perfil
-    function setupEditProfileModal()
+    async function setupEditProfileModal()
     {
       if (Selectors.editProfileBtn)
       { // Verifica se o botão existe
@@ -1103,24 +1077,22 @@
           if (!modalElement) return;
           const form = modalElement.querySelector('#edit-profile-form');
           const nameInput = modalElement.querySelector('#edit-profile-name');
-          const tagInput = modalElement.querySelector('#edit-profile-tag');
           const locationInput = modalElement.querySelector('#edit-profile-location');
           const aboutInput = modalElement.querySelector('#edit-profile-about');
           const imageUrlInput = modalElement.querySelector('#edit-profile-image-url');
-          const allInputs = [nameInput, tagInput, locationInput, aboutInput, imageUrlInput];
+          const allInputs = [nameInput, locationInput, aboutInput, imageUrlInput];
           if (Selectors.profileName) nameInput.value = Selectors.profileName.textContent.trim();
           if (Selectors.profileTag) tagInput.value = Selectors.profileTag.textContent.trim();
           if (Selectors.profileLocation) locationInput.value = Selectors.profileLocation.innerText?.trim() || Selectors.profileLocation.textContent.trim();
           if (Selectors.profileAbout) aboutInput.value = Selectors.profileAbout.textContent.trim();
           if (Selectors.profileImage) imageUrlInput.value = Selectors.profileImage.src;
-          form?.addEventListener('submit', (e) =>
+          form?.addEventListener('submit', async (e) =>
           {
             e.preventDefault();
             allInputs.forEach(inp => inp?.classList.remove('input-error'));
             let isValid = true;
             let firstInvalid = null;
             const newName = nameInput.value.trim();
-            const newTag = tagInput.value.trim();
             const newLocation = locationInput.value.trim();
             const newAbout = aboutInput.value.trim();
             const newImageUrl = imageUrlInput.value.trim();
@@ -1130,12 +1102,6 @@
               isValid = false;
               nameInput.classList.add('input-error');
               if (!firstInvalid) firstInvalid = nameInput;
-            }
-            if (!newTag)
-            {
-              isValid = false;
-              tagInput.classList.add('input-error');
-              if (!firstInvalid) firstInvalid = tagInput;
             }
             if (!newLocation)
             {
@@ -1168,30 +1134,49 @@
               firstInvalid?.focus();
               return;
             }
-            if (Selectors.profileName) Selectors.profileName.textContent = newName;
-            if (Selectors.profileTag) Selectors.profileTag.textContent = newTag;
-            if (Selectors.profileLocation) Selectors.profileLocation.innerText = newLocation;
-            if (Selectors.profileAbout) Selectors.profileAbout.textContent = newAbout;
-            const oldImageUrl = Selectors.profileImage ? Selectors.profileImage.src : null;
-            if (Selectors.profileImage && newImageUrl && newImageUrl !== oldImageUrl)
+
+            try
             {
-              Selectors.profileImage.src = newImageUrl;
-              Selectors.profileImage.alt = `Foto de ${ newName }`;
-              Selectors.profileImage.onerror = () =>
+
+              const response = await fetch('/profile/alterar-perfil', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  name: newName,
+                  city: newLocation,
+                  description: newAbout,
+                })
+              })
+              const res = await response.json();
+
+              if (Selectors.profileName) Selectors.profileName.textContent = newName;
+              if (Selectors.profileLocation) Selectors.profileLocation.innerText = newLocation;
+              if (Selectors.profileAbout) Selectors.profileAbout.textContent = newAbout;
+              const oldImageUrl = Selectors.profileImage ? Selectors.profileImage.src : null;
+              if (Selectors.profileImage && newImageUrl && newImageUrl !== oldImageUrl)
               {
-                if (oldImageUrl) Selectors.profileImage.src = oldImageUrl;
-                Selectors.profileImage.onerror = null;
-              };
-              Selectors.profileImage.onload = () =>
+                Selectors.profileImage.src = newImageUrl;
+                Selectors.profileImage.alt = `Foto de ${ newName }`;
+                Selectors.profileImage.onerror = () =>
+                {
+                  if (oldImageUrl) Selectors.profileImage.src = oldImageUrl;
+                  Selectors.profileImage.onerror = null;
+                };
+                Selectors.profileImage.onload = () =>
+                {
+                  Selectors.profileImage.onerror = null;
+                };
+              } else if (Selectors.profileImage && !newImageUrl && oldImageUrl)
               {
-                Selectors.profileImage.onerror = null;
-              };
-            } else if (Selectors.profileImage && !newImageUrl && oldImageUrl)
-            {
-              console.log("Profile image URL cleared.");
+                console.log("Profile image URL cleared.");
+              }
+              showToast('Perfil atualizado com sucesso!', 'success');
+              closeModal(modalElement.closest('.modal-overlay'));
             }
-            showToast('Perfil atualizado com sucesso!', 'success');
-            closeModal(modalElement.closest('.modal-overlay'));
+            catch (error)
+            {
+              showToast('Erro na função hein!', 'error');
+            }
           });
           allInputs.forEach(input => input?.addEventListener('input', () => input.classList.remove('input-error')));
         });
@@ -1200,9 +1185,7 @@
         console.warn("Botão 'Editar Perfil' não encontrado.");
       }
     }
-    // --- Fim das Funções de Abertura de Modals e Lógica Relacionada ---
 
-    // --- Inicialização ---
     document.addEventListener('keydown', (e) =>
     {
       if (e.key === 'Escape')
@@ -1227,8 +1210,6 @@
         availableTags.push({ id: tag.id, name: tag.name })
       })
 
-      // 2. Configura os listeners para os cards de álbum (padrões e novos)
-      // Isso deve ser feito APÓS loadInitialAlbums, pois pode adicionar um álbum padrão
       setupAlbumCardListeners();
 
       if (Selectors.musicContainer)
@@ -1242,21 +1223,9 @@
       setupAddAlbumModal();
       setupEditProfileModal();
 
-      // Listener para o botão Adicionar Evento (funcionalidade ainda não implementada)
-      if (Selectors.addEventBtn && Selectors.eventsContainer)
-      {
-        Selectors.addEventBtn.addEventListener('click', () =>
-        {
-          showToast('Funcionalidade "Adicionar Evento" ainda não implementada.', 'warning');
-        });
-      } else
-      {
-        console.warn("Botão 'Adicionar Evento' ou 'eventsContainer' não encontrados.");
-      }
       console.log("Initialization complete.");
     }
 
-    // Start initialization
     initialize();
   });
 </script>
