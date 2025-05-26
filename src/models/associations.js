@@ -1,6 +1,6 @@
 module.exports = function setupAssociations(models)
 {
-    const { User, Artist, Establishment, Album, Music, Genre, Tag } = models;
+    const { User, Artist, Establishment, Album, Music, Genre, Tag, Chat, Message } = models;
 
     Artist.belongsTo(User, {
         foreignKey: 'userid',
@@ -87,4 +87,39 @@ module.exports = function setupAssociations(models)
         onDelete: 'CASCADE',
         as: 'Musics'
     })
+
+     //chat
+    User.belongsToMany(Chat, {
+        foreignKey: 'userid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        through: 'UserChat',
+        otherKey: 'chatid'
+    });
+
+    Chat.belongsToMany(User, {
+        foreignKey: 'chatid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        through: 'UserChat',
+        otherKey: 'userid'
+    });
+
+    Message.belongsTo(Chat, {
+        foreignKey: 'chatid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
+    Chat.hasMany(Message, {
+        foreignKey: 'chatid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
+    Message.belongsTo(User, {
+        foreignKey: 'userid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
 };
