@@ -23,13 +23,7 @@ const searchRoutes = require('./routes/searchRoutes')
 const SearchController = require('./controllers/SearchController')
 
 //models
-const User = require('./models/User')
-const Artist = require('./models/Artist')
-const Establishment = require('./models/Establishment')
-const Music = require('./models/Music')
-const Genre = require('./models/Genre')
-const Album = require('./models/Album')
-const Chat = require('./models/Chat')
+const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag } = require('./models/index')
 
 //template engine
 app.engine('handlebars', handlebars.engine(
@@ -95,7 +89,7 @@ app.use((req, res, next) =>
 
     res.locals.message = message
     res.locals.type = type
- 
+
     next()
 })
 

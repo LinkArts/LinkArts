@@ -6,20 +6,14 @@
       </div>
       <div class="profile-details">
         <h1 id="profile-name">{{values.name}}</h1>
-        {{#if values.tags}}
-        {{#each values.tags}}
-        <p id="profile-tag" class="profile-tag">{{values.tag}}</p>
-        {{/each}}
-        {{else}}
-        <p id="profile-tag" class="profile-tag">Sem Tags</p>
-        {{/if}}
-        <p id="profile-location" class="profile-location">{{values.city}}</p>
+        <p id="profile-location" class="profile-location">Sorocaba</p>
         <div class="profile-rating"
           aria-label="Avaliação: {{artist.profile.rating}} de 5 estrelas (baseado em {{artist.profile.reviewCount}} avaliações)">
           <div class="stars" aria-hidden="true">
-          </div>
-          <span class="rating">{{artist.profile.rating}}</span>
-          <span class="reviews">({{artist.profile.reviewCount}} reviews)</span>
+          </div class="rating-content">
+          <span style="margin-bottom: 5px;">★</span>
+          <span class="rating">4.5</span>
+          <span class="reviews">(8 reviews)</span>
         </div>
       </div>
     </div>
@@ -56,10 +50,10 @@
 
   <section class="about-section">
     <h2>Sobre {{artist.name}}</h2>
-    <p id="profile-about">{{artist.about}}</p>
+    <p id="profile-about">TESTE TESTE TESTE TESTE TESTE TESTE TESTE </p>
     <div class="tags">
-      {{#each artist.tags}}
-      <span class="tag">{{this}}</span>
+      {{#each values.tags}}
+      <span class="tag">{{name}}</span>
       {{/each}}
     </div>
   </section>
@@ -72,7 +66,7 @@
     <div class="scroll-container albums-container">
       {{#if values.albums}}
       {{#each values.albums}}
-      <div class="album-card" data-album="{{id}}">
+      <div class="album-card" data-id="{{id}}">
         <div class="album-img">
           <img src="/img/default.jpg" alt="{{ name }}">
         </div>
@@ -95,7 +89,7 @@
     <div class="scroll-container music-container">
       {{#if values.musics}}
       {{#each values.musics}}
-      <div class="song-card" data-id="{{this.id}}">
+      <div class="song-card" data-id="{{id}}">
         <div class="song-icon">
           <div class="play-button" aria-label="Tocar {{this.name}}">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -106,7 +100,15 @@
         </div>
         <div class="song-info">
           <h3>{{this.name}}</h3>
-          <p>Gênero: {{this.description}}</p>
+          <p>Tags:
+            {{#if tags}}
+            {{#each tags}}
+            {{name}}{{#unless @last}}, {{/unless}}
+            {{/each}}
+            {{else}}
+            Nenhuma tag associada
+            {{/if}}
+          </p>
         </div>
       </div>
       {{/each}}
@@ -142,35 +144,12 @@
   {
     let lastFocusedElement = null;
     let availableAlbums = [];
-
-    // TODO: BACKEND INTEGRATION
-    // This mock data should be replaced with data from the backend
-    // We'll need to fetch this data from /profile/albums endpoint
-    const mockAllSongs = [
-      { title: "Samba da Gafieira", genre: "Samba", album: "Álbum Padrão" },
-      { title: "Choro do Violão", genre: "Choro", album: "Álbum Padrão" },
-      { title: "Bossa Nova Alegre", genre: "Bossa Nova", album: "Álbum Padrão" },
-      { title: "Rock na Noite", genre: "Rock", album: "Rock Essencial" },
-      { title: "Blues da Solidão", genre: "Blues", album: "Rock Essencial" },
-      { title: "Eletrônica Pulsante", genre: "Eletrônica", album: "Sons do Futuro" },
-      { title: "Pop Chiclete", genre: "Pop", album: "Pop Essencial" },
-      { title: "Forró Quentinho", genre: "Forró", album: "Ritmos do Brasil" },
-      { title: "Sertanejo Raiz", genre: "Sertanejo", album: "Ritmos do Brasil" },
-      { title: "Jazz Suave", genre: "Jazz", album: "Clássicos do Jazz" },
-      { title: "Balada Romântica", genre: "Pop", album: "Canções de Amor" },
-      { title: "Blues da Solidão", genre: "Blues", album: "Rock Essencial" },
-      { title: "Blues da Solidão", genre: "Blues", album: "Rock Essencial" },
-      { title: "Blues da Solidão", genre: "Blues", album: "Rock Essencial" },
-      { title: "Blues da Solidão", genre: "Blues", album: "Rock Essencial" },
-      { title: "Blues da Solidão", genre: "Blues", album: "Rock Essencial" },
-      { title: "Blues da Solidão", genre: "Blues", album: "Rock Essencial" },
-      { title: "Blues da Solidão", genre: "Blues", album: "Rock Essencial" },
-    ];
+    let availableTags = [];
 
     // Ajustes nos Seletores
     const Selectors = {
       profileName: document.getElementById('profile-name') ?? document.querySelector('.profile-details h1'),
-      profileTag: document.getElementById('profile-tag') ?? document.querySelector('.profile-tag'),
+      //profileTag: document.getElementById('profile-tag') ?? document.querySelector('.profile-tag'),
       profileLocation: document.getElementById('profile-location') ?? document.querySelector('.profile-location'),
       profileAbout: document.getElementById('profile-about') ?? document.querySelector('.about-section p'),
       profileImage: document.getElementById('profile-main-image') ?? document.querySelector('.profile-img img'),
@@ -386,7 +365,7 @@
       if (!selectEl) return;
       const currentVal = selectEl.value;
       selectEl.innerHTML = '';
-      if (availableAlbums.length === 0)
+      if (availableAlbums?.length === 0)
       {
         selectEl.innerHTML = '<option value="" disabled>Nenhum álbum disponível</option>';
         selectEl.disabled = true;
@@ -394,7 +373,7 @@
       {
         selectEl.disabled = false;
         selectEl.innerHTML = '<option value="">Nenhum</option>';
-        availableAlbums.forEach(album =>
+        availableAlbums?.forEach(album =>
         {
           const option = document.createElement('option');
           option.value = album.name;
@@ -450,7 +429,12 @@
           <h2 id="add-music-heading">Adicionar Nova Música</h2>
           <form id="add-music-form" novalidate>
             <div class="form-group"><label for="song-title">Título</label><input type="text" id="song-title" required></div>
-            <div class="form-group"><label for="song-genre">Gênero</label><input type="text" id="song-genre" required></div>
+            <div class="form-group">
+              <label for="song-tag">Tags</label>
+              <div class="tag-select-group">
+                <select id="song-tag" class="js-example-basic-multiple" name="tags[]" multiple="multiple" required><option value="">Carregando...</option><option value="">Carregando...</option><option value="">Carregando...</option><option value="">Carregando...</option></select>
+              </div>
+            </div>
             <div class="form-group">
               <label for="song-album">Álbum</label>
               <div class="album-select-group">
@@ -472,7 +456,7 @@
       if (songsInAlbum && songsInAlbum.length > 0)
       {
         songsHTML = songsInAlbum.map(song => `
-      <div class="song-card" data-album="${ song.album }">
+      <div class="song-card" data-id="${ song.id }">
         <div class="song-icon">
           <div class="play-button" aria-label="Tocar ${ song.title }">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -483,7 +467,7 @@
         </div>
         <div class="song-info">
           <h3>${ song.name }</h3>
-          <p>Gênero: ${ song.genre }</p>
+          <p>Tag: ${ song.genre }</p>
         </div>
       </div>
     `).join('');
@@ -514,7 +498,12 @@
           <input type="hidden" id="edit-music-original-album" value="${ song.album }">
 
           <div class="form-group"><label for="edit-song-title">Título</label><input type="text" id="edit-song-title" value="${ song.title }" required></div>
-          <div class="form-group"><label for="edit-song-genre">Gênero</label><input type="text" id="edit-song-genre" value="${ song.genre }" required></div>
+          <div class="form-group">
+              <label for="song-tag">Tags</label>
+              <div class="tag-select-group">
+                <select id="edit-song-tag" class="js-example-basic-multiple" name="tags[]" multiple="multiple" required><option value="">Carregando...</option></select>
+              </div>
+            </div>
           <div class="form-group">
             <label for="edit-song-album">Álbum</label>
             <select id="edit-song-album" required><option value="">Carregando...</option></select>
@@ -558,17 +547,26 @@
           nameInput.focus();
           return;
         }
-        if (availableAlbums.some(a => a.toLowerCase() === nameLower))
+
+        try
         {
-          showToast(`Álbum "${ newName }" já existe.`, 'warning');
-          nameInput.classList.add('input-error');
-          nameInput.focus();
+          const res = await fetch(`/profile/procurar-album/${ newName }`);
+          const data = await res.json();
+
+          if (data.albumExists)
+          {
+            showToast('Álbum já existe.', 'error');
+            nameInput.classList.add('input-error');
+            nameInput.focus();
+            return; // << PARADA AQUI
+          }
+        }
+        catch (err)
+        {
+          console.error("Erro ao verificar álbum:", err);
+          showToast('Erro ao verificar álbum.', 'error');
           return;
         }
-
-        availableAlbums.push(newName);
-        availableAlbums.sort((a, b) => a.localeCompare(b));
-        console.log("Album created:", newName);
 
         try
         {
@@ -594,9 +592,6 @@
       nameInput?.addEventListener('input', () => nameInput.classList.remove('input-error'));
     }
 
-    // TODO: BACKEND INTEGRATION
-    // This function should be modified to fetch album content from the backend
-    // Replace the mockAllSongs filtering with a call to /profile/album/:id
     async function openAlbumContentModal(albumName, albumid, triggerButton = null)
     {
       // Converte o nome do álbum do HTML para minúsculas para comparação
@@ -643,13 +638,29 @@
         Selectors.addMusicBtn.addEventListener('click', async () =>
         {
           const modalElement = openModal('.add-music-overlay', 'add-music-modal', getAddMusicModalHTML(), Selectors.addMusicBtn);
+          setTimeout(() =>
+          {
+            $('.js-example-basic-multiple').select2();
+          }, 0);
+
+          const tagSelect = document.getElementById('song-tag');
+          tagSelect.innerHTML = ''; // Limpa opções existentes
+
+          availableTags.forEach(tag =>
+          {
+            const option = document.createElement('option');
+            option.value = tag.id;
+            option.textContent = tag.name;
+            tagSelect.appendChild(option);
+          });
+
           if (!modalElement) return;
           const form = modalElement.querySelector('#add-music-form');
           const titleInput = modalElement.querySelector('#song-title');
-          const genreInput = modalElement.querySelector('#song-genre');
+          const tagInput = modalElement.querySelector('#song-tag');
           const albumSelect = modalElement.querySelector('#song-album');
           const createAlbumBtn = modalElement.querySelector('#create-album-inline-btn');
-          const allInputs = [titleInput, genreInput, albumSelect];
+          const allInputs = [titleInput, tagInput, albumSelect];
           await populateAlbumDropdown('song-album');
           createAlbumBtn?.addEventListener('click', async () => openCreateAlbumModal(createAlbumBtn));
           form?.addEventListener('submit', async (e) =>
@@ -659,7 +670,8 @@
             let isValid = true;
             let firstInvalid = null;
             const title = titleInput.value.trim();
-            const genre = genreInput.value.trim();
+            const tag = $('#song-tag').val();
+            console.log(tag);
             const album = albumSelect.value;
             if (!title)
             {
@@ -667,11 +679,11 @@
               titleInput.classList.add('input-error');
               if (!firstInvalid) firstInvalid = titleInput;
             }
-            if (!genre)
+            if (tag.length === 0)
             {
               isValid = false;
-              genreInput.classList.add('input-error');
-              if (!firstInvalid) firstInvalid = genreInput;
+              tagInput.classList.add('input-error');
+              if (!firstInvalid) firstInvalid = tagInput;
             }
             if (!album)
             {
@@ -694,7 +706,7 @@
               headers: {
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ title, genre, album })
+              body: JSON.stringify({ title, tag, album })
             })
               .then(res => res.json())
               .then(data => 
@@ -708,12 +720,16 @@
                 showToast(data.message, 'error');
               })
 
+            const selectedTags = availableTags
+              .filter(t => tag.includes(t.id.toString()))
+              .map(tag => tag.name);
+
             const songCard = document.createElement('div');
             songCard.className = 'song-card';
             songCard.dataset.id = id;
             songCard.innerHTML = `
                   <div class="song-icon"><div class="play-button"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div></div>
-                  <div class="song-info"><h3>${ title }</h3><p>Gênero: ${ genre }</p></div>`;
+                  <div class="song-info"><h3>${ title }</h3><p>Tags: ${ selectedTags.join(', ') }</p></div>`;
             const playBtn = songCard.querySelector('.play-button');
             playBtn?.addEventListener('click', () => showToast(`Play: ${ title }`, 'success', 1500));
             Selectors.musicContainer.prepend(songCard);
@@ -743,13 +759,29 @@
     async function openEditMusicModal(songData, triggerElement = null)
     {
       const modalElement = openModal('.edit-music-overlay', 'edit-music-modal', getEditMusicModalHTML(songData), triggerElement);
+
+      setTimeout(() =>
+      {
+        $('.js-example-basic-multiple').select2();
+      }, 0);
+
+      const tagSelect = document.getElementById('edit-song-tag');
+      tagSelect.innerHTML = ''; // Limpa opções existentes
+
+      availableTags.forEach(tag =>
+      {
+        const isSelected = songData.tags?.some(t => t.id === tag.id); // Verifica se a tag está associada à música
+        const option = new Option(tag.name, tag.id, isSelected, isSelected);
+        tagSelect.appendChild(option);
+      });
+
       if (!modalElement) return;
 
       const form = modalElement.querySelector('#edit-music-form');
       const originalTitleInput = modalElement.querySelector('#edit-music-original-title');
       const originalAlbumInput = modalElement.querySelector('#edit-music-original-album');
       const titleInput = modalElement.querySelector('#edit-song-title');
-      const genreInput = modalElement.querySelector('#edit-song-genre');
+      const tagInput = modalElement.querySelector('#edit-song-tag');
       const albumSelect = modalElement.querySelector('#edit-song-album');
       const deleteBtn = modalElement.querySelector('#delete-music-btn');
 
@@ -760,10 +792,10 @@
 
       setTimeout(() => titleInput?.focus(), 100); // Foca no campo de título
 
-      const allInputs = [titleInput, genreInput, albumSelect];
+      const allInputs = [titleInput, tagInput, albumSelect];
 
       // Lógica de Submissão do Formulário (Salvar)
-      form?.addEventListener('submit', (e) =>
+      form?.addEventListener('submit', async (e) =>
       {
         e.preventDefault();
         allInputs.forEach(inp => inp.classList.remove('input-error'));
@@ -772,7 +804,7 @@
         let firstInvalid = null;
 
         const newTitle = titleInput.value.trim();
-        const newGenre = genreInput.value.trim();
+        const newTags = $('#edit-song-tag').val();
         const newAlbum = albumSelect.value;
 
         if (!newTitle)
@@ -781,11 +813,11 @@
           titleInput.classList.add('input-error');
           if (!firstInvalid) firstInvalid = titleInput;
         }
-        if (!newGenre)
+        if (newTags.length === 0)
         {
           isValid = false;
-          genreInput.classList.add('input-error');
-          if (!firstInvalid) firstInvalid = genreInput;
+          newTags.classList.add('input-error');
+          if (!firstInvalid) firstInvalid = newTags;
         }
         if (!newAlbum)
         {
@@ -805,38 +837,50 @@
         const originalTitle = originalTitleInput.value;
         const originalAlbum = originalAlbumInput.value;
 
-        const songIndex = mockAllSongs.findIndex(
-          s => s.title === originalTitle && s.album === originalAlbum
-        );
-
-        if (songIndex > -1)
+        try
         {
-          mockAllSongs[songIndex] = {
-            title: newTitle,
-            genre: newGenre,
-            album: newAlbum
-          };
-          console.log("Música atualizada no mockAllSongs:", mockAllSongs[songIndex]);
-          showToast(`Música "${ newTitle }" atualizada!`, 'success');
+          const response = await fetch(`/profile/alterar-musica/${ id }`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: newTitle,
+              tags: newTags,
+              album: newAlbum
+            })
+          })
 
-          // Atualizar o card da música no DOM se estiver visível (apenas na seção de Músicas)
-          // Melhoria: Encontrar o card original e atualizar o seu conteúdo
-          const existingSongCard = Selectors.musicContainer?.querySelector(`.song-card[data-album="${ originalAlbum }"] > .song-info > h3`)
-            ?.closest('.song-card');
-
-          if (existingSongCard)
-          {
-            existingSongCard.dataset.album = newAlbum; // Atualiza o data-album
-            existingSongCard.querySelector('h3').textContent = newTitle;
-            existingSongCard.querySelector('p:not(.song-card-album)').textContent = `Gênero: ${ newGenre }`;
-            const albumP = existingSongCard.querySelector('.song-card-album');
-            if (albumP) albumP.textContent = `Álbum: ${ newAlbum }`;
-          }
-
-        } else
+          const res = await response.json();
+        }
+        catch (err)
         {
-          showToast('Erro: Música original não encontrada para atualização.', 'error');
-          console.error("Música original não encontrada para atualização:", songData);
+          console.error("Erro ao atualizar música:", err);
+          showToast('Erro ao atualizar música.', 'error');
+          return;
+        }
+
+        // Atualizar o card da música no DOM se estiver visível (apenas na seção de Músicas)
+        // Melhoria: Encontrar o card original e atualizar o seu conteúdo
+        const existingSongCard = Selectors.musicContainer?.querySelector(`.song-card[data-id="${ id }"] > .song-info > h3`)
+          ?.closest('.song-card');
+
+        const modal = document.querySelector('.modal-body-scrollable')
+        const card = modal?.querySelector(`.song-card[data-id="${ id }"] > .song-info > h3`)
+          ?.closest('.song-card');
+
+        if (existingSongCard)
+        {
+          existingSongCard.querySelector('h3').textContent = newTitle;
+          existingSongCard.querySelector('p:not(.song-card-album)').textContent = `Gênero: ${ newGenre }`;
+          const albumP = existingSongCard.querySelector('.song-card-album');
+          if (albumP) albumP.textContent = `Álbum: ${ newAlbum }`;
+        }
+
+        if (card)
+        {
+          card.querySelector('h3').textContent = newTitle;
+          card.querySelector('p:not(.song-card-album)').textContent = `Gênero: ${ newGenre }`;
+          const albumP = card.querySelector('.song-card-album');
+          if (albumP) albumP.textContent = `Álbum: ${ newAlbum }`;
         }
 
         closeModal(modalElement.closest('.modal-overlay'));
@@ -844,45 +888,45 @@
       });
 
       // Lógica de Exclusão da Música
-      deleteBtn?.addEventListener('click', () =>
+      deleteBtn?.addEventListener('click', async () =>
       {
         if (!confirm(`Tem certeza que deseja excluir a música "${ songData.title }"?`))
         {
           return;
         }
 
-        const originalTitle = originalTitleInput.value;
-        const originalAlbum = originalAlbumInput.value;
-
-        const initialLength = mockAllSongs.length;
-        mockAllSongs = mockAllSongs.filter(
-          s => !(s.title === originalTitle && s.album === originalAlbum)
-        );
-
-        if (mockAllSongs.length < initialLength)
+        try
         {
-          showToast(`Música "${ originalTitle }" excluída!`, 'success');
-          console.log("Música excluída do mockAllSongs.");
+          const response = await fetch('/profile/deletar-musica/' + id,
+            {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' }
+            })
 
-          // Remover o card da música do DOM
-          const songCardToRemove = Selectors.musicContainer?.querySelector(`.song-card[data-album="${ originalAlbum }"] > .song-info > h3`)
-            ?.closest('.song-card');
-          if (songCardToRemove)
-          {
-            songCardToRemove.remove();
-            console.log("Música removida do DOM.");
-          } else
-          {
-            console.warn("Card da música para remover não encontrado no DOM.");
-          }
-
-          // Opcional: Se o álbum ficar vazio, talvez mostrar uma mensagem ou remover o card do álbum.
-          // Por enquanto, vamos deixar a lógica básica.
-
-        } else
+          const res = await response.json();
+          showToast(res.message, 'success')
+        }
+        catch (error)
         {
-          showToast('Erro: Música não encontrada para exclusão.', 'error');
-          console.error("Música não encontrada para exclusão:", songData);
+          showToast(res.message, 'error')
+        }
+
+
+        const existingSongCard = Selectors.musicContainer?.querySelector(`.song-card[data-id="${ id }"] > .song-info > h3`)
+          ?.closest('.song-card');
+
+        const modal = document.querySelector('.modal-body-scrollable')
+        const card = modal?.querySelector(`.song-card[data-id="${ id }"] > .song-info > h3`)
+          ?.closest('.song-card');
+
+        if (existingSongCard)
+        {
+          existingSongCard.remove();
+        }
+
+        if (card)
+        {
+          card.remove();
         }
 
         closeModal(modalElement.closest('.modal-overlay'));
@@ -929,9 +973,9 @@
 
         const newAlbumCard = document.createElement('div');
         newAlbumCard.className = 'album-card';
-        newAlbumCard.dataset.albumName = albumName;
+        newAlbumCard.dataset.id = id;
         newAlbumCard.innerHTML = `
-        <div class="album-img" data-album="${ albumName }">
+        <div class="album-img" data-id="${ id }">
           <img src="/img/default.jpg" alt="${ albumName }">
         </div>
         <h3 class="album-name">${ albumName }</h3>
@@ -980,17 +1024,18 @@
       //const title = songCard.querySelector('h3')?.textContent;
       //const genre = songCard.querySelector('p:not(.song-card-album)')?.textContent.replace('Gênero: ', '').trim();
 
-      await fetch(`/profile/procurar-musica/${ songCard.dataset.id }`)
-        .then(res => res.json())
-        .then(data => 
-        {
-          response = data.data;
-          openEditMusicModal({ title: response.name, genre: response.description, album: response.Albums[0].name, id: songCard.data.id }, songCard);
-        })
-        .catch(err =>
-        {
-          showToast('DEU RUIM!!!', 'error');
-        });
+      try
+      {
+        const response = await fetch(`/profile/procurar-musica/${ songCard.dataset.id }`)
+        const res = await response.json()
+
+        const values = res.data;
+        openEditMusicModal({ title: values.name, genre: values.description, album: values.Albums[0].name, id: songCard.dataset.id }, songCard);
+      }
+      catch (error)
+      {
+        showToast('DEU RUIM!!!', 'error');
+      }
 
       // Se as informações estiverem completas, abre o modal de edição
       /*if (title && genre && album)
@@ -1006,7 +1051,7 @@
     {
       const albumCard = event.currentTarget;
       const albumName = albumCard.querySelector('.album-name')?.textContent;
-      const albumid = albumCard.dataset.album;
+      const albumid = albumCard.dataset.id;
       console.log(albumName);
       if (albumName)
       {
@@ -1048,7 +1093,7 @@
       { // Verifica se o botão existe
         Selectors.editProfileBtn.addEventListener('click', () =>
         {
-          const requiredElements = [Selectors.profileName, Selectors.profileTag, Selectors.profileLocation, Selectors.profileAbout, Selectors.profileImage];
+          const requiredElements = [Selectors.profileName/*, Selectors.profileTag*/, Selectors.profileLocation, Selectors.profileAbout, Selectors.profileImage];
           if (requiredElements.some(el => !el))
           {
             showToast("Erro: Elementos do perfil não encontrados na página.", 'error');
@@ -1170,12 +1215,17 @@
       }
     });
 
-    function initialize()
+    async function initialize()
     {
       console.log("Initializing page script...");
 
-      // TODO: BACKEND INTEGRATION
-      // Replace loadInitialAlbums with a call to fetch albums from the backend
+      const response = await fetch('/profile/tags')
+      const res = await response.json()
+
+      res.tags.forEach(tag =>
+      {
+        availableTags.push({ id: tag.id, name: tag.name })
+      })
 
       // 2. Configura os listeners para os cards de álbum (padrões e novos)
       // Isso deve ser feito APÓS loadInitialAlbums, pois pode adicionar um álbum padrão

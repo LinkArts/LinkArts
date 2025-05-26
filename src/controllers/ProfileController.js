@@ -1,6 +1,7 @@
-const { Op, Model } = require('sequelize');
+const { Op, Model, fn, col, where } = require('sequelize');
 
-const { User, Artist, Establishment, Album, Music, Genre } = require('../models/index')
+const { User, Artist, Establishment, Album, Music, Genre, Tag } = require('../models/index');
+const { raw } = require('mysql2');
 
 module.exports = class ProfileController
 {
@@ -19,7 +20,7 @@ module.exports = class ProfileController
                             model: Artist,
                             required: false,
                             include: [
-                                { model: Music, as: 'Musics', required: false },
+                                { model: Music, as: 'Musics', required: false, include: [{ model: Tag, as: 'Tags', required: false }] },
                                 { model: Album, required: false }
                             ],
 
@@ -43,6 +44,11 @@ module.exports = class ProfileController
                 })
             }
 
+            const musicsTags = user.Artist?.Musics?.map(music => ({
+                ...music.dataValues,
+                tags: music.Tags?.map(tag => tag.dataValues) || []
+            }));
+
             if (user.Establishment)
             {
                 const values = {
@@ -56,8 +62,9 @@ module.exports = class ProfileController
                 const values = {
                     ...user.dataValues,
                     ...user.Artist.dataValues,
-                    musics: user.Artist?.Musics?.map(music => music.dataValues) || [],
-                    albums: user.Artist?.Albums?.map(album => album.dataValues) || []
+                    musics: musicsTags,
+                    albums: user.Artist?.Albums?.map(album => album.dataValues) || [],
+                    tags: [...new Set(user.Artist?.Musics?.flatMap(music => music.Tags?.map(tag => tag.dataValues) || []))] || []
                 }
 
                 return res.render('app/profileArtist', { values, css: 'perfilArtista.css' })
@@ -114,17 +121,57 @@ module.exports = class ProfileController
         }
     }
 
+    static async searchAlbum(req, res)
+    {
+        console.log("SEARCH ALBUM!!!");
+
+        const { name } = req.params
+
+        try
+        {
+            const user = await User.findOne({
+                where: {
+                    id: req.session.userid,
+                },
+                include: [{
+                    model: Artist,
+                    include: [{
+                        model: Album,
+                        where: {
+                            [Op.and]: [
+                                where(fn('lower', col('name')), name.toLowerCase())
+                            ]
+                        }
+                    }]
+                }]
+            })
+
+            console.log(user.get({ plain: true }))
+            if (user.Artist.Albums.length > 0)
+            {
+                return res.json({ albumExists: true })
+            }
+
+            return res.json({ albumExists: false })
+        }
+        catch (error)
+        {
+            console.log(error)
+            return res.json({ message: "ERRO!!!" })
+        }
+    }
+
     static async getAlbums(req, res)
     {
         console.log("GET ALBUMS!!!")
 
         try
         {
-            const user = await User.findOne({ where: { id: req.session.userid }, include: [{ model: Artist }] })
+            const user = await User.findOne({ where: { id: req.session.userid }, include: [{ model: Artist, include: [{ model: Album }] },] })
 
-            const albums = await Album.findAll({ where: { userid: user.Artist.cpf } })
+            const data = user.get({ plain: true })
 
-            return res.json({ albums: albums?.map((album) => album.dataValues) || [] })
+            return res.json({ albums: data.Artist.Albums })
         }
         catch (err)
         {
@@ -156,6 +203,7 @@ module.exports = class ProfileController
             }
 
             const data = album.get({ plain: true })
+            console.log(data)
 
             return res.json({ data })
         }
@@ -183,8 +231,6 @@ module.exports = class ProfileController
                 }]
             })
 
-            console.log(music.get({ plain: true }));
-
             const data = music.get({ plain: true })
             return res.json({ data })
         }
@@ -198,7 +244,9 @@ module.exports = class ProfileController
     static async updateMusic(req, res)
     {
         const { id } = req.params
-        const { title, genre, album } = req.body
+        const { title, tags, album } = req.body
+
+        console.log("UPDATE MUSIC!!!")
 
         try
         {
@@ -208,7 +256,6 @@ module.exports = class ProfileController
                 },
                 include: [{
                     model: Album,
-                    where: { name: album },
                     required: false
                 }]
             })
@@ -217,15 +264,21 @@ module.exports = class ProfileController
             {
                 return res.json({ message: "Música não encontrada!" })
             }
-            
+
             const updatedMusic = await music.update({
                 name: title,
-                description: genre,
             })
 
-            updatedMusic.setAlbum(music.Album.id)
+            if (album != music.Albums[0].name)
+            {
+                const newAlbum = await Album.findOne({ where: { name: album } })
+                updatedMusic.setAlbums(newAlbum.id)
+            }
 
             const data = updatedMusic.get({ plain: true })
+            updatedMusic.setTags([])
+            updatedMusic.setTags(tags.map(Number))
+
             return res.json({ message: `A música ${ title } foi atualizada com sucesso!` })
         }
         catch (error)
@@ -238,7 +291,7 @@ module.exports = class ProfileController
 
     static async createMusic(req, res)
     {
-        const { title, genre, album } = req.body
+        const { title, tag, album } = req.body
         //checar palavroes
 
         /*const checkGenre = await Genre.findOne({ where: { genre: generoMusica } })
@@ -282,13 +335,14 @@ module.exports = class ProfileController
         {
             const savedMusic = await Music.create({
                 name: title,
-                description: genre,
+                description: null,
                 image: null,
                 genreid: null,
                 userid: data.Artist.cpf
             })
 
             await user.Artist.Albums[0].addMusic(savedMusic);
+            await savedMusic.addTags(tag.map(Number))
 
             return res.json({ message: `A música ${ title } foi criada com sucesso!`, songid: savedMusic.id })
         }
@@ -300,6 +354,43 @@ module.exports = class ProfileController
 
             return res.json({ message: `ERRO!!!` })
         }
+    }
 
+    static async deleteMusic(req, res)
+    {
+        const { id } = req.params
+
+        try
+        {
+            const music = await Music.findByPk(id)
+
+            if (!music)
+            {
+                return res.json({ message: "Música não encontrada!" })
+            }
+
+            await music.destroy()
+            return res.json({ message: "Música deletada com sucesso!" })
+        }
+        catch (error)
+        {
+            console.log(error)
+            return res.json({ message: "ERRO!!!" })
+        }
+    }
+
+    static async getTags(req, res)
+    {
+        try
+        {
+            const tags = await Tag.findAll({ raw: true });
+
+            return res.json({ tags })
+        }
+        catch (error)
+        {
+            console.log(error)
+            return res.json({ message: "ERRO!!!" })
+        }
     }
 }

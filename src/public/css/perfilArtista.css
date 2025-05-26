@@ -99,9 +99,36 @@ body.modal-open {
 
 .profile-tag,
 .profile-location {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--secondary-text-color);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.profile-location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* ICON SIZE INCREASED (adjusted gap) */
+}
+
+.rating-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-location::before {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  /* ICON SIZE INCREASED */
+  height: 18px;
+  /* ICON SIZE INCREASED */
+  background-color: var(--gray-500);
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10Zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/></svg>');
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  flex-shrink: 0;
 }
 
 .profile-rating {

@@ -1,6 +1,6 @@
 module.exports = function setupAssociations(models)
 {
-    const { User, Artist, Establishment, Album, Music, Genre } = models;
+    const { User, Artist, Establishment, Album, Music, Genre, Tag } = models;
 
     Artist.belongsTo(User, {
         foreignKey: 'userid',
@@ -70,5 +70,21 @@ module.exports = function setupAssociations(models)
         foreignKey: 'userid',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
+    })
+
+    Music.belongsToMany(Tag, {
+        foreignKey: 'musicid',
+        otherKey: 'tagid',
+        through: 'MusicTag',
+        onDelete: 'CASCADE',
+        as: 'Tags'
+    })
+
+    Tag.belongsToMany(Music, {
+        foreignKey: 'tagid',
+        otherKey: 'musicid',
+        through: 'MusicTag',
+        onDelete: 'CASCADE',
+        as: 'Musics'
     })
 };
