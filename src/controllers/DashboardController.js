@@ -1,8 +1,6 @@
 const { Op } = require('sequelize');
 
-const User = require("../models/User");
-const Artist = require('../models/Artist');
-const Establishment = require('../models/Establishment');
+const { User, Artist, Establishment, Album, Music, Genre, Tag, Event, ServiceRequest } = require('../models/index');
 
 module.exports = class DashboardController
 {
@@ -20,13 +18,15 @@ module.exports = class DashboardController
                     }]
                 })
 
-            const userInfo = establishments.map((result) => 
-            {
-                return {
-                    ...result.dataValues,   // dados do Artist
-                    ...result.User.dataValues // dados do User associado
-                }
-            });
+            const services = await ServiceRequest.findAll()
+            const establishmentPlain = establishments.map(x => x.toJSON())
+            const servicesPlain = services.map(x => x.toJSON())
+
+            const userInfo = {
+                establishments: establishmentPlain,
+                services: servicesPlain
+            }
+            console.log(userInfo)
 
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' })
         }

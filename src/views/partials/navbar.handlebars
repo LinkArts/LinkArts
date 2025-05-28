@@ -121,11 +121,11 @@
         </svg>
         <div class="popup" id="user-popup">
           <div class="popup-content">
-            <button class="popup-menu-item">Perfil</button>
-            <button class="popup-menu-item">Agenda</button>
-            <button class="popup-menu-item">Configurações</button>
+            <a href="/profile/{{session.userid}}"><button class="popup-menu-item">Perfil</button></a>
+            <a href="/agenda/{{session.userid}}"><button class="popup-menu-item">Agenda</button></a>
+            <a href="/configuracoes/{{session.userid}}"><button class="popup-menu-item">Configurações</button></a>
             <div class="popup-divider"></div>
-            <button class="popup-menu-item danger">Logout</button>
+            <a href="/logout"><button class="popup-menu-item danger">Logout</button></a>
           </div>
         </div>
       </div>

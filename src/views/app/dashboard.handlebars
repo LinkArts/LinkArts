@@ -23,8 +23,8 @@
         <!-- Serviços Tab Content -->
         <div id="servicos" class="tab-content">
             <div class="card-grid">
-                {{#if services}}
-                {{#each services}}
+                {{#if userInfo.services}}
+                {{#each userInfo.services}}
                 {{> dashboardService }}
                 {{/each}}
                 {{else}}

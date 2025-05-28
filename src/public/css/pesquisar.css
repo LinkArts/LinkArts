@@ -147,6 +147,7 @@
     display: -webkit-box;
     /* Para limitar linhas em Webkit browsers */
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     /* Limita a 3 linhas (ajuste conforme necessário) */
     -webkit-box-orient: vertical;
 }
@@ -329,6 +330,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
+    line-clamp: 3   ;
     -webkit-line-clamp: 3;
     /* Limita a 3 linhas */
     -webkit-box-orient: vertical;
