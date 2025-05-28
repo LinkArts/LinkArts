@@ -1,6 +1,6 @@
 module.exports = function setupAssociations(models)
 {
-    const { User, Artist, Establishment, Album, Music, Genre, Tag, Chat, Message } = models;
+    const { User, Artist, Establishment, Album, Music, Genre, Tag, Chat, Message, Event, ServiceRequest } = models;
 
     Artist.belongsTo(User, {
         foreignKey: 'userid',
@@ -88,7 +88,7 @@ module.exports = function setupAssociations(models)
         as: 'Musics'
     })
 
-     //chat
+    //chat
     User.belongsToMany(Chat, {
         foreignKey: 'userid',
         onDelete: 'CASCADE',
@@ -122,4 +122,44 @@ module.exports = function setupAssociations(models)
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
+
+    Event.belongsTo(Establishment, {
+        foreignKey: 'establishmentid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    })
+
+    Establishment.hasMany(Event, {
+        foreignKey: 'establishmentid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    })
+
+    ServiceRequest.belongsTo(Establishment, {
+        foreignKey: 'establishmentid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    })
+
+    Establishment.hasMany(ServiceRequest, {
+        foreignKey: 'establishmentid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    })
+
+    ServiceRequest.belongsToMany(Tag, {
+        foreignKey: 'servicerequestid',
+        otherKey: 'tagid',
+        through: 'ServiceRequestTag',
+        onDelete: 'CASCADE',
+        as: 'Tags'
+    })
+
+    Tag.belongsToMany(ServiceRequest, {
+        foreignKey: 'tagid',
+        otherKey: 'servicerequestid',
+        through: 'ServiceRequestTag',
+        onDelete: 'CASCADE',
+        as: 'ServiceRequests'
+    })
 };

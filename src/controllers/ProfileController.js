@@ -1,7 +1,6 @@
 const { Op, Model, fn, col, where } = require('sequelize');
 
-const { User, Artist, Establishment, Album, Music, Genre, Tag } = require('../models/index');
-const { raw } = require('mysql2');
+const { User, Artist, Establishment, Album, Music, Genre, Tag, Event, ServiceRequest } = require('../models/index');
 
 module.exports = class ProfileController
 {
@@ -25,7 +24,15 @@ module.exports = class ProfileController
                             ],
 
                         },
-                        { model: Establishment, required: false }
+                        {
+                            model: Establishment,
+                            required: false,
+                            include: [
+                                { model: ServiceRequest, as: 'ServiceRequests', required: false, include: [{ model: Tag, as: 'Tags', required: false }] },
+                                { model: Event, required: false }
+                            ],
+
+                        },
                     ],
                     exclude: ['password'],
                 })
@@ -49,13 +56,17 @@ module.exports = class ProfileController
                 tags: music.Tags?.map(tag => tag.dataValues) || []
             }));
 
+            const isOwner = user.dataValues.id === req.session.userid
+
             if (user.Establishment)
             {
                 const values = {
                     ...user.dataValues,
                     ...user.Establishment.dataValues,
+                    events: user.toJSON().Establishment.Events,
+                    serviceRequests: user.toJSON().Establishment.ServiceRequests
                 }
-                return res.render('app/profileEstablishment', { values, css: 'perfilEstabelecimento.css' })
+                return res.render('app/profileEstablishment', { values, isOwner, css: 'perfilEstabelecimento.css' })
             }
             else if (user.Artist)
             {
@@ -73,7 +84,7 @@ module.exports = class ProfileController
                     tags: uniqueTags.map(tag => tag.dataValues) || []
                 }
 
-                return res.render('app/profileArtist', { values, css: 'perfilArtista.css' })
+                return res.render('app/profileArtist', { values, isOwner, css: 'perfilArtista.css' })
             }
             else
             {
@@ -423,6 +434,288 @@ module.exports = class ProfileController
         catch (error)
         {
             return res.json({ message: "ERRO!!!" })
+        }
+    }
+
+    static async getAllEvents(req, res)
+    {
+        try
+        {
+            const events = await Event.findAll({
+                order: [['date', 'ASC'], ['id', 'ASC']] // Opcional: ordenar por data
+                // include: Establishment // Se quiser incluir dados da empresa associada
+            })
+            return res.status(200).json(events)
+        } catch (error)
+        {
+            console.error("Erro ao buscar eventos:", error)
+            return res.status(500).json({ message: "Erro ao buscar eventos.", error: error.message })
+        }
+    }
+
+    static async createEvent(req, res)
+    {
+        const { title, date, description, imageUrl } = req.body
+
+        const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
+        const establishmentid = user.Establishment.dataValues.cnpj
+
+        // Validações básicas (você pode adicionar mais, ex: Joi, Express Validator)
+        if (!title || !date || !establishmentid)
+        {
+            return res.status(400).json({ message: "Título, data e ID do estabelecimento são obrigatórios." })
+        }
+
+        try
+        {
+            // Verifica se o estabelecimento existe antes de criar o evento
+            const establishment = await Establishment.findByPk(establishmentid)
+            if (!establishment)
+            {
+                return res.status(404).json({ message: "Estabelecimento não encontrado." })
+            }
+
+            const newEvent = await Event.create({
+                title,
+                date,
+                description,
+                imageUrl,
+                establishmentid // ID do estabelecimento associado
+            })
+            return res.status(201).json(newEvent)
+        } catch (error)
+        {
+            console.error("Erro ao criar evento:", error)
+            return res.status(500).json({ message: "Erro ao criar evento.", error: error.message })
+        }
+    }
+
+    static async updateEvent(req, res)
+    {
+        const id = req.params.id
+        const { title, date, description, imageUrl } = req.body
+
+        const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
+        const establishmentid = user.Establishment.dataValues.cnpj
+
+        if (!title || !date || !establishmentid)
+        {
+            return res.status(400).json({ message: "Título, data e ID do estabelecimento são obrigatórios." })
+        }
+
+        try
+        {
+            const event = await Event.findByPk(id)
+            if (!event)
+            {
+                return res.status(404).json({ message: "Evento não encontrado." })
+            }
+
+            // Opcional: verificar se o estabelecimentoid foi alterado e se o novo existe
+            if (establishmentid && event.establishmentid !== establishmentid)
+            {
+                const newEstablishment = await Establishment.findByPk(establishmentid);
+                if (!newEstablishment)
+                {
+                    return res.status(404).json({ message: "Novo estabelecimento não encontrado." });
+                }
+            }
+
+            await Event.update(
+                { title, date, description, imageUrl, establishmentid },
+                { where: { id: id } }
+            )
+            const updatedEvent = await Event.findByPk(id) // Busca o evento atualizado para retornar
+            return res.status(200).json(updatedEvent)
+        } catch (error)
+        {
+            console.error("Erro ao atualizar evento:", error)
+            return res.status(500).json({ message: "Erro ao atualizar evento.", error: error.message })
+        }
+    }
+
+    static async deleteEvent(req, res)
+    {
+        const id = req.params.id
+        try
+        {
+            const deleted = await Event.destroy({ where: { id: id } })
+            if (deleted === 0)
+            {
+                return res.status(404).json({ message: "Evento não encontrado." })
+            }
+            return res.status(200).json({ message: "Evento excluído com sucesso." })
+        } catch (error)
+        {
+            console.error("Erro ao deletar evento:", error)
+            return res.status(500).json({ message: "Erro ao deletar evento.", error: error.message })
+        }
+    }
+
+
+    static async getAllServiceRequests(req, res)
+    {
+        try
+        {
+            const requests = await ServiceRequest.findAll({
+                // Para incluir as tags corretamente devido à associação Many-to-Many
+                include: {
+                    model: Tag,
+                    as: 'Tags', // Usar o 'as' definido na associação
+                    through: { attributes: [] } // Não precisamos dos atributos da tabela intermediária
+                },
+                order: [['date', 'ASC'], ['startTime', 'ASC'], ['id', 'ASC']]
+            })
+            // Os getters/setters no modelo ServiceRequest já devem formatar as tags
+            // mas se não, aqui você poderia fazer um map para garantir que `tags` é um array.
+            return res.status(200).json(requests)
+        } catch (error)
+        {
+            console.error("Erro ao buscar pedidos de serviço:", error)
+            return res.status(500).json({ message: "Erro ao buscar pedidos de serviço.", error: error.message })
+        }
+    }
+
+    static async createServiceRequest(req, res)
+    {
+        const { name, description, date, startTime, endTime, tags } = req.body
+
+        const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
+
+        const establishmentid = user.Establishment.dataValues.cnpj
+
+        if (!name || !date || !startTime || !establishmentid)
+        {
+            return res.status(400).json({ message: "Nome, data, hora de início e ID do estabelecimento são obrigatórios." })
+        }
+
+        try
+        {
+            const establishment = await Establishment.findByPk(establishmentid)
+            if (!establishment)
+            {
+                return res.status(404).json({ message: "Estabelecimento não encontrado." })
+            }
+
+            const newServiceRequest = await ServiceRequest.create({
+                name,
+                description,
+                date,
+                startTime,
+                endTime,
+                // O setter do modelo já transforma o array de tags em JSON string
+                tags: tags || [], // Garante que é um array, mesmo que vazio
+                establishmentid
+            })
+
+            // Se você estiver usando a associação Many-to-Many com a tabela Tag:
+            if (tags && tags.length > 0)
+            {
+                const tagInstances = await Promise.all(tags.map(async (tagName) =>
+                {
+                    // findOrCreate: Se a tag existir, usa; se não, cria.
+                    const [tag] = await Tag.findOrCreate({ where: { id: tagName.trim() } });
+                    return tag;
+                }));
+                await newServiceRequest.addTags(tagInstances); // Associa as tags ao pedido
+            }
+
+            // Para retornar o objeto completo com as tags (se for o caso de many-to-many)
+            const createdServiceRequestWithTags = await ServiceRequest.findByPk(newServiceRequest.id, {
+                include: {
+                    model: Tag,
+                    as: 'Tags',
+                    through: { attributes: [] }
+                }
+            });
+
+            return res.status(201).json(createdServiceRequestWithTags)
+        } catch (error)
+        {
+            console.error("Erro ao criar pedido de serviço:", error)
+            return res.status(500).json({ message: "Erro ao criar pedido de serviço.", error: error.message })
+        }
+    }
+
+    static async updateServiceRequest(req, res)
+    {
+        const id = req.params.id
+        const { name, description, date, startTime, endTime, tags } = req.body
+
+        const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
+        const establishmentid = user.Establishment.dataValues.cnpj
+
+        if (!name || !date || !startTime || !establishmentid)
+        {
+            return res.status(400).json({ message: "Nome, data, hora de início e ID do estabelecimento são obrigatórios." })
+        }
+
+        try
+        {
+            const serviceRequest = await ServiceRequest.findByPk(id)
+            if (!serviceRequest)
+            {
+                return res.status(404).json({ message: "Pedido de serviço não encontrado." })
+            }
+
+            if (establishmentid && serviceRequest.establishmentid !== establishmentid)
+            {
+                const newEstablishment = await Establishment.findByPk(establishmentid);
+                if (!newEstablishment)
+                {
+                    return res.status(404).json({ message: "Novo estabelecimento não encontrado." });
+                }
+            }
+
+            await ServiceRequest.update(
+                { name, description, date, startTime, endTime, tags: tags || [], establishmentid },
+                { where: { id: id } }
+            )
+
+            // Lógica para atualizar tags na associação Many-to-Many
+            if (tags && tags.length > 0)
+            {
+                const tagInstances = await Promise.all(tags.map(async (tagName) =>
+                {
+                    const [tag] = await Tag.findOrCreate({ where: { id: tagName.trim() } });
+                    return tag;
+                }));
+                await serviceRequest.setTags(tagInstances); // Sobrescreve as tags existentes
+            } else
+            {
+                await serviceRequest.setTags([]); // Remove todas as tags se o array estiver vazio
+            }
+
+            const updatedServiceRequest = await ServiceRequest.findByPk(id, {
+                include: {
+                    model: Tag,
+                    as: 'Tags',
+                    through: { attributes: [] }
+                }
+            })
+            return res.status(200).json(updatedServiceRequest)
+        } catch (error)
+        {
+            console.error("Erro ao atualizar pedido de serviço:", error)
+            return res.status(500).json({ message: "Erro ao atualizar pedido de serviço.", error: error.message })
+        }
+    }
+
+    static async deleteServiceRequest(req, res)
+    {
+        const id = req.params.id
+        try
+        {
+            const deleted = await ServiceRequest.destroy({ where: { id: id } })
+            if (deleted === 0)
+            {
+                return res.status(404).json({ message: "Pedido de serviço não encontrado." })
+            }
+            return res.status(200).json({ message: "Pedido de serviço excluído com sucesso." })
+        } catch (error)
+        {
+            console.error("Erro ao deletar pedido de serviço:", error)
+            return res.status(500).json({ message: "Erro ao deletar pedido de serviço.", error: error.message })
         }
     }
 }

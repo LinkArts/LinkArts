@@ -46,7 +46,9 @@ body.modal-open {
 
 .main-content {
   padding-top: 84px;
+  /* header height (64px) + space (20px) - PODE PRECISAR DE AJUSTE SEM HEADER */
   padding-bottom: 60px;
+  line-height: 1.5;
 }
 
 .profile-info {
@@ -67,7 +69,7 @@ body.modal-open {
 .profile-left {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
+  gap: 20px;
 }
 
 .profile-img {
@@ -87,7 +89,7 @@ body.modal-open {
 }
 
 .profile-details {
-  padding-top: 16px;
+  padding-top: 8px;
 }
 
 .profile-details h1 {
@@ -134,7 +136,7 @@ body.modal-open {
 .profile-rating {
   display: flex;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 .stars {
@@ -168,15 +170,15 @@ body.modal-open {
 }
 
 .rating {
-  margin-left: 6px;
+  margin-left: 8px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .reviews {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--gray-500);
-  margin-left: 4px;
+  margin-left: 6px;
 }
 
 .profile-actions {
@@ -298,6 +300,12 @@ section h2 {
   margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.about-section {
+  border: 2px #00000047 solid;
+  padding: 1rem;
+  border-radius: 16px;
 }
 
 .about-section p#profile-about {
@@ -717,15 +725,15 @@ section h2 {
   font-size: 2em;
   color: #888;
   cursor: pointer;
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
   padding: 5px 10px;
   border-radius: 50%;
   line-height: 1;
 }
 
 .edit-music-modal .modal-close-btn:hover {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--gray-600);
+  transform: rotate(90deg);
 }
 
 /* Estilos de formulário (reutilize os existentes, se tiver) */
@@ -1051,6 +1059,7 @@ section h2 {
   background: none;
   border: none;
   padding: 5px;
+  font-size: 20px;
   cursor: pointer;
   color: var(--gray-400);
   transition: color 0.2s ease, transform 0.2s ease;
@@ -1061,12 +1070,6 @@ section h2 {
 .modal-close-btn:hover {
   color: var(--gray-600);
   transform: rotate(90deg);
-}
-
-.modal-close-btn:focus {
-  outline: none;
-  color: var(--gray-600);
-  box-shadow: 0 0 0 3px var(--focus-ring-color);
 }
 
 .add-music-modal h2,

@@ -1,8 +1,5 @@
 const { DataTypes } = require('sequelize')
 const db = require('../db/conn')
-const Genre = require('./Genre')
-const Artist = require('./Artist')
-const Album = require('./Album')
 
 const Music = db.define('Music',
     {

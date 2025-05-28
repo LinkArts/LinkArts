@@ -1,234 +1,238 @@
-<main class="container-profile main-content">
-  <section class="profile-info" aria-labelledby="profile-name">
-    <div class="profile-left">
-      <div class="profile-img">
-        <img id="profile-main-image" src="{{company.profile.imageUrl}}" alt="{{company.profile.imageAlt}}">
+<div class="main-content">
+  <div class="container-profile">
+    <section class="profile-section">
+      <div class="profile-info">
+        <div class="profile-left">
+          <div class="profile-img">
+            <img id="profile-main-image" src="imagens/placeholder-company.jpg" alt="Foto da Empresa">
+          </div>
+          <div class="profile-details">
+            <h1 id="profile-name">{{values.name}}</h1>
+            <p class="profile-location" id="profile-location"><span class="visually-hidden"></span> {{values.city}}</p>
+            <div class="profile-rating"
+              aria-label="Avaliação: {{artist.profile.rating}} de 5 estrelas (baseado em {{artist.profile.reviewCount}} avaliações)">
+              <div class="stars" aria-hidden="true">
+              </div class="rating-content">
+              <span style="margin-bottom: 5px;">★</span>
+              <span class="rating">4.5</span>
+              <span class="reviews">(8 reviews)</span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <a href="/" class="btn btn-outline" target="_blank" rel="noopener noreferrer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            Social Media & Links
+          </a>
+          <a href="/agenda/{{values.id}}" class="btn btn-outline">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+              <line x1="16" x2="16" y1="2" y2="6"></line>
+              <line x1="8" x2="8" y1="2" y2="6"></line>
+              <line x1="3" x2="21" y1="10" y2="10"></line>
+            </svg>
+            Agenda
+          </a>
+          {{#if isOwner}}
+          <button id="edit-profile-btn" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+            </svg>
+            Editar Perfil
+          </button>
+          {{/if}}
+        </div>
       </div>
-      <div class="profile-details">
-        <h1 id="profile-name">{{values.name}}</h1>
-        <p id="profile-tag" class="profile-tag">{{company.profile.tagline}}</p>
-        <p id="profile-location" class="profile-location"><span class="visually-hidden">Localização:</span>
-          {{company.profile.location}}</p>
-        <div class="profile-rating"
-          aria-label="Avaliação: {{company.profile.rating}} de 5 estrelas (baseado em {{company.profile.reviewCount}} avaliações)">
-          <div class="stars" aria-hidden="true">
-            {{!-- {{{renderStars company.profile.rating}}} --}}
-          </div>
-          <span class="rating">{{company.profile.rating}}</span>
-          <span class="reviews">({{company.profile.reviewCount}} reviews)</span>
-        </div>
+    </section>
+
+    <section class="about-section">
+      <h2>Sobre</h2>
+      <p id="profile-about">
+        {{values.description}}
+      </p>
+      <!--<div class="tags">
+        <span class="tag">tag</span>
+        <span class="tag">tag</span>
+        <span class="tag">tag</span>
+        <span class="tag">tag</span>
+        <span class="tag">tag</span>
+      </div>-->
+    </section>
+
+    <!--<section class="availability-section">
+      <h2>Disponibilidade</h2>
+      <div class="availability-details">
+        <p><strong>Status:</strong> Disponível para novos projetos</p>
+        <p><strong>Resposta Média:</strong> 24 horas</p>
+        <p><strong>Horário de Atendimento:</strong> Segunda a Sexta, 9h-18h</p>
       </div>
-    </div>
-    <div class="profile-actions">
-      <a href="{{company.profile.websiteUrl}}" class="btn btn-outline" target="_blank" rel="noopener noreferrer">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-        </svg>
-        Website & Links
-      </a>
-      <a href="{{company.profile.contactUrl}}" class="btn btn-outline">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path
-            d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.46 4.381a1 1 0 0 1-.343 1.116l-1.976 1.581a13.6 13.6 0 0 0 6.31 6.31l1.58-1.976a1 1 0 0 1 1.117-.343l4.38 1.46A1 1 0 0 1 21 15.72V19a2 2 0 0 1-2 2h-1a18 18 0 0 1-18-18v-1a2 2 0 0 1 2-2Z">
-          </path>
-        </svg>
-        Contato
-      </a>
-      {{!-- {{#if user.isOwner}} --}}
-      <button id="edit-profile-btn" class="btn btn-primary">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
-        </svg>
-        Editar Perfil
-      </button>
-      {{!-- {{/if}} --}}
-    </div>
-  </section>
+      <p class="availability-note">
+        Por favor, entre em contato para verificar a disponibilidade para datas específicas e para orçamentos
+        personalizados.
+      </p>
+    </section>-->
 
-  <section class="about-section" aria-labelledby="about-heading">
-    <h2 id="about-heading">Sobre a Empresa</h2>
-    <p id="profile-about">{{{company.about}}}</p>
-    <div class="tags" aria-label="Tags da Empresa">
-      {{#each company.tags}}
-      <span class="tag">{{this}}</span>
-      {{/each}}
-    </div>
-  </section>
+    <section class="service-requests-section">
+      <div class="section-header">
+        <h2>Pedidos de Serviço</h2>
+        {{#if isOwner}}
+        <button class="btn btn-primary" id="add-service-request-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Adicionar Pedido
+        </button>
+        {{/if}}
+      </div>
+      <div class="scroll-container">
+        <ul class="service-requests-container">
+          {{#if values.serviceRequests}}
+          {{#each values.serviceRequests}}
+          <li class="service-request-card">
+            <div class="request-content">
+              <h3>{{name}}</h3>
+              <p class="request-description">
+                {{description}}
+              </p>
+              <p class="request-date-time">
+                <span class="date">Data: {{date}}</span>
+                <span class="time">Horário: {{startTime}} - {{endTime}}</span>
+              </p>
+              <div class="request-tags">
+                {{#each Tags}}
+                <span class="tag">{{name}}</span>
+                {{/each}}
+              </div>
+            </div>
+          </li>
+          {{/each}}
+          {{else}}
+          <p>Nenhum pedido de serviço programado. Clique em "Adicionar Pedido" para começar!</p>
+          {{/if}}
+        </ul>
+      </div>
+    </section>
 
-  <section class="availability-section" aria-labelledby="availability-heading">
-    <h2 id="availability-heading">Disponibilidade para Eventos</h2>
-    <div class="availability-details">
-      {{#each company.availability}}
-      <p><strong>{{this.day}}:</strong> {{this.time}}</p>
-      {{/each}}
-      {{#if company.availabilityNote}}
-      <p class="availability-note"><em>{{{company.availabilityNote}}}</em></p>
-      {{/if}}
-    </div>
-  </section>
+    <section class="events-section">
+      <div class="section-header">
+        <h2>Próximos Eventos</h2>
+        {{#if isOwner}}
+        <button class="btn btn-primary" id="add-event-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Adicionar Evento
+        </button>
+        {{/if}}
+      </div>
+      <div class="scroll-container">
+        <ul class="events-container">
+          {{#if values.events}}
+          {{#each values.events}}
+          <li class="event-card">
+            <div class="event-img"><img src="{{imageUrl}}" alt="Evento Empresarial"></div>
+            <div class="event-content">
+              <h3>{{name}}</h3>
+              <p class="event-date">Data: {{date}}</p>
+              <p class="event-description">{{description}}</p>
+            </div>
+          </li>
+          {{/each}}
+          {{else}}
+          <p>Nenhum evento programado. Clique em "Adicionar Evento" para começar!</p>
+          {{/if}}
+        </ul>
+      </div>
+    </section>
 
-  <section class="availability-section" aria-labelledby="availability-heading">
-    <h2 id="availability-heading">Disponibilidade para Eventos</h2>
-    <div class="availability-details">
-      {{#each company.availability}}
-      <p><strong>{{this.day}}:</strong> {{this.time}}</p>
-      {{/each}}
-      {{#if company.availabilityNote}}
-      <p class="availability-note"><em>{{{company.availabilityNote}}}</em></p>
-      {{/if}}
-    </div>
-  </section>
-
-  <section class="availability-section" aria-labelledby="availability-heading">
-    <h2 id="availability-heading">Disponibilidade para Eventos</h2>
-    <div class="availability-details">
-      {{#each company.availability}}
-      <p><strong>{{this.day}}:</strong> {{this.time}}</p>
-      {{/each}}
-      {{#if company.availabilityNote}}
-      <p class="availability-note"><em>{{{company.availabilityNote}}}</em></p>
-      {{/if}}
-    </div>
-  </section>
-
-  <section class="availability-section" aria-labelledby="availability-heading">
-    <h2 id="availability-heading">Disponibilidade para Eventos</h2>
-    <div class="availability-details">
-      {{#each company.availability}}
-      <p><strong>{{this.day}}:</strong> {{this.time}}</p>
-      {{/each}}
-      {{#if company.availabilityNote}}
-      <p class="availability-note"><em>{{{company.availabilityNote}}}</em></p>
-      {{/if}}
-    </div>
-  </section>
-
-  <section class="availability-section" aria-labelledby="availability-heading">
-    <h2 id="availability-heading">Disponibilidade para Eventos</h2>
-    <div class="availability-details">
-      {{#each company.availability}}
-      <p><strong>{{this.day}}:</strong> {{this.time}}</p>
-      {{/each}}
-      {{#if company.availabilityNote}}
-      <p class="availability-note"><em>{{{company.availabilityNote}}}</em></p>
-      {{/if}}
-    </div>
-  </section>
-
-  <section class="events-section" aria-labelledby="events-heading">
-    <div class="section-header">
-      <h2 id="events-heading">Próximos Eventos</h2>
-      {{!-- {{#if user.isOwner}} --}}
-      <button id="add-event-btn" class="btn btn-outline btn-purple">Adicionar Evento</button>
-      {{!-- {{/if}} --}}
-    </div>
-
-    <ul class="scroll-container events-container" aria-labelledby="events-heading">
-      {{#each company.events}}
-      <li class="event-card">
-        <div class="event-img">
-          <img src="{{this.imageUrl}}" alt="{{this.imageAlt}}">
-        </div>
-        <div class="event-content">
-          <h3>{{this.title}}</h3>
-          <p class="event-date">Data: {{this.date}}</p>
-          <p class="event-description">{{{this.description}}}</p>
-        </div>
-      </li>
-      {{else}}
-      <li>
-        <p>Nenhum evento programado no momento.</p>
-      </li>
-      {{/each}}
-    </ul>
-  </section>
-
-  <section class="reviews-section" aria-labelledby="reviews-heading">
-    <div class="section-header">
-      <h2 id="reviews-heading">Feedbacks de Clientes</h2>
-      <a href="{{company.allReviewsUrl}}" class="btn-link">Ver Todos</a>
-    </div>
-
-    <ul class="reviews-list" aria-labelledby="reviews-heading">
-      <li class="review-card">
-        <div class="review-header">
-          <h3>{{this.clientName}}</h3>
-          <div class="review-stars" aria-label="Avaliação: {{this.rating}} de 5 estrelas">
-            {{!-- {{{renderStars this.rating}}} --}}
+    <section class="reviews-section">
+      <div class="section-header">
+        <h2>Avaliações Recentes</h2>
+        <a href="#" class="btn btn-link">Ver Todas Avaliações
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"></path>
+          </svg>
+        </a>
+      </div>
+      <ul class="reviews-list">
+        <li class="review-card">
+          <div class="review-header">
+            <h3>Excelente trabalho!</h3>
+            <div class="review-stars">
+              <span class="star filled">★</span>
+              <span class="star filled">★</span>
+              <span class="star filled">★</span>
+              <span class="star filled">★</span>
+              <span class="star filled">★</span>
+            </div>
           </div>
-        </div>
-        <p class="review-text">"{{{this.text}}}"</p>
-      </li>
-      <li class="review-card">
-        <div class="review-header">
-          <h3>{{this.clientName}}</h3>
-          <div class="review-stars" aria-label="Avaliação: {{this.rating}} de 5 estrelas">
-            {{!-- {{{renderStars this.rating}}} --}}
+          <p class="review-text">
+            A equipe superou nossas expectativas. O evento corporativo foi impecável e muito bem organizado.
+            Com certeza os contrataremos novamente para futuros projetos.
+          </p>
+        </li>
+        <li class="review-card">
+          <div class="review-header">
+            <h3>Muito profissionais</h3>
+            <div class="review-stars">
+              <span class="star filled">★</span>
+              <span class="star filled">★</span>
+              <span class="star filled">★</span>
+              <span class="star filled">★</span>
+              <span class="star">★</span>
+            </div>
           </div>
-        </div>
-        <p class="review-text">"{{{this.text}}}"</p>
-      </li>
-      <li class="review-card">
-        <div class="review-header">
-          <h3>{{this.clientName}}</h3>
-          <div class="review-stars" aria-label="Avaliação: {{this.rating}} de 5 estrelas">
-            {{!-- {{{renderStars this.rating}}} --}}
-          </div>
-        </div>
-        <p class="review-text">"{{{this.text}}}"</p>
-      </li>
-      <li class="review-card">
-        <div class="review-header">
-          <h3>{{this.clientName}}</h3>
-          <div class="review-stars" aria-label="Avaliação: {{this.rating}} de 5 estrelas">
-            {{!-- {{{renderStars this.rating}}} --}}
-          </div>
-        </div>
-        <p class="review-text">"{{{this.text}}}"</p>
-      </li>
-      {{#each company.reviews}}
-      <li class="review-card">
-        <div class="review-header">
-          <h3>{{this.clientName}}</h3>
-          <div class="review-stars" aria-label="Avaliação: {{this.rating}} de 5 estrelas">
-            {{!-- {{{renderStars this.rating}}} --}}
-          </div>
-        </div>
-        <p class="review-text">"{{{this.text}}}"</p>
-      </li>
-      {{else}}
-      <li>
-        <p>Ainda não há feedbacks de clientes.</p>
-      </li>
-      {{/each}}
-    </ul>
-  </section>
-</main>
+          <p class="review-text">
+            Pontuais e atenciosos. A festa de aniversário da minha filha foi um sucesso. Recomendo muito!
+            Pequenos detalhes fizeram toda a diferença.
+          </p>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <input type="hidden" id="is-profile-owner" value="{{isOwner}}">
+</div>
 
 <script>
-
   // Wait for the DOM to be fully loaded
-  document.addEventListener('DOMContentLoaded', function ()
+  document.addEventListener('DOMContentLoaded', async function ()
   {
-    console.log("DOM carregado. Iniciando script v6 - Foco em transição CSS.");
+    console.log("DOM carregado. Iniciando script v9 - Integração Backend (Fetch).");
+    const isProfileOwner = document.getElementById('is-profile-owner')?.value === 'true';
+
+    // --- Configuração da URL da API (AJUSTE CONFORME SEU BACKEND!) ---
+    // Alterado para incluir o prefixo '/profile'
+    const API_BASE_URL = '/profile'; // Substitua pela URL real do seu backend e prefixo
 
     // --- Seletores Globais ---
     const addEventButton = document.getElementById('add-event-btn');
     const eventsContainer = document.querySelector('.events-container');
     const editProfileButton = document.getElementById('edit-profile-btn');
+    const addServiceRequestButton = document.getElementById('add-service-request-btn');
+    const serviceRequestsContainer = document.querySelector('.service-requests-container');
 
-    // Seletores para os dados do perfil
+    // Seletores para os dados do perfil (assumindo que o perfil também pode vir do backend)
     const profileNameElement = document.getElementById('profile-name');
-    const profileTagElement = document.getElementById('profile-tag');
     const profileLocationElement = document.getElementById('profile-location');
     const profileAboutElement = document.getElementById('profile-about');
     const profileImageElement = document.getElementById('profile-main-image');
 
+    availableTags = [];
     let lastFocusedElement = null; // Para restaurar foco ao fechar modais
+
+    loadEvents();
+    loadServiceRequests();
 
     // --- Função Toast ---
     function showToast(message, type = 'success')
@@ -265,6 +269,12 @@
           console.log('Transição de fechamento concluída. Removendo modal do DOM.');
           if (modalOverlay && document.body.contains(modalOverlay))
           {
+            const selectElement = modalOverlay.querySelector('.select2-hidden-accessible');
+            if (selectElement && $(selectElement).data('select2'))
+            {
+              $(selectElement).select2('destroy');
+              console.log('Select2 destruído no modal.');
+            }
             modalOverlay.remove();
           }
           modalOverlay.removeEventListener('transitionend', removeElementAfterTransition);
@@ -339,11 +349,7 @@
       if (existingOverlay)
       {
         console.warn(`Overlay ${ overlaySelector } já existe. Removendo antes de criar novo.`);
-        closeModal(existingOverlay);
-        if (document.querySelector(overlaySelector))
-        {
-          document.querySelector(overlaySelector).remove();
-        }
+        closeModal(existingOverlay); // Garante que o modal existente seja totalmente removido
       }
 
       console.log(`Criando novo modal ${ modalClass }.`);
@@ -387,138 +393,402 @@
       return modal;
     }
 
-
-    // --- Lógica Específica: Modal Adicionar Evento ---
-    if (addEventButton && eventsContainer)
+    // --- Funções Auxiliares de Data e Hora ---
+    function formatDateForInput(dateString)
     {
-      addEventButton.addEventListener('click', function ()
+      if (!dateString) return '';
+      // Assume format 'DD/MM/YYYY' for input, convert to 'YYYY-MM-DD'
+      const parts = dateString.split('/');
+      if (parts.length === 3)
       {
-        const modalHTML = `
-              <button type="button" class="modal-close-btn" aria-label="Fechar modal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </button>
-              <h2 id="add-event-heading">Adicionar Novo Evento</h2>
-              <form id="add-event-form" novalidate>
-                <div class="form-group"> <label for="event-title">Título do Evento</label> <input type="text" id="event-title" required> </div>
-                <div class="form-group"> <label for="event-date">Data do Evento</label> <input type="date" id="event-date" required> </div>
-                <div class="form-group"> <label for="event-description">Descrição (Opcional)</label> <textarea id="event-description" rows="3"></textarea> </div>
-                <div class="form-group"> <label for="event-image-url">URL da Imagem (Opcional)</label> <input type="url" id="event-image-url" placeholder="https://exemplo.com/imagem.jpg"> </div>
-                <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Adicionar Evento</button> </div>
-              </form>`;
+        return `${ parts[2] }-${ parts[1] }-${ parts[0] }`;
+      }
+      return dateString; // Return original if not in expected format
+    }
 
-        const modalElement = openModal('.add-event-overlay', 'add-event-modal', modalHTML, addEventButton);
-        if (!modalElement) return;
-
-        const addEventForm = modalElement.querySelector('#add-event-form');
-        addEventForm?.addEventListener('submit', function (e)
-        {
-          e.preventDefault();
-          const eventTitleInput = modalElement.querySelector('#event-title');
-          const eventDateInput = modalElement.querySelector('#event-date');
-          const eventDescriptionInput = modalElement.querySelector('#event-description');
-          const eventImageUrlInput = modalElement.querySelector('#event-image-url');
-          const modalOverlay = modalElement.closest('.modal-overlay');
-
-          const eventTitle = eventTitleInput.value.trim();
-          const eventDateRaw = eventDateInput.value;
-          if (!eventTitle || !eventDateRaw) { showToast('Título e Data são obrigatórios.', 'warning'); if (!eventTitle) eventTitleInput.focus(); else eventDateInput.focus(); return; }
-          const eventDescription = eventDescriptionInput.value.trim();
-          const eventImageUrl = eventImageUrlInput.value.trim() || 'imagens/placeholder-event.jpg'; // Usar um placeholder
-          let eventDateFormatted = eventDateRaw;
-          try { const dateObj = new Date(eventDateRaw + 'T00:00:00'); if (!isNaN(dateObj)) { eventDateFormatted = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }); } } catch (error) { console.error("Erro ao formatar data:", error); }
-
-          console.log(`Adicionando Evento: Título='${ eventTitle }', Data='${ eventDateFormatted }'`);
-          const eventItem = document.createElement('li'); eventItem.className = 'event-card';
-          // JS cria card com .event-content, então o HTML estático também deveria ter para consistência
-          eventItem.innerHTML = `<div class="event-img"><img src="" alt=""></div><div class="event-content"><h3></h3><p class="event-date"></p></div>`;
-          const img = eventItem.querySelector('img'); const titleEl = eventItem.querySelector('h3'); const dateEl = eventItem.querySelector('.event-date'); const contentDiv = eventItem.querySelector('.event-content');
-          if (img) { img.src = eventImageUrl; img.alt = eventTitle; img.onerror = () => { img.src = 'imagens/placeholder-event.jpg'; img.alt = 'Placeholder Evento'; } }
-          if (titleEl) titleEl.textContent = eventTitle; if (dateEl) dateEl.textContent = `Data: ${ eventDateFormatted }`;
-          if (eventDescription && contentDiv) { const descEl = document.createElement('p'); descEl.className = 'event-description'; descEl.textContent = eventDescription; contentDiv.appendChild(descEl); }
-
-          // Remove o card placeholder se for o primeiro evento adicionado e o placeholder existir
-          const placeholderCard = eventsContainer.querySelector('li.event-card img[src="..."]');
-          if (placeholderCard && eventsContainer.children.length === 1 && placeholderCard.closest('li') === eventsContainer.firstChild)
-          {
-            placeholderCard.closest('li').remove();
-          }
-
-          eventsContainer.appendChild(eventItem);
-          eventsContainer.closest('.scroll-container')?.scrollTo({ left: eventsContainer.scrollWidth, behavior: 'smooth' });
-
-          closeModal(modalOverlay);
-          showToast(`Evento "${ eventTitle }" adicionado com sucesso!`);
-        });
-      });
-    } else
+    function formatDisplayDate(dateRaw)
     {
-      console.warn("Elementos necessários para 'Adicionar Evento' não encontrados.");
+      if (!dateRaw) return '';
+      try
+      {
+        const dateObj = new Date(dateRaw + 'T00:00:00'); // Ensure UTC for consistent parsing
+        if (!isNaN(dateObj))
+        {
+          return dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+      } catch (error)
+      {
+        console.error("Erro ao formatar data:", error);
+      }
+      return dateRaw;
+    }
+
+    // --- Funções de Renderização de Cards (Agora recebem dados do backend) ---
+    function renderEventCard(eventData)
+    {
+      const eventItem = document.createElement('li');
+      eventItem.className = 'event-card';
+      // Adiciona um atributo de dados para armazenar o ID do backend
+      eventItem.dataset.id = eventData.id;
+      eventItem.innerHTML = `
+                <div class="event-img">
+                    <img src="${ eventData.imageUrl || 'imagens/placeholder-event.jpg' }" alt="${ eventData.title || 'Placeholder Evento' }">
+                </div>
+                <div class="event-content">
+                    <h3>${ eventData.title || 'Sem Título' }</h3>
+                    <p class="event-date">Data: ${ formatDisplayDate(eventData.date) }</p>
+                    ${ eventData.description ? `<p class="event-description">${ eventData.description }</p>` : '' }
+                </div>`;
+
+      eventItem.querySelector('img').onerror = function ()
+      {
+        this.src = 'imagens/placeholder-event.jpg';
+        this.alt = 'Placeholder Evento';
+      };
+
+      eventItem.addEventListener('click', () =>
+      {
+        if (isProfileOwner)
+        {
+          setupEditEventModal(eventItem, eventData); // Abre para editar
+        } else
+        {
+          // Se não for o dono, abre um modal apenas para visualização
+          setupViewEventModal(eventItem, eventData); // Você precisará criar esta nova função
+        }
+      });
+      return eventItem;
+    }
+
+    function renderServiceRequestCard(requestData)
+    {
+      const requestItem = document.createElement('li');
+      requestItem.className = 'service-request-card';
+      // Adiciona um atributo de dados para armazenar o ID do backend
+      requestItem.dataset.id = requestData.id;
+
+      let timeRange = requestData.startTime;
+      if (requestData.endTime)
+      {
+        timeRange += ` - ${ requestData.endTime }`;
+      }
+
+      requestItem.innerHTML = `
+                <div class="request-content">
+                    <h3>${ requestData.name || 'Sem Nome' }</h3>
+                    ${ requestData.description ? `<p class="request-description">${ requestData.description }</p>` : '' }
+                    <p class="request-date-time">
+                        <span class="date date-icon-text">Data: ${ formatDisplayDate(requestData.date) }</span>
+                        <span class="time time-icon-text">Horário: ${ timeRange }</span>
+                    </p>
+                    <div class="request-tags"></div>
+                </div>`;
+
+      const tagsDiv = requestItem.querySelector('.request-tags');
+      // Assumimos que requestData.tags é um array de strings
+      console.log(requestData);
+      requestData.Tags.forEach(tagText =>
+      {
+        const tagSpan = document.createElement('span');
+        tagSpan.className = 'tag';
+        tagSpan.textContent = tagText.name;
+        tagsDiv.appendChild(tagSpan);
+      });
+
+      requestItem.addEventListener('click', () =>
+      {
+        if (isProfileOwner)
+        {
+          setupEditServiceRequestModal(requestItem, requestData); // Abre para editar
+        } else
+        {
+          // Se não for o dono, abre um modal apenas para visualização
+          setupViewServiceRequestModal(requestItem, requestData); // Você precisará criar esta nova função
+        }
+      });
+      return requestItem;
+    }
+
+    function setupViewEventModal(eventCard, eventData)
+    {
+      const modalHTML = `
+        <button type="button" class="modal-close-btn" aria-label="Fechar modal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <h2 id="view-event-heading">${ eventData.title || 'Evento' }</h2>
+        <div class="modal-content-view">
+            ${ eventData.imageUrl ? `<img src="${ eventData.imageUrl }" alt="${ eventData.title }" class="modal-event-image">` : '' }
+            <p><strong>Data:</strong> ${ formatDisplayDate(eventData.date) }</p>
+            ${ eventData.description ? `<p><strong>Descrição:</strong> ${ eventData.description }</p>` : '' }
+        </div>
+        <div class="button-group">
+            <button type="button" class="btn btn-primary btn-cancel">Fechar</button>
+        </div>`;
+
+      const modalElement = openModal('.view-event-overlay', 'view-event-modal', modalHTML, eventCard);
+      // Não precisa de listener para submit, apenas fechar
+    }
+
+    // Exemplo de `setupViewServiceRequestModal`:
+    function setupViewServiceRequestModal(requestCard, requestData)
+    {
+      let timeRange = requestData.startTime;
+      if (requestData.endTime)
+      {
+        timeRange += ` - ${ requestData.endTime }`;
+      }
+
+      const tagsHtml = requestData.Tags.map(tag => `<span class="tag">${ tag.name }</span>`).join('');
+
+      const modalHTML = `
+        <button type="button" class="modal-close-btn" aria-label="Fechar modal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <h2 id="view-service-request-heading">${ requestData.name || 'Pedido de Serviço' }</h2>
+        <div class="modal-content-view">
+            ${ requestData.description ? `<p><strong>Descrição:</strong> ${ requestData.description }</p>` : '' }
+            <p><strong>Data:</strong> ${ formatDisplayDate(requestData.date) }</p>
+            <p><strong>Horário:</strong> ${ timeRange }</p>
+            <p><strong>Tags:</strong> ${ tagsHtml || 'Nenhuma' }</p>
+        </div>
+        <div class="button-group">
+            <button type="button" class="btn btn-primary btn-cancel">Fechar</button>
+        </div>`;
+
+      const modalElement = openModal('.view-service-request-overlay', 'view-service-request-modal', modalHTML, requestCard);
+      // Não precisa de listener para submit, apenas fechar
+    }
+
+    // --- Fetch para Carregar Dados (Eventos e Pedidos de Serviço) ---
+    async function loadEvents()
+    {
+      console.log("Carregando eventos do backend...");
+      try
+      {
+        // Rota atualizada para /eventos
+        const response = await fetch(`${ API_BASE_URL }/eventos`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${ response.status }`);
+        const events = await response.json();
+
+        eventsContainer.innerHTML = ''; // Limpa o container
+        if (events.length === 0)
+        {
+          const placeholderItem = document.createElement('p');
+          placeholderItem.innerHTML = 'Nenhum evento programado. Clique em "Adicionar Evento" para começar!';
+          eventsContainer.appendChild(placeholderItem);
+        } else
+        {
+          events.forEach(event =>
+          {
+            eventsContainer.appendChild(renderEventCard(event));
+          });
+          // Garante que o scroll vá para o início ao carregar
+          eventsContainer.closest('.scroll-container')?.scrollTo({ left: 0, behavior: 'smooth' });
+        }
+      } catch (error)
+      {
+        console.error("Erro ao carregar eventos:", error);
+        showToast('Erro ao carregar eventos.', 'error');
+      }
+    }
+
+    async function loadServiceRequests()
+    {
+      console.log("Carregando pedidos de serviço do backend...");
+      try
+      {
+        // Rota atualizada para /pedidos-serviço
+        const response = await fetch(`${ API_BASE_URL }/pedidos-servico`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${ response.status }`);
+        const requests = await response.json();
+
+        serviceRequestsContainer.innerHTML = ''; // Limpa o container
+        if (requests.length === 0)
+        {
+          const placeholderItem = document.createElement('p');
+          placeholderItem.innerHTML = 'Nenhum pedido de serviço programado. Clique em "Adicionar Pedido" para começar!';
+          serviceRequestsContainer.appendChild(placeholderItem);
+        } else
+        {
+          requests.forEach(request =>
+          {
+            serviceRequestsContainer.appendChild(renderServiceRequestCard(request));
+          });
+          // Garante que o scroll vá para o início ao carregar
+          serviceRequestsContainer.closest('.scroll-container')?.scrollTo({ left: 0, behavior: 'smooth' });
+        }
+      } catch (error)
+      {
+        console.error("Erro ao carregar pedidos de serviço:", error);
+        showToast('Erro ao carregar pedidos de serviço.', 'error');
+      }
     }
 
 
-    // --- Lógica Específica: Modal Editar Perfil ---
-    function setupEditProfileModal()
+    // --- Lógica Específica: Modal Adicionar Evento (AGORA COM FETCH) ---
+    if (addEventButton && eventsContainer)
+    {
+      addEventButton.removeEventListener('click', handleAddEventClick); // Evita duplicação
+      addEventButton.addEventListener('click', handleAddEventClick);
+    }
+
+    function handleAddEventClick()
     {
       const modalHTML = `
-               <button type="button" class="modal-close-btn" aria-label="Fechar modal">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-               </button>
-               <h2 id="edit-profile-heading">Editar Perfil da Empresa</h2>
-               <form id="edit-profile-form" novalidate>
-                 <div class="form-group"> <label for="edit-profile-name">Nome da Empresa</label> <input type="text" id="edit-profile-name" required> </div>
-                 <div class="form-group"> <label for="edit-profile-tag">Tagline/Setor</label> <input type="text" id="edit-profile-tag" required> </div>
-                 <div class="form-group"> <label for="edit-profile-location">Localização</label> <input type="text" id="edit-profile-location" required> </div>
-                 <div class="form-group"> <label for="edit-profile-about">Sobre a Empresa</label> <textarea id="edit-profile-about" rows="5" required></textarea> </div>
-                 <div class="form-group"> <label for="edit-profile-image-url">URL da Imagem de Perfil</label> <input type="url" id="edit-profile-image-url" placeholder="https://exemplo.com/logo.png"> </div>
-                 <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Salvar Alterações</button> </div>
-               </form>`;
+                <button type="button" class="modal-close-btn" aria-label="Fechar modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+                <h2 id="add-event-heading">Adicionar Novo Evento</h2>
+                <form id="add-event-form" novalidate>
+                    <div class="form-group"> <label for="event-title">Título do Evento</label> <input type="text" id="event-title" required> </div>
+                    <div class="form-group"> <label for="event-date">Data do Evento</label> <input type="date" id="event-date" required> </div>
+                    <div class="form-group"> <label for="event-description">Descrição (Opcional)</label> <textarea id="event-description" rows="3"></textarea> </div>
+                    <div class="form-group"> <label for="event-image-url">URL da Imagem (Opcional)</label> <input type="url" id="event-image-url" placeholder="https://exemplo.com/imagem.jpg"> </div>
+                    <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Adicionar Evento</button> </div>
+                </form>`;
+
+      const modalElement = openModal('.add-event-overlay', 'add-event-modal', modalHTML, addEventButton);
+      if (!modalElement) return;
+
+      const addEventForm = modalElement.querySelector('#add-event-form');
+      addEventForm?.addEventListener('submit', async function (e)
+      {
+        e.preventDefault();
+        const eventTitleInput = modalElement.querySelector('#event-title');
+        const eventDateInput = modalElement.querySelector('#event-date');
+        const eventDescriptionInput = modalElement.querySelector('#event-description');
+        const eventImageUrlInput = modalElement.querySelector('#event-image-url');
+        const modalOverlay = modalElement.closest('.modal-overlay');
+
+        const eventTitle = eventTitleInput.value.trim();
+        const eventDate = eventDateInput.value; // Formato YYYY-MM-DD
+        const eventDescription = eventDescriptionInput.value.trim();
+        const eventImageUrl = eventImageUrlInput.value.trim();
+
+        if (!eventTitle || !eventDate)
+        {
+          showToast('Título e Data são obrigatórios.', 'warning');
+          if (!eventTitle) eventTitleInput.focus(); else eventDateInput.focus();
+          return;
+        }
+
+        const newEventData = {
+          title: eventTitle,
+          date: eventDate,
+          description: eventDescription,
+          imageUrl: eventImageUrl,
+          // !!! IMPORTANTE: Você precisa adicionar o establishmentid aqui !!!
+          // Exemplo: establishmentid: ID_DO_ESTABELECIMENTO_AQUI
+          // Este ID viria do contexto do usuário logado ou de alguma configuração.
+          establishmentid: 1 // Substitua por um ID dinâmico real
+        };
+
+        try
+        {
+          // Rota atualizada para /criar-evento
+          const response = await fetch(`${ API_BASE_URL }/criar-evento`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newEventData),
+          });
+
+          if (!response.ok)
+          {
+            const errorData = await response.json();
+            throw new Error(`HTTP error! status: ${ response.status }, message: ${ errorData.message }`);
+          }
+          const addedEvent = await response.json();
+
+          showToast(`Evento "${ addedEvent.title }" adicionado com sucesso!`);
+          closeModal(modalOverlay);
+          await loadEvents();
+        } catch (error)
+        {
+          console.error("Erro ao adicionar evento:", error);
+          showToast('Erro ao adicionar evento. Tente novamente.', 'error');
+        }
+      });
+    }
+
+
+    // --- Lógica Específica: Modal Editar Perfil (MANTIDO SEM FETCH por agora) ---
+    async function setupEditProfileModal()
+    {
+      const modalHTML = `
+                <button type="button" class="modal-close-btn" aria-label="Fechar modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+                <h2 id="edit-profile-heading">Editar Perfil da Empresa</h2>
+                <form id="edit-profile-form" novalidate>
+                    <div class="form-group"> <label for="edit-profile-name">Nome da Empresa</label> <input type="text" id="edit-profile-name" required> </div>
+                    <div class="form-group"> <label for="edit-profile-location">Localização</label> <input type="text" id="edit-profile-location" required> </div>
+                    <div class="form-group"> <label for="edit-profile-about">Sobre a Empresa</label> <textarea id="edit-profile-about" rows="5" required></textarea> </div>
+                    <div class="form-group"> <label for="edit-profile-image-url">URL da Imagem de Perfil</label> <input type="url" id="edit-profile-image-url" placeholder="https://exemplo.com/logo.png"> </div>
+                    <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Salvar Alterações</button> </div>
+                </form>`;
 
       const modalElement = openModal('.edit-profile-overlay', 'edit-profile-modal', modalHTML, editProfileButton);
       if (!modalElement) return;
 
       const nameInput = modalElement.querySelector('#edit-profile-name');
-      const tagInput = modalElement.querySelector('#edit-profile-tag');
       const locationInput = modalElement.querySelector('#edit-profile-location');
       const aboutInput = modalElement.querySelector('#edit-profile-about');
       const imageUrlInput = modalElement.querySelector('#edit-profile-image-url');
       const editProfileForm = modalElement.querySelector('#edit-profile-form');
 
       if (nameInput && profileNameElement) nameInput.value = profileNameElement.textContent?.trim() ?? '';
-      if (tagInput && profileTagElement) tagInput.value = profileTagElement.textContent?.trim() ?? '';
       if (locationInput && profileLocationElement) { const locationText = (profileLocationElement.innerText || profileLocationElement.textContent || '').replace('Localização:', '').trim(); locationInput.value = locationText; }
       if (aboutInput && profileAboutElement) aboutInput.value = profileAboutElement.textContent?.trim() ?? '';
       if (imageUrlInput && profileImageElement) imageUrlInput.value = profileImageElement.src ?? '';
 
 
-      editProfileForm?.addEventListener('submit', function (e)
+      editProfileForm?.addEventListener('submit', async function (e)
       {
         e.preventDefault();
         console.log("Salvando alterações do perfil...");
         const modalOverlay = modalElement.closest('.modal-overlay');
 
         const newName = nameInput.value.trim();
-        const newTag = tagInput.value.trim();
         const newLocation = locationInput.value.trim();
         const newAbout = aboutInput.value.trim();
         const newImageUrl = imageUrlInput.value.trim();
         let isValid = true;
-        [nameInput, tagInput, locationInput, aboutInput].forEach(input => { if (!input.value.trim()) isValid = false; });
+        [nameInput, locationInput, aboutInput].forEach(input => { if (!input.value.trim()) isValid = false; });
         if (newImageUrl) { try { new URL(newImageUrl); } catch (_) { isValid = false; showToast('URL da imagem inválida.', 'warning'); imageUrlInput?.focus(); } }
 
         if (!isValid) { showToast('Por favor, preencha os campos obrigatórios corretamente.', 'error'); return; }
 
-        if (profileNameElement) profileNameElement.textContent = newName;
-        if (profileTagElement) profileTagElement.textContent = newTag;
-        if (profileLocationElement) profileLocationElement.innerHTML = `<span class="visually-hidden">Localização:</span> ${ newLocation }`;
-        if (profileAboutElement) profileAboutElement.textContent = newAbout;
-        if (profileImageElement)
+        try
         {
-          if (newImageUrl && isValid) { profileImageElement.src = newImageUrl; profileImageElement.alt = `Foto de ${ newName }`; profileImageElement.onerror = () => { profileImageElement.src = 'imagens/placeholder-company.jpg'; profileImageElement.alt = 'Foto da Empresa' }; }
-          else { profileImageElement.src = 'imagens/placeholder-company.jpg'; profileImageElement.alt = 'Foto da Empresa'; }
-        }
+          const response = await fetch('/profile/alterar-perfil', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: newName,
+              city: newLocation,
+              description: newAbout,
+            })
+          })
+          const res = await response.json();
 
-        closeModal(modalOverlay);
-        showToast('Perfil atualizado com sucesso!');
+          if (profileNameElement) profileNameElement.textContent = newName;
+          if (profileLocationElement) profileLocationElement.innerHTML = newLocation;
+          if (profileAboutElement) profileAboutElement.textContent = newAbout;
+          if (profileImageElement)
+          {
+            if (newImageUrl && isValid) { profileImageElement.src = newImageUrl; profileImageElement.alt = `Foto de ${ newName }`; profileImageElement.onerror = () => { profileImageElement.src = 'imagens/placeholder-company.jpg'; profileImageElement.alt = 'Foto da Empresa' }; }
+            else { profileImageElement.src = 'imagens/placeholder-company.jpg'; profileImageElement.alt = 'Foto da Empresa'; }
+          }
+
+          closeModal(modalOverlay);
+          showToast('Perfil atualizado com sucesso!');
+        }
+        catch (error)
+        {
+          showToast('Erro na função hein!', 'error');
+        }
       });
     }
 
@@ -529,10 +799,420 @@
     {
       console.warn("Botão 'Editar Perfil' (#edit-profile-btn) não encontrado.");
     }
-    -
 
-      console.log("Script perfEmp.js totalmente carregado e inicializado (v6 com transição).");
+    // --- Lógica Específica: Modal Editar Evento (AGORA COM FETCH) ---
+    function setupEditEventModal(eventCard, eventData)
+    {
+      const eventId = eventData.id;
+      const formattedDate = formatDateForInput(eventData.date);
 
+      const modalHTML = `
+                <button type="button" class="modal-close-btn" aria-label="Fechar modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+                <h2 id="edit-event-heading">Editar Evento</h2>
+                <form id="edit-event-form" novalidate>
+                    <div class="form-group"> <label for="edit-event-title">Título do Evento</label> <input type="text" id="edit-event-title" value="${ eventData.title }" required> </div>
+                    <div class="form-group"> <label for="edit-event-date">Data do Evento</label> <input type="date" id="edit-event-date" value="${ formattedDate }" required> </div>
+                    <div class="form-group"> <label for="edit-event-description">Descrição (Opcional)</label> <textarea id="edit-event-description" rows="3">${ eventData.description || '' }</textarea> </div>
+                    <div class="form-group"> <label for="edit-event-image-url">URL da Imagem (Opcional)</label> <input type="url" id="edit-event-image-url" value="${ eventData.imageUrl !== 'imagens/placeholder-event.jpg' ? eventData.imageUrl : '' }" placeholder="https://exemplo.com/imagem.jpg"> </div>
+                    <div class="button-group">
+                        <button type="button" class="btn btn-delete" id="delete-event-btn">Excluir</button>
+                        <div>
+                            <button type="button" class="btn btn-cancel">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        </div>
+                    </div>
+                </form>`;
+
+      const modalElement = openModal('.edit-event-overlay', 'edit-event-modal', modalHTML, eventCard);
+      if (!modalElement) return;
+
+      const editEventForm = modalElement.querySelector('#edit-event-form');
+      const editTitleInput = modalElement.querySelector('#edit-event-title');
+      const editDateInput = modalElement.querySelector('#edit-event-date');
+      const editDescriptionInput = modalElement.querySelector('#edit-event-description');
+      const editImageUrlInput = modalElement.querySelector('#edit-event-image-url');
+      const deleteEventBtn = modalElement.querySelector('#delete-event-btn');
+
+      // Lógica para Excluir Evento
+      deleteEventBtn?.addEventListener('click', async function ()
+      {
+        const confirmDelete = confirm(`Tem certeza que deseja excluir o evento "${ eventData.title }"?`);
+        if (confirmDelete)
+        {
+          try
+          {
+            // Rota atualizada para /deletar-evento/:id
+            const response = await fetch(`${ API_BASE_URL }/deletar-evento/${ eventId }`, {
+              method: 'DELETE',
+            });
+
+            if (!response.ok)
+            {
+              const errorData = await response.json();
+              throw new Error(`HTTP error! status: ${ response.status }, message: ${ errorData.message }`);
+            }
+
+            showToast(`Evento "${ eventData.title }" excluído com sucesso!`, 'success');
+            closeModal(modalElement.closest('.modal-overlay'));
+            await loadEvents();
+          } catch (error)
+          {
+            console.error("Erro ao excluir evento:", error);
+            showToast('Erro ao excluir evento. Tente novamente.', 'error');
+          }
+        }
+      });
+
+      editEventForm?.addEventListener('submit', async function (e)
+      {
+        e.preventDefault();
+        const modalOverlay = modalElement.closest('.modal-overlay');
+
+        const newTitle = editTitleInput.value.trim();
+        const newDate = editDateInput.value; // Formato YYYY-MM-DD
+        const newDescription = editDescriptionInput.value.trim();
+        const newImageUrl = editImageUrlInput.value.trim();
+
+        if (!newTitle || !newDate)
+        {
+          showToast('Título e Data são obrigatórios.', 'warning');
+          if (!newTitle) editTitleInput.focus(); else editDateInput.focus();
+          return;
+        }
+
+        const updatedEventData = {
+          title: newTitle,
+          date: newDate,
+          description: newDescription,
+          imageUrl: newImageUrl,
+          // !!! IMPORTANTE: Inclua o establishmentid aqui também para a atualização
+          establishmentid: eventData.establishmentid // Mantenha o ID existente
+        };
+
+        try
+        {
+          // Rota atualizada para /atualizar-evento/:id
+          const response = await fetch(`${ API_BASE_URL }/atualizar-evento/${ eventId }`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedEventData),
+          });
+
+          if (!response.ok)
+          {
+            const errorData = await response.json();
+            throw new Error(`HTTP error! status: ${ response.status }, message: ${ errorData.message }`);
+          }
+          const updatedEvent = await response.json();
+
+          showToast(`Evento "${ updatedEvent.title }" atualizado com sucesso!`);
+          closeModal(modalOverlay);
+          await loadEvents();
+        } catch (error)
+        {
+          console.error("Erro ao atualizar evento:", error);
+          showToast('Erro ao atualizar evento. Tente novamente.', 'error');
+        }
+      });
+    }
+
+    // --- Lógica Específica: Modal Adicionar Pedido de Serviço (AGORA COM FETCH) ---
+    const response = await fetch('/profile/tags')
+    const res = await response.json()
+
+    res.tags.forEach(tag =>
+    {
+      availableTags.push({ id: tag.id, name: tag.name })
+    })
+
+    if (addServiceRequestButton && serviceRequestsContainer)
+    {
+      addServiceRequestButton.addEventListener('click', handleAddServiceRequestClick);
+    } else
+    {
+      console.warn("Elementos necessários para 'Adicionar Pedido de Serviço' não encontrados.");
+    }
+
+    function handleAddServiceRequestClick()
+    {
+      const modalHTML = `
+                <button type="button" class="modal-close-btn" aria-label="Fechar modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+                <h2 id="add-service-request-heading">Adicionar Novo Pedido de Serviço</h2>
+                <form id="add-service-request-form" novalidate>
+                    <div class="form-group"> <label for="request-name">Nome do Pedido</label> <input type="text" id="request-name" required> </div>
+                    <div class="form-group"> <label for="request-description">Descrição do Pedido (Opcional)</label> <textarea id="request-description" rows="3"></textarea> </div>
+                    <div class="form-group"> <label for="request-date">Data</label> <input type="date" id="request-date" required> </div>
+                    <div class="form-group"> <label for="request-start-time">Hora de Início</label> <input type="time" id="request-start-time" required> </div>
+                    <div class="form-group"> <label for="request-end-time">Hora de Término (Opcional)</label> <input type="time" id="request-end-time"> </div>
+                    <div class="form-group">
+                        <label for="request-tags">Tags</label>
+                        <select id="request-tags" class="select2-hidden-accessible" multiple="multiple" style="width: 100%;">
+                            </select>
+                    </div>
+                    <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Adicionar Pedido</button> </div>
+                </form>`;
+
+      const modalElement = openModal('.add-service-request-overlay', 'add-service-request-modal', modalHTML, addServiceRequestButton);
+      if (!modalElement) return;
+
+      const tagsSelect = modalElement.querySelector('#request-tags');
+
+      availableTags.forEach(tag =>
+      {
+        const option = document.createElement('option');
+        option.value = tag.id;
+        option.textContent = tag.name;
+        tagsSelect.appendChild(option);
+      });
+
+      if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 !== 'undefined')
+      {
+        $(tagsSelect).select2({
+          placeholder: "Selecione as tags relevantes",
+          allowClear: true,
+          tags: true,
+          tokenSeparators: [',', ' ']
+        });
+        console.log('Select2 inicializado para request-tags.');
+      } else
+      {
+        console.warn('jQuery ou Select2 não estão disponíveis. O Select2 não será inicializado.');
+      }
+
+
+      const addServiceRequestForm = modalElement.querySelector('#add-service-request-form');
+      addServiceRequestForm?.addEventListener('submit', async function (e)
+      {
+        e.preventDefault();
+        const requestNameInput = modalElement.querySelector('#request-name');
+        const requestDescriptionInput = modalElement.querySelector('#request-description');
+        const requestDateInput = modalElement.querySelector('#request-date');
+        const requestStartTimeInput = modalElement.querySelector('#request-start-time');
+        const requestEndTimeInput = modalElement.querySelector('#request-end-time');
+        const modalOverlay = modalElement.closest('.modal-overlay');
+
+        const requestName = requestNameInput.value.trim();
+        const requestDate = requestDateInput.value; // Formato YYYY-MM-DD
+        const requestStartTime = requestStartTimeInput.value.trim();
+        const requestEndTime = requestEndTimeInput.value.trim();
+        const selectedTags = $(tagsSelect).val() || [];
+
+        if (!requestName || !requestDate || !requestStartTime)
+        {
+          showToast('Nome, Data e Hora de Início são obrigatórios.', 'warning');
+          if (!requestName) requestNameInput.focus();
+          else if (!requestDate) requestDateInput.focus();
+          else requestStartTimeInput.focus();
+          return;
+        }
+
+        const newRequestData = {
+          name: requestName,
+          description: requestDescriptionInput.value.trim(),
+          date: requestDate,
+          startTime: requestStartTime,
+          endTime: requestEndTime,
+          tags: selectedTags,
+          // !!! IMPORTANTE: Você precisa adicionar o establishmentid aqui !!!
+          establishmentid: 1 // Substitua por um ID dinâmico real
+        };
+
+        try
+        {
+          // Rota atualizada para /criar-pedido-serviço
+          const response = await fetch(`${ API_BASE_URL }/criar-pedido-servico`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newRequestData),
+          });
+
+          if (!response.ok)
+          {
+            const errorData = await response.json();
+            throw new Error(`HTTP error! status: ${ response.status }, message: ${ errorData.message }`);
+          }
+          const addedRequest = await response.json();
+
+          showToast(`Pedido "${ addedRequest.name }" adicionado com sucesso!`);
+          closeModal(modalOverlay);
+          await loadServiceRequests();
+        } catch (error)
+        {
+          console.error("Erro ao adicionar pedido de serviço:", error);
+          showToast('Erro ao adicionar pedido de serviço. Tente novamente.', 'error');
+        }
+      });
+    }
+
+    // --- Nova Lógica: Editar Pedido de Serviço (AGORA COM FETCH) ---
+    function setupEditServiceRequestModal(requestCard, requestData)
+    {
+      console.log(requestData);
+      const requestId = requestData.id;
+      const formattedDate = formatDateForInput(requestData.date);
+
+      const modalHTML = `
+                <button type="button" class="modal-close-btn" aria-label="Fechar modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+                <h2 id="edit-service-request-heading">Editar Pedido de Serviço</h2>
+                <form id="edit-service-request-form" novalidate>
+                    <div class="form-group"> <label for="edit-request-name">Nome do Pedido</label> <input type="text" id="edit-request-name" value="${ requestData.name }" required> </div>
+                    <div class="form-group"> <label for="edit-request-description">Descrição do Pedido (Opcional)</label> <textarea id="edit-request-description" rows="3">${ requestData.description || '' }</textarea> </div>
+                    <div class="form-group"> <label for="edit-request-date">Data</label> <input type="date" id="edit-request-date" value="${ formattedDate }" required> </div>
+                    <div class="form-group"> <label for="edit-request-start-time">Hora de Início</label> <input type="time" id="edit-request-start-time" value="${ requestData.startTime }" required> </div>
+                    <div class="form-group"> <label for="edit-request-end-time">Hora de Término (Opcional)</label> <input type="time" id="edit-request-end-time" value="${ requestData.endTime || '' }"> </div>
+                    <div class="form-group">
+                        <label for="edit-request-tags">Tags</label>
+                        <select id="edit-request-tags" class="select2-hidden-accessible" multiple="multiple" style="width: 100%;">
+                            </select>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="btn btn-delete" id="delete-service-request-btn">Excluir</button>
+                        <div>
+                            <button type="button" class="btn btn-cancel">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        </div>
+                    </div>
+                </form>`;
+
+      const modalElement = openModal('.edit-service-request-overlay', 'edit-service-request-modal', modalHTML, requestCard);
+      if (!modalElement) return;
+
+      const tagsSelect = modalElement.querySelector('#edit-request-tags');
+      availableTags.forEach(tag =>
+      {
+        const option = document.createElement('option');
+        option.value = tag.id;
+        option.textContent = tag.name;
+        if (requestData.Tags && requestData.Tags.some(selectedTag => selectedTag.id === tag.id))
+        {
+          option.selected = true;
+        }
+        tagsSelect.appendChild(option);
+      });
+
+      if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 !== 'undefined')
+      {
+        $(tagsSelect).select2({
+          placeholder: "Selecione as tags relevantes",
+          allowClear: true,
+          tags: true,
+          tokenSeparators: [',', ' ']
+        });
+        console.log('Select2 inicializado para edit-request-tags.');
+      }
+
+      const editServiceRequestForm = modalElement.querySelector('#edit-service-request-form');
+      const editNameInput = modalElement.querySelector('#edit-request-name');
+      const editDescriptionInput = modalElement.querySelector('#edit-request-description');
+      const editDateInput = modalElement.querySelector('#edit-request-date');
+      const editStartTimeInput = modalElement.querySelector('#edit-request-start-time');
+      const editEndTimeInput = modalElement.querySelector('#edit-request-end-time');
+      const deleteServiceRequestBtn = modalElement.querySelector('#delete-service-request-btn');
+
+      // Lógica para Excluir Pedido de Serviço
+      deleteServiceRequestBtn?.addEventListener('click', async function ()
+      {
+        const confirmDelete = confirm(`Tem certeza que deseja excluir o pedido de serviço "${ requestData.name }"?`);
+        if (confirmDelete)
+        {
+          try
+          {
+            // Rota atualizada para /deletar-pedido-serviço/:id
+            const response = await fetch(`${ API_BASE_URL }/deletar-pedido-servico/${ requestId }`, {
+              method: 'DELETE',
+            });
+
+            if (!response.ok)
+            {
+              const errorData = await response.json();
+              throw new Error(`HTTP error! status: ${ response.status }, message: ${ errorData.message }`);
+            }
+
+            showToast(`Pedido "${ requestData.name }" excluído com sucesso!`, 'success');
+            closeModal(modalElement.closest('.modal-overlay'));
+            await loadServiceRequests();
+          } catch (error)
+          {
+            console.error("Erro ao excluir pedido de serviço:", error);
+            showToast('Erro ao excluir pedido de serviço. Tente novamente.', 'error');
+          }
+        }
+      });
+
+
+      editServiceRequestForm?.addEventListener('submit', async function (e)
+      {
+        e.preventDefault();
+        const modalOverlay = modalElement.closest('.modal-overlay');
+
+        const newName = editNameInput.value.trim();
+        const newDescription = editDescriptionInput.value.trim();
+        const newDate = editDateInput.value; // Formato YYYY-MM-DD
+        const newStartTime = editStartTimeInput.value.trim();
+        const newEndTime = editEndTimeInput.value.trim();
+        const newSelectedTags = $(tagsSelect).val() || [];
+
+        if (!newName || !newDate || !newStartTime)
+        {
+          showToast('Nome, Data e Hora de Início são obrigatórios.', 'warning');
+          if (!newName) editNameInput.focus();
+          else if (!newDate) editDateInput.focus();
+          else editStartTimeInput.focus();
+          return;
+        }
+
+        const updatedRequestData = {
+          name: newName,
+          description: newDescription,
+          date: newDate,
+          startTime: newStartTime,
+          endTime: newEndTime,
+          tags: newSelectedTags,
+          // !!! IMPORTANTE: Inclua o establishmentid aqui também para a atualização
+          establishmentid: requestData.establishmentid // Mantenha o ID existente
+        };
+
+        try
+        {
+          // Rota atualizada para /atualizar-pedido-serviço/:id
+          const response = await fetch(`${ API_BASE_URL }/atualizar-pedido-servico/${ requestId }`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedRequestData),
+          });
+
+          if (!response.ok)
+          {
+            const errorData = await response.json();
+            throw new Error(`HTTP error! status: ${ response.status }, message: ${ errorData.message }`);
+          }
+          const updatedRequest = await response.json();
+
+          showToast(`Pedido "${ updatedRequest.name }" atualizado com sucesso!`);
+          closeModal(modalOverlay);
+          await loadServiceRequests();
+        } catch (error)
+        {
+          console.error("Erro ao atualizar pedido de serviço:", error);
+          showToast('Erro ao atualizar pedido de serviço. Tente novamente.', 'error');
+        }
+      });
+    }
+
+    // Inicializa os carregamentos de dados quando o DOM estiver pronto
+
+    console.log("Script perfEmp.js totalmente carregado e inicializado (v9 com fetch e rotas /profile).");
   });
-
 </script>

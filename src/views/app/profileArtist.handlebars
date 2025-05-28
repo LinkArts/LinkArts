@@ -1,144 +1,148 @@
-<main class="container-profile main-content">
-  <section class="profile-info">
-    <div class="profile-left">
-      <div class="profile-img">
-        <img id="profile-main-image" src="/img/default.jpg" alt="{{artist.profile.imageAlt}}">
-      </div>
-      <div class="profile-details">
-        <h1 id="profile-name">{{values.name}}</h1>
-        <p id="profile-location" class="profile-location">{{#if values.city}}{{values.city}}{{else}}Cidade não
-          informada{{/if}}</p>
-        <div class="profile-rating"
-          aria-label="Avaliação: {{artist.profile.rating}} de 5 estrelas (baseado em {{artist.profile.reviewCount}} avaliações)">
-          <div class="stars" aria-hidden="true">
-          </div class="rating-content">
-          <span style="margin-bottom: 5px;">★</span>
-          <span class="rating">4.5</span>
-          <span class="reviews">(8 reviews)</span>
+<div class="main-content">
+  <div class="container-profile">
+    <section class="profile-info">
+      <div class="profile-left">
+        <div class="profile-img">
+          <img id="profile-main-image" src="/img/default.jpg" alt="{{artist.profile.imageAlt}}">
         </div>
-      </div>
-    </div>
-    <div class="profile-actions">
-      <a href="{{artist.profile.socialMediaUrl}}" class="btn btn-outline" target="_blank" rel="noopener noreferrer">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-        </svg>
-        Social Media & Links
-      </a>
-      <a href="/agenda/{{values.id}}" class="btn btn-outline">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-          <line x1="16" x2="16" y1="2" y2="6"></line>
-          <line x1="8" x2="8" y1="2" y2="6"></line>
-          <line x1="3" x2="21" y1="10" y2="10"></line>
-        </svg>
-        Agenda
-      </a>
-      {{!-- {{#if user.isOwner}} --}}
-      <button id="edit-profile-btn" class="btn btn-primary">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
-        </svg>
-        Editar Perfil
-      </button>
-      {{!-- {{/if}} --}}
-    </div>
-  </section>
-
-  <section class="about-section">
-    <h2>Sobre {{artist.name}}</h2>
-    <p id="profile-about">{{#if values.description}}{{values.description}}{{else}}Descrição não informada.{{/if}}</p>
-    <div class="tags">
-      {{#each values.tags}}
-      <span class="tag">{{name}}</span>
-      {{/each}}
-    </div>
-  </section>
-
-  <section class="albums-section">
-    <div class="section-header">
-      <h2>Álbuns</h2>
-      <button id="add-album-action-button" class="btn btn-outline btn-purple">Adicionar Álbum</button>
-    </div>
-    <div class="scroll-container albums-container">
-      {{#if values.albums}}
-      {{#each values.albums}}
-      <div class="album-card" data-id="{{id}}">
-        <div class="album-img">
-          <img src="/img/default.jpg" alt="{{ name }}">
-        </div>
-        <h3 class="album-name">{{ name }}</h3>
-      </div>
-      {{/each}}
-      {{else}}
-      <p class="modal-empty-state">Nenhum álbum encontrado.</p>
-      {{/if}}
-    </div>
-  </section>
-
-  <section class="music-section">
-    <div class="section-header">
-      <h2>Portfólio de Músicas</h2>
-      {{!-- {{#if user.isOwner}} --}}
-      <button id="add-music-action-button" class="btn btn-outline btn-purple">Adicionar Música</button>
-      {{!-- {{/if}} --}}
-    </div>
-    <div class="scroll-container music-container">
-      {{#if values.musics}}
-      {{#each values.musics}}
-      <div class="song-card" data-id="{{id}}">
-        <div class="song-icon">
-          <div class="play-button" aria-label="Tocar {{this.name}}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
+        <div class="profile-details">
+          <h1 id="profile-name">{{values.name}}</h1>
+          <p id="profile-location" class="profile-location">{{#if values.city}}{{values.city}}{{else}}Cidade não
+            informada{{/if}}</p>
+          <div class="profile-rating"
+            aria-label="Avaliação: {{artist.profile.rating}} de 5 estrelas (baseado em {{artist.profile.reviewCount}} avaliações)">
+            <div class="stars" aria-hidden="true">
+            </div class="rating-content">
+            <span style="margin-bottom: 5px;">★</span>
+            <span class="rating">4.5</span>
+            <span class="reviews">(8 reviews)</span>
           </div>
         </div>
-        <div class="song-info">
-          <h3>{{this.name}}</h3>
-          <p>Tags:
-            {{#if tags}}
-            {{#each tags}}
-            {{name}}{{#unless @last}}, {{/unless}}
-            {{/each}}
-            {{else}}
-            Nenhuma tag associada
-            {{/if}}
-          </p>
-        </div>
       </div>
-      {{/each}}
-      {{else}}
-      <p>Nenhuma música no portfólio no momento.</p>
-      {{/if}}
-    </div>
-  </section>
+      <div class="profile-actions">
+        <a href="{{artist.profile.socialMediaUrl}}" class="btn btn-outline" target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          Social Media & Links
+        </a>
+        <a href="/agenda/{{values.id}}" class="btn btn-outline">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+            <line x1="16" x2="16" y1="2" y2="6"></line>
+            <line x1="8" x2="8" y1="2" y2="6"></line>
+            <line x1="3" x2="21" y1="10" y2="10"></line>
+          </svg>
+          Agenda
+        </a>
+        {{#if isOwner}}
+        <button id="edit-profile-btn" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+          </svg>
+          Editar Perfil
+        </button>
+        {{/if}}
+      </div>
+    </section>
 
-  <section class="reviews-section">
-    <div class="section-header">
-      <h2>Reviews</h2>
-      <a href="{{artist.allReviewsUrl}}" class="btn-link">Ver Todas</a>
-    </div>
-    {{#each artist.reviews}}
-    <div class="review-card">
-      <div class="review-header">
-        <h3>{{this.reviewerName}}</h3>
-        <div class="review-stars" aria-label="Avaliação: {{this.rating}} de 5 estrelas">
-          {{!-- {{{renderStars this.rating}}} --}}
-        </div>
+    <section class="about-section">
+      <h2>Sobre {{artist.name}}</h2>
+      <p id="profile-about">{{#if values.description}}{{values.description}}{{else}}Descrição não informada.{{/if}}</p>
+      <div class="tags">
+        {{#each values.tags}}
+        <span class="tag">{{name}}</span>
+        {{/each}}
       </div>
-      <p class="review-text">"{{{this.text}}}"</p>''
-    </div>
-    {{else}}
-    <p>Ainda não há reviews.</p>
-    {{/each}}
-  </section>
-</main>
+    </section>
+
+    <section class="albums-section">
+      <div class="section-header">
+        <h2>Álbuns</h2>
+        {{#if isOwner}}
+        <button id="add-album-action-button" class="btn btn-outline btn-purple">Adicionar Álbum</button>
+        {{/if}}
+      </div>
+      <div class="scroll-container albums-container">
+        {{#if values.albums}}
+        {{#each values.albums}}
+        <div class="album-card" data-id="{{id}}">
+          <div class="album-img">
+            <img src="/img/default.jpg" alt="{{ name }}">
+          </div>
+          <h3 class="album-name">{{ name }}</h3>
+        </div>
+        {{/each}}
+        {{else}}
+        <p class="modal-empty-state">Nenhum álbum encontrado.</p>
+        {{/if}}
+      </div>
+    </section>
+
+    <section class="music-section">
+      <div class="section-header">
+        <h2>Portfólio de Músicas</h2>
+        {{#if isOwner}}
+        <button id="add-music-action-button" class="btn btn-outline btn-purple">Adicionar Música</button>
+        {{/if}}
+      </div>
+      <div class="scroll-container music-container">
+        {{#if values.musics}}
+        {{#each values.musics}}
+        <div class="song-card" data-id="{{id}}">
+          <div class="song-icon">
+            <div class="play-button" aria-label="Tocar {{this.name}}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </div>
+          </div>
+          <div class="song-info">
+            <h3>{{this.name}}</h3>
+            <p>Tags:
+              {{#if tags}}
+              {{#each tags}}
+              {{name}}{{#unless @last}}, {{/unless}}
+              {{/each}}
+              {{else}}
+              Nenhuma tag associada
+              {{/if}}
+            </p>
+          </div>
+        </div>
+        {{/each}}
+        {{else}}
+        <p>Nenhuma música no portfólio no momento.</p>
+        {{/if}}
+      </div>
+    </section>
+
+    <section class="reviews-section">
+      <div class="section-header">
+        <h2>Reviews</h2>
+        <a href="{{artist.allReviewsUrl}}" class="btn-link">Ver Todas</a>
+      </div>
+      {{#each artist.reviews}}
+      <div class="review-card">
+        <div class="review-header">
+          <h3>{{this.reviewerName}}</h3>
+          <div class="review-stars" aria-label="Avaliação: {{this.rating}} de 5 estrelas">
+            {{!-- {{{renderStars this.rating}}} --}}
+          </div>
+        </div>
+        <p class="review-text">"{{{this.text}}}"</p>''
+      </div>
+      {{else}}
+      <p>Ainda não há reviews.</p>
+      {{/each}}
+    </section>
+  </div>
+</div>
 
 <script>
   document.addEventListener('DOMContentLoaded', () =>

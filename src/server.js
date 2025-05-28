@@ -23,7 +23,7 @@ const searchRoutes = require('./routes/searchRoutes')
 const SearchController = require('./controllers/SearchController')
 
 //models
-const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag } = require('./models/index')
+const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest } = require('./models/index')
 
 //template engine
 app.engine('handlebars', handlebars.engine(
@@ -33,7 +33,18 @@ app.engine('handlebars', handlebars.engine(
         helpers:
         {
             log: (something) => console.log(something),
-            eq: (a, b) => a === b
+            eq: (a, b) => a === b,
+            json: function (context)
+            {
+                return JSON.stringify(context);
+            },
+            formatDate: function (dateString)
+            {
+                if (!dateString) return '';
+                // Adapte as opções de formato conforme a sua preferência
+                const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+                return new Date(dateString).toLocaleDateString('pt-BR', options);
+            }
         },
         partialsDir: require('path').join(__dirname, 'views', 'partials'),
     }

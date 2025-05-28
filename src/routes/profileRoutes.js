@@ -13,6 +13,18 @@ router.delete('/deletar-musica/:id', ProfileController.deleteMusic)
 router.post('/criar-musica', ProfileController.createMusic)
 router.post('/criar-album', ProfileController.createAlbum)
 router.get('/tags', ProfileController.getTags)
+
+router.get('/eventos', ProfileController.getAllEvents)
+router.post('/criar-evento', ProfileController.createEvent)
+router.put('/atualizar-evento/:id', ProfileController.updateEvent)
+router.delete('/deletar-evento/:id', ProfileController.deleteEvent)
+
+router.get('/pedidos-servico', ProfileController.getAllServiceRequests)
+router.post('/criar-pedido-servico', ProfileController.createServiceRequest)
+router.put('/atualizar-pedido-servico/:id', ProfileController.updateServiceRequest)
+router.delete('/deletar-pedido-servico/:id', ProfileController.deleteServiceRequest)
+
+
 router.get('/:id', ProfileController.showProfile)
 
 module.exports = router
