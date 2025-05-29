@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const ProfileController = require('../controllers/ProfileController')
+const { checkAuth } = require('../middlewares/checkAuth')
 
 router.put('/alterar-perfil', ProfileController.updateProfile)
 router.get('/albums', ProfileController.getAlbums)
@@ -25,6 +26,6 @@ router.put('/atualizar-pedido-servico/:id', ProfileController.updateServiceReque
 router.delete('/deletar-pedido-servico/:id', ProfileController.deleteServiceRequest)
 
 
-router.get('/:id', ProfileController.showProfile)
+router.get('/:id', checkAuth, ProfileController.showProfile)
 
 module.exports = router

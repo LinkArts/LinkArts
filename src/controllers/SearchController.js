@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op, where, col, fn } = require('sequelize');
 const User = require('../models/User');
 const Artist = require('../models/Artist');
 const Establishment = require('../models/Establishment');
@@ -14,7 +14,9 @@ module.exports = class SearchController
             const results = await User.findAll({
                 where: {
                     [Op.or]: [
-                        { name: { [Op.like]: `%${ search }%` } },
+                        where(fn('LOWER', col('name')), {
+                            [Op.like]: `%${ search.toLowerCase() }%`
+                        })
                     ]
                 },
                 attributes: { exclude: ['password'] },
@@ -27,7 +29,6 @@ module.exports = class SearchController
                 }
             });
 
-            console.log(search);
             return res.render('app/search', { search: search, results: userInfo, css: 'pesquisar.css' })
         }
 
@@ -62,15 +63,18 @@ module.exports = class SearchController
                 const results = await User.findAll({
                     where:
                     {
-                        name: { [Op.like]: `%${ search }%` },
+                        [Op.or]: [
+                            where(fn('LOWER', col('name')), {
+                                [Op.like]: `${ search.toLowerCase() }%`
+                            })
+                        ]
                     },
                     exclude: ['password'],
                     include: include
                 })
 
                 const results2 = results.map(result => result.dataValues);
-                console.log(results2);
-                
+
                 return res.json({ results2, search: search });
             }
             else

@@ -3,19 +3,25 @@
     <div class="content">
         <!-- Tabs -->
         <div class="tabs">
-            <div class="tab active" onclick="changeTab('novidades')">Novidades para você</div>
-            <div class="tab" onclick="changeTab('servicos')">Serviços</div>
+            <div class="tab active" onclick="changeTab('novidades')">Recomendações para você</div>
+            {{#if userInfo.establishments}}<div class="tab" onclick="changeTab('servicos')">Pedidos de Serviço</div>{{/if}}
         </div>
 
         <!-- Novidades Tab Content -->
         <div id="novidades" class="tab-content active">
             <div class="card-grid">
-                {{#if userInfo}}
-                {{#each userInfo}}
+                {{#if userInfo.establishments}}
+                {{#each userInfo.establishments}}
+                {{> dashboardCard}}
+                {{/each}}
+                {{else}}
+                {{#if userInfo.artists}}
+                {{#each userInfo.artists}}
                 {{> dashboardCard}}
                 {{/each}}
                 {{else}}
                 Sem resultados!
+                {{/if}}
                 {{/if}}
             </div>
         </div>

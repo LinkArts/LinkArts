@@ -19,14 +19,13 @@ module.exports = class DashboardController
                 })
 
             const services = await ServiceRequest.findAll()
-            const establishmentPlain = establishments.map(x => x.toJSON())
+            const establishmentPlain = establishments.map(x => x.User.toJSON())
             const servicesPlain = services.map(x => x.toJSON())
 
             const userInfo = {
                 establishments: establishmentPlain,
                 services: servicesPlain
             }
-            console.log(userInfo)
 
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' })
         }
@@ -43,13 +42,12 @@ module.exports = class DashboardController
                     }]
                 })
 
-            const userInfo = artists.map((result) => 
+
+            const userInfo =
             {
-                return {
-                    ...result.dataValues,   // dados do Artist
-                    ...result.User.dataValues // dados do User associado
-                }
-            });
+                artists: artists.map(x => x.User.toJSON())
+            }
+
 
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' })
         }
