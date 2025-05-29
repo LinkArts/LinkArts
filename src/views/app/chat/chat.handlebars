@@ -4,7 +4,7 @@
       <div class="header-content">
         <div class="header-logo">
           {{!-- Título do sistema no cabeçalho pode ser dinâmico --}}
-          <h1>{{#if headerSystemTitle}}{{headerSystemTitle}}{{else}}ChatSystem{{/if}}</h1>
+          <h1>Suas conversas</h1>
         </div>
         <div class="header-actions">
           <button class="header-button">
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 3000);
   });
 
-  // Handle user conversation clicks
+  // Carregar o histórico de mensagens ao clicar em uma conversa
   userConversations.forEach(conversation => {
     conversation.addEventListener('click', function() {
       // Remove active class from all conversations
