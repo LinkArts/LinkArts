@@ -9,7 +9,7 @@ const Chat = db.define('Chat',
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
-        }
+        },
     })
 
 module.exports = Chat
