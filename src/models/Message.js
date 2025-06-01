@@ -10,6 +10,10 @@ const Message = db.define('Message',
             primaryKey: true,
             autoIncrement: true
         },
+        message: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         date: {
             type: DataTypes.DATE,
             allowNull: false,
@@ -18,7 +22,7 @@ const Message = db.define('Message',
         status: {
             type: DataTypes.STRING(20),
             allowNull: false,
-            defaultValue: 'sent'
+            defaultValue: 'sending'
         },
     })
 

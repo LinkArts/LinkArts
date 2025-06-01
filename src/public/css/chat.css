@@ -10,16 +10,7 @@
   }
   
   /* Standard Header */
-  .standard-header {
-    background-color: #6d51b0;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
+  
   
   .header-content {
     display: flex;
@@ -68,7 +59,6 @@
   #chat-app {
     display: flex;
     height: 100vh;
-    padding-top: 60px; /* Add space for the fixed header */
     background-color: #f5f5f5;
   }
   
@@ -203,17 +193,17 @@
     background-color: #f5f5f5;
   }
   
-  .message {
+  .msg {
     margin-bottom: 16px;
     display: flex;
     flex-direction: column;
   }
   
-  .message.sent {
+  .msg.sent {
     align-items: flex-end;
   }
   
-  .message.received {
+  .msg.received {
     align-items: flex-start;
   }
   
@@ -224,13 +214,13 @@
     font-size: 14px;
   }
   
-  .message.sent .message-bubble {
+  .msg.sent .message-bubble {
     background-color: #6d51b0;
     color: white;
     border-top-right-radius: 4px;
   }
   
-  .message.received .message-bubble {
+  .msg.received .message-bubble {
     background-color: white;
     color: #333;
     border-top-left-radius: 4px;
