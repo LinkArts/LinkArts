@@ -4,6 +4,7 @@ const handlebars = require('express-handlebars')
 const session = require('express-session')
 const FileStore = require('session-file-store')(session)
 const flash = require('express-flash')
+const PORT = process.env.PORT || 3000
 
 const app = express();
 
@@ -124,7 +125,7 @@ conn
     .sync()
     .then(() => 
     {
-        app.listen(3000)
+        app.listen(PORT)
     })
     .catch((err) =>
     {
