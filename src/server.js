@@ -1,136 +1,155 @@
-require('dotenv').config()
-const express = require('express')
-const handlebars = require('express-handlebars')
-const session = require('express-session')
-const FileStore = require('session-file-store')(session)
-const flash = require('express-flash')
-const PORT = process.env.PORT || 3000
+require("dotenv").config();
+const express = require("express");
+const handlebars = require("express-handlebars");
+const session = require("express-session");
+const FileStore = require("session-file-store")(session);
+const flash = require("express-flash");
+const http = require("http"); // Importar o módulo http
+const { initWebSocket } = require("./websocket_setup"); // Importar o inicializador do WebSocket
+const path = require("path"); // Importar path
+const os = require("os"); // Importar os
+
+const PORT = process.env.PORT || 3000;
 
 const app = express();
+const server = http.createServer(app); // Criar servidor HTTP a partir do app Express
+const io = initWebSocket(server); // Inicializar o Socket.IO com o servidor HTTP
 
-const authRoutes = require('./routes/authRoutes')
-const AuthController = require('./controllers/AuthController')
+// Rotas e Controladores
+const authRoutes = require("./routes/authRoutes");
+const AuthController = require("./controllers/AuthController");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const DashboardController = require("./controllers/DashboardController");
+const chatRoutes = require("./routes/chatRoutes");
+const chatController = require("./controllers/ChatController");
+const profileRoutes = require("./routes/profileRoutes");
+const ProfileController = require("./controllers/ProfileController");
+const searchRoutes = require("./routes/searchRoutes");
+const SearchController = require("./controllers/SearchController");
 
-const dashboardRoutes = require('./routes/dashboardRoutes')
-const DashboardController = require('./controllers/DashboardController')
+// Models
+const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest } = require("./models/index");
 
-const chatRoutes = require('./routes/chatRoutes')
-const chatController = require('./controllers/ChatController')
+// Template Engine Handlebars com Helpers Corrigidos
+app.engine(
+  "handlebars",
+  handlebars.engine({
+    extname: "handlebars",
+    defaultLayout: "main",
+    helpers: {
+      log: (something) => console.log(something),
+      eq: (a, b) => a === b,
+      json: function (context) {
+        return JSON.stringify(context);
+      },
+      // Helper para formatar data (mantido)
+      formatDate: function (timestamp) {
+          if (!timestamp) return "";
+          try {
+              const date = new Date(timestamp);
+              const now = new Date();
+              const yesterday = new Date(now);
+              yesterday.setDate(yesterday.getDate() - 1);
+              if (date.toDateString() === now.toDateString()) {
+                  // Retorna hora se for hoje
+                  return date.toLocaleTimeString([], {hour: "2-digit", minute:"2-digit"});
+              } else if (date.toDateString() === yesterday.toDateString()) {
+                  // Retorna "Ontem" se for ontem
+                  return "Ontem";
+              } else {
+                  // Retorna data dd/mm se for mais antigo
+                  return date.toLocaleDateString([], {day: "2-digit", month: "2-digit"});
+              }
+          } catch (e) { 
+              console.error("Erro no helper formatDate (backend):", e);
+              return ""; 
+          }
+      },
+      // Helper para cor aleatória (ADICIONADO)
+      randomColor: function() {
+          const colors = ["FFA500", "008000", "FFC0CB", "0000FF", "800080", "FF0000", "4B0082"];
+          return colors[Math.floor(Math.random() * colors.length)];
+      }
+    },
+    partialsDir: path.join(__dirname, "views", "partials"),
+  })
+);
+app.set("view engine", "handlebars");
 
-const profileRoutes = require('./routes/profileRoutes')
-const ProfileController = require('./controllers/ProfileController')
+// Middlewares
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-const searchRoutes = require('./routes/searchRoutes')
-const SearchController = require('./controllers/SearchController')
-
-//models
-const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest } = require('./models/index')
-
-//template engine
-app.engine('handlebars', handlebars.engine(
-    {
-        extname: 'handlebars',
-        defaultLayout: "main",
-        helpers:
-        {
-            log: (something) => console.log(something),
-            eq: (a, b) => a === b,
-            json: function (context)
-            {
-                return JSON.stringify(context);
-            },
-            formatDate: function (dateString)
-            {
-                if (!dateString) return '';
-                // Adapte as opções de formato conforme a sua preferência
-                const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-                return new Date(dateString).toLocaleDateString('pt-BR', options);
-            }
-        },
-        partialsDir: require('path').join(__dirname, 'views', 'partials'),
-    }
-));
-app.set('view engine', 'handlebars')
-
-//receber resposta do body
-app.use(express.urlencoded(
-    {
-        extended: true
-    }
-))
-
-app.use(express.json())
-
-//session middleware
+// Session Middleware
 app.use(
-    session({
-        name: 'session',
-        secret: 'nosso_secret', //trocar futuramente para garantir segurança
-        resave: false,
-        saveUninitialized: false,
-        rolling: true,
-        store: new FileStore({
-            logFn: function () { },
-            path: require('path').join(require('os').tmpdir(), 'sessions')
-        }),
-        cookie: {
-            secure: false,
-            maxAge: 60 * 60 * 1000,
-            httpOnly: true,
-        }
-    })
-)
+  session({
+    name: "session",
+    secret: "nosso_secret", // Trocar para variável de ambiente em produção
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
+    store: new FileStore({
+      logFn: function () {},
+      path: path.join(os.tmpdir(), "sessions"),
+    }),
+    cookie: {
+      secure: false, // Definir como true em produção com HTTPS
+      maxAge: 60 * 60 * 1000, // 1 hora
+      httpOnly: true,
+    },
+  })
+);
 
-// flash messages
-app.use(flash())
+// Flash Messages
+app.use(flash());
 
-//public path
-app.use(express.static('public'))
+// Public Path
+app.use(express.static("public"));
 
-//middleware global que aplica em todas as rotas
-app.use((req, res, next) => 
-{
-    if (req.session.userid)
-    {
-        res.locals.session = req.session
-        res.locals.username = req.username
-    }
+// Middleware Global
+app.use((req, res, next) => {
+  if (req.session.userid) {
+    res.locals.session = req.session;
+    // res.locals.username = req.username; // Verificar se req.username é necessário/definido
+  }
 
-    const message = req.flash('message')[0]
-    const type = req.flash('messageType')[0]
+  const message = req.flash("message")[0];
+  const type = req.flash("messageType")[0];
 
-    res.locals.message = message
-    res.locals.type = type
+  res.locals.message = message;
+  res.locals.type = type;
 
-    next()
-})
+  next();
+});
 
-app.use('/', authRoutes)
-app.use('/', dashboardRoutes)
-app.use('/profile', profileRoutes)
-app.use('/', searchRoutes)
-app.use('/', chatRoutes)
-app.get('/', AuthController.renderLogin)
+// Rotas Principais
+app.use("/", authRoutes);
+app.use("/", dashboardRoutes);
+app.use("/profile", profileRoutes);
+app.use("/", searchRoutes);
+app.use("/", chatRoutes);
+app.get("/", AuthController.renderLogin);
 
-app.use((req, res) =>
-{
-    res.render('layouts/404')
-})
+// Rota 404
+app.use((req, res) => {
+  res.status(404).render("layouts/404");
+});
 
-
-const conn = require('./db/conn')
+// Conexão com DB e Inicialização do Servidor
+const conn = require("./db/conn");
 
 conn
-    //.sync({ force: true }) //para forçar atualização no banco de dados em caso de alteração nas tabelas (como adicionar associação binária)
-    .sync()
-    .then(() => 
-    {
-        app.listen(PORT)
-    })
-    .catch((err) =>
-    {
-        console.log(err);
-    })
+  //.sync({ force: true })
+  .sync()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Erro ao sincronizar com o banco de dados:", err);
+  });
+  
 
 // seedGenres.js
 
