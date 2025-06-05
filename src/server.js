@@ -26,9 +26,11 @@ const profileRoutes = require("./routes/profileRoutes");
 const ProfileController = require("./controllers/ProfileController");
 const searchRoutes = require("./routes/searchRoutes");
 const SearchController = require("./controllers/SearchController");
+const agendaRoutes = require("./routes/agendaRoutes");
+const SearchController = require("./controllers/AgendaController");
 
 // Models
-const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest } = require("./models/index");
+const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest, Service, ServiceNote, ServiceProposal } = require('./models/index')
 
 // Template Engine Handlebars com Helpers Corrigidos
 app.engine(
@@ -39,36 +41,44 @@ app.engine(
     helpers: {
       log: (something) => console.log(something),
       eq: (a, b) => a === b,
-      json: function (context) {
+      json: function (context)
+      {
         return JSON.stringify(context);
       },
       // Helper para formatar data (mantido)
-      formatDate: function (timestamp) {
-          if (!timestamp) return "";
-          try {
-              const date = new Date(timestamp);
-              const now = new Date();
-              const yesterday = new Date(now);
-              yesterday.setDate(yesterday.getDate() - 1);
-              if (date.toDateString() === now.toDateString()) {
-                  // Retorna hora se for hoje
-                  return date.toLocaleTimeString([], {hour: "2-digit", minute:"2-digit"});
-              } else if (date.toDateString() === yesterday.toDateString()) {
-                  // Retorna "Ontem" se for ontem
-                  return "Ontem";
-              } else {
-                  // Retorna data dd/mm se for mais antigo
-                  return date.toLocaleDateString([], {day: "2-digit", month: "2-digit"});
-              }
-          } catch (e) { 
-              console.error("Erro no helper formatDate (backend):", e);
-              return ""; 
+      formatDate: function (timestamp)
+      {
+        if (!timestamp) return "";
+        try
+        {
+          const date = new Date(timestamp);
+          const now = new Date();
+          const yesterday = new Date(now);
+          yesterday.setDate(yesterday.getDate() - 1);
+          if (date.toDateString() === now.toDateString())
+          {
+            // Retorna hora se for hoje
+            return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          } else if (date.toDateString() === yesterday.toDateString())
+          {
+            // Retorna "Ontem" se for ontem
+            return "Ontem";
+          } else
+          {
+            // Retorna data dd/mm se for mais antigo
+            return date.toLocaleDateString([], { day: "2-digit", month: "2-digit" });
           }
+        } catch (e)
+        {
+          console.error("Erro no helper formatDate (backend):", e);
+          return "";
+        }
       },
       // Helper para cor aleatória (ADICIONADO)
-      randomColor: function() {
-          const colors = ["FFA500", "008000", "FFC0CB", "0000FF", "800080", "FF0000", "4B0082"];
-          return colors[Math.floor(Math.random() * colors.length)];
+      randomColor: function ()
+      {
+        const colors = ["FFA500", "008000", "FFC0CB", "0000FF", "800080", "FF0000", "4B0082"];
+        return colors[Math.floor(Math.random() * colors.length)];
       }
     },
     partialsDir: path.join(__dirname, "views", "partials"),
@@ -89,7 +99,7 @@ app.use(
     saveUninitialized: false,
     rolling: true,
     store: new FileStore({
-      logFn: function () {},
+      logFn: function () { },
       path: path.join(os.tmpdir(), "sessions"),
     }),
     cookie: {
@@ -107,8 +117,10 @@ app.use(flash());
 app.use(express.static("public"));
 
 // Middleware Global
-app.use((req, res, next) => {
-  if (req.session.userid) {
+app.use((req, res, next) =>
+{
+  if (req.session.userid)
+  {
     res.locals.session = req.session;
     // res.locals.username = req.username; // Verificar se req.username é necessário/definido
   }
@@ -122,16 +134,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rotas Principais
-app.use("/", authRoutes);
-app.use("/", dashboardRoutes);
-app.use("/profile", profileRoutes);
-app.use("/", searchRoutes);
-app.use("/", chatRoutes);
-app.get("/", AuthController.renderLogin);
+app.use('/', authRoutes)
+app.use('/', dashboardRoutes)
+app.use('/profile', profileRoutes)
+app.use('/', searchRoutes)
+app.use('/', chatRoutes)
+app.use('/', agendaRoutes)
+app.get('/', AuthController.renderLogin)
 
 // Rota 404
-app.use((req, res) => {
+app.use((req, res) =>
+{
   res.status(404).render("layouts/404");
 });
 
@@ -141,15 +154,18 @@ const conn = require("./db/conn");
 conn
   //.sync({ force: true })
   .sync()
-  .then(() => {
-    server.listen(PORT, () => {
-      console.log(`Servidor rodando na porta ${PORT}`);
+  .then(() =>
+  {
+    server.listen(PORT, () =>
+    {
+      console.log(`Servidor rodando na porta ${ PORT }`);
     });
   })
-  .catch((err) => {
+  .catch((err) =>
+  {
     console.error("Erro ao sincronizar com o banco de dados:", err);
   });
-  
+
 
 // seedGenres.js
 
