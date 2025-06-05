@@ -98,64 +98,65 @@
 
     <!-- Templates Handlebars para JS (Serão usados pelo JS abaixo) -->
     <!-- Template para renderizar a lista/mensagens individuais -->
-        {{#each messages}}
-        <div class="msg {{#if this.isCurrentUser}}sent{{else}}received{{/if}}" data-message-id="{{this.id}}">
-            <div class="message-bubble">{{this.message}}</div>
-            <div class="message-time">{{formatTime this.createdAt}}</div>
-        </div>
-        {{/each}}
+    <script id="message-template" type="text/x-handlebars-template">
+        {{#if messages.length}}
+            {{#each messages}}
+            <div class="msg {{#if this.isCurrentUser}}sent{{else}}received{{/if}}" data-message-id="{{this.id}}">
+                <div class="message-bubble">{{this.message}}</div>
+                <div class="message-time">{{formatTime this.createdAt}}</div>
+            </div>
+            {{/each}}
+        {{else}}
+            <p class="no-messages">Nenhuma mensagem ainda. Envie a primeira!</p>
+        {{/if}}
+    </script>
 
     <!-- Template para o cabeçalho do chat -->
+    <script id="chat-header-template" type="text/x-handlebars-template">
         {{#if otherUser}}
         <div class="chat-user">
-            <!-- CORREÇÃO: Removido ../ de randomColor -->
-            <img src="https://via.placeholder.com/40/{{randomColor}}/FFFFFF?text={{otherUser.name.[0]}}" alt="{{otherUser.name}}">
+            <div class="profile-avatar" style="width:40px;height:40px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2em;">
+                {{#if otherUser.name}}{{otherUser.name.[0]}}{{else}}?{{/if}}
+            </div>
             <div class="chat-user-info">
-                <h3>{{otherUser.name}}</h3>
+                <h3>{{#if otherUser.name}}{{otherUser.name}}{{else}}Usuário desconhecido{{/if}}</h3>
             </div>
         </div>
         <button class="report-button">Reportar conversa</button>
         {{else}}
         <div class="chat-user">
-            <img src="https://via.placeholder.com/40/cccccc/FFFFFF?text=?" alt="Selecione">
+            <div class="profile-avatar" style="width:40px;height:40px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2em;">?</div>
             <div class="chat-user-info">
                 <h3>Selecione uma conversa</h3>
             </div>
         </div>
         <button class="report-button" disabled>Reportar conversa</button>
         {{/if}}
+    </script>
 
-    <!-- Template para o perfil (mantido com placeholders) -->
+    <!-- Template para o perfil -->
+    <script id="profile-template" type="text/x-handlebars-template">
         {{#if otherUser}}
         <div class="profile-header">
-             <!-- CORREÇÃO: Removido ../ de randomColor -->
-            <img src="https://via.placeholder.com/80/{{randomColor}}/FFFFFF?text={{otherUser.name.[0]}}" alt="{{otherUser.name}}" class="profile-avatar">
-            <div class="profile-name">{{otherUser.name}}</div>
-            <div class="profile-profession">Artista</div>
-            <div class="profile-location">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                Localização
+            <div class="profile-avatar" style="width:80px;height:80px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2em;">
+                {{#if otherUser.name}}{{otherUser.name.[0]}}{{else}}?{{/if}}
             </div>
-            <div class="rating-reviews">
-                <div class="rating">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    <span>4.8</span>
-                </div>
-                <div class="reviews">(8 avaliações)</div>
-            </div>
+            <div class="profile-name">{{#if otherUser.name}}{{otherUser.name}}{{else}}Usuário desconhecido{{/if}}</div>
+            <div class="profile-profession">Usuário</div>
+            <div class="profile-location">Localização não informada</div>
         </div>
         <div class="profile-divider"></div>
         <div class="profile-bio">
             <div class="bio-title">Biografia</div>
-            <div class="bio-text">Informações sobre {{otherUser.name}} não disponíveis.</div>
+            <div class="bio-text">{{#if otherUser.description}}{{otherUser.description}}{{else}}Sem descrição.{{/if}}</div>
         </div>
         <div class="profile-tags">
-            <div class="profile-tag">Artista</div>
             <div class="profile-tag">Usuário</div>
         </div>
         {{else}}
         <p>Selecione uma conversa para ver o perfil.</p>
         {{/if}}
+    </script>
 
     <!-- Script JS Cliente Corrigido e Refatorado -->
     <script>
@@ -311,7 +312,7 @@
         // --- Funções de Renderização --- 
         function renderSingleMessage(message, prepend = false) {
             if (!messageTemplate) return;
-            message.isCurrentUser = message.sender && message.sender.id === loggedInUserId;
+            message.isCurrentUser = message.userid === loggedInUserId;
             const messageHtml = messageTemplate({ messages: [message] });
             const placeholderP = messagesContainer.querySelector("p");
             if (placeholderP) {
@@ -341,80 +342,84 @@
         }
 
         // --- Lógica do Chat ---
-        async function loadMessages(chatId, loadMore = false) {
-            if (isLoadingMessages) return;
-            let offsetToLoad = loadMore ? messagesOffset : 0;
-            if (loadMore) {
-                 if(loadingIndicator) loadingIndicator.style.display = 'block';
-            } else {
-                messagesContainer.innerHTML = ''; 
-                if(loadingIndicator) {
-                    loadingIndicator.style.display = 'none';
-                    messagesContainer.appendChild(loadingIndicator);
+        async function loadMessages(chatId, offset = 0) {
+            try {
+                const response = await fetch(`/api/chats/${chatId}/messages?limit=30&offset=${offset}`);
+                if (!response.ok) {
+                    throw new Error('Falha ao carregar mensagens via API');
                 }
-                messagesContainer.insertAdjacentHTML('beforeend', "<p>Carregando mensagens...</p>");
-                messagesOffset = 0;
-                totalMessages = 0;
-            }
-            const url = `/api/chats/${chatId}/messages?limit=${messagesLimit}&offset=${offsetToLoad}`;
-            const data = await fetchData(url);
-            const loadingP = messagesContainer.querySelector("p");
-            if (loadingP && loadingP.textContent.includes("Carregando")) {
-                loadingP.remove();
-            }
-            if (data && data.messages) {
-                if (!loadMore && data.messages.length === 0) {
-                    messagesContainer.insertAdjacentHTML('beforeend', "<p>Nenhuma mensagem nesta conversa ainda.</p>");
-                }
-                else if (loadMore && data.messages.length === 0) {
-                     if(loadingIndicator) loadingIndicator.style.display = 'none';
-                }
-                else {
-                    if (loadMore) {
-                        renderMessageBlock(data.messages);
-                    } else {
-                        data.messages.forEach(msg => renderSingleMessage(msg)); 
-                        scrollToBottom(messagesContainer);
+                const data = await response.json();
+                console.log('DEBUG: Dados recebidos da API:', data); // LOG PARA DEBUG
+                // Atualiza o cabeçalho e perfil com as informações do outro usuário
+                if (data.otherUser) {
+                    if (chatHeaderTemplate) {
+                        document.getElementById('chat-header-container').innerHTML = chatHeaderTemplate({ otherUser: data.otherUser });
                     }
-                    messagesOffset += data.messages.length;
-                    totalMessages = data.totalMessages || messagesOffset;
+                    if (profileTemplate) {
+                        document.getElementById('profile-column-container').innerHTML = profileTemplate({ otherUser: data.otherUser });
+                    }
+                    enableChatInput();
+                } else {
+                    // Se não houver outro usuário, desabilita o input e mostra placeholders
+                    document.getElementById('chat-header-container').innerHTML = chatHeaderTemplate({});
+                    document.getElementById('profile-column-container').innerHTML = profileTemplate({});
+                    disableChatInput();
                 }
-            } else if (!loadMore) {
-                messagesContainer.innerHTML = "<p>Erro ao carregar mensagens.</p>";
+                // Renderiza as mensagens
+                if (messageTemplate) {
+                    // Corrige o mapeamento para garantir que isCurrentUser funcione
+                    const messages = (data.messages || []).map(msg => ({
+                        ...msg,
+                        isCurrentUser: msg.sender && msg.sender.id === loggedInUserId
+                    }));
+                    const messagesHtml = messageTemplate({ messages });
+                    if (offset === 0) {
+                        messagesContainer.innerHTML = messagesHtml;
+                    } else {
+                        messagesContainer.insertAdjacentHTML('afterbegin', messagesHtml);
+                    }
+                }
+                // Atualiza o total de mensagens
+                totalMessages = data.totalMessages || 0;
+                // Esconde o indicador de carregamento
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+            } catch (error) {
+                console.error('Erro ao carregar mensagens:', error);
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+                messagesContainer.innerHTML = '<p class="error-message">Erro ao carregar mensagens. Tente novamente.</p>';
+                document.getElementById('chat-header-container').innerHTML = chatHeaderTemplate({});
+                document.getElementById('profile-column-container').innerHTML = profileTemplate({});
             }
-            if(loadingIndicator && !loadMore) loadingIndicator.style.display = 'none';
         }
         function handleNewMessage(newMessage) {
-             console.log("Nova mensagem recebida via WS:", newMessage);
-             if (newMessage && newMessage.id && newMessage.ChatId == currentChatId) { 
-                 renderSingleMessage(newMessage);
-                 scrollToBottom(messagesContainer);
-                 updateConversationPreview(currentChatId, newMessage);
-             }
+            console.log("Nova mensagem recebida via WS:", newMessage);
+            if (newMessage && newMessage.id && newMessage.chatId == currentChatId) {
+                renderSingleMessage(newMessage);
+                scrollToBottom(messagesContainer);
+                updateConversationPreview(currentChatId, newMessage);
+            }
         }
         function scrollToBottom(element) {
             setTimeout(() => { element.scrollTop = element.scrollHeight; }, 50);
         }
-        function updateChatUI(chatId, otherUserName, otherUserId) {
-            currentChatId = chatId;
-            currentOtherUserId = otherUserId;
-            currentOtherUserName = otherUserName;
-            if (chatHeaderTemplate) {
-                chatHeaderContainer.innerHTML = chatHeaderTemplate({ otherUser: { id: otherUserId, name: otherUserName } });
-                const newReportButton = chatHeaderContainer.querySelector('.report-button');
-                if (newReportButton) newReportButton.disabled = false;
-            }
-            if (profileTemplate) {
-                profileContainer.innerHTML = profileTemplate({ otherUser: { id: otherUserId, name: otherUserName } });
-            }
-            enableChatInput();
+        function updateChatUI(chatId) {
+            // Mostra o indicador de carregamento
+            document.querySelector('.loading-indicator').style.display = 'block';
+            
+            // Limpa as mensagens existentes
+            document.querySelector('.messages-container').innerHTML = '';
+            
+            // Reseta o offset e carrega as mensagens
+            currentOffset = 0;
             loadMessages(chatId);
-            if (socket && socket.connected) {
-                socket.emit("join_chat", chatId);
-                console.log(`Entrou na sala WebSocket: ${chatId}`);
-            } else {
-                console.warn("Socket não conectado ao tentar entrar na sala.");
-            }
+            
+            // Atualiza o chat ativo
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.chatId === chatId) {
+                    item.classList.add('active');
+                }
+            });
         }
         function disableChatInput() {
             messageInput.disabled = true;
@@ -422,7 +427,7 @@
             attachmentButton.disabled = true;
             proposalButton.disabled = true;
             messageInput.placeholder = "Selecione uma conversa...";
-            const reportBtn = chatHeaderContainer.querySelector('.report-button');
+            const reportBtn = document.querySelector('#chat-header-container .report-button');
             if(reportBtn) reportBtn.disabled = true;
         }
         function enableChatInput() {
@@ -431,7 +436,7 @@
             attachmentButton.disabled = false;
             proposalButton.disabled = false;
             messageInput.placeholder = "Digite sua mensagem...";
-            const reportBtn = chatHeaderContainer.querySelector('.report-button');
+            const reportBtn = document.querySelector('#chat-header-container .report-button');
             if(reportBtn) reportBtn.disabled = false;
             messageInput.focus();
         }
@@ -513,7 +518,10 @@
                         }
                         document.querySelectorAll('.user-conversation.active').forEach(el => el.classList.remove('active'));
                         conversation.classList.add('active');
-                        updateChatUI(chatId, otherUserName, otherUserId);
+                        currentChatId = chatId;
+                        currentOtherUserId = otherUserId;
+                        currentOtherUserName = otherUserName;
+                        updateChatUI(chatId);
                     }
                 }
             });

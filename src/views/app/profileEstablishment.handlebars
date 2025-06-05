@@ -47,14 +47,12 @@
             Editar Perfil
           </button>
           {{else}}
-          <a href="/chat/create/{{session.userid}}">
-          <button id="create-chat-btn" class="btn btn-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          Abrir Chat
-        </button>
-        </a>
+          <button id="create-chat-btn" class="btn btn-primary" data-user-id="{{values.id}}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Abrir Chat
+          </button>
           {{/if}}
         </div>
       </div>
@@ -1219,6 +1217,34 @@
         }
       });
     }
+
+    // Adicionar handler para o botão de chat
+    document.getElementById('create-chat-btn')?.addEventListener('click', async function() {
+        const userId = this.dataset.userId;
+        try {
+            const response = await fetch(`/chat/create/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                const data = await response.json();
+                if (response.ok) {
+                    window.location.href = `/chat/${data.chatId}`;
+                } else {
+                    showToast(data.message || 'Erro ao criar chat', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao criar chat:', error);
+            showToast('Erro ao criar chat', 'error');
+        }
+    });
 
     // Inicializa os carregamentos de dados quando o DOM estiver pronto
 

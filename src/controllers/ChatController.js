@@ -140,9 +140,8 @@ module.exports = class ChatController {
 
         const chatId = req.params.chatId;
         const userId = req.session.userid;
-        // Obter parâmetros de paginação da query (já validados e convertidos para int na rota)
-        const limit = req.query.limit || 30; // Define um limite padrão (ex: 30 mensagens)
-        const offset = req.query.offset || 0; // Define um offset padrão (começa do início)
+        const limit = req.query.limit || 30;
+        const offset = req.query.offset || 0;
 
         try {
             // Verifica se o usuário pertence ao chat
@@ -152,7 +151,13 @@ module.exports = class ChatController {
                     {
                         model: User,
                         where: { id: userId },
-                        attributes: [], // Não precisa dos dados do usuário aqui
+                        attributes: [],
+                        through: { attributes: [] }
+                    },
+                    {
+                        model: User,
+                        where: { id: { [Op.ne]: userId } },
+                        attributes: ['id'], // Só pega o id para buscar depois
                         through: { attributes: [] }
                     }
                 ]
@@ -162,36 +167,53 @@ module.exports = class ChatController {
                 return res.status(404).json({ message: 'Chat não encontrado ou você não tem permissão para acessá-lo.' });
             }
 
+            // Busca o outro usuário diretamente na tabela Users
+            let otherUser = null;
+            if (chat.Users && chat.Users.length > 0) {
+                const otherUserId = chat.Users[0].id;
+                otherUser = await User.findByPk(otherUserId, {
+                    attributes: ['id', 'name', 'description']
+                });
+            }
+
             // Busca as mensagens do chat com paginação
-            // Usamos findAndCountAll para obter o total e facilitar paginação no frontend
             const { count, rows: messages } = await Message.findAndCountAll({
-                where: { ChatId: chatId },
+                where: { chatid: chatId },
                 include: [
                     {
-                        model: User, // Inclui o remetente
-                        attributes: ['id', 'name'] // Apenas ID e nome do remetente
+                        model: User,
+                        attributes: ['id', 'name']
                     }
                 ],
-                order: [['createdAt', 'DESC']], // Ordena da mais *nova* para a mais *antiga* para paginação
+                order: [['createdAt', 'ASC']],
                 limit: limit,
                 offset: offset
             });
 
-            // Formata para o frontend
-            // Inverte a ordem para exibir da mais antiga para a mais nova no chat
-            const formattedMessages = messages.reverse().map(msg => ({
+            // Formata as mensagens para o frontend
+            const formattedMessages = messages.map(msg => ({
                 id: msg.id,
-                message: msg.message, // Campo original
+                message: msg.message,
                 createdAt: msg.createdAt,
-                sender: msg.User ? { id: msg.User.id, name: msg.User.name } : null,
+                userid: msg.userid,
+                sender: msg.User ? {
+                    id: msg.User.id,
+                    name: msg.User.name
+                } : null,
             }));
 
-            // Retorna as mensagens paginadas e o total
-            return res.status(200).json({ 
-                messages: formattedMessages, 
-                totalMessages: count, 
-                limit: limit, 
-                offset: offset 
+            // Retorna as mensagens e informações do outro usuário
+            return res.status(200).json({
+                messages: formattedMessages,
+                totalMessages: count,
+                limit: limit,
+                offset: offset,
+                otherUser: otherUser ? {
+                    id: otherUser.id,
+                    name: otherUser.name,
+                    description: otherUser.description
+                } : null,
+                chatId: chat.id
             });
 
         } catch (error) {
@@ -233,8 +255,8 @@ module.exports = class ChatController {
             // Cria a mensagem no banco de dados
             const newMessage = await Message.create({
                 message: message,
-                ChatId: chatId,
-                UserId: userId, // Associa ao usuário logado
+                chatid: chatId,
+                userid: userId, // Associa ao usuário logado
             });
 
             // Busca a mensagem recém-criada incluindo o remetente para retornar ao frontend e emitir via WebSocket
@@ -253,7 +275,8 @@ module.exports = class ChatController {
                 message: sentMessage.message,
                 createdAt: sentMessage.createdAt,
                 sender: sentMessage.User ? { id: sentMessage.User.id, name: sentMessage.User.name } : null,
-                isCurrentUser: false // Será tratado no cliente
+                isCurrentUser: false, // Será tratado no cliente
+                chatId: chatId // Adiciona o chatId para o frontend identificar
             };
 
             // *** EMITIR EVENTO WEBSOCKET ***
@@ -278,10 +301,50 @@ module.exports = class ChatController {
     }
 
     // Método createChat original (mantido como no original)
-    static async createChat(req, res){
-        // Implementar lógica para criar um novo chat entre dois usuários, se necessário
-        console.log("Rota createChat chamada, mas não implementada.");
-        res.status(501).send("Funcionalidade de criar chat não implementada.");
+    static async createChat(req, res) {
+        if (!req.session.userid) {
+            return res.status(401).json({ message: 'Não autorizado' });
+        }
+        
+        const userId = req.session.userid;
+        const otherUserId = parseInt(req.params.id, 10);
+
+        if (!otherUserId || otherUserId === userId) {
+            return res.status(400).json({ message: 'ID do outro usuário inválido.' });
+        }
+
+        try {
+            // Verifica se já existe um chat entre os dois usuários
+            const existingChats = await Chat.findAll({
+                include: [{
+                    model: User,
+                    where: { id: [userId, otherUserId] },
+                    through: { attributes: [] }
+                }]
+            });
+
+            // Filtra chats que têm exatamente os dois usuários
+            const chat = existingChats.find(c =>
+                c.Users.length === 2 &&
+                c.Users.some(u => u.id === userId) &&
+                c.Users.some(u => u.id === otherUserId)
+            );
+
+            if (chat) {
+                // Chat já existe, redireciona para o chat existente
+                return res.redirect(`/chat/${chat.id}`);
+            }
+
+            // Cria novo chat e associa os dois usuários
+            const newChat = await Chat.create();
+            await newChat.addUsers([userId, otherUserId]);
+
+            // Redireciona para o novo chat
+            return res.redirect(`/chat/${newChat.id}`);
+        } catch (error) {
+            console.error("Erro ao criar chat:", error);
+            return res.status(500).json({ message: 'Falha ao criar chat.' });
+        }
     }
 }
 

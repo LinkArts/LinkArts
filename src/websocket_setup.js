@@ -25,9 +25,21 @@ function initWebSocket(httpServer) {
             socket.leave(chatId.toString());
         });
 
-        socket.on("disconnect", () => {
-            console.log("Usuário desconectou:", socket.id);
-            // Lógica adicional de desconexão, se necessário
+        socket.on("disconnect", (reason) => {
+            console.log("Usuário desconectou:", socket.id, "Razão:", reason);
+            // Tenta reconectar se a desconexão foi do lado do servidor
+            if (reason === "io server disconnect") {
+                socket.connect();
+            }
+        });
+
+        // Adiciona handler para erros de conexão
+        socket.on("connect_error", (error) => {
+            console.error("Erro de conexão WebSocket:", error);
+            // Tenta reconectar após 5 segundos
+            setTimeout(() => {
+                socket.connect();
+            }, 5000);
         });
     });
 
