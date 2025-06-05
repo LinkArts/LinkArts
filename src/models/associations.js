@@ -1,6 +1,6 @@
 module.exports = function setupAssociations(models)
 {
-    const { User, Artist, Establishment, Album, Music, Genre, Tag, Chat, Message, Event, ServiceRequest } = models;
+    const { User, Artist, Establishment, Album, Music, Genre, Tag, Chat, Message, Event, ServiceRequest, Service, ServiceNote, ServiceProposal } = models;
 
     Artist.belongsTo(User, {
         foreignKey: 'userid',
@@ -162,4 +162,18 @@ module.exports = function setupAssociations(models)
         onDelete: 'CASCADE',
         as: 'ServiceRequests'
     })
+
+    Service.belongsTo(User, { foreignKey: 'userId' });
+    User.hasMany(Service, { foreignKey: 'userId' });
+
+    Service.belongsToMany(Tag, { through: 'ServiceTags' });
+    Tag.belongsToMany(Service, { through: 'ServiceTags' });
+
+    Service.hasMany(ServiceNote, { foreignKey: 'serviceId' });
+    ServiceNote.belongsTo(Service, { foreignKey: 'serviceId' });
+
+    ServiceProposal.belongsTo(User, { as: 'Receiver', foreignKey: 'userId' });
+    ServiceProposal.belongsTo(User, { as: 'Sender', foreignKey: 'senderUserId' });
+    User.hasMany(ServiceProposal, { as: 'ReceivedProposals', foreignKey: 'userId' });
+    User.hasMany(ServiceProposal, { as: 'SentProposals', foreignKey: 'senderUserId' });
 };

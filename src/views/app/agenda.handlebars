@@ -1,0 +1,642 @@
+<div class="all">
+
+    <div class="page-wrapper">
+        <h1 class="main-title">Minha Agenda Pessoal</h1>
+        <div class="agenda-content">
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <button id="prevMonthBtn"><span class="material-icons"><</span></button>
+                    <h2 id="currentMonthYear">Junho 2025</h2>
+                    <button id="nextMonthBtn"><span class="material-icons">></span></button>
+                </div>
+                <div class="calendar-weekdays">
+                    <div>Dom</div>
+                    <div>Seg</div>
+                    <div>Ter</div>
+                    <div>Qua</div>
+                    <div>Qui</div>
+                    <div>Sex</div>
+                    <div>Sáb</div>
+                </div>
+                <div class="calendar-days" id="calendarDays">
+                    <!-- Dias do calendário serão renderizados via JavaScript -->
+                </div>
+                <div class="legend">
+                    <p>Legenda:</p>
+                    <div class="legend-item">
+                        <div class="legend-color-box has-notes"></div>
+                        <span>Com anotações</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color-box selected-day"></div>
+                        <span>Dia selecionado</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="details-section">
+                <div class="details-header">
+                    <h3 id="selectedDateDisplay">domingo, 1 de junho de 2025</h3>
+                    <div class="action-buttons">
+                        <button id="saveNotesBtn" class="btn btn-primary">Salvar</button>
+                        {{#if isNotOwner}}
+                        <button id="sendProposalBtn" class="btn btn-outline btn-purple">Enviar Proposta</button>
+                        {{/if}}
+                    </div>
+                </div>
+                <div class="service-list" id="serviceDetailsList">
+                    {{#if selectedDateServices}}
+                    {{#each selectedDateServices}}
+                    <div class="service-card" data-id="{{this.id}}">
+                        <h4>{{this.name}}</h4>
+                        <p><strong>Descrição:</strong> {{this.description}}</p>
+                        <p><strong>Preço:</strong> {{this.price}}</p>
+                        <p><strong>Estabelecimento:</strong> {{this.establishmentName}}</p>
+                        <p><strong>Horário:</strong> {{this.time}}</p>
+                        <div class="tags">
+                            {{#if this.tags}}
+                            {{#each this.tags}}
+                            <span class="tag">{{this.name}}</span>
+                            {{/each}}
+                            {{else}}
+                            <span class="tag">Sem tags</span>
+                            {{/if}}
+                        </div>
+                        <div class="service-notes">
+                            <p><strong>Anotações:</strong></p>
+                            <textarea class="service-note-textarea"
+                                data-service-id="{{this.id}}">{{this.notes}}</textarea>
+                        </div>
+                    </div>
+                    {{/each}}
+                    {{else}}
+                    <p class="no-services-message" id="noServicesMessage">Nenhum serviço agendado para este dia.</p>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () =>
+    {
+        let lastFocusedElement = null;
+        let availableTags = [];
+
+        // Ajustes nos Seletores
+        const Selectors = {
+            currentMonthYearDisplay: document.getElementById('currentMonthYear'),
+            calendarDaysContainer: document.getElementById('calendarDays'),
+            prevMonthBtn: document.getElementById('prevMonthBtn'),
+            nextMonthBtn: document.getElementById('nextMonthBtn'),
+            selectedDateDisplay: document.getElementById('selectedDateDisplay'),
+            serviceDetailsList: document.getElementById('serviceDetailsList'),
+            noServicesMessage: document.getElementById('noServicesMessage'),
+            saveNotesBtn: document.getElementById('saveNotesBtn'),
+            sendProposalBtn: document.getElementById('sendProposalBtn')
+        };
+
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        // Get current day, month, and year for initial selection based on today's date
+        const today = new Date();
+        let selectedDay = today.getDate();
+        let selectedFullDate = new Date(currentYear, currentMonth, selectedDay);
+
+        // Dados de serviços - serão carregados via fetch
+        let services = {};
+
+        const dayNames = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+        // Função para mostrar notificações toast
+        function showToast(message, type = 'success', duration = 3500)
+        {
+            document.querySelectorAll('.toast.show').forEach(t => t.remove());
+            const toast = document.createElement('div');
+            toast.className = `toast ${ type }`;
+            let iconSvg = '';
+            if (type === 'success') iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z" /></svg>';
+            else if (type === 'warning') iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M8.22 1.754a.25.25 0 0 0-.44 0L1.698 13.939a.25.25 0 0 0 .22.361h12.164a.25.25 0 0 0 .22-.361L8.22 1.754ZM8 11.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM8.25 6v3.5a.25.25 0 0 1-.5 0V6a.25.25 0 0 1 .5 0Z" /></svg>';
+            else if (type === 'error') iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M4.47 4.47a.75.75 0 0 1 1.06 0L8 6.94l2.47-2.47a.75.75 0 1 1 1.06 1.06L9.06 8l2.47 2.47a.75.75 0 1 1-1.06 1.06L8 9.06l-2.47 2.47a.75.75 0 0 1-1.06-1.06L6.94 8 4.47 5.53a.75.75 0 0 1 0-1.06Z" /></svg>';
+            toast.innerHTML = `${ iconSvg } <span>${ message }</span>`;
+            document.body.appendChild(toast);
+            toast.getBoundingClientRect();
+            toast.classList.add('show');
+            setTimeout(() =>
+            {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, duration);
+        }
+
+        // Função para controlar o foco dentro de modais
+        function trapFocus(modalElement, overlayElement)
+        {
+            const focusableElements = Array.from(
+                modalElement.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+            ).filter(el => el.offsetParent !== null);
+            if (focusableElements.length === 0) return { destroy: () => { } };
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+            let isTrapActive = true;
+            setTimeout(() =>
+            {
+                if (isTrapActive && overlayElement.classList.contains('is-visible')) firstElement.focus();
+            }, 100);
+            const handleKeydown = (e) =>
+            {
+                if (!isTrapActive || !overlayElement.classList.contains('is-visible')) return;
+                if (e.key === 'Tab')
+                {
+                    if (e.shiftKey)
+                    {
+                        if (document.activeElement === firstElement)
+                        {
+                            lastElement.focus();
+                            e.preventDefault();
+                        }
+                    } else
+                    {
+                        if (document.activeElement === lastElement)
+                        {
+                            firstElement.focus();
+                            e.preventDefault();
+                        }
+                    }
+                } else if (e.key === 'Escape')
+                {
+                    closeModal(overlayElement);
+                }
+            };
+            overlayElement.addEventListener('keydown', handleKeydown);
+            const destroy = () =>
+            {
+                if (isTrapActive)
+                {
+                    overlayElement.removeEventListener('keydown', handleKeydown);
+                    isTrapActive = false;
+                }
+            };
+            return { destroy };
+        }
+
+        // Função para fechar modais
+        function closeModal(modalOverlay)
+        {
+            if (!modalOverlay || !document.body.contains(modalOverlay))
+            {
+                if (!document.querySelector('.modal-overlay.is-visible'))
+                {
+                    document.body.classList.remove('modal-open');
+                }
+                return;
+            }
+            const modalId = modalOverlay.dataset.modalId;
+            const destroyerKey = `focusTrapDestroy_${ modalId }`;
+            if (modalId && typeof window[destroyerKey] === 'function')
+            {
+                try
+                {
+                    window[destroyerKey]();
+                    delete window[destroyerKey];
+                } catch (e)
+                {
+                    console.error("Error destroying focus trap:", e);
+                }
+            }
+            if (modalOverlay.classList.contains('is-visible'))
+            {
+                modalOverlay.classList.remove('is-visible');
+                const onTransitionEnd = (event) =>
+                {
+                    if (event && event.target !== modalOverlay) return;
+                    modalOverlay.remove();
+                    if (!document.querySelector('.modal-overlay.is-visible'))
+                    {
+                        document.body.classList.remove('modal-open');
+                    }
+                    if (lastFocusedElement && typeof lastFocusedElement.focus === 'function')
+                    {
+                        try
+                        {
+                            lastFocusedElement.focus();
+                        } catch (e)
+                        {
+                            console.warn("Error restoring focus:", e);
+                        }
+                        lastFocusedElement = null;
+                    }
+                };
+                modalOverlay.addEventListener('transitionend', onTransitionEnd, { once: true });
+                setTimeout(() =>
+                {
+                    if (document.body.contains(modalOverlay) && !modalOverlay.classList.contains('is-visible')) onTransitionEnd(null);
+                }, 500);
+            } else
+            {
+                modalOverlay.remove();
+                if (!document.querySelector('.modal-overlay.is-visible'))
+                {
+                    document.body.classList.remove('modal-open');
+                }
+                if (lastFocusedElement)
+                {
+                    try
+                    {
+                        lastFocusedElement.focus();
+                    } catch (e) { }
+                }
+                lastFocusedElement = null;
+            }
+        }
+
+        // Função para abrir modais
+        function openModal(overlaySelector, modalClass, modalHTMLContent, triggerButton = null)
+        {
+            if (!overlaySelector || !modalClass) return null;
+            const existingOverlay = document.querySelector(overlaySelector);
+            if (existingOverlay) closeModal(existingOverlay);
+            lastFocusedElement = triggerButton || document.activeElement;
+            const modalOverlay = document.createElement('div');
+            const overlayClassName = overlaySelector.startsWith('.') ? overlaySelector.substring(1) : overlaySelector.replace('#', '');
+            modalOverlay.className = `modal-overlay ${ overlayClassName }`;
+            modalOverlay.setAttribute('role', 'dialog');
+            modalOverlay.setAttribute('aria-modal', 'true');
+            const modalId = `${ modalClass }-${ Date.now() }`;
+            modalOverlay.dataset.modalId = modalId;
+            const modal = document.createElement('div');
+            modal.className = modalClass;
+            modal.innerHTML = modalHTMLContent;
+            modalOverlay.appendChild(modal);
+            const titleElement = modal.querySelector('h2');
+            if (titleElement)
+            {
+                const titleId = titleElement.id || `${ modalId }-heading`;
+                titleElement.id = titleId;
+                modalOverlay.setAttribute('aria-labelledby', titleId);
+            } else
+            {
+                modalOverlay.setAttribute('aria-label', `Modal ${ modalClass }`);
+            }
+            document.body.appendChild(modalOverlay);
+            document.body.classList.add('modal-open');
+            modal.querySelector('.modal-close-btn')?.addEventListener('click', () => closeModal(modalOverlay));
+            modal.querySelector('.btn-cancel')?.addEventListener('click', () => closeModal(modalOverlay));
+            modalOverlay.addEventListener('click', (e) =>
+            {
+                if (e.target === modalOverlay) closeModal(modalOverlay);
+            });
+            const focusTrapInstance = trapFocus(modal, modalOverlay);
+            window[`focusTrapDestroy_${ modalId }`] = focusTrapInstance.destroy;
+            modalOverlay.getBoundingClientRect();
+            modalOverlay.classList.add('is-visible');
+            return modal;
+        }
+
+        // Função para renderizar o calendário
+        function renderCalendar()
+        {
+            Selectors.calendarDaysContainer.innerHTML = ''; // Limpar dias anteriores
+
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const startDayOfWeek = firstDayOfMonth.getDay(); // 0 para Domingo, 1 para Segunda, etc.
+
+            Selectors.currentMonthYearDisplay.textContent = `${ monthNames[currentMonth] } ${ currentYear }`;
+
+            // Adicionar células vazias para os dias antes do dia 1
+            for (let i = 0; i < startDayOfWeek; i++)
+            {
+                const emptyDay = document.createElement('div');
+                emptyDay.classList.add('calendar-day', 'empty');
+                Selectors.calendarDaysContainer.appendChild(emptyDay);
+            }
+
+            // Adicionar os dias do mês
+            for (let day = 1; day <= daysInMonth; day++)
+            {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('calendar-day');
+                dayElement.textContent = day;
+                dayElement.dataset.day = day; // Armazenar o dia para fácil acesso
+
+                const dateString = formatDateForData(currentYear, currentMonth, day);
+
+                // Verificar se há serviços para este dia
+                if (services[dateString] && services[dateString].length > 0)
+                {
+                    dayElement.classList.add('has-notes');
+                }
+
+                // Verificar se este é o dia atualmente selecionado
+                if (day === selectedFullDate.getDate() && currentMonth === selectedFullDate.getMonth() && currentYear === selectedFullDate.getFullYear())
+                {
+                    dayElement.classList.add('selected');
+                }
+
+                dayElement.addEventListener('click', () =>
+                {
+                    selectedFullDate = new Date(currentYear, currentMonth, day); // Atualizar a data completa selecionada
+                    updateCalendarAndDetails();
+                });
+                Selectors.calendarDaysContainer.appendChild(dayElement);
+            }
+            updateDetailsPanel(); // Atualizar o painel de detalhes sempre que o calendário for renderizado
+        }
+
+        // Função para atualizar o painel de detalhes
+        function updateDetailsPanel()
+        {
+            const dayOfWeek = selectedFullDate.getDay();
+            const day = selectedFullDate.getDate();
+            const month = selectedFullDate.getMonth();
+            const year = selectedFullDate.getFullYear();
+
+            Selectors.selectedDateDisplay.textContent = `${ dayNames[dayOfWeek] }, ${ day } de ${ monthNames[month].toLowerCase() } de ${ year }`;
+
+            const dateString = formatDateForData(year, month, day);
+            const servicesForDay = services[dateString] || [];
+
+            // Limpar o painel de detalhes
+            Selectors.serviceDetailsList.innerHTML = '';
+
+            if (servicesForDay.length === 0)
+            {
+                const noServicesMessage = document.createElement('p');
+                noServicesMessage.className = 'no-services-message';
+                noServicesMessage.textContent = 'Nenhum serviço agendado para este dia.';
+                Selectors.serviceDetailsList.appendChild(noServicesMessage);
+            } else
+            {
+                // Renderizar cada serviço
+                servicesForDay.forEach(service =>
+                {
+                    const serviceCard = document.createElement('div');
+                    serviceCard.className = 'service-card';
+                    serviceCard.dataset.id = service.id;
+
+                    const serviceHTML = `
+                        <h4>${ service.name }</h4>
+                        <p><strong>Descrição:</strong> ${ service.description }</p>
+                        <p><strong>Preço:</strong> ${ service.price }</p>
+                        <p><strong>Estabelecimento:</strong> ${ service.establishmentName }</p>
+                        <p><strong>Horário:</strong> ${ service.time || 'Não especificado' }</p>
+                        <div class="tags">
+                            ${ service.tags && service.tags.length > 0
+                            ? service.tags.map(tag => `<span class="tag">${ tag.name }</span>`).join('')
+                            : '<span class="tag">Sem tags</span>' }
+                        </div>
+                        <div class="service-notes">
+                            <p><strong>Anotações:</strong></p>
+                            <textarea class="service-note-textarea" data-service-id="${ service.id }">${ service.notes || '' }</textarea>
+                        </div>
+                    `;
+
+                    serviceCard.innerHTML = serviceHTML;
+                    Selectors.serviceDetailsList.appendChild(serviceCard);
+                });
+            }
+        }
+
+        // Função para atualizar o calendário e os detalhes
+        function updateCalendarAndDetails()
+        {
+            // Remover a classe 'selected' de todos os dias
+            document.querySelectorAll('.calendar-day').forEach(day =>
+            {
+                day.classList.remove('selected');
+            });
+
+            // Adicionar a classe 'selected' ao dia selecionado, se estiver visível
+            const selectedDayElement = document.querySelector(`.calendar-day[data-day="${ selectedFullDate.getDate() }"]`);
+            if (selectedDayElement && currentMonth === selectedFullDate.getMonth() && currentYear === selectedFullDate.getFullYear())
+            {
+                selectedDayElement.classList.add('selected');
+            }
+
+            updateDetailsPanel();
+        }
+
+        // Função para formatar a data para o formato usado nos dados
+        function formatDateForData(year, month, day)
+        {
+            const monthStr = (month + 1).toString().padStart(2, '0');
+            const dayStr = day.toString().padStart(2, '0');
+            return `${ year }-${ monthStr }-${ dayStr }`;
+        }
+
+        // Função para buscar os serviços da agenda
+        async function fetchServices()
+        {
+            try
+            {
+                // Obter o ID do usuário da URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const userId = urlParams.get('id') || '{{userId}}';
+
+                const response = await fetch(`/agenda/services/${ userId }`);
+                if (!response.ok)
+                {
+                    throw new Error('Erro ao buscar serviços da agenda');
+                }
+
+                const data = await response.json();
+                services = data.services || {};
+
+                // Renderizar o calendário com os novos dados
+                renderCalendar();
+
+                showToast('Serviços da agenda carregados com sucesso', 'success');
+            } catch (error)
+            {
+                console.error('Erro ao buscar serviços:', error);
+                showToast('Erro ao carregar serviços da agenda', 'error');
+            }
+        }
+
+        // Função para salvar anotações
+        async function saveNotes()
+        {
+            const notes = [];
+            document.querySelectorAll('.service-note-textarea').forEach(textarea =>
+            {
+                notes.push({
+                    serviceId: textarea.dataset.serviceId,
+                    note: textarea.value
+                });
+            });
+
+            if (notes.length === 0)
+            {
+                showToast('Nenhuma anotação para salvar', 'warning');
+                return;
+            }
+
+            try
+            {
+                const response = await fetch('/agenda/notes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ notes })
+                });
+
+                if (!response.ok)
+                {
+                    throw new Error('Erro ao salvar anotações');
+                }
+
+                showToast('Anotações salvas com sucesso', 'success');
+            } catch (error)
+            {
+                console.error('Erro ao salvar anotações:', error);
+                showToast('Erro ao salvar anotações', 'error');
+            }
+        }
+
+        // Função para abrir o modal de envio de proposta
+        function openProposalModal()
+        {
+            const dayOfWeek = selectedFullDate.getDay();
+            const day = selectedFullDate.getDate();
+            const month = selectedFullDate.getMonth();
+            const year = selectedFullDate.getFullYear();
+            const dateString = `${ day } de ${ monthNames[month].toLowerCase() } de ${ year }`;
+
+            const modalHTML = `
+                <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
+                <h2 id="proposal-modal-heading">Enviar Proposta para ${ dateString }</h2>
+                <form id="proposal-form" novalidate>
+                    <div class="form-group">
+                        <label for="proposal-name">Nome do Serviço</label>
+                        <input type="text" id="proposal-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proposal-description">Descrição</label>
+                        <textarea id="proposal-description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="proposal-price">Preço</label>
+                        <input type="text" id="proposal-price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proposal-time">Horário</label>
+                        <input type="time" id="proposal-time" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="btn btn-cancel">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Enviar Proposta</button>
+                    </div>
+                </form>
+            `;
+
+            const modal = openModal('.proposal-modal', 'modal', modalHTML, Selectors.sendProposalBtn);
+
+            if (modal)
+            {
+                const form = modal.querySelector('#proposal-form');
+                form.addEventListener('submit', async (e) =>
+                {
+                    e.preventDefault();
+
+                    const name = document.getElementById('proposal-name').value;
+                    const description = document.getElementById('proposal-description').value;
+                    const price = document.getElementById('proposal-price').value;
+                    const time = document.getElementById('proposal-time').value;
+
+                    if (!name || !description || !price || !time)
+                    {
+                        showToast('Por favor, preencha todos os campos', 'warning');
+                        return;
+                    }
+
+                    try
+                    {
+                        // Obter o ID do usuário da URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const userId = urlParams.get('id') || '{{userId}}';
+
+                        const response = await fetch('/agenda/proposal', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                userId,
+                                date: formatDateForData(year, month, day),
+                                name,
+                                description,
+                                price,
+                                time
+                            })
+                        });
+
+                        if (!response.ok)
+                        {
+                            throw new Error('Erro ao enviar proposta');
+                        }
+
+                        showToast('Proposta enviada com sucesso', 'success');
+                        closeModal(document.querySelector('.proposal-modal'));
+                    } catch (error)
+                    {
+                        console.error('Erro ao enviar proposta:', error);
+                        showToast('Erro ao enviar proposta', 'error');
+                    }
+                });
+            }
+        }
+
+        // Inicializar eventos
+        function initEvents()
+        {
+            // Botões de navegação do calendário
+            Selectors.prevMonthBtn.addEventListener('click', () =>
+            {
+                currentMonth--;
+                if (currentMonth < 0)
+                {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar();
+            });
+
+            Selectors.nextMonthBtn.addEventListener('click', () =>
+            {
+                currentMonth++;
+                if (currentMonth > 11)
+                {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar();
+            });
+
+            // Botão de salvar anotações
+            if (Selectors.saveNotesBtn)
+            {
+                Selectors.saveNotesBtn.addEventListener('click', saveNotes);
+            }
+
+            // Botão de enviar proposta
+            if (Selectors.sendProposalBtn)
+            {
+                Selectors.sendProposalBtn.addEventListener('click', openProposalModal);
+            }
+        }
+
+        // Inicializar a aplicação
+        async function init()
+        {
+            await fetchServices();
+            initEvents();
+        }
+
+        // Iniciar a aplicação
+        init();
+    });
+</script>
