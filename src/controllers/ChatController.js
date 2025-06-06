@@ -185,7 +185,7 @@ module.exports = class ChatController {
                         attributes: ['id', 'name']
                     }
                 ],
-                order: [['createdAt', 'ASC']],
+                order: [['date', 'ASC']], // Ordena por 'date'
                 limit: limit,
                 offset: offset
             });
@@ -194,7 +194,7 @@ module.exports = class ChatController {
             const formattedMessages = messages.map(msg => ({
                 id: msg.id,
                 message: msg.message,
-                createdAt: msg.createdAt,
+                date: msg.date, // Usa o campo 'date'
                 userid: msg.userid,
                 sender: msg.User ? {
                     id: msg.User.id,
@@ -257,6 +257,7 @@ module.exports = class ChatController {
                 message: message,
                 chatid: chatId,
                 userid: userId, // Associa ao usuário logado
+                date: new Date(), // Garante que o campo 'date' seja preenchido
             });
 
             // Busca a mensagem recém-criada incluindo o remetente para retornar ao frontend e emitir via WebSocket
@@ -344,6 +345,73 @@ module.exports = class ChatController {
         } catch (error) {
             console.error("Erro ao criar chat:", error);
             return res.status(500).json({ message: 'Falha ao criar chat.' });
+        }
+    }
+
+    // --- API: Obter HTML dos blocos do chat (mensagens, header, perfil) ---
+    static async getChatHtml(req, res) {
+        if (!req.session.userid) {
+            return res.status(401).json({ message: 'Não autorizado' });
+        }
+        const chatId = req.params.chatId;
+        const userId = req.session.userid;
+        try {
+            // Busca o chat e valida se o usuário pertence
+            const chat = await Chat.findOne({
+                where: { id: chatId },
+                include: [
+                    {
+                        model: User,
+                        through: { attributes: [] },
+                    },
+                ]
+            });
+            if (!chat || !chat.Users.some(u => u.id == userId)) {
+                return res.status(404).json({ message: 'Chat não encontrado ou acesso negado.' });
+            }
+            // Identifica o outro usuário
+            const otherUserRef = chat.Users.find(u => u.id != userId);
+            let otherUser = null;
+            if (otherUserRef) {
+                otherUser = await User.findByPk(otherUserRef.id, {
+                    attributes: ['id', 'name', 'description']
+                });
+            }
+            // Busca mensagens do chat
+            const messages = await Message.findAll({
+                where: { chatid: chatId },
+                include: [{ model: User, attributes: ['id', 'name'] }],
+                order: [['date', 'ASC']]
+            });
+            // Formata mensagens para o parcial
+            const formattedMessages = messages.map(msg => ({
+                id: msg.id,
+                message: msg.message,
+                date: msg.date,
+                userid: msg.userid,
+                sender: msg.User ? { id: msg.User.id, name: msg.User.name } : null,
+                isCurrentUser: msg.userid == userId
+            }));
+            // Renderiza os parciais
+            const messagesHtml = await new Promise((resolve, reject) => {
+                res.render('partials/message', { messages: formattedMessages, layout: false }, (err, html) => {
+                    if (err) reject(err); else resolve(html);
+                });
+            });
+            const chatHeaderHtml = await new Promise((resolve, reject) => {
+                res.render('partials/chat-header', { otherUser, layout: false }, (err, html) => {
+                    if (err) reject(err); else resolve(html);
+                });
+            });
+            const profileHtml = await new Promise((resolve, reject) => {
+                res.render('partials/profile', { otherUser, layout: false }, (err, html) => {
+                    if (err) reject(err); else resolve(html);
+                });
+            });
+            return res.json({ messagesHtml, chatHeaderHtml, profileHtml });
+        } catch (error) {
+            console.error('Erro ao buscar HTML do chat:', error);
+            return res.status(500).json({ message: 'Erro ao buscar HTML do chat.' });
         }
     }
 }

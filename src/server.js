@@ -27,7 +27,7 @@ const ProfileController = require("./controllers/ProfileController");
 const searchRoutes = require("./routes/searchRoutes");
 const SearchController = require("./controllers/SearchController");
 const agendaRoutes = require("./routes/agendaRoutes");
-const SearchController = require("./controllers/AgendaController");
+const AgendaController = require("./controllers/AgendaController");
 
 // Models
 const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest, Service, ServiceNote, ServiceProposal } = require('./models/index')

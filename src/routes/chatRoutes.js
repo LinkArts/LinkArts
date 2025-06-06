@@ -63,5 +63,12 @@ router.post(
     ChatController.sendMessageApi
 );
 
+// Rota para obter HTML dos blocos do chat (mensagens, header, perfil)
+router.get(
+    "/api/chats/:chatId/html",
+    checkAuth,
+    ChatController.getChatHtml
+);
+
 module.exports = router;
 

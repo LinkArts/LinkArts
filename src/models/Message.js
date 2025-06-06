@@ -15,6 +15,11 @@ const Message = db.define('Message',
             type: DataTypes.STRING,
             allowNull: false
         },
+        date: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW
+        },
         status: {
             type: DataTypes.STRING(20),
             allowNull: false,
