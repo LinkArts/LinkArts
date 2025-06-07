@@ -5,7 +5,7 @@
     </div>
     <div class="profile-name">{{#if otherUser.name}}{{otherUser.name}}{{else}}Usuário desconhecido{{/if}}</div>
     <div class="profile-profession">Usuário</div>
-    <div class="profile-location">Localização não informada</div>
+    <div class="profile-location">{{#if otherUser.city}}{{otherUser.city}}{{else}}Localização não informada{{/if}}</div>
 </div>
 <div class="profile-divider"></div>
 <div class="profile-bio">

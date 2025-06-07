@@ -200,12 +200,149 @@
             }
         }
 
-        // --- Lógica do Chat ---
-        function handleNewMessage(newMessage) {
-            if (newMessage && newMessage.chatId == currentChatId) {
-                loadChatHtml(currentChatId);
+        // --- Função para atualizar a lista de conversas (coluna da esquerda) ---
+        async function updateChatList(newMessage = null) {
+            try {
+                const response = await fetch('/api/chats');
+                if (!response.ok) throw new Error('Erro ao buscar conversas');
+                const chats = await response.json();
+                console.log('[updateChatList] chats:', chats);
+                if (newMessage && newMessage.chatId) {
+                    // Atualização granular: move o chat para o topo
+                    const chatItem = usersListContainer.querySelector(`[data-chat-id='${newMessage.chatId}']`);
+                    if (chatItem) chatItem.remove();
+                    const chat = chats.find(c => c.chatId == newMessage.chatId);
+                    if (chat) {
+                        const html = `<div class="user-conversation${chat.chatId == currentChatId ? ' active' : ''}" data-chat-id="${chat.chatId}" data-other-user-id="${chat.otherUser?.id ?? ''}" data-other-user-name="${chat.otherUser?.name ?? ''}">
+                            <img src="https://via.placeholder.com/40/cccccc/FFFFFF?text=${chat.otherUser?.name ? chat.otherUser.name[0] : '?'}" alt="${chat.otherUser?.name ?? ''}" class="user-avatar">
+                            <div class="user-info">
+                                <div class="user-name-time">
+                                    <div class="user-name">${chat.otherUser?.name ?? 'Usuário desconhecido'}</div>
+                                    <div class="user-time">${chat.latestMessage?.createdAt ? new Date(chat.latestMessage.createdAt).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+                                </div>
+                                <div class="last-message">${chat.latestMessage?.content ?? '<i>Sem mensagens</i>'}</div>
+                            </div>
+                        </div>`;
+                        usersListContainer.insertAdjacentHTML('afterbegin', html);
+                    }
+                    return;
+                }
+                // Renderização padrão (fallback)
+                let html = '';
+                if (chats.length > 0) {
+                    chats.forEach(chat => {
+                        html += `<div class="user-conversation${chat.chatId == currentChatId ? ' active' : ''}" data-chat-id="${chat.chatId}" data-other-user-id="${chat.otherUser?.id ?? ''}" data-other-user-name="${chat.otherUser?.name ?? ''}">
+                            <img src="https://via.placeholder.com/40/cccccc/FFFFFF?text=${chat.otherUser?.name ? chat.otherUser.name[0] : '?'}" alt="${chat.otherUser?.name ?? ''}" class="user-avatar">
+                            <div class="user-info">
+                                <div class="user-name-time">
+                                    <div class="user-name">${chat.otherUser?.name ?? 'Usuário desconhecido'}</div>
+                                    <div class="user-time">${chat.latestMessage?.createdAt ? new Date(chat.latestMessage.createdAt).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+                                </div>
+                                <div class="last-message">${chat.latestMessage?.content ?? '<i>Sem mensagens</i>'}</div>
+                            </div>
+                        </div>`;
+                    });
+                } else {
+                    html = '<p>Nenhuma conversa encontrada.</p>';
+                }
+                usersListContainer.innerHTML = html;
+            } catch (error) {
+                usersListContainer.innerHTML = '<p class="error-message">Erro ao atualizar conversas.</p>';
             }
         }
+
+        // --- Função para atualizar o popup do ícone de mensagens (navbar) ---
+        async function updateMessagePopup() {
+            try {
+                const popup = document.getElementById('message-popup');
+                if (!popup) return;
+                const contentDiv = popup.querySelector('.popup-content');
+                const response = await fetch('/api/chats');
+                if (!response.ok) throw new Error('Erro ao buscar conversas');
+                const chats = await response.json();
+                let html = '';
+                if (chats.length > 0) {
+                    chats.slice(0, 5).forEach(chat => {
+                        html += `<div class="popup-item">
+                            <div class="popup-item-image">
+                                <img src="/placeholder.svg" alt="${chat.otherUser?.name ?? 'Usuário'}">
+                            </div>
+                            <div class="popup-item-content">
+                                <h4 class="popup-item-title">${chat.otherUser?.name ?? 'Usuário desconhecido'}</h4>
+                                <p class="popup-item-description">${chat.latestMessage?.content ?? 'Sem mensagens'}</p>
+                            </div>
+                        </div>`;
+                    });
+                } else {
+                    html = '<div class="popup-item"><div class="popup-item-content"><p>Sem conversas.</p></div></div>';
+                }
+                contentDiv.innerHTML = html;
+            } catch (error) {
+                // Não faz nada se der erro
+            }
+        }
+
+        // --- Lógica do Chat ---
+        function handleNewMessage(newMessage) {
+            console.log('[SOCKET] handleNewMessage recebido:', newMessage);
+            if (!newMessage || newMessage.chatId != currentChatId) {
+                console.log(`[handleNewMessage] Ignorando mensagem: Chat ID não corresponde ou mensagem inválida.`);
+                return;
+            }
+
+            const isMessageFromCurrentUser = newMessage.sender?.id === loggedInUserId;
+            const messageAlreadyExists = messagesContainer.querySelector(`[data-message-id='${newMessage.id}']`);
+
+            if (isMessageFromCurrentUser && !messageAlreadyExists) {
+                // Lógica para o REMETENTE: tentar atualizar a mensagem otimista
+                const optimisticMsgElement = messagesContainer.querySelector(
+                    `.msg.optimistic-message[data-message-text="${CSS.escape(newMessage.message)}"][data-userid="${newMessage.sender?.id}"]`
+                );
+
+                if (optimisticMsgElement) {
+                    // Atualiza a div existente (otimista) com dados reais do servidor
+                    optimisticMsgElement.dataset.messageId = newMessage.id;
+                    optimisticMsgElement.removeAttribute('data-temp-id');
+                    optimisticMsgElement.classList.remove('optimistic-message');
+                    if (optimisticMsgElement.querySelector('.message-time')) {
+                        const msgDate = newMessage.date || newMessage.createdAt;
+                        optimisticMsgElement.querySelector('.message-time').textContent = msgDate ? new Date(msgDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+                    }
+                    console.log(`[handleNewMessage - REMETENTE] Mensagem otimista atualizada para o ID real: ${newMessage.id}`);
+                } else if (!messageAlreadyExists) {
+                    appendMessageToUI(newMessage, true, false);
+                    console.log(`[handleNewMessage - REMETENTE] Mensagem real adicionada (otimista não encontrada para atualização): ${newMessage.id}`);
+                }
+            } else if (!isMessageFromCurrentUser && !messageAlreadyExists) {
+                appendMessageToUI(newMessage, false, false);
+                console.log(`[handleNewMessage - RECEPTOR] Mensagem real adicionada: ${newMessage.id}`);
+            } else if (messageAlreadyExists) {
+                console.log(`[handleNewMessage] Mensagem ${newMessage.id} já existe na UI, ignorando.`);
+            }
+
+            scrollToBottom(messagesContainer);
+            updateChatList(newMessage); // Passa a nova mensagem para atualização granular
+            updateMessagePopup();
+        }
+
+        function appendMessageToUI(msg, isCurrentUser, isOptimistic = false) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `msg ${isCurrentUser ? 'sent' : 'received'}${isOptimistic ? ' optimistic-message' : ''}`;
+            if (isOptimistic) {
+                msgDiv.dataset.tempId = msg.id;
+            } else {
+                msgDiv.dataset.messageId = msg.id;
+            }
+            msgDiv.dataset.userid = msg.sender?.id || loggedInUserId;
+            msgDiv.dataset.messageText = msg.message;
+            msgDiv.innerHTML = `
+                <div class="message-bubble">${msg.message}</div>
+                <div class="message-time">${!msg.date || isOptimistic ? 'Enviando...' : new Date(msg.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+            `;
+            messagesContainer.appendChild(msgDiv);
+            scrollToBottom(messagesContainer);
+        }
+
         function scrollToBottom(element) {
             setTimeout(() => { element.scrollTop = element.scrollHeight; }, 50);
         }
@@ -230,18 +367,57 @@
         }
         async function sendMessage() {
             const messageText = messageInput.value.trim();
-            if (!messageText || !currentChatId || isLoadingMessages) {
+            if (!messageText || !currentChatId) {
                 return;
             }
-            const url = `/api/chats/${currentChatId}/messages`;
-            const body = { message: messageText };
-            await fetchData(url, {
-                method: 'POST',
-                body: body
-            });
-            loadChatHtml(currentChatId);
+            // Cria um ID temporário único
+            const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+            const optimisticMsg = {
+                id: tempId,
+                message: messageText,
+                date: null, // Data real só virá do servidor
+                sender: { id: loggedInUserId, name: 'Você' },
+                chatId: currentChatId
+            };
+            appendMessageToUI(optimisticMsg, true, true);
             messageInput.value = '';
             messageInput.focus();
+            try {
+                const url = `/api/chats/${currentChatId}/messages`;
+                const body = { message: messageText };
+                const result = await fetchData(url, {
+                    method: 'POST',
+                    body: body
+                });
+                if (result && result.id) {
+                    // Tenta encontrar a mensagem otimista pelo tempId
+                    const optimisticElem = messagesContainer.querySelector(`.msg.optimistic-message[data-temp-id='${tempId}']`);
+                    if (optimisticElem) {
+                        // Atualiza a div existente com dados reais
+                        optimisticElem.dataset.messageId = result.id;
+                        optimisticElem.removeAttribute('data-temp-id');
+                        optimisticElem.classList.remove('optimistic-message');
+                        if (optimisticElem.querySelector('.message-time')) {
+                            optimisticElem.querySelector('.message-time').textContent = result.date ? new Date(result.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+                        }
+                    } else {
+                        // Se não encontrou, verifica se a mensagem real já existe
+                        if (!messagesContainer.querySelector(`[data-message-id='${result.id}']`)) {
+                            appendMessageToUI(result, true, false);
+                        }
+                    }
+                } else {
+                    // Erro: remove mensagem otimista
+                    const optimisticElem = messagesContainer.querySelector(`.msg.optimistic-message[data-temp-id='${tempId}']`);
+                    if (optimisticElem) optimisticElem.remove();
+                    showToast('Erro ao enviar mensagem', true);
+                }
+            } catch (err) {
+                // Remove mensagem otimista e mostra erro
+                const optimisticElem = messagesContainer.querySelector(`.msg.optimistic-message[data-temp-id='${tempId}']`);
+                if (optimisticElem) optimisticElem.remove();
+                showToast('Erro ao enviar mensagem', true);
+            }
         }
         function showToast(message, isError = false) {
             toast.textContent = message;
@@ -261,6 +437,7 @@
                 const response = await fetch(`/api/chats/${chatId}/html`);
                 if (!response.ok) throw new Error('Erro ao buscar chat');
                 const data = await response.json();
+                console.log('[DEBUG loadChatHtml] Dados retornados:', data);
                 // Insere o HTML nos containers
                 messagesContainer.innerHTML = '<div class="loading-indicator" style="display: none; text-align: center; padding: 10px;">Carregando mensagens antigas...</div>' + data.messagesHtml;
                 chatHeaderContainer.innerHTML = data.chatHeaderHtml;
@@ -292,6 +469,10 @@
                         currentChatId = chatId;
                         currentOtherUserId = otherUserId;
                         currentOtherUserName = otherUserName;
+                        if (socket && socket.connected) {
+                            socket.emit("join_chat", currentChatId);
+                            console.log(`Entrou na sala WebSocket: ${currentChatId}`);
+                        }
                         loadChatHtml(chatId);
                         // Atualiza o chat ativo
                         document.querySelectorAll('.user-conversation').forEach(item => {

@@ -207,6 +207,18 @@
     align-items: flex-start;
   }
   
+  .msg.optimistic-message {
+    opacity: 0.6;
+    position: relative;
+  }
+  
+  .msg.optimistic-message .message-bubble::after {
+    content: ' (Enviando...)';
+    font-size: 11px;
+    color: #888;
+    margin-left: 8px;
+  }
+  
   .message-bubble {
     max-width: 75%;
     padding: 12px 16px;

@@ -84,35 +84,32 @@ module.exports = class ChatController {
                  return res.status(401).json({ message: 'Usuário não encontrado' });
             }
 
+            // Busca todos os chats do usuário, incluindo TODOS os usuários do chat
             const chats = await user.getChats({
                 include: [
                     {
                         model: User,
-                        through: { attributes: [] }, // Não traz dados da tabela de junção
-                        where: {
-                            id: { [Op.ne]: userId } // Pega apenas o *outro* usuário no chat
-                        },
-                        attributes: ['id', 'name'] // Apenas ID e nome do outro usuário
+                        through: { attributes: [] },
+                        attributes: ['id', 'name', 'description'] // Traz todos os campos necessários
                     },
                     {
                         model: Message,
                         limit: 1,
                         order: [['createdAt', 'DESC']],
-                        attributes: ['message', 'createdAt'] // Pega a última mensagem
+                        attributes: ['message', 'createdAt']
                     }
-                ],
-                order: [[Message, 'createdAt', 'DESC']] // Ordena os chats pela última mensagem
+                ]
             });
 
             // Formata para o frontend
             const formattedChats = chats.map(chat => {
-                const otherUser = chat.Users.length > 0 ? chat.Users[0] : null; // Deve haver apenas um outro usuário devido ao 'where'
+                // Identifica o outro usuário (diferente do logado)
+                const otherUser = chat.Users.find(u => u.id !== userId);
                 const latestMessage = chat.Messages.length > 0 ? chat.Messages[0] : null;
 
                 return {
                     chatId: chat.id,
-                    otherUser: otherUser ? { id: otherUser.id, name: otherUser.name } : null,
-                    // Mapeia 'message' para 'content' para compatibilidade com frontend
+                    otherUser: otherUser ? { id: otherUser.id, name: otherUser.name, description: otherUser.description } : null,
                     latestMessage: latestMessage ? { content: latestMessage.message, createdAt: latestMessage.createdAt } : null,
                 };
             });
@@ -124,7 +121,7 @@ module.exports = class ChatController {
                 return dateB - dateA;
             });
 
-            return res.status(200).json(formattedChats); // Retorna o array diretamente
+            return res.status(200).json(formattedChats);
 
         } catch (error) {
             console.error("Erro ao buscar chats (API):", error);
@@ -274,7 +271,7 @@ module.exports = class ChatController {
             const formattedSentMessage = {
                 id: sentMessage.id,
                 message: sentMessage.message,
-                createdAt: sentMessage.createdAt,
+                date: sentMessage.date || sentMessage.createdAt, // sempre envia 'date'
                 sender: sentMessage.User ? { id: sentMessage.User.id, name: sentMessage.User.name } : null,
                 isCurrentUser: false, // Será tratado no cliente
                 chatId: chatId // Adiciona o chatId para o frontend identificar
@@ -285,7 +282,7 @@ module.exports = class ChatController {
                 const io = getIo();
                 // Emite para a sala específica do chat
                 io.to(chatId.toString()).emit('new_message', formattedSentMessage);
-                console.log(`Mensagem emitida para a sala ${chatId}`);
+                console.log('Mensagem emitida via WebSocket para o chat:', chatId, formattedSentMessage);
             } catch (wsError) {
                 console.error("Erro ao emitir mensagem via WebSocket:", wsError);
                 // Não falha a requisição HTTP por causa do WS, mas loga o erro.
@@ -374,9 +371,10 @@ module.exports = class ChatController {
             let otherUser = null;
             if (otherUserRef) {
                 otherUser = await User.findByPk(otherUserRef.id, {
-                    attributes: ['id', 'name', 'description']
+                    attributes: ['id', 'name', 'description', 'city']
                 });
             }
+            console.log('otherUser passado para chat-header:', otherUser);
             // Busca mensagens do chat
             const messages = await Message.findAll({
                 where: { chatid: chatId },
@@ -403,6 +401,7 @@ module.exports = class ChatController {
                     if (err) reject(err); else resolve(html);
                 });
             });
+            console.log('otherUser passado para profile:', otherUser);
             const profileHtml = await new Promise((resolve, reject) => {
                 res.render('partials/profile', { otherUser, layout: false }, (err, html) => {
                     if (err) reject(err); else resolve(html);
