@@ -6,13 +6,16 @@ const AgendaController = require('../controllers/AgendaController');
 
 // Rotas da agenda
 router.get('/agenda/:id', AgendaController.showAgenda);
-router.get('/agenda/services/:id', AgendaController.getServices);
-router.post('/agenda/notes', checkAuth, AgendaController.saveNotes);
-router.post('/agenda/proposal', checkAuth, AgendaController.sendProposal);
-router.get('/agenda/proposals', checkAuth, AgendaController.getProposals);
-router.post('/agenda/proposals/:id/respond', checkAuth, AgendaController.respondToProposal);
-router.post('/agenda/services', checkAuth, AgendaController.createService);
-router.put('/agenda/services/:id', checkAuth, AgendaController.updateService);
-router.delete('/agenda/services/:id', checkAuth, AgendaController.deleteService);
+router.get('/agenda/servicos/:id', AgendaController.getServices);
+router.get('/agenda/propostas/:id', AgendaController.getProposals);
+
+router.put('/agenda/salvar-anotacao/:id', checkAuth, AgendaController.saveNotes);
+router.post('/agenda/enviar-proposta', checkAuth, AgendaController.sendProposal);
+router.post('/agenda/proposta/resposta/:id', checkAuth, AgendaController.respondToProposal);
+router.post('/agenda/criar-servico', checkAuth, AgendaController.createService);
+
+router.put('/agenda/servico/:id', checkAuth, AgendaController.updateService);
+router.delete('/agenda/servico/:id', checkAuth, AgendaController.deleteService);
 
 module.exports = router;
+

@@ -1,318 +1,333 @@
-/* Estilos para a página de agenda */
+:root {
+    --primary-color: #6a0dad;
+    /* Roxo */
+    --primary-dark-color: #5a099d;
+    --secondary-color: #ffd700;
+    /* Dourado */
+    --background-light: #f4f7f6;
+    --background-card: #ffffff;
+    --text-color: #333;
+    --text-light: #555;
+    --border-color: #e0e0e0;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --info-color: #007bff;
+    --warning-color: #ffc107;
+
+    /* Cores do Modal (pode ser as mesmas do seu projeto) */
+    --modal-bg: #ffffff;
+    --modal-border: #ccc;
+    --modal-shadow: rgba(0, 0, 0, 0.2);
+    --modal-overlay-bg: rgba(0, 0, 0, 0.6);
+    --modal-close-btn-color: #888;
+}
+
 .all {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     margin: 0;
-    background-color: #f0f2f5;
+    padding: 0;
+    line-height: 1.6;
+}
+
+.container-agenda {
     display: flex;
     justify-content: center;
     padding: 20px;
-    min-height: 100vh;
-    box-sizing: border-box;
-}
-
-/* Container principal */
-.page-wrapper {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 1200px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.main-title {
-    color: #8c7ae6;
-    text-align: center;
-    margin-bottom: 25px;
-    font-size: 28px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-/* Container da agenda */
-.agenda-content {
-    display: flex;
     gap: 20px;
-    flex-grow: 1;
-    min-height: 0;
+    flex-wrap: wrap;
+    /* Permite que as colunas quebrem em telas menores */
 }
 
-/* Seção do calendário */
-.calendar-section {
-    flex: 0 0 400px;
-    background-color: #fcfcfc;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+/* Garante que a coluna ocupe a largura total quando for a única no contêiner */
+.container-agenda>.column:only-child {
+    max-width: 80%;
+    /* Remove a restrição de largura máxima de 400px */
+    width: 100%;
+    /* Permite que ocupe toda a largura disponível */
+}
+
+/* Quando a coluna de serviços agendados é a única e visível, organize seus cards em grid */
+.container-agenda>.column:only-child #scheduled-services-list {
+    display: grid;
+    /* grid-template-columns: Cria 3 colunas com largura flexível, mas mínima de 300px.
+auto-fit: Faz com que as colunas se ajustem ao espaço disponível, preenchendo a linha. */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    /* Espaço entre os cards no grid */
+
+    /* Mantém a altura máxima e o scroll como antes */
+    max-height: 640px;
+    /* (160px de altura por card * 4 cards empilhados) - Reajuste conforme a altura real do seu card */
+    overflow-y: auto;
+}
+
+/* Remova a margem inferior dos cards dentro do grid, pois o 'gap' já gerencia o espaçamento */
+.container-agenda>.column:only-child #scheduled-services-list .card {
+    margin-bottom: 0;
+}
+
+.column {
+    background-color: var(--background-card);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    padding: 25px;
+    flex: 1;
+    /* Permite que as colunas cresçam e encolham */
+    min-width: 300px;
+    /* Largura mínima para evitar que fiquem muito estreitas */
+    max-width: 500px;
+    /* Largura máxima para colunas em telas grandes */
     display: flex;
     flex-direction: column;
 }
 
-.calendar-header {
+.column-header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+/* Container para o título e o botão no cabeçalho da coluna */
+.column-header-container {
     display: flex;
     justify-content: space-between;
+    /* Espaça o título e o botão */
     align-items: center;
+    /* Alinha verticalmente */
     margin-bottom: 20px;
+    /* Mantém a margem inferior */
+    border-bottom: 2px solid var(--border-color);
+    /* Mantém a linha de baixo */
+    padding-bottom: 10px;
+    /* Mantém o padding da linha */
+
 }
 
-.calendar-header h2 {
+/* Estilo para o título dentro do novo contêiner */
+.column-header-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
     margin: 0;
-    font-size: 24px;
-    color: #8c7ae6;
-    font-weight: bold;
-    text-align: center;
+    /* Remove margem padrão do h2 */
+}
+
+/* Ajuste a regra existente se você tinha um .column-header sem o -title */
+/* Se a sua regra .column-header atual já era apenas para o texto, pode remover */
+/* Caso contrário, renomeie o h2 na coluna de anotações e propostas para column-header-title também,
+ou crie uma regra mais específica para eles, ex: #notes-column .column-header */
+
+/* Estilos para o botão "Enviar Proposta" (já deve herdar de .btn e .btn-primary) */
+#send-proposal-btn {
+    white-space: nowrap;
+    /* Evita que o texto do botão quebre em várias linhas */
+}
+
+/* Media query para ajustar o botão em telas menores, se necessário */
+@media (max-width: 480px) {
+    .column-header-container {
+        flex-direction: column;
+        /* Empilha título e botão em telas muito pequenas */
+        align-items: flex-start;
+        gap: 10px;
+        /* Espaço entre eles quando empilhados */
+    }
+}
+
+.card-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    /* Esta é a linha chave para o scroll */
+    max-height: 640px;
+    /* (160px de altura por card * 4 cards) - Ajuste este valor! */
+    overflow-y: auto;
+    /* Adiciona scroll vertical apenas quando o conteúdo excede max-height */
     flex-grow: 1;
+    /* Mantém o crescimento da lista dentro da coluna */
+
+    /* Opcional: Estilize a barra de rolagem */
+    scrollbar-width: thin;
+    /* Para Firefox */
+    scrollbar-color: var(--primary-color) var(--background-light);
+    /* Para Firefox */
 }
 
-.calendar-header button {
-    background: none;
-    border: 1px solid #d1c4e9;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    color: #8c7ae6;
-    font-size: 20px;
-    transition: background-color 0.2s, color 0.2s;
+/* Opcional: Estilizar a barra de rolagem para navegadores WebKit (Chrome, Safari) */
+.card-list::-webkit-scrollbar {
+    width: 8px;
+    /* Largura da barra de rolagem */
 }
 
-.calendar-header button:hover {
-    background-color: #8c7ae6;
-    color: white;
+.card-list::-webkit-scrollbar-track {
+    background: var(--background-light);
+    /* Cor do fundo da trilha */
+    border-radius: 10px;
 }
 
-.calendar-weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    text-align: center;
-    font-weight: bold;
-    color: #555;
-    margin-bottom: 10px;
+.card-list::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    /* Cor da "alça" da barra de rolagem */
+    border-radius: 10px;
+    border: 2px solid var(--background-light);
+    /* Borda para dar um efeito 3D */
 }
 
-.calendar-weekdays div {
-    padding: 8px 0;
-}
-
-.calendar-days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    text-align: center;
-    flex-grow: 1;
-}
-
-.calendar-day {
-    padding: 10px 0;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-    position: relative;
-}
-
-.calendar-day.empty {
-    cursor: default;
-    background-color: transparent;
-    color: #ccc;
-}
-
-.calendar-day:not(.empty):hover {
-    background-color: #e6e6fa;
-}
-
-.calendar-day.selected {
-    background-color: #8c7ae6;
-    color: white;
-}
-
-.calendar-day.has-notes::before {
-    content: '';
-    position: absolute;
-    bottom: 3px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 6px;
-    height: 6px;
-    background-color: #4CAF50;
-    border-radius: 50%;
-}
-
-.legend {
-    margin-top: 30px;
+.card {
+    background-color: var(--background-light);
+    border-radius: 8px;
     padding: 15px;
-    background-color: #e0e0e0;
-    border-radius: 8px;
-    font-size: 14px;
-    color: #555;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    position: relative;
+    /* Para o status */
 }
 
-.legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px var(--shadow-light);
+    border-color: var(--primary-color);
 }
 
-.legend-color-box {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    margin-right: 10px;
+.card.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color);
+    transform: translateY(-1px);
 }
 
-.legend-color-box.has-notes {
-    background-color: #4CAF50;
+.card h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    color: var(--text-color);
 }
 
-.legend-color-box.selected-day {
-    background-color: #8c7ae6;
+.card p {
+    margin: 4px 0;
+    font-size: 0.9rem;
+    color: var(--text-light);
 }
 
-/* Seção de detalhes */
-.details-section {
-    flex-grow: 1;
-    background-color: #fcfcfc;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
-    min-height: 400px;
-}
-
-.details-header {
+.card-meta {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color);
 }
 
-.details-header h3 {
-    margin: 0;
-    font-size: 20px;
-    color: #333;
+.card-price {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 1rem;
+    margin-top: 5px;
 }
 
-.action-buttons {
+.card-actions {
     display: flex;
     gap: 10px;
+    margin-top: 15px;
+    justify-content: flex-end;
 }
 
 .btn {
     padding: 8px 15px;
+    border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-    border: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
 }
 
 .btn-primary {
-    background-color: #8c7ae6;
+    background-color: var(--primary-color);
     color: white;
 }
 
 .btn-primary:hover {
-    background-color: #7a6bc7;
+    background-color: var(--primary-dark-color);
+    transform: translateY(-1px);
 }
 
-.btn-outline {
-    background-color: transparent;
-    border: 1px solid #8c7ae6;
-    color: #8c7ae6;
-}
-
-.btn-outline:hover {
-    background-color: #f0ebff;
-}
-
-.btn-purple {
-    color: #8c7ae6;
-}
-
-.service-list {
+/* Estilos específicos para a coluna de anotações */
+.notes-area {
     flex-grow: 1;
-    overflow-y: auto;
-    padding-right: 10px;
-    -webkit-overflow-scrolling: touch;
-}
-
-.service-card {
-    background-color: #f9f9f9;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.service-card h4 {
-    margin: 0 0 10px 0;
-    font-size: 18px;
-    color: #333;
-}
-
-.service-card p {
-    margin: 5px 0;
-    font-size: 14px;
-    color: #555;
-}
-
-.service-card .tags {
+    /* Permite que o textarea preencha o espaço */
     display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-top: 10px;
+    flex-direction: column;
 }
 
-.service-card .tag {
-    background-color: #e0e0e0;
-    color: #555;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 12px;
+.notes-area label {
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    color: var(--primary-color);
 }
 
-.service-card .service-notes {
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px dashed #eee;
-}
-
-.service-card textarea {
-    width: calc(100% - 20px);
-    min-height: 80px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+.notes-area textarea {
+    width: 100%;
+    flex-grow: 1;
+    /* Permite que o textarea cresça */
+    min-height: 150px;
+    /* Altura mínima para o textarea */
     padding: 10px;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
     resize: vertical;
-    margin-top: 10px;
+    /* Permite redimensionar verticalmente */
     box-sizing: border-box;
+    /* Garante que padding e border sejam incluídos na largura/altura */
 }
 
-.no-services-message {
-    font-style: italic;
-    color: #999;
+.notes-area .btn-container {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.notes-area #no-service-selected {
+    color: var(--text-light);
     text-align: center;
-    padding: 20px;
+    margin-top: 50px;
 }
 
-/* Estilos para o modal */
+/* --- Estilos do Modal de Visualização --- */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    background-color: var(--modal-overlay-bg);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -322,127 +337,206 @@
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.modal-overlay.is-visible {
+.modal-overlay.active {
     opacity: 1;
     visibility: visible;
 }
 
-.modal {
-    background-color: white;
-    border-radius: 8px;
-    padding: 25px;
+.modal-view {
+    background-color: var(--modal-bg);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 5px 20px var(--modal-shadow);
     width: 90%;
     max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
+    box-sizing: border-box;
+    transform: translateY(-20px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
     position: relative;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.modal h2 {
-    margin-top: 0;
-    color: #333;
-    font-size: 24px;
+.modal-view.active {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.modal-view .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.modal-view h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: var(--primary-color);
+}
+
+.modal-view .modal-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: var(--modal-close-btn-color);
+    transition: color 0.2s ease;
+}
+
+.modal-view .modal-close-btn:hover {
+    color: var(--text-color);
+}
+
+.modal-view .modal-body p {
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+
+.modal-view .modal-body p strong {
+    color: var(--text-color);
+}
+
+.modal-view .modal-body .modal-price {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-top: 15px;
+    text-align: right;
+}
+
+.modal-view .modal-footer {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    /* Alinha botões à direita */
+    gap: 10px;
+}
+
+/* --- Estilos para o Modal de Envio de Proposta --- */
+
+/* O .modal-overlay já está definido, basta aplicá-lo a este novo ID */
+#send-proposal-modal-overlay {
+    /* Herda de .modal-overlay */
+}
+
+.modal-send-proposal {
+    background-color: var(--modal-bg);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 5px 20px var(--modal-shadow);
+    width: 90%;
+    max-width: 600px;
+    /* Um pouco maior para o formulário */
+    box-sizing: border-box;
+    transform: translateY(-20px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    position: relative;
+    /* Para o botão de fechar */
+}
+
+.modal-send-proposal.active {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.modal-send-proposal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.modal-send-proposal h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: var(--primary-color);
+}
+
+.modal-send-proposal .modal-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: var(--modal-close-btn-color);
+    transition: color 0.2s ease;
+}
+
+.modal-send-proposal .modal-close-btn:hover {
+    color: var(--text-color);
+}
+
+.modal-send-proposal .modal-body {
     margin-bottom: 20px;
 }
 
-.modal-close-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #999;
-}
-
-.form-group {
+.modal-send-proposal .form-group {
     margin-bottom: 15px;
 }
 
-.form-group label {
+.modal-send-proposal .form-group label {
     display: block;
     margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
+    font-weight: 500;
+    color: var(--text-color);
 }
 
-.form-group input,
-.form-group textarea {
+.modal-send-proposal .form-group input[type="text"],
+.modal-send-proposal .form-group input[type="date"],
+.modal-send-proposal .form-group input[type="time"],
+.modal-send-proposal .form-group input[type="number"],
+.modal-send-proposal .form-group textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
     box-sizing: border-box;
+    /* Garante que padding e border sejam incluídos na largura */
 }
 
-.form-group textarea {
-    min-height: 100px;
+.modal-send-proposal .form-group textarea {
     resize: vertical;
+    /* Permite redimensionar verticalmente */
 }
 
-.button-group {
+.modal-send-proposal .modal-footer {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 20px;
-}
-
-/* Estilos para notificações toast */
-.toast {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #4CAF50;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 1100;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.toast.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.toast.success {
-    background-color: #4CAF50;
-}
-
-.toast.warning {
-    background-color: #ff9800;
-}
-
-.toast.error {
-    background-color: #f44336;
-}
-
-.toast svg {
-    width: 20px;
-    height: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
 }
 
 /* Responsividade */
+@media (max-width: 1024px) {
+    .column {
+        max-width: 100%;
+        /* Em telas menores, ocupam a largura total */
+    }
+}
+
 @media (max-width: 768px) {
-    .agenda-content {
+    .container-agenda {
         flex-direction: column;
+        /* Em telas muito pequenas, as colunas empilham */
+        align-items: center;
     }
 
-    .calendar-section {
-        flex: none;
+    .column {
         width: 100%;
+        max-width: 500px;
+        /* Limita a largura para uma melhor leitura */
     }
 
-    .details-section {
-        margin-top: 20px;
+    .modal-view {
+        padding: 20px;
     }
 }
