@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize')
+const { DataTypes, STRING } = require('sequelize')
 
 const db = require('../db/conn')
 
@@ -40,7 +40,19 @@ const User = db.define('User',
             validate: {
                 len: [0, 500]
             }
-        }
+        },
+        instagram: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+        },
+        facebook: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+        },
+        linkedin: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+        },
     })
 
 module.exports = User

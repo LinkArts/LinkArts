@@ -20,14 +20,6 @@
         </div>
       </div>
       <div class="profile-actions">
-        <a href="{{artist.profile.socialMediaUrl}}" class="btn btn-outline" target="_blank" rel="noopener noreferrer">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-          </svg>
-          Social Media & Links
-        </a>
         <a href="/agenda/{{values.id}}" class="btn btn-outline">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -53,12 +45,47 @@
           </svg>
           Abrir Chat
         </button>
+        <button id="report-profile-btn" class="btn btn-outline" data-user-id="{{values.id}}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3l18 18M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          Denunciar Perfil
+        </button>
         {{/if}}
       </div>
     </section>
 
     <section class="about-section">
-      <h2>Sobre {{artist.name}}</h2>
+      <div class="about-header">
+        <h2>Sobre </h2>
+        <div class="social-icons">
+          {{#if values.linkedin}}
+          <a href="{{values.linkedin}}" target="_blank" rel="noopener noreferrer" class="social-icon linkedin" aria-label="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+              <rect width="4" height="12" x="2" y="9"/>
+              <circle cx="4" cy="4" r="2"/>
+            </svg>
+          </a>
+          {{/if}}
+          {{#if values.instagram}}
+          <a href="{{values.instagram}}" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+              <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+            </svg>
+          </a>
+          {{/if}}
+          {{#if values.facebook}}
+          <a href="{{values.facebook}}" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            </svg>
+          </a>
+          {{/if}}
+        </div>
+      </div>
       <p id="profile-about">{{#if values.description}}{{values.description}}{{else}}Descrição não informada.{{/if}}</p>
       <div class="tags">
         {{#each values.tags}}
@@ -170,6 +197,7 @@
       addMusicBtn: document.getElementById('add-music-action-button'),
       addAlbumBtn: document.getElementById('add-album-action-button'),
       editProfileBtn: document.getElementById('edit-profile-btn'),
+      reportProfileBtn: document.getElementById('report-profile-btn'),
 
       musicContainer: document.querySelector('.music-container'),
       albumContainer: document.querySelector('.albums-container'),
@@ -418,6 +446,14 @@
             <div class="form-group"><label for="edit-profile-location">Localização</label><input type="text" id="edit-profile-location" required></div>
             <div class="form-group"><label for="edit-profile-about">Sobre</label><textarea id="edit-profile-about" rows="4" required></textarea></div>
             <div class="form-group"><label for="edit-profile-image-url">URL Imagem Perfil</label><input type="url" id="edit-profile-image-url" placeholder="https://..."></div>
+            
+            <div class="form-section">
+              <h3>Redes Sociais</h3>
+              <div class="form-group"><label for="edit-profile-linkedin">LinkedIn</label><input type="url" id="edit-profile-linkedin" placeholder="https://linkedin.com/in/seu-perfil"></div>
+              <div class="form-group"><label for="edit-profile-instagram">Instagram</label><input type="url" id="edit-profile-instagram" placeholder="https://instagram.com/seu-perfil"></div>
+              <div class="form-group"><label for="edit-profile-facebook">Facebook</label><input type="url" id="edit-profile-facebook" placeholder="https://facebook.com/seu-perfil"></div>
+            </div>
+            
             <div class="button-group">
               <button type="button" class="btn btn-cancel">Cancelar</button>
               <button type="submit" class="btn btn-primary">Salvar</button>
@@ -1072,11 +1108,108 @@
       }
     }
 
+    function getReportModalHTML()
+    {
+      return `
+        <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
+        <h2>Denunciar Perfil</h2>
+        <form id="report-profile-form">
+          <div class="form-group">
+            <label for="report-reason">Motivo da denúncia *</label>
+            <select id="report-reason" name="reason" required>
+              <option value="">Selecione um motivo</option>
+              <option value="spam">Spam ou conteúdo repetitivo</option>
+              <option value="fake">Perfil falso ou enganoso</option>
+              <option value="harassment">Assédio ou bullying</option>
+              <option value="inappropriate">Conteúdo inapropriado</option>
+              <option value="copyright">Violação de direitos autorais</option>
+              <option value="other">Outro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="report-description">Descrição detalhada</label>
+            <textarea id="report-description" name="description" rows="4" placeholder="Descreva o problema em detalhes (opcional)"></textarea>
+          </div>
+          <div class="button-group">
+            <button type="button" class="btn btn-cancel">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Enviar Denúncia</button>
+          </div>
+        </form>
+      `;
+    }
+
+    function setupReportModal()
+    {
+      if (Selectors.reportProfileBtn)
+      {
+        Selectors.reportProfileBtn.addEventListener('click', () =>
+        {
+          const userId = Selectors.reportProfileBtn.dataset.userId;
+          const modalElement = openModal('.report-profile-overlay', 'report-profile-modal', getReportModalHTML(), Selectors.reportProfileBtn);
+          if (!modalElement) return;
+          
+          const form = modalElement.querySelector('#report-profile-form');
+          const reasonSelect = modalElement.querySelector('#report-reason');
+          const descriptionTextarea = modalElement.querySelector('#report-description');
+          
+          form?.addEventListener('submit', async (e) =>
+          {
+            e.preventDefault();
+            
+            const reason = reasonSelect.value;
+            const description = descriptionTextarea.value;
+            
+            if (!reason)
+            {
+              reasonSelect.classList.add('input-error');
+              showToast('Por favor, selecione um motivo para a denúncia.', 'error');
+              return;
+            }
+            
+            try
+            {
+              const response = await fetch('/api/reports', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  reportedUserId: userId,
+                  reason: reason,
+                  description: description
+                })
+              });
+              
+              if (response.ok)
+              {
+                showToast('Denúncia enviada com sucesso. Obrigado por nos ajudar a manter a comunidade segura.', 'success');
+                closeModal(modalElement.closest('.modal-overlay'));
+              } else
+              {
+                const errorData = await response.json();
+                showToast(errorData.message || 'Erro ao enviar denúncia. Tente novamente.', 'error');
+              }
+            } catch (error)
+            {
+              console.error('Erro ao enviar denúncia:', error);
+              showToast('Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+            }
+          });
+          
+          // Remove erro visual quando usuário corrige
+          reasonSelect?.addEventListener('change', () => reasonSelect.classList.remove('input-error'));
+        });
+      } else
+      {
+        console.log("Botão 'Denunciar Perfil' não encontrado (usuário é o proprietário do perfil).");
+      }
+    }
+
     async function setupEditProfileModal()
     {
       if (Selectors.editProfileBtn)
       { // Verifica se o botão existe
-        Selectors.editProfileBtn.addEventListener('click', () =>
+        Selectors.editProfileBtn.addEventListener('click', async () =>
         {
           const requiredElements = [Selectors.profileName/*, Selectors.profileTag*/, Selectors.profileLocation, Selectors.profileAbout, Selectors.profileImage];
           if (requiredElements.some(el => !el))
@@ -1084,112 +1217,180 @@
             showToast("Erro: Elementos do perfil não encontrados na página.", 'error');
             return;
           }
-          const modalElement = openModal('.edit-profile-overlay', 'edit-profile-modal', getEditProfileModalHTML(), Selectors.editProfileBtn);
-          if (!modalElement) return;
-          const form = modalElement.querySelector('#edit-profile-form');
-          const nameInput = modalElement.querySelector('#edit-profile-name');
-          const locationInput = modalElement.querySelector('#edit-profile-location');
-          const aboutInput = modalElement.querySelector('#edit-profile-about');
-          const imageUrlInput = modalElement.querySelector('#edit-profile-image-url');
-          const allInputs = [nameInput, locationInput, aboutInput, imageUrlInput];
-          if (Selectors.profileName) nameInput.value = Selectors.profileName.textContent.trim();
-          if (Selectors.profileTag) tagInput.value = Selectors.profileTag.textContent.trim();
-          if (Selectors.profileLocation) locationInput.value = Selectors.profileLocation.innerText?.trim() || Selectors.profileLocation.textContent.trim();
-          if (Selectors.profileAbout) aboutInput.value = Selectors.profileAbout.textContent.trim();
-          if (Selectors.profileImage) imageUrlInput.value = Selectors.profileImage.src;
-          form?.addEventListener('submit', async (e) =>
-          {
-            e.preventDefault();
-            allInputs.forEach(inp => inp?.classList.remove('input-error'));
-            let isValid = true;
-            let firstInvalid = null;
-            const newName = nameInput.value.trim();
-            const newLocation = locationInput.value.trim();
-            const newAbout = aboutInput.value.trim();
-            const newImageUrl = imageUrlInput.value.trim();
 
-            if (!newName)
-            {
-              isValid = false;
-              nameInput.classList.add('input-error');
-              if (!firstInvalid) firstInvalid = nameInput;
+          try {
+            // Fetch user data from the server
+            const response = await fetch('/profile/user-data');
+            const data = await response.json();
+            
+            if (!response.ok) {
+              throw new Error(data.message || 'Erro ao buscar dados do usuário');
             }
-            if (!newLocation)
+
+            const userData = data.userData;
+            const modalElement = openModal('.edit-profile-overlay', 'edit-profile-modal', getEditProfileModalHTML(), Selectors.editProfileBtn);
+            
+            if (!modalElement) return;
+            
+            const form = modalElement.querySelector('#edit-profile-form');
+            const nameInput = modalElement.querySelector('#edit-profile-name');
+            const locationInput = modalElement.querySelector('#edit-profile-location');
+            const aboutInput = modalElement.querySelector('#edit-profile-about');
+            const imageUrlInput = modalElement.querySelector('#edit-profile-image-url');
+            const linkedinInput = modalElement.querySelector('#edit-profile-linkedin');
+            const instagramInput = modalElement.querySelector('#edit-profile-instagram');
+            const facebookInput = modalElement.querySelector('#edit-profile-facebook');
+            const allInputs = [nameInput, locationInput, aboutInput, imageUrlInput, linkedinInput, instagramInput, facebookInput];
+
+            // Populate form with user data
+            nameInput.value = userData.name || '';
+            locationInput.value = userData.city || '';
+            aboutInput.value = userData.description || '';
+            imageUrlInput.value = userData.imageUrl || '';
+            linkedinInput.value = userData.linkedin || '';
+            instagramInput.value = userData.instagram || '';
+            facebookInput.value = userData.facebook || '';
+
+            form?.addEventListener('submit', async (e) =>
             {
-              isValid = false;
-              locationInput.classList.add('input-error');
-              if (!firstInvalid) firstInvalid = locationInput;
-            }
-            if (!newAbout)
-            {
-              isValid = false;
-              aboutInput.classList.add('input-error');
-              if (!firstInvalid) firstInvalid = aboutInput;
-            }
-            if (newImageUrl)
-            {
-              try
-              {
-                new URL(newImageUrl);
-              } catch
+              e.preventDefault();
+              allInputs.forEach(inp => inp?.classList.remove('input-error'));
+              let isValid = true;
+              let firstInvalid = null;
+              const newName = nameInput.value.trim();
+              const newLocation = locationInput.value.trim();
+              const newAbout = aboutInput.value.trim();
+              const newImageUrl = imageUrlInput.value.trim();
+              const newLinkedin = linkedinInput.value.trim();
+              const newInstagram = instagramInput.value.trim();
+              const newFacebook = facebookInput.value.trim();
+
+              if (!newName)
               {
                 isValid = false;
-                imageUrlInput.classList.add('input-error');
-                showToast('URL da imagem inválida.', 'warning');
-                if (!firstInvalid) firstInvalid = imageUrlInput;
+                nameInput.classList.add('input-error');
+                if (!firstInvalid) firstInvalid = nameInput;
               }
-            }
-            if (!isValid)
-            {
-              showToast('Por favor, corrija os campos inválidos.', 'error');
-              firstInvalid?.focus();
-              return;
-            }
+              if (!newLocation)
+              {
+                isValid = false;
+                locationInput.classList.add('input-error');
+                if (!firstInvalid) firstInvalid = locationInput;
+              }
+              if (!newAbout)
+              {
+                isValid = false;
+                aboutInput.classList.add('input-error');
+                if (!firstInvalid) firstInvalid = aboutInput;
+              }
+              if (newImageUrl)
+              {
+                try
+                {
+                  new URL(newImageUrl);
+                } catch
+                {
+                  isValid = false;
+                  imageUrlInput.classList.add('input-error');
+                  showToast('URL da imagem inválida.', 'warning');
+                  if (!firstInvalid) firstInvalid = imageUrlInput;
+                }
+              }
+              if (!isValid)
+              {
+                showToast('Por favor, corrija os campos inválidos.', 'error');
+                firstInvalid?.focus();
+                return;
+              }
 
-            try
-            {
-
-              const response = await fetch('/profile/alterar-perfil', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  name: newName,
-                  city: newLocation,
-                  description: newAbout,
+              try
+              {
+                const response = await fetch('/profile/alterar-perfil', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    name: newName,
+                    city: newLocation,
+                    description: newAbout,
+                    linkedin: newLinkedin,
+                    instagram: newInstagram,
+                    facebook: newFacebook
+                  })
                 })
-              })
-              const res = await response.json();
+                const res = await response.json();
 
-              if (Selectors.profileName) Selectors.profileName.textContent = newName;
-              if (Selectors.profileLocation) Selectors.profileLocation.innerText = newLocation;
-              if (Selectors.profileAbout) Selectors.profileAbout.textContent = newAbout;
-              const oldImageUrl = Selectors.profileImage ? Selectors.profileImage.src : null;
-              if (Selectors.profileImage && newImageUrl && newImageUrl !== oldImageUrl)
-              {
-                Selectors.profileImage.src = newImageUrl;
-                Selectors.profileImage.alt = `Foto de ${ newName }`;
-                Selectors.profileImage.onerror = () =>
+                if (Selectors.profileName) Selectors.profileName.textContent = newName;
+                if (Selectors.profileLocation) Selectors.profileLocation.innerText = newLocation;
+                if (Selectors.profileAbout) Selectors.profileAbout.textContent = newAbout;
+                const oldImageUrl = Selectors.profileImage ? Selectors.profileImage.src : null;
+                if (Selectors.profileImage && newImageUrl && newImageUrl !== oldImageUrl)
                 {
-                  if (oldImageUrl) Selectors.profileImage.src = oldImageUrl;
-                  Selectors.profileImage.onerror = null;
-                };
-                Selectors.profileImage.onload = () =>
+                  Selectors.profileImage.src = newImageUrl;
+                  Selectors.profileImage.alt = `Foto de ${ newName }`;
+                  Selectors.profileImage.onerror = () =>
+                  {
+                    if (oldImageUrl) Selectors.profileImage.src = oldImageUrl;
+                    Selectors.profileImage.onerror = null;
+                  };
+                  Selectors.profileImage.onload = () =>
+                  {
+                    Selectors.profileImage.onerror = null;
+                  };
+                } else if (Selectors.profileImage && !newImageUrl && oldImageUrl)
                 {
-                  Selectors.profileImage.onerror = null;
-                };
-              } else if (Selectors.profileImage && !newImageUrl && oldImageUrl)
-              {
-                console.log("Profile image URL cleared.");
+                  console.log("Profile image URL cleared.");
+                }
+
+                // Update social media icons
+                const socialIconsContainer = document.querySelector('.social-icons');
+                if (socialIconsContainer) {
+                  socialIconsContainer.innerHTML = '';
+                  
+                  if (newLinkedin) {
+                    socialIconsContainer.innerHTML += `
+                      <a href="${newLinkedin}" target="_blank" rel="noopener noreferrer" class="social-icon linkedin" aria-label="LinkedIn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                          <rect width="4" height="12" x="2" y="9"/>
+                          <circle cx="4" cy="4" r="2"/>
+                        </svg>
+                      </a>`;
+                  }
+                  
+                  if (newInstagram) {
+                    socialIconsContainer.innerHTML += `
+                      <a href="${newInstagram}" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                          <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                          <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                        </svg>
+                      </a>`;
+                  }
+                  
+                  if (newFacebook) {
+                    socialIconsContainer.innerHTML += `
+                      <a href="${newFacebook}" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                        </svg>
+                      </a>`;
+                  }
+                }
+
+                showToast('Perfil atualizado com sucesso!', 'success');
+                closeModal(modalElement.closest('.modal-overlay'));
               }
-              showToast('Perfil atualizado com sucesso!', 'success');
-              closeModal(modalElement.closest('.modal-overlay'));
-            }
-            catch (error)
-            {
-              showToast('Erro na função hein!', 'error');
-            }
-          });
-          allInputs.forEach(input => input?.addEventListener('input', () => input.classList.remove('input-error')));
+              catch (error)
+              {
+                showToast('Erro ao atualizar perfil!', 'error');
+              }
+            });
+            allInputs.forEach(input => input?.addEventListener('input', () => input.classList.remove('input-error')));
+          } catch (error) {
+            console.error('Erro ao carregar dados do usuário:', error);
+            showToast('Erro ao carregar dados do usuário', 'error');
+          }
         });
       } else
       {
@@ -1233,6 +1434,7 @@
       setupAddMusicModal();
       setupAddAlbumModal();
       setupEditProfileModal();
+      setupReportModal();
 
       console.log("Initialization complete.");
     }

@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
 
-const { User, Artist, Establishment, Album, Music, Genre, Tag, Event, ServiceRequest } = require('../models/index');
+const { User, Artist, Establishment, Album, Music, Genre, Tag, Event, ServiceRequest, Service } = require('../models/index');
 
 module.exports = class DashboardController
 {
@@ -18,13 +18,20 @@ module.exports = class DashboardController
                     }]
                 })
 
+                console.log(isArtist)
+            const agendados = await Service.findAll({ where: { userId: isArtist.userid } })
+            console.log(agendados)
+
             const services = await ServiceRequest.findAll()
             const establishmentPlain = establishments.map(x => x.User.toJSON())
             const servicesPlain = services.map(x => x.toJSON())
+            const agendadosPlain = agendados.map(x => x.toJSON())
+            console.log(agendadosPlain)
 
             const userInfo = {
                 establishments: establishmentPlain,
-                services: servicesPlain
+                services: servicesPlain,
+                agendados: agendadosPlain
             }
 
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' })
@@ -38,8 +45,8 @@ module.exports = class DashboardController
                 {
                     include: [{
                         model: User,
-                        attributes: { exclude: 'password' }
-                    }]
+                        attributes: { exclude: 'password' },
+                    }],
                 })
 
 
@@ -47,7 +54,6 @@ module.exports = class DashboardController
             {
                 artists: artists.map(x => x.User.toJSON())
             }
-
 
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' })
         }

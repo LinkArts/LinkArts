@@ -412,7 +412,7 @@ module.exports = class ProfileController
     static async updateProfile(req, res)
     {
         const id = req.session.userid
-        const { name, city, description } = req.body
+        const { name, city, description, linkedin, instagram, facebook } = req.body
 
         try
         {
@@ -427,6 +427,9 @@ module.exports = class ProfileController
                 name: name,
                 city: city,
                 description: description,
+                instagram: instagram,
+                facebook: facebook,
+                linkedin: linkedin
             })
 
             return res.json({ message: `O perfil foi atualizado com sucesso!`, user: user })
@@ -716,6 +719,40 @@ module.exports = class ProfileController
         {
             console.error("Erro ao deletar pedido de serviço:", error)
             return res.status(500).json({ message: "Erro ao deletar pedido de serviço.", error: error.message })
+        }
+    }
+
+    static async getUserData(req, res) {
+        const id = req.session.userid;
+
+        try {
+            const user = await User.findOne({
+                where: { id: id },
+                include: [{
+                    model: Artist,
+                    required: false
+                }],
+                attributes: { exclude: ['password'] }
+            });
+
+            if (!user) {
+                return res.status(404).json({ message: "Usuário não encontrado!" });
+            }
+
+            const userData = {
+                name: user.name,
+                city: user.city,
+                description: user.description,
+                linkedin: user.linkedin,
+                instagram: user.instagram,
+                facebook: user.facebook,
+                imageUrl: user.imageUrl
+            };
+
+            return res.json({ userData });
+        } catch (error) {
+            console.error("Erro ao buscar dados do usuário:", error);
+            return res.status(500).json({ message: "Erro ao buscar dados do usuário." });
         }
     }
 }

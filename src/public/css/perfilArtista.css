@@ -1356,3 +1356,255 @@ section h2 {
     justify-content: center;
   }
 }
+/* ================================= */
+/* == SOCIAL ICONS                == */
+/* ================================= */
+.about-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.social-icons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+}
+
+.social-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.social-icon.linkedin {
+  background-color: #0077b5;
+  color: white;
+}
+
+.social-icon.linkedin:hover {
+  background-color: #005885;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 119, 181, 0.3);
+}
+
+.social-icon.instagram {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: white;
+}
+
+.social-icon.instagram:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(225, 48, 108, 0.3);
+}
+
+.social-icon.facebook {
+  background-color: #1877f2;
+  color: white;
+}
+
+.social-icon.facebook:hover {
+  background-color: #166fe5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(24, 119, 242, 0.3);
+}
+
+/* ================================= */
+/* == REPORT MODAL                == */
+/* ================================= */
+.report-profile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.report-profile-overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.report-profile-modal {
+  background-color: var(--white);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: var(--modal-shadow);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transform: translateY(-20px);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.report-profile-overlay.is-visible .report-profile-modal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.report-profile-modal h2 {
+  font-size: 1.5em;
+  color: var(--heading-color);
+  margin-bottom: 20px;
+  text-align: center;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 15px;
+}
+
+.report-profile-modal .modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+  padding: 5px;
+  border-radius: 50%;
+  line-height: 1;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.report-profile-modal .modal-close-btn:hover {
+  color: var(--gray-700);
+  transform: rotate(90deg);
+  background-color: var(--gray-100);
+}
+
+.report-profile-modal .form-group {
+  margin-bottom: 20px;
+}
+
+.report-profile-modal .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--heading-color);
+  font-size: 14px;
+}
+
+.report-profile-modal .form-group select,
+.report-profile-modal .form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid var(--input-border-color);
+  border-radius: 6px;
+  background-color: var(--white);
+  color: var(--body-text-color);
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+}
+
+.report-profile-modal .form-group select:focus,
+.report-profile-modal .form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(155, 135, 245, 0.1);
+}
+
+.report-profile-modal .form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.report-profile-modal .form-group .input-error {
+  border-color: var(--error-color);
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.report-profile-modal .button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .about-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .social-icons {
+    align-self: flex-start;
+  }
+  
+  .report-profile-modal {
+    margin: 20px;
+    width: calc(100% - 40px);
+  }
+  
+  .report-profile-modal .button-group {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
+
+
+/* ================================= */
+/* == EDIT PROFILE MODAL SECTIONS == */
+/* ================================= */
+.form-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.form-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--heading-color);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-section h3::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-color: var(--primary-color);
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>');
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  flex-shrink: 0;
+}
+
