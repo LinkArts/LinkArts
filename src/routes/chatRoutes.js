@@ -67,8 +67,23 @@ router.post(
 router.get(
     "/api/chats/:chatId/html",
     checkAuth,
+    [
+        param("chatId").isInt({ min: 1 }).withMessage("ID do chat inválido."),
+    ],
+    handleValidationErrors,
     ChatController.getChatHtml
 );
 
-module.exports = router;
+// Rota para indicar que o usuário está digitando
+router.post(
+    "/api/chats/:chatId/typing",
+    checkAuth,
+    [
+        param("chatId").isInt({ min: 1 }).withMessage("ID do chat inválido."),
+        body("isTyping").isBoolean().withMessage("isTyping deve ser um valor booleano."),
+    ],
+    handleValidationErrors,
+    ChatController.setTypingStatus
+);
 
+module.exports = router;

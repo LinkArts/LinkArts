@@ -79,6 +79,18 @@ app.engine(
       {
         const colors = ["FFA500", "008000", "FFC0CB", "0000FF", "800080", "FF0000", "4B0082"];
         return colors[Math.floor(Math.random() * colors.length)];
+      },
+      // Helper substring para truncar strings com validação
+      substring: function(str, start, length) {
+        if (!str || typeof str !== 'string') return "";
+        try {
+          if (typeof start !== 'number' || start < 0) start = 0;
+          if (typeof length !== 'number' || length < 0) return str.substring(start);
+          return str.substring(start, start + length);
+        } catch (e) {
+          console.error("Erro no helper substring:", e);
+          return "";
+        }
       }
     },
     partialsDir: path.join(__dirname, "views", "partials"),

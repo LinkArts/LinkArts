@@ -1,20 +1,68 @@
 {{#if otherUser}}
 <div class="profile-header">
     <div class="profile-avatar" style="width:80px;height:80px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2em;">
-        {{#if otherUser.name}}{{otherUser.name.[0]}}{{else}}<span>?</span>{{/if}}
+        {{#if otherUser.name}}{{#if (substring otherUser.name 0 1)}}{{substring otherUser.name 0 1}}{{else}}U{{/if}}{{else}}<span>?</span>{{/if}}
     </div>
     <div class="profile-name">{{#if otherUser.name}}{{otherUser.name}}{{else}}Usuário desconhecido{{/if}}</div>
-    <div class="profile-profession">Usuário</div>
-    <div class="profile-location">{{#if otherUser.city}}{{otherUser.city}}{{else}}Localização não informada{{/if}}</div>
+    <div class="profile-profession">{{#if otherUser.profession}}{{otherUser.profession}}{{else}}Usuário{{/if}}</div>
+    <div class="profile-location">
+        {{#if otherUser.city}}
+            {{otherUser.city}}{{#if otherUser.state}}, {{otherUser.state}}{{/if}}
+        {{else}}
+            Localização não informada
+        {{/if}}
+    </div>
 </div>
 <div class="profile-divider"></div>
 <div class="profile-bio">
     <div class="bio-title">Biografia</div>
-    <div class="bio-text">{{#if otherUser.description}}{{otherUser.description}}{{else}}Sem descrição.{{/if}}</div>
+    <div class="bio-text">{{#if otherUser.description}}{{otherUser.description}}{{else}}Sem descrição disponível.{{/if}}</div>
 </div>
+{{#if otherUser.userType}}
 <div class="profile-tags">
-    <div class="profile-tag">Usuário</div>
+    <div class="profile-tag">{{otherUser.profession}}</div>
+    {{#if (eq otherUser.userType "artist")}}
+        <div class="profile-tag">Artista</div>
+    {{else if (eq otherUser.userType "establishment")}}
+        <div class="profile-tag">Estabelecimento</div>
+    {{else}}
+        <div class="profile-tag">Usuário</div>
+    {{/if}}
+</div>
+{{/if}}
+{{#if otherUser.instagram}}
+<div class="profile-social">
+    <div class="social-title">Redes Sociais</div>
+    <div class="social-links">
+        {{#if otherUser.instagram}}
+            <a href="https://instagram.com/{{otherUser.instagram}}" target="_blank" class="social-link">
+                <span>📷</span> Instagram
+            </a>
+        {{/if}}
+        {{#if otherUser.facebook}}
+            <a href="https://facebook.com/{{otherUser.facebook}}" target="_blank" class="social-link">
+                <span>📘</span> Facebook
+            </a>
+        {{/if}}
+        {{#if otherUser.linkedin}}
+            <a href="https://linkedin.com/in/{{otherUser.linkedin}}" target="_blank" class="social-link">
+                <span>💼</span> LinkedIn
+            </a>
+        {{/if}}
+    </div>
+</div>
+{{/if}}
+<div class="profile-actions" style="margin-top: 20px;">
+    <button class="profile-action-btn" onclick="window.open('/profile/{{otherUser.id}}', '_blank')" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        Ver Perfil Completo
+    </button>
 </div>
 {{else}}
-<p>Selecione uma conversa para ver o perfil.</p>
-{{/if}} 
+<div class="profile-placeholder">
+    <p>Selecione uma conversa para ver o perfil.</p>
+    <div style="text-align: center; margin-top: 20px; opacity: 0.5;">
+        <div style="width: 60px; height: 60px; background: #f0f0f0; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5em;">?</div>
+        <p style="margin: 0; color: #888;">Nenhum usuário selecionado</p>
+    </div>
+</div>
+{{/if}}
