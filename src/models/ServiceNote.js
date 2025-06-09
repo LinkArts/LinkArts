@@ -7,13 +7,9 @@ const ServiceNote = db.define('ServiceNote', {
         primaryKey: true,
         autoIncrement: true
     },
-    serviceId: {
+    serviceid: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Services',
-            key: 'id'
-        }
+        allowNull: false
     },
     content: {
         type: DataTypes.TEXT,

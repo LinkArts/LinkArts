@@ -7,21 +7,13 @@ const ServiceProposal = db.define('ServiceProposal', {
         primaryKey: true,
         autoIncrement: true
     },
-    userId: {
+    userid: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
+        allowNull: false
     },
-    senderUserId: {
+    senderUserid: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
+        allowNull: false
     },
     name: {
         type: DataTypes.STRING(100),

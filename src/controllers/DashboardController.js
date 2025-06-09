@@ -18,15 +18,12 @@ module.exports = class DashboardController
                     }]
                 })
 
-                console.log(isArtist)
-            const agendados = await Service.findAll({ where: { userId: isArtist.userid } })
-            console.log(agendados)
+            const agendados = await Service.findAll({ where: { userid: isArtist.userid } })
 
             const services = await ServiceRequest.findAll()
             const establishmentPlain = establishments.map(x => x.User.toJSON())
             const servicesPlain = services.map(x => x.toJSON())
             const agendadosPlain = agendados.map(x => x.toJSON())
-            console.log(agendadosPlain)
 
             const userInfo = {
                 establishments: establishmentPlain,

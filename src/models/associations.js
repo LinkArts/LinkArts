@@ -163,17 +163,65 @@ module.exports = function setupAssociations(models)
         as: 'ServiceRequests'
     })
 
-    Service.belongsTo(User, { foreignKey: 'userId' });
-    User.hasMany(Service, { foreignKey: 'userId' });
+    Service.belongsTo(User, { 
+        foreignKey: 'userid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+    User.hasMany(Service, { 
+        foreignKey: 'userid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
 
-    Service.belongsToMany(Tag, { through: 'ServiceTags' });
-    Tag.belongsToMany(Service, { through: 'ServiceTags' });
+    Service.belongsToMany(Tag, { 
+        foreignKey: 'serviceid',
+        otherKey: 'tagid',
+        through: 'ServiceTags',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+    Tag.belongsToMany(Service, { 
+        foreignKey: 'tagid',
+        otherKey: 'serviceid',
+        through: 'ServiceTags',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
 
-    Service.hasMany(ServiceNote, { foreignKey: 'serviceId' });
-    ServiceNote.belongsTo(Service, { foreignKey: 'serviceId' });
+    Service.hasMany(ServiceNote, { 
+        foreignKey: 'serviceid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+    ServiceNote.belongsTo(Service, { 
+        foreignKey: 'serviceid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
 
-    ServiceProposal.belongsTo(User, { as: 'Receiver', foreignKey: 'userId' });
-    ServiceProposal.belongsTo(User, { as: 'Sender', foreignKey: 'senderUserId' });
-    User.hasMany(ServiceProposal, { as: 'ReceivedProposals', foreignKey: 'userId' });
-    User.hasMany(ServiceProposal, { as: 'SentProposals', foreignKey: 'senderUserId' });
+    ServiceProposal.belongsTo(User, { 
+        as: 'Receiver', 
+        foreignKey: 'userid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+    ServiceProposal.belongsTo(User, { 
+        as: 'Sender', 
+        foreignKey: 'senderUserid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+    User.hasMany(ServiceProposal, { 
+        as: 'ReceivedProposals', 
+        foreignKey: 'userid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+    User.hasMany(ServiceProposal, { 
+        as: 'SentProposals', 
+        foreignKey: 'senderUserid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
 };

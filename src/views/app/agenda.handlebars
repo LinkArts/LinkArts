@@ -169,7 +169,7 @@
         const sendProposalForm = document.getElementById('send-proposal-form');
         const proposalTagsSelect = document.getElementById('proposal-tags'); // Novo campo Select2
 
-        const id = {{userId}};
+        const id = {{userid}};
         const isOwner = {{isOwner}};
 
         // Variável para controlar qual serviço agendado está selecionado para anotações
@@ -660,7 +660,7 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            userId: id, // ID do usuário que receberá a proposta
+                            userid: id, // ID do usuário que receberá a proposta
                             name: title,
                             description: description,
                             date: date,

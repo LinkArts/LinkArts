@@ -30,7 +30,7 @@ module.exports = class AgendaController
 
             // Buscar todos os serviços do usuário
             const services = await Service.findAll({
-                where: { userId: id },
+                where: { userid: id },
                 include: [
                     { model: Tag, as: 'Tags', required: false },
                     { model: ServiceNote, required: false }
@@ -67,9 +67,6 @@ module.exports = class AgendaController
             // Verificar se o usuário logado é o dono da agenda
             const isOwner = req.session.userid === parseInt(id);
 
-            console.log(allServices);
-
-
             return res.json({
                 services: allServices,
                 isOwner: isOwner
@@ -89,7 +86,7 @@ module.exports = class AgendaController
         console.log("SAVE NOTES!!!");
         const { notes } = req.body;
         const serviceid = req.params.id;
-        const userId = req.session.userid;
+        const userid = req.session.userid;
 
         if (!notes)
         {
@@ -102,7 +99,7 @@ module.exports = class AgendaController
             const service = await Service.findOne({
                 where: {
                     id: serviceid,
-                    userId: userId
+                    userid: userid
                 }
             });
 
@@ -113,7 +110,7 @@ module.exports = class AgendaController
 
             // Verificar se já existe uma anotação para este serviço
             const existingNote = await ServiceNote.findOne({
-                where: { serviceId: serviceid }
+                where: { serviceid: serviceid }
             });
 
             if (existingNote)
@@ -125,7 +122,7 @@ module.exports = class AgendaController
             {
                 // Criar nova anotação
                 await ServiceNote.create({
-                    serviceId: serviceid,
+                    serviceid: serviceid,
                     content: notes
                 });
                 return res.send({ message: "Anotação criada com sucesso" });
@@ -140,11 +137,11 @@ module.exports = class AgendaController
     static async sendProposal(req, res)
     {
         console.log("SEND PROPOSAL!!!");
-        const { userId, date, name, description, price, time } = req.body;
-        const senderUserId = req.session.userid;
+        const { userid, date, name, description, price, time } = req.body;
+        const senderUserid = req.session.userid;
 
         // Validações básicas
-        if (!userId || !date || !name || !description || !price || !time)
+        if (!userid || !date || !name || !description || !price || !time)
         {
             return res.status(400).json({ message: "Todos os campos são obrigatórios!" });
         }
@@ -152,14 +149,14 @@ module.exports = class AgendaController
         try
         {
             // Verificar se o usuário de destino existe
-            const targetUser = await User.findByPk(userId);
+            const targetUser = await User.findByPk(userid);
             if (!targetUser)
             {
                 return res.status(404).json({ message: "Usuário de destino não encontrado!" });
             }
 
             // Verificar se o usuário que está enviando a proposta existe
-            const senderUser = await User.findByPk(senderUserId);
+            const senderUser = await User.findByPk(senderUserid);
             if (!senderUser)
             {
                 return res.status(404).json({ message: "Usuário remetente não encontrado!" });
@@ -167,8 +164,8 @@ module.exports = class AgendaController
 
             // Criar a proposta
             const proposal = await ServiceProposal.create({
-                userId: parseInt(userId),
-                senderUserId: senderUserId,
+                userid: parseInt(userid),
+                senderUserid: senderUserid,
                 date: date,
                 name: name,
                 description: description,
@@ -191,13 +188,13 @@ module.exports = class AgendaController
     static async getProposals(req, res)
     {
         console.log("GET PROPOSALS!!!");
-        const userId = req.session.userid;
+        const userid = req.session.userid;
 
         try
         {
             // Buscar propostas recebidas pelo usuário
             const receivedProposals = await ServiceProposal.findAll({
-                where: { userId: userId },
+                where: { userid: userid },
                 include: [
                     {
                         model: User,
@@ -209,7 +206,7 @@ module.exports = class AgendaController
 
             // Buscar propostas enviadas pelo usuário
             const sentProposals = await ServiceProposal.findAll({
-                where: { senderUserId: userId },
+                where: { senderUserid: userid },
                 include: [
                     {
                         model: User,
@@ -219,7 +216,7 @@ module.exports = class AgendaController
                 ]
             });
 
-            const isOwner = userId === req.session.userid;
+            const isOwner = userid === req.session.userid;
 
             return res.json({
                 received: receivedProposals,
@@ -238,7 +235,7 @@ module.exports = class AgendaController
         console.log("RESPOND TO PROPOSAL!!!");
         const { id } = req.params;
         const { action } = req.body; // 'accept' ou 'reject'
-        const userId = req.session.userid;
+        const userid = req.session.userid;
 
         if (!action || (action !== 'accept' && action !== 'reject'))
         {
@@ -251,7 +248,7 @@ module.exports = class AgendaController
             const proposal = await ServiceProposal.findOne({
                 where: {
                     id: id,
-                    userId: userId // Garantir que a proposta pertence ao usuário
+                    userid: userid // Garantir que a proposta pertence ao usuário
                 }
             });
 
@@ -267,13 +264,13 @@ module.exports = class AgendaController
 
                 // Criar um novo serviço baseado na proposta
                 await Service.create({
-                    userId: userId,
+                    userid: userid,
                     name: proposal.name,
                     description: proposal.description,
                     price: proposal.price,
                     date: proposal.date,
                     time: proposal.time,
-                    establishmentName: `Proposta de ${ proposal.senderUserId }` // Pode ser melhorado buscando o nome do remetente
+                    establishmentName: `Proposta de ${ proposal.senderUserid }` // Pode ser melhorado buscando o nome do remetente
                 });
 
                 return res.json({ message: "Proposta aceita e serviço criado com sucesso!" });
@@ -294,7 +291,7 @@ module.exports = class AgendaController
     {
         console.log("CREATE SERVICE!!!");
         const { name, description, price, date, time, tags } = req.body;
-        const userId = req.session.userid;
+        const userid = req.session.userid;
 
         // Validações básicas
         if (!name || !description || !date)
@@ -306,7 +303,7 @@ module.exports = class AgendaController
         {
             // Criar o serviço
             const service = await Service.create({
-                userId: userId,
+                userid: userid,
                 name: name,
                 description: description,
                 price: price || "Não informado",
@@ -336,7 +333,7 @@ module.exports = class AgendaController
         console.log("UPDATE SERVICE!!!");
         const { id } = req.params;
         const { name, description, price, date, time, tags } = req.body;
-        const userId = req.session.userid;
+        const userid = req.session.userid;
 
         try
         {
@@ -344,7 +341,7 @@ module.exports = class AgendaController
             const service = await Service.findOne({
                 where: {
                     id: id,
-                    userId: userId // Garantir que o serviço pertence ao usuário
+                    userid: userid // Garantir que o serviço pertence ao usuário
                 }
             });
 
@@ -387,7 +384,7 @@ module.exports = class AgendaController
     {
         console.log("DELETE SERVICE!!!");
         const { id } = req.params;
-        const userId = req.session.userid;
+        const userid = req.session.userid;
 
         try
         {
@@ -395,7 +392,7 @@ module.exports = class AgendaController
             const service = await Service.findOne({
                 where: {
                     id: id,
-                    userId: userId // Garantir que o serviço pertence ao usuário
+                    userid: userid // Garantir que o serviço pertence ao usuário
                 }
             });
 
@@ -406,7 +403,7 @@ module.exports = class AgendaController
 
             // Excluir anotações relacionadas
             await ServiceNote.destroy({
-                where: { serviceId: id }
+                where: { serviceid: id }
             });
 
             // Excluir o serviço
@@ -457,7 +454,7 @@ module.exports = class AgendaController
 
             // Renderizar a página da agenda
             return res.render('app/agenda', {
-                userId: id,
+                userid: id,
                 user: user,
                 isOwner,
                 isNotOwner,
