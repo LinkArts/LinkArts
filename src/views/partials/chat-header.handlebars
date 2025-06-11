@@ -1,6 +1,6 @@
 {{#if otherUser}}
-<div class="chat-user">
-    <div class="profile-avatar" style="width:40px;height:40px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2em;">
+<div class="chat-user" onclick="window.open('/profile/{{otherUser.id}}', '_blank')">
+    <div class="profile-avatar" style="cursor:pointer;width:40px;height:40px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2em;">
         {{#if otherUser.name}}{{#if (substring otherUser.name 0 1)}}{{substring otherUser.name 0 1}}{{else}}{{substring "User" 0 1}}{{/if}}{{else}}<span>?</span>{{/if}}
     </div>
     <div class="chat-user-info">
@@ -10,13 +10,6 @@
                 <span style="font-size: 0.8em; color: #666; font-weight: normal;"> - {{otherUser.profession}}</span>
             {{/if}}
         </h3>
-        <div class="user-location" style="font-size: 0.8em; color: #888;">
-            {{#if otherUser.city}}
-                {{otherUser.city}}{{#if otherUser.state}}, {{otherUser.state}}{{/if}}
-            {{else}}
-                Localização não informada
-            {{/if}}
-        </div>
         <div class="typing-indicator" id="typing-indicator" style="display: none; font-size: 0.8em; color: #666; font-style: italic;">
             digitando...
         </div>

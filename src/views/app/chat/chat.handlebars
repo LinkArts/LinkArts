@@ -339,7 +339,7 @@
                             const otherUserName = chat.otherUser?.name || "Usuário desconhecido";
                             const otherUserId = chat.otherUser?.id || "";
                             const avatarLetter = otherUserName && otherUserName.length > 0 ? otherUserName.charAt(0).toUpperCase() : "?";
-                            const lastMessageContent = chat.latestMessage?.content || "<i>Sem mensagens</i>";
+                            const lastMessageContent = chat.latestMessage?.content || "Sem mensagens";
                             
                             // Formatação melhorada da data
                             let lastMessageTime = "";

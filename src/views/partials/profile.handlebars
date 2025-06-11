@@ -1,9 +1,10 @@
 {{#if otherUser}}
 <div class="profile-header">
-    <div class="profile-avatar" style="width:80px;height:80px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2em;">
+    <div class="profile-avatar" onclick="window.open('/profile/{{otherUser.id}}', '_blank')" style="width:80px;height:80px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2em;">
         {{#if otherUser.name}}{{#if (substring otherUser.name 0 1)}}{{substring otherUser.name 0 1}}{{else}}U{{/if}}{{else}}<span>?</span>{{/if}}
     </div>
-    <div class="profile-name">{{#if otherUser.name}}{{otherUser.name}}{{else}}Usuário desconhecido{{/if}}</div>
+    <div class="profile-name" onclick="window.open('/profile/{{otherUser.id}}', '_blank')".
+    >{{#if otherUser.name}}{{otherUser.name}}{{else}}Usuário desconhecido{{/if}}</div>
     <div class="profile-profession">{{#if otherUser.profession}}{{otherUser.profession}}{{else}}Usuário{{/if}}</div>
     <div class="profile-location">
         {{#if otherUser.city}}
