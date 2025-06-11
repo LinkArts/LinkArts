@@ -5,7 +5,7 @@ const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const flash = require("express-flash");
 const http = require("http"); // Importar o módulo http
-const { initWebSocket } = require("./websocket_setup"); // Importar o inicializador do WebSocket
+const { initWebSocket, setupChatHandlers } = require("./websocket_setup"); // Importar o inicializador do WebSocket
 const path = require("path"); // Importar path
 const os = require("os"); // Importar os
 
@@ -14,6 +14,9 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 const server = http.createServer(app); // Criar servidor HTTP a partir do app Express
 const io = initWebSocket(server); // Inicializar o Socket.IO com o servidor HTTP
+
+// Configurar handlers específicos do chat após a inicialização
+setupChatHandlers();
 
 // Rotas e Controladores
 const authRoutes = require("./routes/authRoutes");
@@ -91,6 +94,19 @@ app.engine(
           console.error("Erro no helper substring:", e);
           return "";
         }
+      },
+      // Helper para verificar se string começa com texto específico
+      startsWith: function(str, prefix) {
+        if (!str || typeof str !== 'string') return false;
+        if (!prefix || typeof prefix !== 'string') return false;
+        return str.startsWith(prefix);
+      },
+      // Helper para verificar se pelo menos um dos valores é verdadeiro
+      or: function() {
+        for (let i = 0; i < arguments.length - 1; i++) {
+          if (arguments[i]) return true;
+        }
+        return false;
       }
     },
     partialsDir: path.join(__dirname, "views", "partials"),

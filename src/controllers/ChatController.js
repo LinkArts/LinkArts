@@ -6,6 +6,11 @@ const User = require("../models/User");
 const Message = require("../models/Message");
 const Chat = require("../models/Chat");
 
+// Importar os modelos Artist e Establishment no topo do arquivo
+const { Artist, Establishment } = require('../models');
+
+// getIo importado e funcionando corretamente
+
 // Registrar helper substring se não existir
 if (!handlebars.helpers.substring) {
     handlebars.registerHelper("substring", function(str, start, length) {
@@ -153,13 +158,12 @@ module.exports = class ChatController {
             return res.status(401).json({ message: "Não autorizado" });
         }
 
-        const chatId = parseInt(req.params.chatId, 10);
-        const userId = parseInt(req.session.userid, 10);
-        const limit = req.query.limit || 30;
-        const offset = req.query.offset || 0;
+        const chatId = req.params.chatId;
+        const userId = req.session.userid;
+        const limit = parseInt(req.query.limit) || 30;
+        const offset = parseInt(req.query.offset) || 0;
 
         try {
-            // Verifica se o usuário pertence ao chat
             const chat = await Chat.findOne({
                 where: { id: chatId },
                 include: [
@@ -167,12 +171,6 @@ module.exports = class ChatController {
                         model: User,
                         where: { id: userId },
                         attributes: [],
-                        through: { attributes: [] }
-                    },
-                    {
-                        model: User,
-                        where: { id: { [Op.ne]: userId } },
-                        attributes: ["id"], // Só pega o id para buscar depois
                         through: { attributes: [] }
                     }
                 ]
@@ -182,13 +180,13 @@ module.exports = class ChatController {
                 return res.status(404).json({ message: "Chat não encontrado ou você não tem permissão para acessá-lo." });
             }
 
-            // Busca o outro usuário diretamente na tabela Users
+            const participants = await chat.getUsers({
+                attributes: ["id", "name", "description", "city"]
+            });
+
             let otherUser = null;
-            if (chat.Users && chat.Users.length > 0) {
-                const otherUserId = chat.Users[0].id;
-                otherUser = await User.findByPk(otherUserId, {
-                    attributes: ["id", "name", "description", "city"]
-                });
+            if (participants.length >= 2) {
+                otherUser = participants.find(participant => participant.id !== userId);
             }
 
             // Busca as mensagens do chat com paginação
@@ -233,7 +231,6 @@ module.exports = class ChatController {
             });
 
         } catch (error) {
-            console.error("Erro ao buscar mensagens (API):", error);
             return res.status(500).json({ message: "Falha ao carregar mensagens via API." });
         }
     }
@@ -241,15 +238,12 @@ module.exports = class ChatController {
     // --- API: Enviar nova mensagem para um chat ---
     static async sendMessageApi(req, res) {
         if (!req.session.userid) {
-            console.log("sendMessageApi: Usuário não autenticado.");
             return res.status(401).json({ message: "Não autorizado" });
         }
 
         const chatId = req.params.chatId;
         const userId = req.session.userid;
         const { message } = req.body; // Pega o conteúdo da mensagem do corpo da requisição
-
-        console.log(`sendMessageApi: Recebida mensagem para chat ${chatId} de user ${userId}: "${message}"`);
 
         try {
             // Verifica se o usuário pertence ao chat antes de permitir enviar mensagem
@@ -266,10 +260,12 @@ module.exports = class ChatController {
             });
 
             if (!chat) {
-                console.log(`sendMessageApi: Chat ${chatId} não encontrado ou usuário ${userId} sem permissão.`);
+                console.log(`sendMessageApi: Chat ${chatId} não encontrado para user ${userId}`);
                 return res.status(404).json({ message: "Chat não encontrado ou você não tem permissão para enviar mensagens." });
             }
 
+            console.log(`sendMessageApi: Criando mensagem para chat ${chatId} user ${userId}: "${message}"`);
+            
             // Cria a mensagem no banco de dados
             const newMessage = await Message.create({
                 message: message,
@@ -277,51 +273,55 @@ module.exports = class ChatController {
                 userid: userId, // Associa ao usuário logado
                 date: new Date(), // Garante que o campo "date" seja preenchido
             });
-            console.log("sendMessageApi: Mensagem criada no DB com ID:", newMessage.id);
 
-            // Busca a mensagem recém-criada incluindo o remetente para retornar ao frontend e emitir via WebSocket
-            const sentMessage = await Message.findByPk(newMessage.id, {
-                include: [
-                    {
-                        model: User,
-                        attributes: ["id", "name"]
-                    }
-                ]
-            });
-            
-             // Formata para o frontend
-            const formattedSentMessage = {
-                id: sentMessage.id,
-                message: sentMessage.message,
-                date: sentMessage.date || sentMessage.createdAt, // sempre envia "date"
-                sender: sentMessage.User ? { id: sentMessage.User.id, name: sentMessage.User.name } : null,
-                isCurrentUser: false, // Será tratado no cliente
-                chatId: chatId // Adiciona o chatId para o frontend identificar
+            console.log(`sendMessageApi: Mensagem criada com ID ${newMessage.id}`);
+
+            // Busca informações do remetente para retornar
+            const sender = await User.findByPk(userId, { attributes: ["id", "name"] });
+
+            // Emite a mensagem via Socket.IO para todos os usuários do chat
+            const socketData = {
+                id: newMessage.id,
+                message: newMessage.message,
+                date: newMessage.date,
+                chatId: parseInt(chatId),
+                sender: {
+                    id: sender.id,
+                    name: sender.name
+                }
             };
-            console.log("sendMessageApi: Mensagem formatada para envio:", formattedSentMessage);
 
-            // *** EMITIR EVENTO WEBSOCKET ***
+            console.log(`sendMessageApi: Emitindo evento new_message para chat ${chatId}:`, socketData);
+            
+            // Emite a mensagem via Socket.IO
             try {
                 const io = getIo();
                 if (io) {
-                    // Emite para a sala específica do chat
-                    io.to(chatId.toString()).emit("new_message", formattedSentMessage);
-                    console.log("sendMessageApi: Mensagem emitida via WebSocket para o chat:", chatId, formattedSentMessage);
+                    io.to(chatId.toString()).emit("new_message", socketData);
+                    console.log(`sendMessageApi: Evento new_message emitido para sala ${chatId}`);
                 } else {
-                    console.warn("sendMessageApi: Socket.IO não inicializado (io é undefined).");
+                    console.warn(`sendMessageApi: Socket.IO não disponível para chat ${chatId}`);
                 }
-            } catch (wsError) {
-                console.error("sendMessageApi: Erro ao emitir mensagem via WebSocket:", wsError);
-                // Não falha a requisição HTTP por causa do WS, mas loga o erro.
+            } catch (socketError) {
+                console.error(`sendMessageApi: Erro ao emitir evento Socket.IO para chat ${chatId}:`, socketError.message);
+                // Não falha a requisição se Socket.IO não funcionar, apenas não envia em tempo real
             }
-            // *******************************
-
-            // Retorna a mensagem criada com status 201 para o remetente original via HTTP
-            return res.status(201).json(formattedSentMessage); // Retorna a mesma mensagem formatada
+            
+            // Retorna a mensagem criada
+            return res.status(201).json({
+                id: newMessage.id,
+                message: newMessage.message,
+                date: newMessage.date,
+                userid: newMessage.userid,
+                sender: {
+                    id: sender.id,
+                    name: sender.name
+                }
+            });
 
         } catch (error) {
-            console.error("sendMessageApi: Erro ao enviar mensagem (API):", error);
-            return res.status(500).json({ message: "Falha ao enviar mensagem via API." });
+            console.error(`sendMessageApi: Erro para chat ${chatId} user ${userId}:`, error);
+            return res.status(500).json({ message: "Falha ao enviar mensagem." });
         }
     }
 
@@ -375,12 +375,10 @@ module.exports = class ChatController {
     // --- API: Obter HTML dos blocos do chat (mensagens, header, perfil) ---
     static async getChatHtml(req, res) {
         if (!req.session.userid) {
-            console.log("getChatHtml: Usuário não autenticado.");
             return res.status(401).json({ message: "Não autorizado" });
         }
         const chatId = parseInt(req.params.chatId, 10);
         const userId = parseInt(req.session.userid, 10);
-        console.log(`getChatHtml: Requisição para chat ${chatId} do usuário ${userId}`);
 
         try {
             // Busca o chat e valida se o usuário pertence
@@ -390,39 +388,24 @@ module.exports = class ChatController {
                     {
                         model: User,
                         through: { attributes: [] },
-                        attributes: ["id", "name", "description", "city", "state", "instagram", "facebook", "linkedin", "cellphone"]
+                        attributes: ["id", "name", "description", "city", "state", "instagram", "facebook", "linkedin"]
                     },
                 ]
             });
             
             if (!chat || !chat.Users.some(u => u.id === userId)) {
-                console.log(`getChatHtml: Chat ${chatId} não encontrado ou usuário ${userId} sem permissão.`);
                 return res.status(404).json({ message: "Chat não encontrado ou acesso negado." });
             }
-            console.log("getChatHtml: Chat encontrado.", chat.id);
-            console.log("getChatHtml: Usuários no chat:", chat.Users.map(u => ({ id: u.id, name: u.name })));
 
             // Identifica todos os outros usuários (para suporte a chats em grupo)
             const otherUsers = chat.Users.filter(u => u.id !== userId);
             const otherUser = otherUsers.length > 0 ? otherUsers[0] : null; // Por enquanto, pega o primeiro
-            
-            if (otherUser) {
-                console.log("getChatHtml: otherUser encontrado:", {
-                    id: otherUser.id,
-                    name: otherUser.name,
-                    description: otherUser.description,
-                    city: otherUser.city
-                });
-            } else {
-                console.log("getChatHtml: Nenhum outro usuário encontrado no chat.");
-            }
 
             // Busca informações adicionais do outro usuário (Artist/Establishment)
             let otherUserDetails = null;
             if (otherUser) {
                 try {
                     // Verifica se é Artist
-                    const { Artist, Establishment } = require('../models');
                     const artist = await Artist.findOne({ where: { userid: otherUser.id } });
                     if (artist) {
                         otherUserDetails = {
@@ -450,7 +433,7 @@ module.exports = class ChatController {
                         }
                     }
                 } catch (profileError) {
-                    console.error("getChatHtml: Erro ao buscar detalhes do perfil:", profileError);
+                    console.error(`[getChatHtml] Erro ao buscar detalhes do perfil:`, profileError);
                     otherUserDetails = {
                         ...otherUser.dataValues,
                         userType: 'user',
@@ -465,18 +448,99 @@ module.exports = class ChatController {
                 include: [{ model: User, attributes: ["id", "name"] }],
                 order: [["date", "ASC"]]
             });
-            console.log(`getChatHtml: Encontradas ${messages.length} mensagens para o chat ${chatId}.`);
 
-            // Formata mensagens para o parcial
-            const formattedMessages = messages.map(msg => ({
-                id: msg.id,
-                message: msg.message,
-                date: msg.date,
-                userid: msg.userid,
-                sender: msg.User ? { id: msg.User.id, name: msg.User.name } : null,
-                isCurrentUser: msg.userid === userId
-            }));
-            console.log("getChatHtml: Mensagens formatadas.");
+            // Função para formatar tempo
+            const formatTime = (date) => {
+                if (!date) return "";
+                try {
+                    const messageDate = new Date(date);
+                    return messageDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+                } catch (error) {
+                    return "";
+                }
+            };
+
+            // Formata mensagens para o parcial com separação por dias
+            const formattedMessages = [];
+            let lastDate = null;
+
+            try {
+                messages.forEach(msg => {
+                    try {
+                        let msgDate = new Date(msg.date);
+                        if (isNaN(msgDate.getTime())) {
+                            console.error(`[getChatHtml] Data inválida na mensagem ${msg.id}:`, msg.date);
+                            // Use data atual como fallback
+                            msgDate = new Date();
+                        }
+                        
+                        const currentDate = msgDate.toDateString();
+                        
+                        // Adiciona separador de dia se a data mudou
+                        if (lastDate && lastDate !== currentDate) {
+                            const today = new Date();
+                            const yesterday = new Date(today);
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            
+                            let dateText;
+                            if (currentDate === today.toDateString()) {
+                                dateText = "Hoje";
+                            } else if (currentDate === yesterday.toDateString()) {
+                                dateText = "Ontem";
+                            } else {
+                                try {
+                                    dateText = msgDate.toLocaleDateString("pt-BR", { 
+                                        day: "2-digit", 
+                                        month: "2-digit", 
+                                        year: "numeric" 
+                                    });
+                                } catch (dateFormatError) {
+                                    console.error(`[getChatHtml] Erro ao formatar data:`, dateFormatError);
+                                    dateText = "Data não disponível";
+                                }
+                            }
+                            
+                            formattedMessages.push({
+                                isDaySeparator: true,
+                                dateText: dateText
+                            });
+                        }
+                        
+                        formattedMessages.push({
+                            id: msg.id,
+                            message: msg.message || "",
+                            date: formatTime(msg.date),
+                            userid: msg.userid,
+                            sender: msg.User ? { id: msg.User.id, name: msg.User.name || "Usuário" } : null,
+                            isCurrentUser: msg.userid === userId
+                        });
+                        
+                        lastDate = currentDate;
+                    } catch (msgError) {
+                        console.error(`[getChatHtml] Erro ao formatar mensagem ${msg.id}:`, msgError);
+                        // Adiciona mensagem de erro como fallback
+                        formattedMessages.push({
+                            id: msg.id || Date.now(),
+                            message: "Erro ao carregar mensagem",
+                            date: formatTime(new Date()),
+                            userid: msg.userid || 0,
+                            sender: { id: 0, name: "Sistema" },
+                            isCurrentUser: false
+                        });
+                    }
+                });
+            } catch (formatError) {
+                console.error(`[getChatHtml] Erro geral ao formatar mensagens:`, formatError);
+                // Se houver erro geral, adiciona apenas uma mensagem de erro
+                formattedMessages.push({
+                    id: Date.now(),
+                    message: "Erro ao carregar mensagens do chat",
+                    date: formatTime(new Date()),
+                    userid: 0,
+                    sender: { id: 0, name: "Sistema" },
+                    isCurrentUser: false
+                });
+            }
 
             // Renderiza os parciais com tratamento de erro individual
             let messagesHtml, chatHeaderHtml, profileHtml;
@@ -484,12 +548,16 @@ module.exports = class ChatController {
             try {
                 messagesHtml = await new Promise((resolve, reject) => {
                     res.render("partials/message", { messages: formattedMessages, layout: false }, (err, html) => {
-                        if (err) { reject(err); } else { resolve(html); }
+                        if (err) { 
+                            console.error(`[getChatHtml] Erro no template de mensagens:`, err);
+                            reject(err); 
+                        } else { 
+                            resolve(html); 
+                        }
                     });
                 });
-                console.log("getChatHtml: Partial message renderizado.");
             } catch (err) {
-                console.error("Erro ao renderizar partial message:", err);
+                console.error(`[getChatHtml] Falha ao renderizar mensagens:`, err);
                 messagesHtml = formattedMessages.length > 0 
                     ? '<p class="error-message">Erro ao carregar mensagens. <button onclick="window.location.reload()">Tentar novamente</button></p>'
                     : '<p class="no-messages">Nenhuma mensagem ainda. Envie a primeira!</p>';
@@ -498,23 +566,25 @@ module.exports = class ChatController {
             try {
                 chatHeaderHtml = await new Promise((resolve, reject) => {
                     res.render("partials/chat-header", { otherUser: otherUserDetails, layout: false }, (err, html) => {
-                        if (err) { reject(err); } else { resolve(html); }
+                        if (err) { 
+                            console.error(`[getChatHtml] Erro no template de header:`, err);
+                            reject(err); 
+                        } else { 
+                            resolve(html); 
+                        }
                     });
                 });
-                console.log("getChatHtml: Partial chat-header renderizado.");
             } catch (err) {
-                console.error("Erro ao renderizar partial chat-header:", err);
+                console.error(`[getChatHtml] Falha ao renderizar header:`, err);
                 const userName = otherUserDetails?.name || 'Usuário desconhecido';
                 chatHeaderHtml = `
                     <div class="chat-user">
-                        <div class="profile-avatar" style="width:40px;height:40px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2em;">
-                            ${userName ? userName.charAt(0).toUpperCase() : '?'}
-                        </div>
+                        <div class="profile-avatar" style="width: 40px; height: 40px; background: url('/img/default.jpg') center/cover; border-radius: 50%;"></div>
                         <div class="chat-user-info">
-                            <h3>${userName}</h3>
-                            <div class="typing-indicator" id="typing-indicator" style="display: none; font-size: 0.8em; color: #666; font-style: italic;">
-                                digitando...
+                            <div class="chat-user-name" style="font-size: 16px; font-weight: 600; color: #333; line-height: 1.2;">
+                                ${userName}
                             </div>
+
                         </div>
                     </div>
                     <button class="report-button" disabled>Reportar conversa</button>
@@ -524,12 +594,16 @@ module.exports = class ChatController {
             try {
                 profileHtml = await new Promise((resolve, reject) => {
                     res.render("partials/profile", { otherUser: otherUserDetails, layout: false }, (err, html) => {
-                        if (err) { reject(err); } else { resolve(html); }
+                        if (err) { 
+                            console.error(`[getChatHtml] Erro no template de perfil:`, err);
+                            reject(err); 
+                        } else { 
+                            resolve(html); 
+                        }
                     });
                 });
-                console.log("getChatHtml: Partial profile renderizado.");
             } catch (err) {
-                console.error("Erro ao renderizar partial profile:", err);
+                console.error(`[getChatHtml] Falha ao renderizar perfil:`, err);
                 profileHtml = otherUserDetails 
                     ? `<p class="error-message">Erro ao carregar perfil de ${otherUserDetails.name}. <button onclick="window.location.reload()">Tentar novamente</button></p>`
                     : '<p>Selecione uma conversa para ver o perfil.</p>';
@@ -551,10 +625,10 @@ module.exports = class ChatController {
                 chatParticipants: otherUsers.length + 1, // Total de participantes
                 isGroupChat: otherUsers.length > 1
             });
-            console.log("getChatHtml: Resposta JSON enviada.");
 
         } catch (error) {
-            console.error("getChatHtml: Erro interno do servidor:", error);
+            console.error(`[getChatHtml] Erro geral no método getChatHtml para chat ${chatId}:`, error);
+            console.error(`[getChatHtml] Stack trace:`, error.stack);
             res.status(500).json({ 
                 message: "Erro interno do servidor ao carregar chat.",
                 messagesHtml: '<p class="error-message">Erro ao carregar mensagens. <button onclick="window.location.reload()">Tentar novamente</button></p>',
@@ -568,13 +642,11 @@ module.exports = class ChatController {
     // --- API: Definir status de digitação ---
     static async setTypingStatus(req, res) {
         if (!req.session.userid) {
-            console.log("setTypingStatus: Usuário não autenticado.");
             return res.status(401).json({ message: "Não autorizado" });
         }
         const chatId = parseInt(req.params.chatId, 10);
         const userId = parseInt(req.session.userid, 10);
         const { isTyping } = req.body;
-        console.log(`setTypingStatus: Recebido status ${isTyping} para chat ${chatId} do usuário ${userId}`);
 
         try {
             // Verifica se o usuário tem acesso ao chat
@@ -591,10 +663,8 @@ module.exports = class ChatController {
             });
 
             if (!chat) {
-                console.log(`setTypingStatus: Chat ${chatId} não encontrado ou usuário ${userId} sem permissão.`);
                 return res.status(404).json({ message: "Chat não encontrado." });
             }
-            console.log("setTypingStatus: Chat encontrado.", chat.id);
 
             // Emitir evento via Socket.IO para o outro usuário
             const io = getIo(); // Obtém a instância do Socket.IO
@@ -620,55 +690,6 @@ module.exports = class ChatController {
             console.error("setTypingStatus: Erro interno do servidor:", error);
             res.status(500).json({ message: "Erro interno do servidor." });
         }
-    }
-
-    // --- Configuração do Socket.IO (deve ser chamada no arquivo principal do app) ---
-    static setupSocketIO(io) {
-        console.log("setupSocketIO: Configurando listeners do Socket.IO.");
-        io.on("connection", (socket) => {
-            console.log("Socket.IO: Usuário conectado:", socket.id);
-
-            // Entrar em uma sala de chat
-            socket.on("join_chat", (chatId) => {
-                socket.join(chatId.toString());
-                console.log(`Socket.IO: Socket ${socket.id} entrou no chat ${chatId}`);
-            });
-
-            // Sair de uma sala de chat
-            socket.on("leave_chat", (chatId) => {
-                socket.leave(chatId.toString());
-                console.log(`Socket.IO: Socket ${socket.id} saiu do chat ${chatId}`);
-            });
-
-            // Usuário começou a digitar
-            socket.on("typing", (data) => {
-                console.log(`Socket.IO: Recebido evento 'typing' de user ${data.userId} para chat ${data.chatId}.`);
-                // Emite para a sala do chat, excluindo o remetente
-                socket.to(data.chatId.toString()).emit("user_typing", {
-                    userId: data.userId,
-                    chatId: data.chatId,
-                    timestamp: new Date()
-                });
-                console.log(`Socket.IO: Evento 'user_typing' emitido para sala ${data.chatId} (excluindo remetente).`);
-            });
-
-            // Usuário parou de digitar
-            socket.on("stopped_typing", (data) => {
-                console.log(`Socket.IO: Recebido evento 'stopped_typing' de user ${data.userId} para chat ${data.chatId}.`);
-                // Emite para a sala do chat, excluindo o remetente
-                socket.to(data.chatId.toString()).emit("user_stopped_typing", {
-                    userId: data.userId,
-                    chatId: data.chatId,
-                    timestamp: new Date()
-                });
-                console.log(`Socket.IO: Evento 'user_stopped_typing' emitido para sala ${data.chatId} (excluindo remetente).`);
-            });
-
-            // Desconexão
-            socket.on("disconnect", () => {
-                console.log("Socket.IO: Usuário desconectado:", socket.id);
-            });
-        });
     }
 };
 

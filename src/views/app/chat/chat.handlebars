@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - LinkArts</title>
+    <link rel="stylesheet" href="/css/chat.css">
+</head>
 <body>
     <input type="hidden" id="loggedInUserId" value="{{user.id}}">
 
@@ -12,55 +20,52 @@
                 {{#each chats}}
                 <div class="user-conversation {{#if this.isActive}}active{{/if}}" data-chat-id="{{this.chatId}}"
                     data-other-user-id="{{this.otherUser.id}}" data-other-user-name="{{this.otherUser.name}}">
-                    <img src="https://via.placeholder.com/40/{{randomColor}}/FFFFFF?text={{substring this.otherUser.name 0 1}}"
-                        alt="{{this.otherUser.name}}" class="user-avatar">
+                    <div class="user-avatar" style="width: 50px; height: 50px; background: url('/img/default.jpg') center/cover; border-radius: 50%; flex-shrink: 0;"></div>
                     <div class="user-info">
-
                         <div class="user-name-time">
                             <div class="user-name">{{this.otherUser.name}}</div>
                             <div class="user-time">{{formatDate this.latestMessage.createdAt}}</div>
                         </div>
                         <div class="last-message">
-
                             {{#if this.latestMessage}}
                             {{this.latestMessage.content}}
                             {{else}}
-
                             <i>Sem mensagens</i>
                             {{/if}}
                         </div>
-
                     </div>
                 </div>
                 {{/each}}
                 {{else}}
                 <p>Nenhuma conversa encontrada.</p>
                 {{/if}}
-
             </div>
         </div>
 
         <div class="chat-column" id="chat-column">
             <div class="chat-header" id="chat-header-container">
-                <div class="chat-user">
-
-                    <img src="https://via.placeholder.com/40/cccccc/FFFFFF?text=?" alt="Selecione">
+                <div class="chat-user" id="chat-user-header" style="cursor: pointer;">
+                    <div class="profile-avatar" style="width: 40px; height: 40px; background: url('/img/default.jpg') center/cover; border-radius: 50%;"></div>
                     <div class="chat-user-info">
                         <h3>Selecione uma conversa</h3>
-                        <div class="typing-indicator" id="typing-indicator"
-                            style="display: none; font-size: 0.8em; color: #666; font-style: italic;">
 
-                            digitando...
-                        </div>
                     </div>
                 </div>
                 <button class="report-button" disabled>Reportar conversa</button>
-
             </div>
             <div class="messages-container" id="messages-container">
                 <div class="loading-indicator" style="display: none; text-align: center; padding: 10px;">Carregando
                     mensagens antigas...</div>
-                <p>Selecione uma conversa para ver as mensagens.</p>
+                <div class="welcome-screen" id="welcome-screen">
+                    <div style="text-align: center; padding: 60px 20px; color: #666;">
+                        <div style="font-size: 4em; margin-bottom: 20px; opacity: 0.3;">💬</div>
+                        <h2 style="color: #333; margin-bottom: 10px; font-weight: 600;">Bem-vindo ao bate-papo do LinkArts</h2>
+                        <p style="font-size: 1.1em; margin-bottom: 30px;">Conecte-se com artistas e estabelecimentos de forma rápida e fácil.</p>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 0 auto; max-width: 400px;">
+                            <p style="margin: 0; color: #555;">👈 Selecione uma conversa ao lado para começar a conversar</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="input-area">
@@ -68,41 +73,32 @@
                     <div class="input-container">
                         <textarea class="message-input" placeholder="Selecione uma conversa..." disabled></textarea>
                         <div class="input-buttons">
-                            <button class="attachment-button" disabled>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path
-                                        d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 0 0 1 5.66 5.66l-9.2 9.19a2 0 0 1-2.83-2.83l8.49-8.48" />
-                                </svg>
-
-                            </button>
                             <button class="send-button" disabled>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
                                     <path d="m22 2-7 20-4-9-9-4 20-7Z" />
-                                    <path d="M22 
-2 11 13" />
+                                    <path d="M22 2 11 13" />
                                 </svg>
                             </button>
                         </div>
-                    </div>
-                    <div class="send-proposal">
-
-                        <button class="proposal-button" disabled>
-                            <span class="icon-plus">+</span>
-                            Enviar Proposta
-
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="profile-column" id="profile-column-container">
-            <p>Selecione uma conversa
-                para ver o perfil.</p>
+        <div class="profile-column" id="profile-column-container" style="display: none;">
+            <div class="profile-close-btn" id="profile-close-btn">
+                <button onclick="toggleProfileColumn()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: #666; padding: 5px; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='none'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div style="padding-top: 50px;">
+                <p>Selecione uma conversa para ver o perfil.</p>
+            </div>
         </div>
     </div>
 
@@ -114,10 +110,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
 
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            console.log("DOM completamente carregado.");
             // --- Elementos da DOM ---
             const usersListContainer = document.getElementById("users-list-container");
             const messagesContainer = document.getElementById("messages-container");
@@ -125,8 +119,6 @@
             const profileContainer = document.getElementById("profile-column-container");
             const messageInput = document.querySelector(".message-input");
             const sendButton = document.querySelector(".send-button");
-            const attachmentButton = document.querySelector(".attachment-button");
-            const proposalButton = document.querySelector(".proposal-button");
             const toast = document.getElementById("toast");
             const modal = document.getElementById("proposal-modal");
             const closeModalButton = modal.querySelector(".close-modal");
@@ -135,7 +127,7 @@
             const proposalConversationIdInput = document.getElementById("proposal-conversation-id");
             const loggedInUserIdInput = document.getElementById("loggedInUserId");
             const loadingIndicator = messagesContainer.querySelector(".loading-indicator");
-            console.log("Elementos DOM principais capturados.");
+            const chatUserHeader = document.getElementById("chat-user-header");
 
             // --- Estado da Aplicação ---
             let currentChatId = null;
@@ -149,199 +141,233 @@
             let socket = null;
             let typingTimeout = null;
             let isTyping = false;
+            let isProfileColumnVisible = false;
 
-            console.log("loggedInUserId:", loggedInUserId);
             if (!loggedInUserId) {
                 showToast("Erro: Não foi possível identificar o usuário logado.", true);
                 disableChatInput();
             }
 
+            // --- Função para alternar visibilidade da coluna do perfil ---
+            window.toggleProfileColumn = function() {
+                console.log('toggleProfileColumn chamado, isProfileColumnVisible:', isProfileColumnVisible);
+                const profileColumn = document.getElementById("profile-column-container");
+                const chatColumn = document.getElementById("chat-column");
+                
+                if (!profileColumn || !chatColumn) {
+                    console.error('Elementos não encontrados:', { profileColumn, chatColumn });
+                    return;
+                }
+                
+                if (!isProfileColumnVisible) {
+                    console.log('Abrindo coluna direita');
+                    profileColumn.style.display = "block";
+                    chatColumn.style.width = "50%";
+                    isProfileColumnVisible = true;
+                } else {
+                    console.log('Fechando coluna direita');
+                    profileColumn.style.display = "none";
+                    chatColumn.style.width = "75%";
+                    isProfileColumnVisible = false;
+                }
+                
+                console.log('Novo estado isProfileColumnVisible:', isProfileColumnVisible);
+            }
+
+            // Event delegation para clique no header do chat - método mais robusto
+            document.addEventListener('click', function(e) {
+                // Verifica se o clique foi dentro do elemento .chat-user
+                const chatUser = e.target.closest('.chat-user');
+                if (chatUser && chatUser.closest('#chat-header-container')) {
+                    console.log('Click detectado no header do chat!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (currentChatId) {
+                        console.log('Chat ativo, abrindo/fechando coluna direita');
+                        toggleProfileColumn();
+                    } else {
+                        console.log('Nenhum chat ativo');
+                        showToast('Selecione uma conversa primeiro', false);
+                    }
+                }
+            });
+
             // --- Inicialização do Socket.IO ---
             function initializeWebSocket() {
-                console.log("Tentando inicializar WebSocket...");
                 try {
+                    console.log('Inicializando Socket.IO...');
                     socket = io({ transports: ["websocket"] });
+                    
                     socket.on("connect", () => {
-                        console.log("Conectado ao servidor WebSocket:", socket.id);
+                        console.log('Socket.IO conectado com sucesso!');
                         if (currentChatId) {
-                            console.log("Emitindo join_chat para o chat atual:", currentChatId);
-
+                            console.log('Entrando no chat:', currentChatId);
                             socket.emit("join_chat", currentChatId);
                         }
                     });
+                    
                     socket.on("disconnect", (reason) => {
-                        console.log("Desconectado do servidor WebSocket:", reason);
+                        console.log('Socket.IO desconectado:', reason);
                     });
+                    
                     socket.on("connect_error", (err) => {
-                        console.error("Erro de conexão WebSocket:", err);
+                        console.error('Erro de conexão Socket.IO:', err);
                         showToast("Falha na conexão em tempo real.", true);
                     });
+                    
                     socket.on("new_message", handleNewMessage);
                     socket.on("user_typing", handleUserTyping);
                     socket.on("user_stopped_typing", handleUserStoppedTyping);
-                    console.log("Listeners de Socket.IO configurados.");
+                    
+                    console.log('Event listeners do Socket.IO configurados');
                 } catch (e) {
-                    console.error("Falha ao inicializar Socket.IO:", e);
+                    console.error('Erro ao inicializar Socket.IO:', e);
                     showToast("Não foi possível iniciar o chat em tempo real.", true);
                 }
             }
 
             // --- Funções de Typing ---
             function handleUserTyping(data) {
-                console.log("handleUserTyping: Recebido evento de digitação:", data);
+                console.log('Recebido evento user_typing:', data, 'currentOtherUserId:', currentOtherUserId);
                 if (data.userId !== currentOtherUserId) {
-                    console.log("handleUserTyping: Ignorando evento, userId não corresponde ao otherUser atual.");
+                    console.log('Evento typing ignorado - usuário diferente');
                     return;
                 }
-                // Busca o indicador de digitação diretamente no DOM
-                const typingIndicator = document.getElementById("typing-indicator");
-                if (typingIndicator) {
-                    typingIndicator.style.display = "block";
-                    console.log("handleUserTyping: Indicador de digitação mostrado.");
-                } else {
-                    console.log("handleUserTyping: Elemento typing-indicator não encontrado no DOM.");
-                }
+                console.log('Mostrando indicador de digitação');
+                showTypingIndicatorInMessages();
             }
 
             function handleUserStoppedTyping(data) {
-                console.log("handleUserStoppedTyping: Recebido evento de parou de digitar:", data);
+                console.log('Recebido evento user_stopped_typing:', data, 'currentOtherUserId:', currentOtherUserId);
                 if (data.userId !== currentOtherUserId) {
-                    console.log("handleUserStoppedTyping: Ignorando evento, userId não corresponde ao otherUser atual.");
+                    console.log('Evento stop typing ignorado - usuário diferente');
                     return;
                 }
-                // Busca o indicador de digitação diretamente no DOM
-                const typingIndicator = document.getElementById("typing-indicator");
-                if (typingIndicator) {
-                    typingIndicator.style.display = "none";
-                    console.log("handleUserStoppedTyping: Indicador de digitação escondido.");
+                console.log('Escondendo indicador de digitação');
+                hideTypingIndicatorInMessages();
+            }
+
+            function showTypingIndicatorInMessages() {
+                console.log('showTypingIndicatorInMessages: Iniciando');
+                // Remove indicador existente se houver
+                hideTypingIndicatorInMessages();
+                
+                // Cria o novo indicador de digitação
+                const typingMessage = document.createElement('div');
+                typingMessage.className = 'typing-message';
+                typingMessage.id = 'typing-message-indicator';
+                typingMessage.innerHTML = `
+                    <div class="typing-bubble">
+                        <div class="typing-avatar"></div>
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                
+                // Adiciona ao final do container de mensagens
+                if (messagesContainer) {
+                    messagesContainer.appendChild(typingMessage);
+                    console.log('Indicador de digitação adicionado ao container');
                 } else {
-                    console.log("handleUserStoppedTyping: Elemento typing-indicator não encontrado no DOM.");
+                    console.error('messagesContainer não encontrado');
+                }
+                
+                // Rola para baixo para mostrar o indicador
+                scrollToBottom(messagesContainer);
+            }
+
+            function hideTypingIndicatorInMessages() {
+                console.log('hideTypingIndicatorInMessages: Iniciando');
+                const existingIndicator = document.getElementById('typing-message-indicator');
+                if (existingIndicator) {
+                    existingIndicator.remove();
+                    console.log('Indicador de digitação removido');
+                } else {
+                    console.log('Nenhum indicador de digitação encontrado para remover');
                 }
             }
 
             function sendTypingStatus(typing) {
-                console.log("sendTypingStatus: Chamado com typing =", typing, "currentChatId =", currentChatId, "isTyping =", isTyping);
-                if (!currentChatId || !socket) {
-                    console.log("sendTypingStatus: Não é possível enviar status de digitação (chatId ou socket ausente).");
+                if (!socket || !currentChatId) {
+                    console.log('sendTypingStatus: Socket ou chatId não disponível', { socket: !!socket, currentChatId });
                     return;
                 }
-
                 if (typing && !isTyping) {
-                    isTyping = true;
-                    console.log("sendTypingStatus: Emitindo evento 'typing' via Socket.IO.");
+                    console.log('Emitindo evento typing para chat:', currentChatId, 'user:', loggedInUserId);
                     socket.emit("typing", { chatId: currentChatId, userId: loggedInUserId });
-                    // Enviar status via API também
-                    console.log("sendTypingStatus: Enviando status 'isTyping: true' via API.");
-                    fetch(`/api/chats/${currentChatId}/typing`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-
-                        credentials: "include",
-                        body: JSON.stringify({ isTyping: true })
-                    }).then(response => {
-                        if (!response.ok) {
-                            console.error("sendTypingStatus: Erro na resposta da API ao enviar status de digitação.", response.status);
-                    }
-                    }).catch(err => console.error("sendTypingStatus: Erro ao enviar status de digitação via API:", err));
+                    isTyping = true;
                 } else if (!typing && isTyping) {
+                    console.log('Emitindo evento stop_typing para chat:', currentChatId, 'user:', loggedInUserId);
+                    socket.emit("stop_typing", { chatId: currentChatId, userId: loggedInUserId });
                     isTyping = false;
-                    console.log("sendTypingStatus: Emitindo evento 'stopped_typing' via Socket.IO.");
-                    socket.emit("stopped_typing", { chatId: currentChatId, userId: loggedInUserId });
-                    // Enviar status via API também
-                    console.log("sendTypingStatus: Enviando status 'isTyping: false' via API.");
-                    fetch(`/api/chats/${currentChatId}/typing`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-
-                        credentials: "include",
-                        body: JSON.stringify({ isTyping: false })
-                    }).then(response => {
-                        if (!response.ok) {
-                            console.error("sendTypingStatus: Erro na resposta da API ao enviar status de parou de digitar.", response.status);
-                    }
-                    }).catch(err => console.error("sendTypingStatus: Erro ao enviar status de parou de digitar via API:", err));
                 }
             }
 
-            // --- Funções de Fetch ---
+            messageInput.addEventListener("input", function () {
+                console.log('Input detectado:', messageInput.value.trim().length);
+                if (messageInput.value.trim().length > 0) {
+                    console.log('Usuário está digitando - enviando status true');
+                    sendTypingStatus(true);
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => {
+                        console.log('Timeout atingido - enviando status false');
+                        sendTypingStatus(false);
+                    }, 2000);
+                } else {
+                    console.log('Campo vazio - enviando status false');
+                    sendTypingStatus(false);
+                }
+            });
+
+            // --- Função auxiliar para fetch com tratamento de erro ---
             async function fetchData(url, options = {}) {
-                console.log("fetchData: Iniciando fetch para URL:", url, "com opções:", options);
                 isLoadingMessages = true;
                 try {
-                    const fetchOptions = {
+                    const defaultHeaders = { "Content-Type": "application/json" };
+                    const config = {
                         ...options,
-                        credentials: "include",
-                        headers: {
-
-                            "Accept": "application/json",
-                            "Content-Type": "application/json",
-                            ...(options.headers || {})
-                        }
-
+                        headers: { ...defaultHeaders, ...options.headers }
                     };
-                    if (options.body && typeof options.body !== "string") {
-                        fetchOptions.body = JSON.stringify(options.body);
+                    if (config.body && typeof config.body === "object") {
+                        config.body = JSON.stringify(config.body);
                     }
-                    console.log("fetchData: Opções de fetch finalizadas:", fetchOptions);
-                    const response = await fetch(url, fetchOptions);
-                    console.log("fetchData: Resposta recebida, status:", response.status);
+                    const response = await fetch(url, config);
                     if (!response.ok) {
-                        let errorMsg = `Erro ${response.status}`;
-                        try {
-                            const errorData = await response.json();
-                            errorMsg = errorData.message || errorMsg;
-                            console.error("fetchData: Erro na resposta da API, dados do erro:", errorData);
-                        } catch (e) {
-                            console.error("fetchData: Erro ao parsear JSON de erro:", e);
-                        }
-                        throw new Error(errorMsg);
-                    }
-                    if (response.status === 204) {
-                        console.log("fetchData: Resposta 204 (No Content).");
-                        return null;
+                        const errorText = await response.text();
+                        throw new Error(`HTTP ${response.status}: ${errorText || "Erro desconhecido"}`);
                     }
                     const data = await response.json();
-                    console.log("fetchData: Dados recebidos:", data);
                     return data;
                 } catch (error) {
-                    console.error("fetchData: Erro durante o fetch:", url, error);
                     showToast(`Erro: ${error.message}`, true);
                     return null;
                 } finally {
                     isLoadingMessages = false;
-                    console.log("fetchData: isLoadingMessages = false.");
                 }
             }
 
             // --- Função para atualizar a lista de conversas (coluna da esquerda) ---
             async function updateChatList(newMessage = null) {
-                console.log("updateChatList: Iniciando atualização da lista de chats.", "newMessage:", newMessage);
                 try {
                     const response = await fetch("/api/chats");
                     if (!response.ok) throw new Error("Erro ao buscar conversas");
                     const chats = await response.json();
-                    console.log("updateChatList: Chats recebidos da API:", chats);
                     
-                    // Renderização melhorada com informações corretas do outro usuário
                     let html = "";
                     if (chats.length > 0) {
                         chats.forEach((chat, index) => {
-                            // Validação dos dados do chat
                             if (!chat.chatId) {
-                                console.warn(`updateChatList: Chat ${index} sem ID válido:`, chat);
-                                return; // Pula este chat
+                                return;
                             }
 
                             const otherUserName = chat.otherUser?.name || "Usuário desconhecido";
                             const otherUserId = chat.otherUser?.id || "";
-                            const avatarLetter = otherUserName && otherUserName.length > 0 ? otherUserName.charAt(0).toUpperCase() : "?";
                             const lastMessageContent = chat.latestMessage?.content || "Sem mensagens";
                             
-                            // Formatação melhorada da data
                             let lastMessageTime = "";
                             if (chat.latestMessage?.createdAt) {
                                 try {
@@ -357,28 +383,22 @@
                                         lastMessageTime = messageDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
                                     }
                                 } catch (dateError) {
-                                    console.warn("updateChatList: Erro ao formatar data:", dateError);
                                     lastMessageTime = "";
                                 }
                             }
 
-                            // Sanitização básica para prevenir XSS
                             const sanitizedUserName = otherUserName.replace(/[<>]/g, '');
                             const sanitizedMessage = lastMessageContent.replace(/[<>]/g, '');
-                            
-                            // Indicador de chat em grupo
-                            const groupIndicator = chat.isGroupChat ? ' 👥' : '';
                             
                             html += `<div class="user-conversation${chat.chatId == currentChatId ? " active" : ""}" 
                                 data-chat-id="${chat.chatId}" 
                                 data-other-user-id="${otherUserId}" 
                                 data-other-user-name="${sanitizedUserName}"
                                 title="${chat.isGroupChat ? `Chat em grupo com ${chat.participantCount} pessoas` : `Chat com ${sanitizedUserName}`}">
-                                <img src="https://via.placeholder.com/40/cccccc/FFFFFF?text=${avatarLetter}" 
-                                     alt="${sanitizedUserName}" class="user-avatar">
+                                <img src="/img/default.jpg" alt="${sanitizedUserName}" class="user-avatar">
                                 <div class="user-info">
                                     <div class="user-name-time">
-                                        <div class="user-name">${sanitizedUserName}${groupIndicator}</div>
+                                        <div class="user-name">${sanitizedUserName}</div>
                                         <div class="user-time">${lastMessageTime}</div>
                                     </div>
                                     <div class="last-message">${sanitizedMessage}</div>
@@ -394,93 +414,129 @@
                         </div>`;
                     }
                     usersListContainer.innerHTML = html;
-                    console.log("updateChatList: Lista de chats atualizada no DOM.");
                 } catch (error) {
-                    console.error("updateChatList: Erro ao atualizar conversas:", error);
                     usersListContainer.innerHTML = "<p class=\"error-message\">Erro ao atualizar conversas.</p>";
                 }
             }
 
             // --- Função para atualizar o popup do ícone de mensagens (navbar) ---
             async function updateMessagePopup() {
-                console.log("updateMessagePopup: Iniciando atualização do popup de mensagens.");
                 try {
                     const popup = document.getElementById("message-popup");
                     if (!popup) {
-                        console.log("updateMessagePopup: Elemento message-popup não encontrado, ignorando.");
                         return;
                     }
                     const contentDiv = popup.querySelector(".popup-content");
                     const response = await fetch("/api/chats");
                     if (!response.ok) throw new Error("Erro ao buscar conversas para popup");
                     const chats = await response.json();
-                    console.log("updateMessagePopup: Chats recebidos para popup:", chats);
                     let html = "";
                     if (chats.length > 0) {
                         chats.slice(0, 5).forEach(chat => {
-                            html += `<div class="popup-item"><div class="popup-item-image"><img src="/placeholder.svg" alt="${chat.otherUser?.name ?? "Usuário"}"></div><div class="popup-item-content"><h4 class="popup-item-title">${chat.otherUser?.name ?? "Usuário desconhecido"}</h4><p class="popup-item-description">${chat.latestMessage?.content ?? "Sem mensagens"}</p></div></div>`;
+                            html += `<div class="popup-item"><div class="popup-item-image"><img src="/img/default.jpg" alt="${chat.otherUser?.name ?? "Usuário"}"></div><div class="popup-item-content"><h4 class="popup-item-title">${chat.otherUser?.name ?? "Usuário desconhecido"}</h4><p class="popup-item-description">${chat.latestMessage?.content ?? "Sem mensagens"}</p></div></div>`;
                         });
                     } else {
                         html = "<div class=\"popup-item\"><div class=\"popup-item-content\"><p>Sem conversas.</p></div></div>";
                     }
                     contentDiv.innerHTML = html;
-                    console.log("updateMessagePopup: Popup de mensagens atualizado no DOM.");
                 } catch (error) {
-                    console.error("updateMessagePopup: Erro ao atualizar popup de mensagens:", error);
+                    // Erro silencioso para não atrapalhar o chat
                 }
+            }
+
+            // --- Função para formatar data das mensagens ---
+            function formatMessageDate(dateString) {
+                if (!dateString) return "";
+                
+                try {
+                    const messageDate = new Date(dateString);
+                    return messageDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+                } catch (error) {
+                    return "";
+                }
+            }
+
+            // --- Função para criar separadores de dia ---
+            function createDaySeparator(date) {
+                const today = new Date();
+                const messageDate = new Date(date);
+                const isToday = today.toDateString() === messageDate.toDateString();
+                
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                const isYesterday = yesterday.toDateString() === messageDate.toDateString();
+                
+                let dateText;
+                if (isToday) {
+                    dateText = "Hoje";
+                } else if (isYesterday) {
+                    dateText = "Ontem";
+                } else {
+                    dateText = messageDate.toLocaleDateString("pt-BR", { 
+                        day: "2-digit", 
+                        month: "2-digit", 
+                        year: "numeric" 
+                    });
+                }
+                
+                return `<div class="day-separator"><span>${dateText}</span></div>`;
             }
 
             // --- Lógica do Chat ---
             function handleNewMessage(newMessage) {
-                console.log("handleNewMessage: Recebido nova mensagem via SOCKET:", newMessage);
+                console.log('handleNewMessage recebida:', newMessage);
+                console.log('currentChatId:', currentChatId, 'newMessage.chatId:', newMessage.chatId);
+                
                 if (!newMessage || newMessage.chatId != currentChatId) {
-                    console.log(`handleNewMessage: Ignorando mensagem: Chat ID não corresponde (${newMessage?.chatId} vs ${currentChatId}) ou mensagem inválida.`);
-                    // Atualiza a lista de conversas mesmo se não for do chat atual
+                    console.log('Mensagem ignorada - chat diferente ou dados inválidos');
                     updateChatList(newMessage);
                     updateMessagePopup();
                     return;
                 }
 
+                console.log('Processando nova mensagem no chat atual');
+                // Remove indicador de digitação quando nova mensagem chega
+                hideTypingIndicatorInMessages();
+
                 const isMessageFromCurrentUser = newMessage.sender?.id === loggedInUserId;
                 const messageAlreadyExists = messagesContainer.querySelector(`[data-message-id="${newMessage.id}"]`);
-                console.log("handleNewMessage: isMessageFromCurrentUser =", isMessageFromCurrentUser, "messageAlreadyExists =", messageAlreadyExists);
+                
+                console.log('isMessageFromCurrentUser:', isMessageFromCurrentUser, 
+                           'messageAlreadyExists:', !!messageAlreadyExists,
+                           'senderId:', newMessage.sender?.id,
+                           'loggedInUserId:', loggedInUserId);
+                
                 if (isMessageFromCurrentUser && !messageAlreadyExists) {
-                    // Lógica para o REMETENTE: tentar atualizar a mensagem otimista
                     const optimisticMsgElement = messagesContainer.querySelector(
                         `.msg.optimistic-message[data-userid="${newMessage.sender?.id}"]`
                     );
-                    console.log("handleNewMessage: Tentando encontrar mensagem otimista:", optimisticMsgElement);
 
                     if (optimisticMsgElement) {
-                        // Atualiza a div existente (otimista) com dados reais do servidor
+                        console.log('Atualizando mensagem otimística existente');
                         optimisticMsgElement.dataset.messageId = newMessage.id;
                         optimisticMsgElement.removeAttribute("data-temp-id");
                         optimisticMsgElement.classList.remove("optimistic-message");
                         if (optimisticMsgElement.querySelector(".message-time")) {
-                            const msgDate = newMessage.date ||
-                                newMessage.createdAt;
-                            optimisticMsgElement.querySelector(".message-time").textContent = msgDate ? new Date(msgDate).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "";
+                            const msgDate = newMessage.date || newMessage.createdAt;
+                            optimisticMsgElement.querySelector(".message-time").textContent = msgDate ? formatMessageDate(msgDate) : "";
                         }
-                        console.log(`handleNewMessage - REMETENTE: Mensagem otimista atualizada para o ID real: ${newMessage.id}`);
                     } else if (!messageAlreadyExists) {
+                        console.log('Adicionando mensagem do usuário atual ao UI');
                         appendMessageToUI(newMessage, true, false);
-                        console.log(`handleNewMessage - REMETENTE: Mensagem real adicionada (otimista não encontrada para atualização): ${newMessage.id}`);
                     }
                 } else if (!isMessageFromCurrentUser && !messageAlreadyExists) {
+                    console.log('Adicionando mensagem de outro usuário ao UI');
                     appendMessageToUI(newMessage, false, false);
-                    console.log(`handleNewMessage - RECEPTOR: Mensagem real adicionada: ${newMessage.id}`);
                 } else if (messageAlreadyExists) {
-                    console.log(`handleNewMessage: Mensagem ${newMessage.id} já existe na UI, ignorando.`);
+                    console.log('Mensagem já existe - ignorando');
                 }
 
                 scrollToBottom(messagesContainer);
                 updateChatList(newMessage);
-                // Passa a nova mensagem para atualização granular
                 updateMessagePopup();
             }
 
             function appendMessageToUI(msg, isCurrentUser, isOptimistic = false) {
-                console.log("appendMessageToUI: Adicionando mensagem ao UI:", msg, "isCurrentUser:", isCurrentUser, "isOptimistic:", isOptimistic);
                 const msgDiv = document.createElement("div");
                 msgDiv.className = `msg ${isCurrentUser ? "sent" : "received"}${isOptimistic ? " optimistic-message" : ""}`;
                 if (isOptimistic) {
@@ -492,109 +548,101 @@
                 msgDiv.dataset.messageText = msg.message;
                 msgDiv.innerHTML = `
                 <div class="message-bubble">${msg.message}</div>
-                <div class="message-time">${!msg.date ||
-                        isOptimistic ? "Enviando..." : new Date(msg.date).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>`;
+                <div class="message-time">${!msg.date || isOptimistic ? "Enviando..." : formatMessageDate(msg.date)}</div>`;
                 messagesContainer.appendChild(msgDiv);
-                console.log("appendMessageToUI: Mensagem adicionada ao messagesContainer.");
                 scrollToBottom(messagesContainer);
             }
 
             function scrollToBottom(element) {
-                console.log("scrollToBottom: Rolando para o final do elemento.");
-                setTimeout(() => { element.scrollTop = element.scrollHeight; }, 150); // [1]
+                setTimeout(() => { element.scrollTop = element.scrollHeight; }, 150);
             }
+            
             function disableChatInput() {
-                console.log("disableChatInput: Desabilitando inputs do chat.");
                 messageInput.disabled = true;
                 sendButton.disabled = true;
-                attachmentButton.disabled = true;
-                proposalButton.disabled = true;
                 messageInput.placeholder = "Selecione uma conversa...";
-                const reportBtn = document.querySelector("#chat-header-container.report-button");
+                const reportBtn = document.querySelector("#chat-header-container .report-button");
                 if (reportBtn) reportBtn.disabled = true;
             }
+            
             function enableChatInput() {
-                console.log("enableChatInput: Habilitando inputs do chat.");
                 messageInput.disabled = false;
                 sendButton.disabled = false;
-                attachmentButton.disabled = false;
-                proposalButton.disabled = false;
                 messageInput.placeholder = "Digite sua mensagem...";
-                const reportBtn = document.querySelector("#chat-header-container.report-button");
+                const reportBtn = document.querySelector("#chat-header-container .report-button");
                 if (reportBtn) reportBtn.disabled = false;
                 messageInput.focus();
             }
+            
             async function sendMessage() {
-                console.log("sendMessage: Iniciando envio de mensagem.");
                 const messageText = messageInput.value.trim();
+                console.log('sendMessage chamada:', { messageText, currentChatId });
+                
                 if (!messageText || !currentChatId) {
-                    console.log("sendMessage: Mensagem vazia ou chatId ausente, abortando envio.");
+                    console.log('Mensagem ou chatId vazio - retornando');
                     return;
                 }
 
-                // Para de digitar quando envia mensagem
                 sendTypingStatus(false);
-                // Cria um ID temporário único
                 const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
                 const optimisticMsg = {
                     id: tempId,
                     message: messageText,
-                    date: null, // Data real só virá do servidor
+                    date: null,
                     sender: { id: loggedInUserId, name: "Você" },
-                    chatId:
-                        currentChatId
+                    chatId: currentChatId
                 };
-                console.log("sendMessage: Adicionando mensagem otimista ao UI:", optimisticMsg);
+                
+                console.log('Adicionando mensagem otimística:', optimisticMsg);
                 appendMessageToUI(optimisticMsg, true, true);
                 messageInput.value = "";
                 messageInput.focus();
+                
                 try {
                     const url = `/api/chats/${currentChatId}/messages`;
                     const body = { message: messageText };
-                    console.log("sendMessage: Enviando mensagem via API POST para:", url, "com body:", body);
+                    console.log('Enviando POST para:', url, 'com body:', body);
+                    
                     const result = await fetchData(url, {
                         method: "POST",
                         body: body
                     });
-                    console.log("sendMessage: Resposta da API de envio de mensagem:", result);
+                    
+                    console.log('Resposta da API:', result);
+                    
                     if (result && result.id) {
-                        // Tenta encontrar a mensagem otimista pelo tempId
+                        console.log('Mensagem enviada com sucesso, ID:', result.id);
                         const optimisticElem = messagesContainer.querySelector(`.msg.optimistic-message[data-temp-id="${tempId}"]`);
-                        console.log("sendMessage: Tentando encontrar elemento otimista para atualização:", optimisticElem);
                         if (optimisticElem) {
-                            // Atualiza a div existente com dados reais
+                            console.log('Atualizando elemento otimístico');
                             optimisticElem.dataset.messageId = result.id;
                             optimisticElem.removeAttribute("data-temp-id");
                             optimisticElem.classList.remove("optimistic-message");
                             if (optimisticElem.querySelector(".message-time")) {
                                 optimisticElem.querySelector(".message-time").textContent = result.date ?
-                                    new Date(result.date).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "";
+                                    formatMessageDate(result.date) : "";
                             }
-                            console.log(`sendMessage: Mensagem otimista atualizada para o ID real: ${result.id}`);
                         } else {
-                            // Se não encontrou, verifica se a mensagem real já existe
+                            console.log('Elemento otimístico não encontrado, adicionando nova mensagem');
                             if (!messagesContainer.querySelector(`[data-message-id="${result.id}"]`)) {
                                 appendMessageToUI(result, true, false);
-                                console.log(`sendMessage: Mensagem real adicionada (otimista não encontrada): ${result.id}`);
                             }
                         }
                     } else {
-                        // Erro: remove mensagem otimista
-                        console.log("sendMessage: Erro no resultado da API, removendo mensagem otimista.");
+                        console.error('Falha no envio - resultado inválido:', result);
                         const optimisticElem = messagesContainer.querySelector(`.msg.optimistic-message[data-temp-id="${tempId}"]`);
                         if (optimisticElem) optimisticElem.remove();
                         showToast("Erro ao enviar mensagem", true);
                     }
                 } catch (err) {
-                    console.error("sendMessage: Erro durante o envio da mensagem:", err);
-                    // Remove mensagem otimista e mostra erro
+                    console.error('Erro no envio de mensagem:', err);
                     const optimisticElem = messagesContainer.querySelector(`.msg.optimistic-message[data-temp-id="${tempId}"]`);
                     if (optimisticElem) optimisticElem.remove();
                     showToast("Erro ao enviar mensagem", true);
                 }
             }
+            
             function showToast(message, isError = false) {
-                console.log("showToast: Exibindo toast - ", message, "(isError:", isError, ")");
                 toast.textContent = message;
                 toast.className = `toast show ${isError ? "error" : ""}`;
                 setTimeout(() => {
@@ -602,151 +650,42 @@
                 }, 3000);
             }
 
-            // --- Função para carregar HTML dos blocos do chat ---
+            // --- Função para carregar HTML do chat ---
             async function loadChatHtml(chatId) {
-                console.log("loadChatHtml: Iniciando carregamento de HTML para chat ID:", chatId);
-                
-                // Atualiza os estados globais ANTES de fazer a requisição para manter consistência
-                currentChatId = chatId;
-                
-                try {
-                    // Mostra o indicador de carregamento
-                    const loadingIndicator = messagesContainer.querySelector(".loading-indicator");
-                    if (loadingIndicator) loadingIndicator.style.display = "block";
-                    console.log("loadChatHtml: Indicador de carregamento mostrado.");
-                    
-                    // Busca o HTML dos blocos do chat
-                    console.log(`loadChatHtml: Fazendo fetch para /api/chats/${chatId}/html`);
-                    const response = await fetch(`/api/chats/${chatId}/html`);
-                    
-                    let data;
-                    if (!response.ok) {
-                        // Tenta extrair dados de erro, mesmo em caso de falha
-                        try {
-                            data = await response.json();
-                        } catch {
-                            throw new Error(`Erro HTTP ${response.status}: Falha ao carregar chat`);
-                        }
-                        
-                        // Se o servidor retornou HTML de fallback, usa ele
-                        if (data.messagesHtml || data.chatHeaderHtml || data.profileHtml) {
-                            console.warn("loadChatHtml: Usando HTML de fallback do servidor");
-                        } else {
-                            throw new Error(data.message || `Erro ${response.status}: Falha ao carregar chat`);
-                        }
-                    } else {
-                        data = await response.json();
-                    }
-                    
-                    console.log("loadChatHtml: Dados retornados da API:", data);
-
-                    // Atualiza as variáveis globais com informações do outro usuário ANTES de inserir HTML
-                    if (data.otherUser) {
-                        currentOtherUserId = data.otherUser.id;
-                        currentOtherUserName = data.otherUser.name;
-                        console.log("loadChatHtml: currentOtherUserId atualizado para:", currentOtherUserId);
-                        console.log("loadChatHtml: currentOtherUserName atualizado para:", currentOtherUserName);
-                    } else {
-                        console.warn("loadChatHtml: Nenhuma informação do outro usuário recebida da API.");
-                        currentOtherUserId = null;
-                        currentOtherUserName = null;
-                    }
-
-                    // Insere o HTML nos containers
-                    messagesContainer.innerHTML =
-                        `<div class="loading-indicator" style="display: none; text-align: center; padding: 10px;">Carregando mensagens antigas...</div>` +
-                        (data.messagesHtml || `<p class="no-messages">${data.messagesHtml === '' ? 'Nenhuma mensagem ainda. Envie a primeira!' : 'Erro ao carregar mensagens.'}</p>`);
-                    
-                    chatHeaderContainer.innerHTML = data.chatHeaderHtml || '<p class="error-message">Erro ao carregar header. <button onclick="loadChatHtml(' + chatId + ')">Tentar novamente</button></p>';
-                    profileContainer.innerHTML = data.profileHtml || '<p class="error-message">Erro ao carregar perfil. <button onclick="loadChatHtml(' + chatId + ')">Tentar novamente</button></p>';
-                    
-                    enableChatInput();
-                    console.log("loadChatHtml: HTML dos containers atualizado e inputs habilitados.");
-
-                    // Adiciona informações sobre chat em grupo, se aplicável
-                    if (data.isGroupChat) {
-                        console.log(`loadChatHtml: Chat em grupo detectado com ${data.chatParticipants} participantes`);
-                        showToast(`Chat em grupo com ${data.chatParticipants} participantes`);
-                    }
-
-                    // Rola para o final após as mensagens serem carregadas e renderizadas
-                    scrollToBottom(messagesContainer);
-
-                } catch (error) {
-                    console.error("loadChatHtml: Erro ao carregar HTML do chat:", error);
-                    
-                    // Mensagens de erro mais específicas e com retry
-                    const retryButton = `<button onclick="loadChatHtml(${chatId})" style="margin-left: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">🔄 Tentar Novamente</button>`;
-                    
-                    messagesContainer.innerHTML = `<div class="error-message">
-                        <p>❌ Erro ao carregar mensagens do chat.</p>
-                        <p style="font-size: 0.9em; color: #666;">Detalhes: ${error.message}</p>
-                        ${retryButton}
-                    </div>`;
-                    
-                    chatHeaderContainer.innerHTML = `<div class="error-message">
-                        <p>❌ Erro ao carregar informações do usuário.</p>
-                        ${retryButton}
-                    </div>`;
-                    
-                    profileContainer.innerHTML = `<div class="error-message">
-                        <p>❌ Erro ao carregar perfil do usuário.</p>
-                        <p style="font-size: 0.9em; color: #666;">Verifique sua conexão e tente novamente.</p>
-                        ${retryButton}
-                    </div>`;
-                    
-                    disableChatInput();
-                    showToast(`Erro ao carregar chat: ${error.message}`, true);
-                    
-                    // Limpa as informações do outro usuário em caso de erro
-                    currentOtherUserId = null;
-                    currentOtherUserName = null;
+                if (isLoadingMessages) {
+                    return;
                 }
+
+                // Remove indicador de digitação ao trocar de chat
+                hideTypingIndicatorInMessages();
+
+                const url = `/api/chats/${chatId}/html`;
+                const data = await fetchData(url);
+                if (!data) return;
+
+                messagesOffset = 0;
+                totalMessages = data.totalMessages || 0;
+
+                messagesContainer.innerHTML =
+                    `<div class="loading-indicator" style="display: none; text-align: center; padding: 10px;">Carregando mensagens antigas...</div>` +
+                    (data.messagesHtml || `<p class="no-messages">${data.messagesHtml === '' ? 'Nenhuma mensagem ainda. Envie a primeira!' : 'Erro ao carregar mensagens.'}</p>`);
+                
+                chatHeaderContainer.innerHTML = data.chatHeaderHtml || '<p class="error-message">Erro ao carregar header. <button onclick="loadChatHtml(' + chatId + ')">Tentar novamente</button></p>';
+                profileContainer.innerHTML = data.profileHtml || '<p class="error-message">Erro ao carregar perfil. <button onclick="loadChatHtml(' + chatId + ')">Tentar novamente</button></p>';
+                
+                enableChatInput();
+
+                if (data.isGroupChat) {
+                    showToast(`Chat em grupo com ${data.chatParticipants} participantes`);
+                }
+
+                scrollToBottom(messagesContainer);
             }
 
-            // --- Event Listeners ---
-
-            // Listener para input de digitação
-            messageInput.addEventListener("input", function () {
-                console.log("messageInput: Evento 'input' detectado.");
-                if (this.value.trim()) {
-
-                    sendTypingStatus(true);
-
-                    // Limpa o timeout anterior
-                    if (typingTimeout) {
-                        clearTimeout(typingTimeout);
-                        console.log("messageInput: Timeout de digitação anterior limpo.");
-                }
-
-                    // Define um novo timeout para parar de digitar
-                    typingTimeout = setTimeout(() => {
-                        sendTypingStatus(false);
-
-                        console.log("messageInput: Timeout de digitação expirado, enviando status 'parou de digitar'.");
-                    }, 2000); // Para de digitar após 2 segundos de inatividade
-                } else {
-                    sendTypingStatus(false);
-
-                    console.log("messageInput: Campo de mensagem vazio, enviando status 'parou de digitar'.");
-                }
-            });
-            // Listener para quando o usuário para de digitar (blur)
-            messageInput.addEventListener("blur", function () {
-                console.log("messageInput: Evento 'blur' detectado.");
-                sendTypingStatus(false);
-                if (typingTimeout) {
-                    clearTimeout(typingTimeout);
-                    console.log("messageInput: Timeout de digitação limpo no blur.");
-
-                }
-            });
             // Listener para clique nas conversas
             usersListContainer.addEventListener("click", function (e) {
-                console.log("usersListContainer: Clique detectado.");
                 const conversationElement = e.target.closest(".user-conversation");
                 if (!conversationElement) {
-                    console.log("usersListContainer: Clique não foi em um elemento de conversa.");
                     return;
                 }
 
@@ -754,44 +693,39 @@
                 const otherUserId = parseInt(conversationElement.dataset.otherUserId, 10);
                 const otherUserName = conversationElement.dataset.otherUserName;
 
-                console.log(`usersListContainer: Conversa clicada - chatId: ${chatId}, otherUserId: ${otherUserId}, otherUserName: ${otherUserName}`);
-
-                // Validação dos dados
                 if (!chatId || isNaN(chatId)) {
-                    console.error("usersListContainer: chatId inválido:", chatId);
                     showToast("Erro: ID do chat inválido", true);
                     return;
                 }
 
-                if (!otherUserId || isNaN(otherUserId)) {
-                    console.warn("usersListContainer: otherUserId inválido:", otherUserId);
-                    // Permite continuar mesmo sem otherUserId para chats em grupo
-                }
-
-                // Prevent double-click loading
                 if (currentChatId === chatId) {
-                    console.log("usersListContainer: Chat já está carregado, ignorando clique.");
                     return;
                 }
 
-                // Remove classe active de todas as conversas
                 document.querySelectorAll(".user-conversation").forEach(conv => conv.classList.remove("active"));
-                // Adiciona classe active na conversa clicada
                 conversationElement.classList.add("active");
-                console.log("usersListContainer: Classes 'active' atualizadas.");
 
-                // Atualiza estado global ANTES de carregar
                 currentChatId = chatId;
                 currentOtherUserId = otherUserId || null;
                 currentOtherUserName = otherUserName || "Usuário desconhecido";
-                console.log("usersListContainer: Estado global atualizado - currentChatId:", currentChatId, "currentOtherUserId:", currentOtherUserId, "currentOtherUserName:", currentOtherUserName);
                 
-                // Entra na sala do chat via Socket.IO
+                console.log('Chat selecionado:', { chatId, currentOtherUserId, currentOtherUserName });
+                
+                // Mostra o header do chat quando um chat é aberto
+                const chatHeader = document.querySelector('.chat-header');
+                if (chatHeader) {
+                    chatHeader.style.display = 'flex';
+                }
+                
+                // Mostra o campo de escrever mensagem quando um chat é aberto
+                const messageInputContainer = document.querySelector('.input-area');
+                if (messageInputContainer) {
+                    messageInputContainer.style.display = 'flex';
+                }
+                
                 if (socket && socket.connected) {
-                    console.log("usersListContainer: Emitindo join_chat para o novo chat:", chatId);
                     socket.emit("join_chat", chatId);
                 } else {
-                    console.warn("usersListContainer: Socket não conectado, tentando reconectar...");
                     if (socket) {
                         socket.connect();
                         socket.on("connect", () => {
@@ -800,29 +734,110 @@
                     }
                 }
 
-                // Carrega o HTML do chat
                 loadChatHtml(chatId);
             });
 
             // Listener para envio de mensagem
             sendButton.addEventListener("click", sendMessage);
-            console.log("sendButton: Listener de clique adicionado.");
             messageInput.addEventListener("keydown", function (e) {
-                console.log("messageInput: Evento 'keydown' detectado, key:", e.key);
                 if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     sendMessage();
-                    console.log("messageInput: Enter pressionado (sem Shift), mensagem enviada.");
-
                 }
             });
+            
             // --- Inicialização ---
             initializeWebSocket();
             updateChatList();
-            // Carrega a lista inicial de conversas
             updateMessagePopup();
-            // Atualiza o popup de mensagens
-            console.log("Inicialização completa: WebSocket, lista de chats e popup de mensagens carregados.");
+            
+            // Esconde header e campo de mensagem inicialmente se não há chat ativo
+            if (!currentChatId) {
+                const chatHeader = document.querySelector('.chat-header');
+                if (chatHeader) {
+                    chatHeader.style.display = 'none';
+                }
+                
+                const messageInputContainer = document.querySelector('.input-area');
+                if (messageInputContainer) {
+                    messageInputContainer.style.display = 'none';
+                }
+            }
+            
+            // Garante que a coluna direita comece escondida
+            const profileColumn = document.getElementById("profile-column-container");
+            const chatColumn = document.getElementById("chat-column");
+            if (profileColumn && chatColumn) {
+                profileColumn.style.display = "none";
+                chatColumn.style.width = "75%";
+                isProfileColumnVisible = false;
+            }
+            
+
+
+            // Adicionando funcionalidade da tecla ESC
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    
+                    // Verifica se a coluna direita está aberta usando a variável de estado
+                    if (isProfileColumnVisible) {
+                        // Se a coluna direita está aberta, fecha ela
+                        toggleProfileColumn();
+                    } else {
+                        // Se a coluna direita já está fechada, fecha o chat atual
+                        closeChatAndReturnToWelcome();
+                    }
+                }
+            });
+
+            function closeChatAndReturnToWelcome() {
+                // Remove active de todas as conversations
+                document.querySelectorAll('.user-conversation').forEach(conv => {
+                    conv.classList.remove('active');
+                });
+                
+                // Esconde o header do chat
+                const chatHeader = document.querySelector('.chat-header');
+                if (chatHeader) {
+                    chatHeader.style.display = 'none';
+                }
+                
+                // Esconde o campo de escrever mensagem
+                const messageInputContainer = document.querySelector('.input-area');
+                if (messageInputContainer) {
+                    messageInputContainer.style.display = 'none';
+                }
+                
+                // Mostra a tela de welcome
+                const messagesContainer = document.querySelector('.messages-container');
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = `
+                        <div class="welcome-message">
+                            <div style="text-align: center; padding: 60px 20px; color: #666;">
+                                <div style="font-size: 4em; margin-bottom: 20px; opacity: 0.3;">💬</div>
+                                <h2 style="color: #6d51b0; margin-bottom: 10px; font-weight: 600;">Bem-vindo ao LinkArts Chat</h2>
+                                <p style="font-size: 1.1em; margin-bottom: 30px;">Conecte-se com artistas e estabelecimentos</p>
+                                <p style="opacity: 0.7; font-size: 0.95em;">Selecione uma conversa para começar</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Limpa o profile
+                currentChatId = null;
+                currentOtherUserId = null;
+                
+                // Fecha a coluna direita usando a função correta
+                if (isProfileColumnVisible) {
+                    toggleProfileColumn();
+                }
+            }
+
+            function resetChatToWelcome() {
+                closeChatAndReturnToWelcome();
+            }
         });
     </script>
 </body>
+</html>

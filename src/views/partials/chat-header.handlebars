@@ -1,29 +1,29 @@
 {{#if otherUser}}
-<div class="chat-user" onclick="window.open('/profile/{{otherUser.id}}', '_blank')">
-    <div class="profile-avatar" style="cursor:pointer;width:40px;height:40px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2em;">
-        {{#if otherUser.name}}{{#if (substring otherUser.name 0 1)}}{{substring otherUser.name 0 1}}{{else}}{{substring "User" 0 1}}{{/if}}{{else}}<span>?</span>{{/if}}
-    </div>
-    <div class="chat-user-info">
-        <h3>
+<div class="chat-user" style="cursor: pointer; padding: 8px; border-radius: 8px; transition: background-color 0.2s ease;">
+    <div class="profile-avatar" style="pointer-events: none; width: 40px; height: 40px; background: url('/img/default.jpg') center/cover; border-radius: 50%;"></div>
+    <div class="chat-user-info" style="pointer-events: none;">
+        <div class="chat-user-name" style="pointer-events: none; font-size: 16px; font-weight: 600; color: #333; line-height: 1.2;">
             {{#if otherUser.name}}{{otherUser.name}}{{else}}Usuário desconhecido{{/if}}
-            {{#if otherUser.profession}}
-                <span style="font-size: 0.8em; color: #666; font-weight: normal;"> - {{otherUser.profession}}</span>
-            {{/if}}
-        </h3>
-        <div class="typing-indicator" id="typing-indicator" style="display: none; font-size: 0.8em; color: #666; font-style: italic;">
-            digitando...
         </div>
+        {{#if otherUser.userType}}
+            <div class="chat-user-type" style="pointer-events: none; font-size: 12px; color: #666; margin-top: 2px;">
+                {{#if (eq otherUser.userType "artist")}}Artista{{else if (eq otherUser.userType "establishment")}}Estabelecimento{{else}}Usuário{{/if}}
+            </div>
+        {{else if otherUser.profession}}
+            <div class="chat-user-type" style="pointer-events: none; font-size: 12px; color: #666; margin-top: 2px;">
+                {{otherUser.profession}}
+            </div>
+        {{/if}}
+
     </div>
 </div>
 <button class="report-button">Reportar conversa</button>
 {{else}}
 <div class="chat-user">
-    <div class="profile-avatar" style="width:40px;height:40px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2em;">?</div>
+    <div class="profile-avatar" style="width: 40px; height: 40px; background: url('/img/default.jpg') center/cover; border-radius: 50%;"></div>
     <div class="chat-user-info">
         <h3>Selecione uma conversa</h3>
-        <div class="typing-indicator" id="typing-indicator" style="display: none; font-size: 0.8em; color: #666; font-style: italic;">
-            digitando...
-        </div>
+
     </div>
 </div>
 <button class="report-button" disabled>Reportar conversa</button>

@@ -1,9 +1,20 @@
 {{#each messages}}
-<div class="msg {{#if this.isCurrentUser}}sent{{else}}received{{/if}}" data-message-id="{{this.id}}">
-    <div class="message-bubble">{{this.message}}</div>
-    <div class="message-time">{{this.date}}</div>
+{{#if this.isDaySeparator}}
+<div class="day-separator">
+    <span>{{this.dateText}}</span>
 </div>
 {{else}}
-    <p class="no-messages">Nenhuma mensagem ainda.
-Envie a primeira!</p>
+<div class="msg {{#if this.isCurrentUser}}sent{{else}}received{{/if}}" data-message-id="{{this.id}}">
+    <div class="message-bubble">{{this.message}}</div>
+    <div class="message-time">
+        {{#if this.date}}
+            {{this.date}}
+        {{else}}
+            Enviando...
+        {{/if}}
+    </div>
+</div>
+{{/if}}
+{{else}}
+    <p class="no-messages">Nenhuma mensagem ainda. Envie a primeira!</p>
 {{/each}}

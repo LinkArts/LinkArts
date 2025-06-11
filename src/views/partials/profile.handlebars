@@ -1,11 +1,25 @@
 {{#if otherUser}}
 <div class="profile-header">
-    <div class="profile-avatar" onclick="window.open('/profile/{{otherUser.id}}', '_blank')" style="width:80px;height:80px;background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2em;">
-        {{#if otherUser.name}}{{#if (substring otherUser.name 0 1)}}{{substring otherUser.name 0 1}}{{else}}U{{/if}}{{else}}<span>?</span>{{/if}}
+    <div class="close-profile-btn" onclick="toggleProfileColumn()" style="position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; background: rgba(0,0,0,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #666; transition: all 0.2s; z-index: 10;">&times;</div>
+    <div class="profile-avatar" onclick="window.open('/profile/{{otherUser.id}}', '_blank')" style="cursor: pointer; width: 80px; height: 80px; background: url('/img/default.jpg') center/cover; border-radius: 50%;"></div>
+    <div class="profile-name" onclick="window.open('/profile/{{otherUser.id}}', '_blank')" style="cursor: pointer;">
+        {{#if otherUser.name}}{{otherUser.name}}{{else}}Usuário desconhecido{{/if}}
     </div>
-    <div class="profile-name" onclick="window.open('/profile/{{otherUser.id}}', '_blank')".
-    >{{#if otherUser.name}}{{otherUser.name}}{{else}}Usuário desconhecido{{/if}}</div>
-    <div class="profile-profession">{{#if otherUser.profession}}{{otherUser.profession}}{{else}}Usuário{{/if}}</div>
+    <div class="profile-profession">
+        {{#if otherUser.userType}}
+            {{#if (eq otherUser.userType "artist")}}
+                Artista
+            {{else if (eq otherUser.userType "establishment")}}
+                Estabelecimento
+            {{else}}
+                Usuário
+            {{/if}}
+        {{else if otherUser.profession}}
+            {{otherUser.profession}}
+        {{else}}
+            Usuário
+        {{/if}}
+    </div>
     <div class="profile-location">
         {{#if otherUser.city}}
             {{otherUser.city}}{{#if otherUser.state}}, {{otherUser.state}}{{/if}}
@@ -14,55 +28,59 @@
         {{/if}}
     </div>
 </div>
+
 <div class="profile-divider"></div>
+
 <div class="profile-bio">
     <div class="bio-title">Biografia</div>
     <div class="bio-text">{{#if otherUser.description}}{{otherUser.description}}{{else}}Sem descrição disponível.{{/if}}</div>
 </div>
-{{#if otherUser.userType}}
-<div class="profile-tags">
-    <div class="profile-tag">{{otherUser.profession}}</div>
-    {{#if (eq otherUser.userType "artist")}}
-        <div class="profile-tag">Artista</div>
-    {{else if (eq otherUser.userType "establishment")}}
-        <div class="profile-tag">Estabelecimento</div>
-    {{else}}
-        <div class="profile-tag">Usuário</div>
-    {{/if}}
-</div>
-{{/if}}
-{{#if otherUser.instagram}}
+
+{{#if (or otherUser.instagram otherUser.facebook otherUser.linkedin)}}
 <div class="profile-social">
     <div class="social-title">Redes Sociais</div>
-    <div class="social-links">
+    <div class="social-links" style="display: flex; gap: 15px; justify-content: flex-start;">
         {{#if otherUser.instagram}}
-            <a href="https://instagram.com/{{otherUser.instagram}}" target="_blank" class="social-link">
-                <span>📷</span> Instagram
+            <a href="{{#if (startsWith otherUser.instagram 'http')}}{{otherUser.instagram}}{{else}}https://instagram.com/{{otherUser.instagram}}{{/if}}" target="_blank" class="social-icon" style="background: #E4405F;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                    <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                </svg>
             </a>
         {{/if}}
         {{#if otherUser.facebook}}
-            <a href="https://facebook.com/{{otherUser.facebook}}" target="_blank" class="social-link">
-                <span>📘</span> Facebook
+            <a href="{{#if (startsWith otherUser.facebook 'http')}}{{otherUser.facebook}}{{else}}https://facebook.com/{{otherUser.facebook}}{{/if}}" target="_blank" class="social-icon" style="background: #1877F2;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                </svg>
             </a>
         {{/if}}
         {{#if otherUser.linkedin}}
-            <a href="https://linkedin.com/in/{{otherUser.linkedin}}" target="_blank" class="social-link">
-                <span>💼</span> LinkedIn
+            <a href="{{#if (startsWith otherUser.linkedin 'http')}}{{otherUser.linkedin}}{{else}}https://linkedin.com/in/{{otherUser.linkedin}}{{/if}}" target="_blank" class="social-icon" style="background: #0A66C2;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                    <rect width="4" height="12" x="2" y="9"/>
+                    <circle cx="4" cy="4" r="2"/>
+                </svg>
             </a>
         {{/if}}
     </div>
 </div>
 {{/if}}
+
 <div class="profile-actions" style="margin-top: 20px;">
-    <button class="profile-action-btn" onclick="window.open('/profile/{{otherUser.id}}', '_blank')" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-        Ver Perfil Completo
+    <button class="profile-action-btn proposal-button" onclick="openProposalModal()" style="width: 100%; padding: 12px; background: #6d51b0; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+        <span style="font-weight: bold; font-size: 16px;">+</span>
+        Enviar Proposta
     </button>
 </div>
+
 {{else}}
 <div class="profile-placeholder">
     <p>Selecione uma conversa para ver o perfil.</p>
     <div style="text-align: center; margin-top: 20px; opacity: 0.5;">
-        <div style="width: 60px; height: 60px; background: #f0f0f0; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5em;">?</div>
+        <div style="width: 60px; height: 60px; background: url('/img/default.jpg') center/cover; border-radius: 50%; margin: 0 auto 10px;"></div>
         <p style="margin: 0; color: #888;">Nenhum usuário selecionado</p>
     </div>
 </div>
