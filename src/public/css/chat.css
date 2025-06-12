@@ -9,6 +9,7 @@
     overflow: hidden;
     margin: 0;
     padding: 0;
+    padding-top: 80px; /* Compensa a altura da navbar fixa */
   }
   
   /* Standard Header */
@@ -60,7 +61,7 @@
   
   #chat-app {
     display: flex;
-    height: calc(100vh - 80px); /* Subtrai a altura do header da página */
+    height: calc(100vh - 80px); /* Subtrai a altura da navbar fixa */
     background-color: #f5f5f5;
     overflow: hidden;
   }
@@ -928,5 +929,341 @@
     
     .last-message {
       max-width: 150px;
+    }
+    
+    .user-conversation {
+      padding: 8px 12px;
+    }
+    
+    .user-name {
+      font-size: 13px;
+    }
+    
+    .user-time {
+      font-size: 11px;
+    }
+    
+    .last-message {
+      font-size: 12px;
+    }
+    
+    .message-bubble {
+      max-width: 85%;
+      font-size: 14px;
+      padding: 8px 12px;
+    }
+    
+    .message-time {
+      font-size: 11px;
+    }
+    
+    .profile-name {
+      font-size: 18px;
+    }
+    
+    .profile-profession {
+      font-size: 13px;
+    }
+    
+    .profile-location {
+      font-size: 12px;
+    }
+    
+    .bio-text {
+      font-size: 13px;
+    }
+  }
+  
+  @media screen and (max-width: 640px) {
+    #chat-app {
+      flex-direction: column;
+      height: calc(100vh - 70px);
+    }
+    
+    .users-column {
+      width: 100%;
+      height: 30vh;
+      border-right: none;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .chat-column {
+      width: 100%;
+      height: 70vh;
+    }
+    
+    .chat-column.expanded {
+      width: 100%;
+    }
+    
+    .profile-column {
+      position: fixed;
+      top: 70px;
+      right: 0;
+      width: 100%;
+      height: calc(100vh - 70px);
+      z-index: 1000;
+      background: white;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+    
+    .profile-column:not(.hidden) {
+      transform: translateX(0);
+    }
+    
+    .user-conversation {
+      padding: 10px 15px;
+    }
+    
+    .user-avatar {
+      width: 35px;
+      height: 35px;
+    }
+    
+    .user-name {
+      font-size: 14px;
+    }
+    
+    .user-time {
+      font-size: 10px;
+    }
+    
+    .last-message {
+      max-width: 200px;
+      font-size: 11px;
+    }
+    
+    .messages-container {
+      padding: 10px 15px;
+    }
+    
+    .message-bubble {
+      max-width: 90%;
+      font-size: 13px;
+      padding: 8px 10px;
+    }
+    
+    .message-input {
+      min-height: 40px;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+    
+    .send-button {
+      width: 40px;
+      height: 40px;
+    }
+    
+    .profile-avatar {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .profile-name {
+      font-size: 16px;
+    }
+    
+    .profile-profession {
+      font-size: 12px;
+    }
+    
+    .profile-location {
+      font-size: 11px;
+    }
+    
+    .rating {
+      font-size: 12px;
+    }
+    
+    .reviews {
+      font-size: 11px;
+    }
+    
+    .bio-text {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    
+    .social-icon {
+      width: 35px;
+      height: 35px;
+    }
+    
+    .modal-content {
+      width: 95%;
+      margin: 5vh auto;
+      max-height: 90vh;
+    }
+    
+    .form-actions {
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .cancel-button,
+    .submit-button {
+      width: 100%;
+      padding: 12px 20px;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    body {
+      padding-top: 70px;
+    }
+    
+    #chat-app {
+      height: calc(100vh - 70px);
+    }
+    
+    .users-column {
+      height: 25vh;
+    }
+    
+    .chat-column {
+      height: 75vh;
+    }
+    
+    .user-conversation {
+      padding: 8px 12px;
+    }
+    
+    .user-avatar {
+      width: 30px;
+      height: 30px;
+    }
+    
+    .user-name {
+      font-size: 13px;
+    }
+    
+    .user-time {
+      font-size: 9px;
+    }
+    
+    .last-message {
+      max-width: 150px;
+      font-size: 10px;
+    }
+    
+    .chat-header {
+      padding: 8px 12px;
+      min-height: 50px;
+    }
+    
+    .chat-user img {
+      width: 30px;
+      height: 30px;
+    }
+    
+    .chat-user-info h3 {
+      font-size: 14px;
+    }
+    
+    .messages-container {
+      padding: 8px 12px;
+    }
+    
+    .message-bubble {
+      max-width: 95%;
+      font-size: 12px;
+      padding: 6px 8px;
+    }
+    
+    .message-time {
+      font-size: 10px;
+    }
+    
+    .input-area {
+      padding: 8px 12px;
+    }
+    
+    .message-input {
+      min-height: 36px;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+    
+    .send-button {
+      width: 36px;
+      height: 36px;
+    }
+    
+    .profile-avatar {
+      width: 50px;
+      height: 50px;
+    }
+    
+    .profile-name {
+      font-size: 14px;
+    }
+    
+    .profile-profession {
+      font-size: 11px;
+    }
+    
+    .profile-location {
+      font-size: 10px;
+    }
+    
+    .rating {
+      font-size: 11px;
+    }
+    
+    .reviews {
+      font-size: 10px;
+    }
+    
+    .bio-title {
+      font-size: 12px;
+    }
+    
+    .bio-text {
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    
+    .social-title {
+      font-size: 12px;
+    }
+    
+    .social-icon {
+      width: 30px;
+      height: 30px;
+    }
+    
+    .toast {
+      bottom: 10px;
+      right: 10px;
+      left: 10px;
+      width: auto;
+      font-size: 13px;
+    }
+    
+    .modal-content {
+      width: calc(100% - 20px);
+      margin: 10px auto;
+      max-height: calc(100vh - 20px);
+    }
+    
+    .modal-title {
+      font-size: 16px;
+    }
+    
+    .form-label {
+      font-size: 13px;
+    }
+    
+    .form-input,
+    .form-textarea {
+      font-size: 13px;
+      padding: 10px;
+    }
+    
+    .cancel-button,
+    .submit-button {
+      font-size: 13px;
+      padding: 10px 16px;
     }
   }

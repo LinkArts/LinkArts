@@ -15,6 +15,13 @@ body {
     position: relative;
     /* Para garantir que os popups fiquem dentro da tela */
     overflow-x: hidden;
+    padding-top: 80px; /* Compensa a altura da navbar fixa */
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 70px; /* Navbar menor em mobile */
+    }
 }
 
 html {
@@ -34,6 +41,14 @@ html {
     font-size: 20px;
     border: black 1px solid;
     box-shadow: 2px 2px 2px black;
+}
+
+@media (max-width: 768px) {
+    .message {
+        max-width: 90%;
+        font-size: 16px;
+        padding: 0.8em;
+    }
 }
 
 .message-error {
@@ -68,9 +83,20 @@ html {
     background-color: #673AB7;
     padding: 0.75rem 2rem;
     color: white;
-    position: sticky;
+    position: fixed;
     top: 0;
-    z-index: 100;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: 80px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        height: 70px;
+        padding: 0.5rem 1rem;
+    }
 }
 
 .navbar-content {
@@ -81,6 +107,12 @@ html {
     /*max-width: 1200px;*/
     margin: 0 auto;
     gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .navbar-content {
+        gap: 1rem;
+    }
 }
 
 .logo {
@@ -94,6 +126,13 @@ html {
     border-radius: 30px;
 }
 
+@media (max-width: 768px) {
+    .logo img {
+        height: 35px;
+        margin-right: 5px;
+    }
+}
+
 .search-bar {
     display: flex;
     align-items: center;
@@ -104,11 +143,32 @@ html {
     max-width: 500px;
 }
 
+@media (max-width: 768px) {
+    .search-bar {
+        max-width: none;
+        padding: 0.4rem 0.8rem;
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-bar {
+        min-width: 150px;
+        padding: 0.3rem 0.6rem;
+    }
+}
+
 .search-bar input {
     border: none;
     outline: none;
     width: 100%;
     font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
+    .search-bar input {
+        font-size: 0.8rem;
+    }
 }
 
 .search-button {
@@ -149,6 +209,18 @@ html {
     position: relative;
 }
 
+@media (max-width: 768px) {
+    .nav-icons {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-icons {
+        gap: 0.8rem;
+    }
+}
+
 .nav-icon {
     padding: 0.5rem;
     border-radius: 50%;
@@ -166,6 +238,20 @@ html {
     color: #ffffff;
 }
 
+@media (max-width: 768px) {
+    .nav-icon svg {
+        width: 1.3rem;
+        height: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-icon svg {
+        width: 1.2rem;
+        height: 1.2rem;
+    }
+}
+
 /* Popup styles */
 .popup {
     position: absolute;
@@ -179,6 +265,21 @@ html {
     margin-top: 0.5rem;
     display: none;
     overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .popup {
+        width: 16rem;
+        right: -2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .popup {
+        width: 90vw;
+        right: -80vw;
+        max-width: 280px;
+    }
 }
 
 .popup.active {

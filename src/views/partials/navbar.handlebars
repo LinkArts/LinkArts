@@ -66,30 +66,18 @@
         </svg>
         <div class="popup" id="message-popup">
           <div class="popup-header">
-            <h3 class="popup-title">Mensagens</h3>
+            <h3 class="popup-title">Mensagens Recentes</h3>
           </div>
-          <div class="popup-content">
+          <div class="popup-content" id="navbar-messages-content">
+            <!-- Conteúdo será carregado dinamicamente via JavaScript -->
             <div class="popup-item">
-              <div class="popup-item-image">
-                <img src="/img/placeholder.svg" alt="João Silva">
-              </div>
               <div class="popup-item-content">
-                <h4 class="popup-item-title">João Silva</h4>
-                <p class="popup-item-description">Olá, tudo bem?</p>
-              </div>
-            </div>
-            <div class="popup-item">
-              <div class="popup-item-image">
-                <img src="/img/placeholder.svg" alt="Maria Souza">
-              </div>
-              <div class="popup-item-content">
-                <h4 class="popup-item-title">Maria Souza</h4>
-                <p class="popup-item-description">Vamos ao evento?</p>
+                <p style="text-align: center; color: #666; padding: 1rem;">Carregando mensagens...</p>
               </div>
             </div>
           </div>
           <div class="popup-footer">
-            <button class="popup-button" onclick="window.location.href='/chat/{{session.userid}}'">Ver todas</button>
+            <button class="popup-button" onclick="window.location.href='/chat/{{session.userid}}'">Ver todas as conversas</button>
           </div>
         </div>
       </div>
@@ -159,6 +147,11 @@
 
         // Toggle current popup
         popupElement.classList.toggle('active');
+        
+        // Carregar dados de mensagens quando o popup de mensagens for aberto
+        if (icon === 'message' && popupElement.classList.contains('active')) {
+          loadNavbarMessages();
+        }
       });
     });
 
@@ -174,6 +167,92 @@
         });
       }
     });
+  }
+
+  async function loadNavbarMessages() {
+    const messagesContent = document.getElementById('navbar-messages-content');
+    
+    try {
+      // Mostrar loading
+      messagesContent.innerHTML = `
+        <div class="popup-item">
+          <div class="popup-item-content">
+            <p style="text-align: center; color: #666; padding: 1rem;">Carregando mensagens...</p>
+          </div>
+        </div>
+      `;
+
+      const response = await fetch('/api/chats/navbar');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar mensagens');
+      }
+
+      const chats = await response.json();
+      
+      if (chats.length === 0) {
+        messagesContent.innerHTML = `
+          <div class="popup-item">
+            <div class="popup-item-content">
+              <p style="text-align: center; color: #666; padding: 1rem;">Nenhuma conversa encontrada</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Renderizar chats
+      let html = '';
+      chats.forEach(chat => {
+        const timeAgo = chat.latestMessage.createdAt ? formatTimeAgo(new Date(chat.latestMessage.createdAt)) : '';
+        
+        html += `
+          <div class="popup-item" style="cursor: pointer;" onclick="openChat(${chat.chatId})">
+            <div class="popup-item-image">
+              <img src="/img/default.jpg" alt="${chat.otherUser.name}">
+            </div>
+            <div class="popup-item-content">
+              <h4 class="popup-item-title">${chat.otherUser.name}</h4>
+              <p class="popup-item-description">${chat.latestMessage.content}</p>
+              ${timeAgo ? `<p class="popup-item-time" style="font-size: 0.7rem; color: #999; margin-top: 2px;">${timeAgo}</p>` : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      messagesContent.innerHTML = html;
+
+    } catch (error) {
+      console.error('Erro ao carregar mensagens da navbar:', error);
+      messagesContent.innerHTML = `
+        <div class="popup-item">
+          <div class="popup-item-content">
+            <p style="text-align: center; color: #e53e3e; padding: 1rem;">Erro ao carregar mensagens</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function formatTimeAgo(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMinutes < 1) return 'agora';
+    if (diffMinutes < 60) return `${diffMinutes}min`;
+    if (diffHours < 24) return `${diffHours}h`;
+    if (diffDays < 7) return `${diffDays}d`;
+    
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  }
+
+  function openChat(chatId) {
+    // Fechar popup
+    document.getElementById('message-popup').classList.remove('active');
+    // Navegar para o chat
+    window.location.href = `/chat/{{session.userid}}#chat-${chatId}`;
   }
 
   document.addEventListener('DOMContentLoaded', () =>

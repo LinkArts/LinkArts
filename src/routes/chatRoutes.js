@@ -86,4 +86,7 @@ router.post(
     ChatController.setTypingStatus
 );
 
+// API: Obter lista resumida de chats para navbar
+router.get("/api/chats/navbar", ChatController.getNavbarChatsApi);
+
 module.exports = router;

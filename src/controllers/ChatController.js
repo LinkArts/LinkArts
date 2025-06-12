@@ -691,5 +691,68 @@ module.exports = class ChatController {
             res.status(500).json({ message: "Erro interno do servidor." });
         }
     }
+
+    // --- API: Obter lista resumida de chats para navbar ---
+    static async getNavbarChatsApi(req, res) {
+        if (!req.session.userid) {
+            return res.status(401).json({ message: "Não autorizado" });
+        }
+        const userId = parseInt(req.session.userid, 10);
+
+        try {
+            const user = await User.findByPk(userId);
+            if (!user) {
+                return res.status(401).json({ message: "Usuário não encontrado" });
+            }
+
+            // Busca os últimos 4 chats do usuário com mensagem mais recente
+            const chats = await user.getChats({
+                include: [
+                    {
+                        model: User,
+                        through: { attributes: [] },
+                        attributes: ["id", "name"]
+                    },
+                    {
+                        model: Message,
+                        limit: 1,
+                        order: [["createdAt", "DESC"]],
+                        attributes: ["message", "createdAt"]
+                    }
+                ],
+                limit: 4,
+                order: [["updatedAt", "DESC"]]
+            });
+
+            // Formata para o frontend da navbar
+            const formattedChats = chats.map(chat => {
+                const otherUser = chat.Users.find(u => u.id !== userId);
+                const latestMessage = chat.Messages.length > 0 ? chat.Messages[0] : null;
+
+                return {
+                    chatId: chat.id,
+                    otherUser: {
+                        id: otherUser?.id || null,
+                        name: otherUser?.name || "Usuário desconhecido"
+                    },
+                    latestMessage: latestMessage ? {
+                        content: latestMessage.message.length > 40 
+                            ? latestMessage.message.substring(0, 40) + "..." 
+                            : latestMessage.message,
+                        createdAt: latestMessage.createdAt
+                    } : {
+                        content: "Sem mensagens",
+                        createdAt: null
+                    }
+                };
+            });
+
+            return res.status(200).json(formattedChats);
+
+        } catch (error) {
+            console.error("Erro ao buscar chats para navbar:", error);
+            return res.status(500).json({ message: "Falha ao carregar chats." });
+        }
+    }
 };
 

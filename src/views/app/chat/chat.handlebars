@@ -751,6 +751,9 @@
             updateChatList();
             updateMessagePopup();
             
+            // Verificar se há um chat específico para abrir via hash da URL
+            checkUrlHash();
+            
             // Esconde header e campo de mensagem inicialmente se não há chat ativo
             if (!currentChatId) {
                 const chatHeader = document.querySelector('.chat-header');
@@ -836,6 +839,39 @@
 
             function resetChatToWelcome() {
                 closeChatAndReturnToWelcome();
+            }
+            
+            function checkUrlHash() {
+                const hash = window.location.hash;
+                if (hash && hash.startsWith('#chat-')) {
+                    const chatId = parseInt(hash.replace('#chat-', ''), 10);
+                    if (chatId && !isNaN(chatId)) {
+                        console.log('Abrindo chat via URL hash:', chatId);
+                        // Aguardar carregamento da lista de conversas
+                        setTimeout(() => {
+                            selectChatById(chatId);
+                            // Limpar o hash
+                            window.location.hash = '';
+                        }, 1000);
+                    }
+                }
+            }
+            
+            async function selectChatById(chatId) {
+                try {
+                    // Buscar o elemento da conversa na lista
+                    const conversationElement = document.querySelector(`[data-chat-id="${chatId}"]`);
+                    if (conversationElement) {
+                        // Simular clique na conversa
+                        conversationElement.click();
+                    } else {
+                        console.warn('Chat não encontrado na lista:', chatId);
+                        showToast('Conversa não encontrada', true);
+                    }
+                } catch (error) {
+                    console.error('Erro ao selecionar chat:', error);
+                    showToast('Erro ao abrir conversa', true);
+                }
             }
         });
     </script>

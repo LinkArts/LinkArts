@@ -515,28 +515,359 @@ ou crie uma regra mais específica para eles, ex: #notes-column .column-header *
     border-top: 1px solid var(--border-color);
 }
 
-/* Responsividade */
+/* Responsividade melhorada */
+@media (max-width: 1200px) {
+    .all {
+        padding: 15px;
+    }
+    
+    .container-agenda {
+        gap: 15px;
+    }
+    
+    .column {
+        min-width: 300px;
+    }
+}
+
 @media (max-width: 1024px) {
+    .all {
+        padding: 10px;
+    }
+    
+    .container-agenda {
+        gap: 10px;
+    }
+    
     .column {
         max-width: 100%;
-        /* Em telas menores, ocupam a largura total */
+        min-width: 280px;
+    }
+    
+    .column-header-container {
+        padding: 12px 15px;
+    }
+    
+    .column-header-title {
+        font-size: 1.1rem;
+    }
+    
+    .card {
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .card h4 {
+        font-size: 1rem;
+    }
+    
+    .card p {
+        font-size: 0.85rem;
+    }
+    
+    .card-price {
+        font-size: 1rem;
+    }
+    
+    .btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
     }
 }
 
 @media (max-width: 768px) {
+    .all {
+        padding: 8px;
+        padding-top: 85px;
+    }
+    
     .container-agenda {
         flex-direction: column;
-        /* Em telas muito pequenas, as colunas empilham */
         align-items: center;
+        gap: 15px;
     }
 
     .column {
         width: 100%;
         max-width: 500px;
-        /* Limita a largura para uma melhor leitura */
+        min-height: 300px;
+    }
+    
+    .column-header-container {
+        padding: 10px 12px;
+    }
+    
+    .column-header-title {
+        font-size: 1rem;
     }
 
-    .modal-view {
+    .modal-view,
+    .modal-send-proposal {
         padding: 20px;
+        width: 95%;
+        max-width: 450px;
+    }
+    
+    .modal-view h2,
+    .modal-send-proposal h2 {
+        font-size: 1.4rem;
+    }
+    
+    .modal-view .modal-body p,
+    .modal-send-proposal .form-group label {
+        font-size: 0.9rem;
+    }
+    
+    .notes-area {
+        padding: 12px;
+    }
+    
+    .notes-area textarea {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 640px) {
+    .all {
+        padding: 5px;
+        padding-top: 80px;
+    }
+    
+    .container-agenda {
+        gap: 10px;
+    }
+    
+    .column {
+        max-width: 100%;
+        min-height: 250px;
+    }
+    
+    .column-header-container {
+        padding: 8px 10px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .column-header-title {
+        font-size: 0.95rem;
+    }
+    
+    #send-proposal-btn {
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .card {
+        padding: 10px;
+        margin-bottom: 6px;
+    }
+    
+    .card h4 {
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+    
+    .card p {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+    }
+    
+    .card-meta {
+        font-size: 0.75rem;
+        margin-bottom: 6px;
+    }
+    
+    .card-price {
+        font-size: 0.9rem;
+    }
+    
+    .card-actions {
+        gap: 4px;
+    }
+    
+    .btn {
+        padding: 5px 8px;
+        font-size: 0.75rem;
+    }
+    
+    .modal-view,
+    .modal-send-proposal {
+        padding: 15px;
+        width: 95%;
+        max-height: 85vh;
+    }
+    
+    .modal-view h2,
+    .modal-send-proposal h2 {
+        font-size: 1.2rem;
+    }
+    
+    .modal-view .modal-body p,
+    .modal-send-proposal .form-group label {
+        font-size: 0.85rem;
+    }
+    
+    .modal-send-proposal .form-group input,
+    .modal-send-proposal .form-group textarea {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .modal-view .modal-footer,
+    .modal-send-proposal .modal-footer {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .modal-view .modal-footer .btn,
+    .modal-send-proposal .modal-footer .btn {
+        width: 100%;
+        padding: 10px 15px;
+    }
+    
+    .notes-area {
+        padding: 10px;
+    }
+    
+    .notes-area label {
+        font-size: 0.9rem;
+    }
+    
+    .notes-area textarea {
+        font-size: 0.85rem;
+        padding: 6px;
+        min-height: 80px;
+    }
+    
+    .notes-area .btn-container {
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .all {
+        padding: 3px;
+        padding-top: 75px;
+    }
+    
+    .container-agenda {
+        gap: 8px;
+    }
+    
+    .column {
+        min-height: 200px;
+    }
+    
+    .column-header-container {
+        padding: 6px 8px;
+        gap: 6px;
+    }
+    
+    .column-header-title {
+        font-size: 0.85rem;
+    }
+    
+    #send-proposal-btn {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+    
+    .card {
+        padding: 8px;
+        margin-bottom: 4px;
+    }
+    
+    .card h4 {
+        font-size: 0.85rem;
+        margin-bottom: 3px;
+    }
+    
+    .card p {
+        font-size: 0.75rem;
+        margin-bottom: 4px;
+    }
+    
+    .card-meta {
+        font-size: 0.7rem;
+        margin-bottom: 4px;
+    }
+    
+    .card-price {
+        font-size: 0.8rem;
+    }
+    
+    .card-actions {
+        gap: 3px;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        padding: 4px 6px;
+        font-size: 0.7rem;
+        min-width: 60px;
+    }
+    
+    .modal-view,
+    .modal-send-proposal {
+        padding: 12px;
+        width: calc(100% - 10px);
+        margin: 5px;
+        max-height: 90vh;
+    }
+    
+    .modal-view h2,
+    .modal-send-proposal h2 {
+        font-size: 1.1rem;
+    }
+    
+    .modal-view .modal-close-btn,
+    .modal-send-proposal .modal-close-btn {
+        font-size: 1.5rem;
+    }
+    
+    .modal-view .modal-body p,
+    .modal-send-proposal .form-group label {
+        font-size: 0.8rem;
+    }
+    
+    .modal-send-proposal .form-group {
+        margin-bottom: 10px;
+    }
+    
+    .modal-send-proposal .form-group input,
+    .modal-send-proposal .form-group textarea {
+        padding: 6px;
+        font-size: 0.85rem;
+    }
+    
+    .modal-view .modal-footer .btn,
+    .modal-send-proposal .modal-footer .btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .notes-area {
+        padding: 8px;
+    }
+    
+    .notes-area label {
+        font-size: 0.85rem;
+    }
+    
+    .notes-area textarea {
+        font-size: 0.8rem;
+        padding: 5px;
+        min-height: 70px;
+    }
+    
+    .notes-area .btn-container {
+        margin-top: 6px;
+    }
+    
+    .notes-area .btn-container .btn {
+        width: 100%;
     }
 }
