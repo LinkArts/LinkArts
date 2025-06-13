@@ -31,6 +31,8 @@ const searchRoutes = require("./routes/searchRoutes");
 const SearchController = require("./controllers/SearchController");
 const agendaRoutes = require("./routes/agendaRoutes");
 const AgendaController = require("./controllers/AgendaController");
+const serviceRoutes = require('./routes/serviceRoutes')
+const adminRoutes = require('./routes/adminRoutes')
 
 // Models
 const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest, Service, ServiceNote, ServiceProposal } = require('./models/index')
@@ -84,26 +86,32 @@ app.engine(
         return colors[Math.floor(Math.random() * colors.length)];
       },
       // Helper substring para truncar strings com validação
-      substring: function(str, start, length) {
+      substring: function (str, start, length)
+      {
         if (!str || typeof str !== 'string') return "";
-        try {
+        try
+        {
           if (typeof start !== 'number' || start < 0) start = 0;
           if (typeof length !== 'number' || length < 0) return str.substring(start);
           return str.substring(start, start + length);
-        } catch (e) {
+        } catch (e)
+        {
           console.error("Erro no helper substring:", e);
           return "";
         }
       },
       // Helper para verificar se string começa com texto específico
-      startsWith: function(str, prefix) {
+      startsWith: function (str, prefix)
+      {
         if (!str || typeof str !== 'string') return false;
         if (!prefix || typeof prefix !== 'string') return false;
         return str.startsWith(prefix);
       },
       // Helper para verificar se pelo menos um dos valores é verdadeiro
-      or: function() {
-        for (let i = 0; i < arguments.length - 1; i++) {
+      or: function ()
+      {
+        for (let i = 0; i < arguments.length - 1; i++)
+        {
           if (arguments[i]) return true;
         }
         return false;
@@ -168,6 +176,8 @@ app.use('/profile', profileRoutes)
 app.use('/', searchRoutes)
 app.use('/', chatRoutes)
 app.use('/', agendaRoutes)
+app.use('/', serviceRoutes)
+app.use('/', adminRoutes)
 app.get('/', AuthController.renderLogin)
 
 // Rota 404
@@ -193,40 +203,3 @@ conn
   {
     console.error("Erro ao sincronizar com o banco de dados:", err);
   });
-
-
-// seedGenres.js
-
-/*const { Genre } = require('./models'); // ajuste o caminho para o seu model
-const sequelize = require('./config/database'); // ajuste para sua instância do sequelize
-
-async function seedGenres() {
-  const genres = [
-    'Pop', 'Rock', 'Jazz', 'Blues', 'Hip Hop', 'Rap', 'R&B', 'Funk',
-    'Soul', 'Samba', 'MPB', 'Pagode', 'Forró', 'Axé', 'Brega', 'Sertanejo',
-    'Sertanejo Universitário', 'Eletrônica', 'Techno', 'House', 'Trance',
-    'Dubstep', 'Lo-fi', 'Reggae', 'Dancehall', 'K-pop', 'J-pop', 'Cumbia',
-    'Tango', 'Fado', 'Country', 'Gospel', 'Cristã Contemporânea', 'Coral',
-    'Clássica', 'Opera', 'Instrumental', 'Indie', 'Alternativo', 'Punk',
-    'Hardcore', 'Metal', 'Heavy Metal', 'Black Metal', 'Trap', 'Drill',
-    'Grime', 'Folk', 'Ambient', 'Experimental', 'Chillout', 'New Age',
-    'Bossa Nova', 'Choro', 'Frevo', 'Maracatu', 'Carimbó', 'Tecnobrega',
-    'Piseiro', 'Arrocha', 'Reggaeton', 'Zouk', 'Ska', 'World Music'
-  ];
-
-  const data = genres.map(name => ({ name }));
-
-  try {
-    await sequelize.sync(); // opcional: apenas se quiser sincronizar o schema antes
-    await Genre.bulkCreate(data, {
-      ignoreDuplicates: true, // Ignora se já existir (requer campo único no banco)
-    });
-    console.log('Gêneros inseridos com sucesso!');
-  } catch (error) {
-    console.error('Erro ao inserir gêneros:', error);
-  } finally {
-    await sequelize.close();
-  }
-}
-
-seedGenres();*/

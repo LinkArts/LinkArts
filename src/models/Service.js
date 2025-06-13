@@ -11,6 +11,10 @@ const Service = db.define('Service', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
+    senderid: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
     name: {
         type: DataTypes.STRING(100),
         allowNull: false
@@ -29,10 +33,6 @@ const Service = db.define('Service', {
     },
     time: {
         type: DataTypes.TIME,
-        allowNull: true
-    },
-    establishmentName: {
-        type: DataTypes.STRING(100),
         allowNull: true
     }
 });

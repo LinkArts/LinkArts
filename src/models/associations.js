@@ -165,11 +165,28 @@ module.exports = function setupAssociations(models)
 
     Service.belongsTo(User, { 
         foreignKey: 'userid',
+        as: 'Receiver',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
+
+    Service.belongsTo(User, {
+        foreignKey: 'senderid',
+        as: 'Sender',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
     User.hasMany(Service, { 
         foreignKey: 'userid',
+        as: 'ReceivedServices',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
+    User.hasMany(Service, {
+        foreignKey: 'senderid',
+        as: 'SentServices',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
@@ -181,6 +198,7 @@ module.exports = function setupAssociations(models)
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
+
     Tag.belongsToMany(Service, { 
         foreignKey: 'tagid',
         otherKey: 'serviceid',

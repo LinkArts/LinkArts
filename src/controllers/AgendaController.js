@@ -264,13 +264,13 @@ module.exports = class AgendaController
 
                 // Criar um novo serviço baseado na proposta
                 await Service.create({
-                    userid: userid,
+                    userid: userid, // ID do usuário que recebeu a proposta
+                    senderid: proposal.senderUserid, // ID do usuário que enviou a proposta
                     name: proposal.name,
                     description: proposal.description,
                     price: proposal.price,
                     date: proposal.date,
-                    time: proposal.time,
-                    establishmentName: `Proposta de ${ proposal.senderUserid }` // Pode ser melhorado buscando o nome do remetente
+                    time: proposal.time
                 });
 
                 return res.json({ message: "Proposta aceita e serviço criado com sucesso!" });
