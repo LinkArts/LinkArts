@@ -6,7 +6,6 @@
             <a href="#" data-section="content-management-section" class="nav-link">Conteúdo</a>
             <a href="#" data-section="service-management-section" class="nav-link">Serviços</a>
             <a href="#" data-section="event-management-section" class="nav-link">Eventos</a>
-            <a href="#" data-section="reports-section" class="nav-link">Relatórios</a>
             <a href="#" data-section="complaints-section" class="nav-link">Denúncias</a>
         </aside>
 
@@ -14,27 +13,16 @@
             <section id="dashboard-section" class="content-section active">
                 <h2>Visão Geral</h2>
                 <div class="list-container">
-                    <h3>Totais de Usuários</h3>
+                    <h3>Total de Usuários</h3>
                     <div class="metrics-grid" id="total-users-metrics">
                     </div>
                 </div>
 
                 <div class="list-container">
-                    <h3>Atividades Recentes</h3>
                     <div class="recent-section-content">
                         <div class="column-list">
                             <h3>Últimos Usuários Cadastrados</h3>
                             <ul class="recent-activities-list" id="last-registered-users">
-                            </ul>
-                        </div>
-                        <div class="column-list">
-                            <h3>Últimos Serviços</h3>
-                            <ul class="recent-activities-list" id="last-services">
-                            </ul>
-                        </div>
-                        <div class="column-list">
-                            <h3>Últimos Eventos Adicionados</h3>
-                            <ul class="recent-activities-list" id="last-events">
                             </ul>
                         </div>
                     </div>
@@ -107,25 +95,18 @@
                     </table>
                 </div>
 
-                <div class="list-container" style="margin-top: 3rem;">
-                    <h3>Gêneros e Tags</h3>
+                <!--<div class="list-container" style="margin-top: 3rem;">
+                    <h3>Tags</h3>
                     <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="value" id="total-genres-count">0</div>
-                            <div class="label">Total de Gêneros</div>
-                        </div>
                         <div class="metric-card">
                             <div class="value" id="total-tags-count">0</div>
                             <div class="label">Total de Tags</div>
                         </div>
                     </div>
-                    <h3 style="margin-top: 2rem;">Lista de Gêneros</h3>
-                    <ul class="recent-activities-list" id="genres-list">
-                    </ul>
                     <h3 style="margin-top: 2rem;">Lista de Tags</h3>
                     <ul class="recent-activities-list" id="tags-list">
                     </ul>
-                </div>
+                </div>-->
             </section>
 
             <section id="service-management-section" class="content-section">
@@ -191,33 +172,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <div class="list-container" style="margin-top: 3rem;">
-                    <h3>Eventos Mais Populares</h3>
-                    <ul class="recent-activities-list" id="popular-events-list">
-                    </ul>
-                </div>
-            </section>
-
-            <section id="reports-section" class="content-section">
-                <h2>Relatórios e Estatísticas</h2>
-                <div class="list-container">
-                    <h3>Crescimento de Usuários ao Longo do Tempo</h3>
-                    <ul class="recent-activities-list" id="user-growth-report">
-                    </ul>
-                </div>
-
-                <div class="list-container" style="margin-top: 3rem;">
-                    <h3>Serviços Mais Solicitados</h3>
-                    <ul class="recent-activities-list" id="most-requested-services">
-                    </ul>
-                </div>
-
-                <div class="list-container" style="margin-top: 3rem;">
-                    <h3>Gêneros Musicais Mais Populares</h3>
-                    <ul class="recent-activities-list" id="most-popular-genres">
-                    </ul>
-                </div>
             </section>
 
             <section id="complaints-section" class="content-section">
@@ -267,28 +221,10 @@
                 general: 750,
             },
             recentUsers: [
-                { id: 'ru1', name: 'Lucas Farias', date: '2024-06-07' },
-                { id: 'ru2', name: 'Fernanda Lima (Estabelecimento)', date: '2024-06-06' },
-                { id: 'ru3', name: 'Mariana Costa', date: '2024-06-05' },
-                { id: 'ru1', name: 'Lucas Farias', date: '2024-06-07' },
-                { id: 'ru2', name: 'Fernanda Lima (Estabelecimento)', date: '2024-06-06' },
-                { id: 'ru3', name: 'Mariana Costa', date: '2024-06-05' }, { id: 'ru1', name: 'Lucas Farias', date: '2024-06-07' },
-                { id: 'ru2', name: 'Fernanda Lima (Estabelecimento)', date: '2024-06-06' },
-                { id: 'ru3', name: 'Mariana Costa', date: '2024-06-05' }, { id: 'ru1', name: 'Lucas Farias', date: '2024-06-07' },
-                { id: 'ru2', name: 'Fernanda Lima (Estabelecimento)', date: '2024-06-06' },
-                { id: 'ru3', name: 'Mariana Costa', date: '2024-06-05' }, { id: 'ru1', name: 'Lucas Farias', date: '2024-06-07' },
-                { id: 'ru2', name: 'Fernanda Lima (Estabelecimento)', date: '2024-06-06' },
-                { id: 'ru3', name: 'Mariana Costa', date: '2024-06-05' },
-            ],
-            recentServices: [
-                { id: 'rs1', name: 'Show de Jazz no "Café Boêmio"', status: 'Concluído', date: '2024-06-07' },
-                { id: 'rs2', name: 'Gravação de Jingle para "Agência Sol"', status: 'Solicitado', date: '2024-06-06' },
-                { id: 'rs3', name: 'Aula de Violão Avançado', status: 'Concluído', date: '2024-06-05' },
-            ],
-            recentEvents: [
-                { id: 're1', name: 'Festival de Verão 2024', date: '2024-06-08', establishment: 'Parque da Cidade' },
-                { id: 're2', name: 'Noite de Stand-up Comedy', date: '2024-06-06', establishment: 'Bar do Zé' },
-                { id: 're3', name: 'Workshop de Canto Lírico', date: '2024-06-05', establishment: 'Escola de Artes' },
+                { id: '1', name: 'Gustavo', type: 'Artista', date: '2024-06-07' },
+                { id: '2', name: 'Pedro', type: 'Estabelecimento', date: '2024-06-06' },
+                { id: '3', name: 'Kevin', type: 'Artista', date: '2024-06-05' },
+                { id: '4', name: 'Ana', type: 'Artista', date: '2024-06-07' },
             ],
             generalStats: {
                 totalMusic: 2500,
@@ -346,12 +282,12 @@
                 { id: 'g03', name: 'Jazz' },
                 { id: 'g04', name: 'Samba' },
             ],
-            tags: [
+            /*tags: [
                 { id: 't01', name: 'Ao Vivo' },
                 { id: 't02', name: 'Acústico' },
                 { id: 't03', name: 'Instrumental' },
                 { id: 't04', name: 'Festa' },
-            ],
+            ],*/
 
             // Service Management
             serviceRequests: [
@@ -460,10 +396,6 @@
                         <div class="label">Estabelecimentos</div>
                     </div>
                     <div class="metric-card">
-                        <div class="value">${ general }</div>
-                        <div class="label">Usuários Gerais</div>
-                    </div>
-                    <div class="metric-card">
                         <div class="value">${ artists + establishments + general }</div>
                         <div class="label">Total de Usuários</div>
                     </div>
@@ -474,26 +406,8 @@
             simulatedData.recentUsers.forEach(user =>
             {
                 const li = document.createElement('li');
-                li.innerHTML = `<strong>${ user.name }</strong> <span>${ user.date }</span>`;
+                li.innerHTML = `<strong>${ user.name } (${user.type})</strong> <span>${ user.date }</span>`;
                 lastRegisteredUsersList.appendChild(li);
-            });
-
-            const lastServicesList = document.getElementById('last-services');
-            lastServicesList.innerHTML = '';
-            simulatedData.recentServices.forEach(service =>
-            {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${ service.name }</strong> <span>(${ service.status }) - ${ service.date }</span>`;
-                lastServicesList.appendChild(li);
-            });
-
-            const lastEventsList = document.getElementById('last-events');
-            lastEventsList.innerHTML = '';
-            simulatedData.recentEvents.forEach(event =>
-            {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${ event.name }</strong> <span>(${ event.establishment }) - ${ event.date }</span>`;
-                lastEventsList.appendChild(li);
             });
 
             const generalStatsContainer = document.getElementById('general-statistics-metrics');
@@ -593,8 +507,7 @@
         {
             document.getElementById('total-music-count').textContent = simulatedData.music.length;
             document.getElementById('total-albums-count').textContent = simulatedData.albums.length;
-            document.getElementById('total-genres-count').textContent = simulatedData.genres.length;
-            document.getElementById('total-tags-count').textContent = simulatedData.tags.length;
+            //document.getElementById('total-tags-count').textContent = simulatedData.tags.length;
 
             const musicListBody = document.getElementById('music-list-tbody');
             musicListBody.innerHTML = '';
@@ -607,7 +520,6 @@
                         <td>${ item.album }</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-warning" data-action="edit" data-id="${ item.id }" data-type="music">Editar</button>
                                 <button class="btn btn-danger" data-action="delete" data-id="${ item.id }" data-type="music">Excluir</button>
                             </div>
                         </td>
@@ -626,7 +538,6 @@
                         <td>${ item.year }</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-warning" data-action="edit" data-id="${ item.id }" data-type="album">Editar</button>
                                 <button class="btn btn-danger" data-action="delete" data-id="${ item.id }" data-type="album">Excluir</button>
                             </div>
                         </td>
@@ -634,24 +545,9 @@
                 albumListBody.appendChild(tr);
             });
 
-            const genresList = document.getElementById('genres-list');
-            genresList.innerHTML = '';
-            simulatedData.genres.forEach(item =>
-            {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                        <strong>${ item.name }</strong>
-                        <div class="action-buttons">
-                            <button class="btn btn-warning" data-action="edit" data-id="${ item.id }" data-type="genre">Editar</button>
-                            <button class="btn btn-danger" data-action="delete" data-id="${ item.id }" data-type="genre">Excluir</button>
-                        </div>
-                    `;
-                genresList.appendChild(li);
-            });
-
             const tagsList = document.getElementById('tags-list');
             tagsList.innerHTML = '';
-            simulatedData.tags.forEach(item =>
+            /*simulatedData.tags.forEach(item =>
             {
                 const li = document.createElement('li');
                 li.innerHTML = `
@@ -662,36 +558,7 @@
                         </div>
                     `;
                 tagsList.appendChild(li);
-            });
-
-            // Add generic listeners for Edit/Delete on content
-            document.querySelectorAll('#content-management-section [data-action="edit"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    const type = e.target.dataset.type;
-                    alert(`Editar ${ type } com ID: ${ id } (simulado).`);
-                    // Aqui você abriria um modal de edição ou navegaria para uma página de edição
-                });
-            });
-            document.querySelectorAll('#content-management-section [data-action="delete"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    const type = e.target.dataset.type;
-                    if (confirm(`Tem certeza que deseja excluir este(a) ${ type } (ID: ${ id })?`))
-                    {
-                        // === COLOQUE SEU FETCH AQUI PARA EXCLUIR CONTEÚDO ===
-                        // Ex: await fetch(`/api/content/${type}/${id}`, { method: 'DELETE' });
-                        alert(`${ type } com ID: ${ id } excluído (simulado).`);
-                        // Remove do simulatedData e re-renderiza
-                        simulatedData[type + 's'] = simulatedData[type + 's'].filter(item => item.id !== id);
-                        renderContentManagement();
-                    }
-                });
-            });
+            });*/
         }
 
         // Gerenciamento de Serviços
@@ -718,68 +585,12 @@
                         <td><span style="color:${ statusColor }; font-weight: bold;">${ item.status }</span></td>
                         <td>
                             <div class="action-buttons">
-                                ${ item.status === 'Pendente' ? `<button class="btn btn-success" data-action="approve-request" data-id="${ item.id }">Aprovar</button>` : '' }
-                                ${ item.status === 'Pendente' ? `<button class="btn btn-danger" data-action="reject-request" data-id="${ item.id }">Recusar</button>` : '' }
                                 <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="serviceRequest">Ver Detalhes</button>
                             </div>
                         </td>
                     `;
                 serviceRequestsBody.appendChild(tr);
             });
-
-            serviceRequestsBody.querySelectorAll('[data-action="approve-request"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    const service = simulatedData.serviceRequests.find(s => s.id === id);
-                    if (service && confirm(`Aprovar pedido de serviço "${ service.title }"?`))
-                    {
-                        // === COLOQUE SEU FETCH AQUI PARA APROVAR PEDIDO ===
-                        // Ex: await fetch(`/api/service-requests/${id}/approve`, { method: 'PUT' });
-                        service.status = 'Aceito';
-                        alert(`Pedido "${ service.title }" aprovado (simulado).`);
-                        renderServiceManagement();
-                    }
-                });
-            });
-            serviceRequestsBody.querySelectorAll('[data-action="reject-request"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    const service = simulatedData.serviceRequests.find(s => s.id === id);
-                    if (service && confirm(`Recusar pedido de serviço "${ service.title }"?`))
-                    {
-                        // === COLOQUE SEU FETCH AQUI PARA RECUSAR PEDIDO ===
-                        // Ex: await fetch(`/api/service-requests/${id}/reject`, { method: 'PUT' });
-                        service.status = 'Recusado'; // Adiciona um status "Recusado" ou similar
-                        alert(`Pedido "${ service.title }" recusado (simulado).`);
-                        renderServiceManagement();
-                    }
-                });
-            });
-            serviceRequestsBody.querySelectorAll('[data-action="view-details"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    const service = simulatedData.serviceRequests.find(item => item.id === id);
-                    if (service)
-                    {
-                        const content = `
-                                <p><strong>ID:</strong> ${ service.id }</p>
-                                <p><strong>Título:</strong> ${ service.title }</p>
-                                <p><strong>Cliente:</strong> ${ service.client }</p>
-                                <p><strong>Data:</strong> ${ service.date }</p>
-                                <p><strong>Status:</strong> ${ service.status }</p>
-                                <p><strong>Descrição:</strong> ${ service.description }</p>
-                            `;
-                        openModal(`Detalhes do Pedido de Serviço: ${ service.title }`, content);
-                    }
-                });
-            });
-
 
             const serviceProposalsBody = document.getElementById('service-proposals-tbody');
             serviceProposalsBody.innerHTML = '';
@@ -803,63 +614,10 @@
                         <td>
                             <div class="action-buttons">
                                 <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="serviceProposal">Ver Detalhes</button>
-                                ${ item.status === 'Pendente' ? `<button class="btn btn-success" data-action="approve-proposal" data-id="${ item.id }">Aprovar</button>` : '' }
-                                ${ item.status === 'Pendente' ? `<button class="btn btn-danger" data-action="reject-proposal" data-id="${ item.id }">Rejeitar</button>` : '' }
                             </div>
                         </td>
                     `;
                 serviceProposalsBody.appendChild(tr);
-            });
-
-            serviceProposalsBody.querySelectorAll('[data-action="approve-proposal"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    const proposal = simulatedData.serviceProposals.find(p => p.id === id);
-                    if (proposal && confirm(`Aprovar proposta de serviço "${ proposal.title }"?`))
-                    {
-                        // === COLOQUE SEU FETCH AQUI PARA APROVAR PROPOSTA ===
-                        proposal.status = 'Aprovado';
-                        alert(`Proposta "${ proposal.title }" aprovada (simulado).`);
-                        renderServiceManagement();
-                    }
-                });
-            });
-            serviceProposalsBody.querySelectorAll('[data-action="reject-proposal"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    const proposal = simulatedData.serviceProposals.find(p => p.id === id);
-                    if (proposal && confirm(`Rejeitar proposta de serviço "${ proposal.title }"?`))
-                    {
-                        // === COLOQUE SEU FETCH AQUI PARA REJEITAR PROPOSTA ===
-                        proposal.status = 'Rejeitado';
-                        alert(`Proposta "${ proposal.title }" rejeitada (simulado).`);
-                        renderServiceManagement();
-                    }
-                });
-            });
-            serviceProposalsBody.querySelectorAll('[data-action="view-details"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    const proposal = simulatedData.serviceProposals.find(item => item.id === id);
-                    if (proposal)
-                    {
-                        const content = `
-                                <p><strong>ID:</strong> ${ proposal.id }</p>
-                                <p><strong>Título:</strong> ${ proposal.title }</p>
-                                <p><strong>Proponente:</strong> ${ proposal.proponent }</p>
-                                <p><strong>Preço:</strong> R$ ${ proposal.price.toFixed(2).replace('.', ',') }</p>
-                                <p><strong>Status:</strong> ${ proposal.status }</p>
-                                <p><strong>Descrição:</strong> ${ proposal.description }</p>
-                            `;
-                        openModal(`Detalhes da Proposta de Serviço: ${ proposal.title }`, content);
-                    }
-                });
             });
         }
 
@@ -880,118 +638,11 @@
                         <td>${ item.date }</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-warning" data-action="edit" data-id="${ item.id }">Editar</button>
-                                <button class="btn btn-danger" data-action="delete" data-id="${ item.id }">Excluir</button>
-                                <button class="btn ${ item.highlighted ? 'btn-info' : 'btn-primary' }" data-action="toggle-highlight" data-id="${ item.id }">
-                                    ${ item.highlighted ? 'Desdestacar' : 'Destacar' }
-                                </button>
                                 <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="event">Ver Detalhes</button>
                             </div>
                         </td>
                     `;
                 eventsListBody.appendChild(tr);
-            });
-
-            eventsListBody.querySelectorAll('[data-action="edit"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    alert(`Editar evento com ID: ${ id } (simulado).`);
-                });
-            });
-            eventsListBody.querySelectorAll('[data-action="delete"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    if (confirm(`Tem certeza que deseja excluir o evento (ID: ${ id })?`))
-                    {
-                        // === COLOQUE SEU FETCH AQUI PARA EXCLUIR EVENTO ===
-                        simulatedData.events = simulatedData.events.filter(item => item.id !== id);
-                        alert(`Evento com ID: ${ id } excluído (simulado).`);
-                        renderEventManagement();
-                    }
-                });
-            });
-            eventsListBody.querySelectorAll('[data-action="toggle-highlight"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    const event = simulatedData.events.find(item => item.id === id);
-                    if (event)
-                    {
-                        // === COLOQUE SEU FETCH AQUI PARA DESTACAR/DESDESTACAR EVENTO ===
-                        event.highlighted = !event.highlighted;
-                        alert(`Evento "${ event.name }" ${ event.highlighted ? 'destacado' : 'desdestacado' } (simulado).`);
-                        renderEventManagement();
-                    }
-                });
-            });
-            eventsListBody.querySelectorAll('[data-action="view-details"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    const event = simulatedData.events.find(item => item.id === id);
-                    if (event)
-                    {
-                        const content = `
-                                <p><strong>ID:</strong> ${ event.id }</p>
-                                <p><strong>Nome:</strong> ${ event.name }</p>
-                                <p><strong>Estabelecimento:</strong> ${ event.establishment }</p>
-                                <p><strong>Data:</strong> ${ event.date }</p>
-                                <p><strong>Visualizações:</strong> ${ event.views }</p>
-                                <p><strong>Destacado:</strong> ${ event.highlighted ? 'Sim' : 'Não' }</p>
-                                <p><strong>Descrição:</strong> ${ event.description }</p>
-                            `;
-                        openModal(`Detalhes do Evento: ${ event.name }`, content);
-                    }
-                });
-            });
-
-
-            const popularEventsList = document.getElementById('popular-events-list');
-            popularEventsList.innerHTML = '';
-            // Ordena por visualizações (simulado)
-            const sortedEvents = [...simulatedData.events].sort((a, b) => b.views - a.views);
-            sortedEvents.slice(0, 5).forEach(item =>
-            { // Mostra os 5 mais populares
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${ item.name }</strong> <span>(${ item.establishment }) - ${ item.views } visualizações</span>`;
-                popularEventsList.appendChild(li);
-            });
-        }
-
-        // Relatórios e Estatísticas
-        function renderReports()
-        {
-            const userGrowthReport = document.getElementById('user-growth-report');
-            userGrowthReport.innerHTML = '';
-            simulatedData.userGrowth.forEach(item =>
-            {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${ item.month }</strong>: ${ item.total } usuários`;
-                userGrowthReport.appendChild(li);
-            });
-
-            const mostRequestedServices = document.getElementById('most-requested-services');
-            mostRequestedServices.innerHTML = '';
-            simulatedData.mostRequestedServices.forEach(item =>
-            {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${ item.name }</strong>: ${ item.count } solicitações`;
-                mostRequestedServices.appendChild(li);
-            });
-
-            const mostPopularGenres = document.getElementById('most-popular-genres');
-            mostPopularGenres.innerHTML = '';
-            simulatedData.mostPopularGenres.forEach(item =>
-            {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${ item.name }</strong>: ${ item.count } interações`;
-                mostPopularGenres.appendChild(li);
             });
         }
 
@@ -1070,7 +721,6 @@
             'content-management-section': renderContentManagement,
             'service-management-section': renderServiceManagement,
             'event-management-section': renderEventManagement,
-            'reports-section': renderReports,
             'complaints-section': renderComplaints
         };
 

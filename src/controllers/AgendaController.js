@@ -137,11 +137,11 @@ module.exports = class AgendaController
     static async sendProposal(req, res)
     {
         console.log("SEND PROPOSAL!!!");
-        const { userid, date, name, description, price, time } = req.body;
+        const { userid, date, name, description, price, startTime, endTime } = req.body;
         const senderUserid = req.session.userid;
 
         // Validações básicas
-        if (!userid || !date || !name || !description || !price || !time)
+        if (!userid || !date || !name || !description || !price || !startTime || !endTime)
         {
             return res.status(400).json({ message: "Todos os campos são obrigatórios!" });
         }
@@ -170,7 +170,8 @@ module.exports = class AgendaController
                 name: name,
                 description: description,
                 price: price,
-                time: time,
+                startTime: startTime,
+                endTime: endTime,
                 status: 'pending' // pending, accepted, rejected
             });
 
@@ -270,7 +271,8 @@ module.exports = class AgendaController
                     description: proposal.description,
                     price: proposal.price,
                     date: proposal.date,
-                    time: proposal.time
+                    startTime: proposal.startTime,
+                    endTime: proposal.endTime
                 });
 
                 return res.json({ message: "Proposta aceita e serviço criado com sucesso!" });

@@ -11,6 +11,8 @@ const Artist = require('../models/Artist')
 const Establishment = require('../models/Establishment')
 const PendingUser = require('../models/PendingUser')
 
+
+
 module.exports = class AuthController
 {
     static renderLogin(req, res)

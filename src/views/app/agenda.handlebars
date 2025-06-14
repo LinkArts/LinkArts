@@ -20,8 +20,12 @@
                         <input type="date" id="proposal-date" required>
                     </div>
                     <div class="form-group">
-                        <label for="proposal-time">Hora:</label>
-                        <input type="time" id="proposal-time" required>
+                        <label for="proposal-start-time">Hora Início:</label>
+                        <input type="time" id="proposal-start-time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proposal-end-time">Hora Fim:</label>
+                        <input type="time" id="proposal-end-time" required>
                     </div>
                     <div class="form-group">
                         <label for="proposal-price">Preço:</label>
@@ -56,7 +60,7 @@
                     <p class="card-price">Preço: R$&nbsp;{{price}}</p>
                     <div class="card-meta">
                         <span>Data: {{date}}</span>
-                        <span>Hora: {{hour}}</span>
+                        <span>Horário: {{startTime}} - {{endTime}}</span>
                     </div>
                 </li>
                 {{/each}}
@@ -89,8 +93,8 @@
                     <p>{{local}}</p>
                     <p class="card-price">Preço: R$&nbsp;{{price}}</p>
                     <div class="card-meta">
-                        <span>Data: {{data}}</span>
-                        <span>Hora: {{hour}}</span>
+                        <span>Data: {{date}}</span>
+                        <span>Horário: {{startTime}} - {{endTime}}</span>
                     </div>
                     <div class="card-actions">
                         <button class="btn btn-success proposal-action-btn" data-action="accept"
@@ -268,7 +272,7 @@
                     <p class="card-price">Preço: ${ formatPrice(service.price) }</p>
                     <div class="card-meta">
                         <span>Data: ${ service.date }</span>
-                        <span>Hora: ${ service.time }</span>
+                        <span>Horário: ${ service.startTime } - ${ service.endTime }</span>
                     </div>
                 `;
                     scheduledServicesList.appendChild(li);
@@ -305,7 +309,7 @@
                     <p class="card-price">Preço: ${ formatPrice(proposal.price) }</p>
                     <div class="card-meta">
                         <span>Data: ${ proposal.date }</span>
-                        <span>Hora: ${ proposal.time }</span>
+                        <span>Horário: ${ proposal.startTime } - ${ proposal.endTime }</span>
                     </div>
                     ${ proposal.status === 'pending' ? `
                     <div class="card-actions">
@@ -365,7 +369,7 @@
                 <p><strong>Cliente:</strong> ${ data.client }</p>
                 <p><strong>Tipo de Serviço:</strong> ${ data.type }</p>
                 <p><strong>Data:</strong> ${ data.date }</p>
-                <p><strong>Hora:</strong> ${ data.time }</p>
+                <p><strong>Horário:</strong> ${ data.startTime } - ${ data.endTime }</p>
                 ${ data.description ? `<p><strong>Descrição:</strong> ${ data.description }</p>` : '' }
                 ${ data.notes ? `<p><strong>Anotações:</strong> ${ data.notes }</p>` : '' }
                 <p class="modal-price"><strong>Preço:</strong> ${ formatPrice(data.price) }</p>
@@ -642,13 +646,13 @@
                 const title = document.getElementById('proposal-title').value;
                 const description = document.getElementById('proposal-description').value;
                 const date = document.getElementById('proposal-date').value;
-                const time = document.getElementById('proposal-time').value;
+                const startTime = document.getElementById('proposal-start-time').value;
+                const endTime = document.getElementById('proposal-end-time').value;
                 const price = parseFloat(document.getElementById('proposal-price').value);
-                //const selectedTags = $(proposalTagsSelect).val(); // Obter as tags selecionadas do Select2
 
-                if (!title || !date || !time || isNaN(price))
+                if (!title || !date || !startTime || !endTime || isNaN(price))
                 {
-                    alert('Por favor, preencha todos os campos obrigatórios (Título, Data, Hora, Preço) e selecione ao menos uma tag.');
+                    alert('Por favor, preencha todos os campos obrigatórios (Título, Data, Hora Início, Hora Fim, Preço) e selecione ao menos uma tag.');
                     return;
                 }
 
@@ -664,7 +668,8 @@
                             name: title,
                             description: description,
                             date: date,
-                            time: time,
+                            startTime: startTime,
+                            endTime: endTime,
                             price: price.toString(),
                         })
                     });

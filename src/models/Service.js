@@ -31,7 +31,11 @@ const Service = db.define('Service', {
         type: DataTypes.DATEONLY,
         allowNull: false
     },
-    time: {
+    startTime: {
+        type: DataTypes.TIME,
+        allowNull: true
+    },
+    endTime: {
         type: DataTypes.TIME,
         allowNull: true
     }

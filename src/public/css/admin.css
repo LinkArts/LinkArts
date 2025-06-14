@@ -100,6 +100,7 @@
     border-radius: 8px;
     box-shadow: var(--card-shadow);
     display: none;
+    margin-bottom: 1rem;
 }
 
 .content-section.active {
@@ -119,7 +120,8 @@
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .metric-card {
@@ -170,6 +172,47 @@
     border-bottom: 1px dashed var(--gray-300);
 }
 
+/* Ajuste para a lista de tags */
+.recent-activities-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recent-activities-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recent-activities-list li:last-child {
+    border-bottom: none;
+}
+
+/* Ajuste para os botões de ação */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Ajuste para as tabelas */
+.styled-table td:last-child {
+    text-align: center;
+}
+
+.styled-table .action-buttons {
+    justify-content: center;
+}
+
+/* Ajuste para o espaçamento entre seções */
+.list-container + .list-container {
+    margin-top: 2rem;
+}
+
 .styled-table {
     width: 100%;
     border-collapse: collapse;
@@ -197,7 +240,7 @@
 
 .styled-table tbody {
     display: block;
-    max-height: calc(5 * (12px + 15px + 1px) * 2); /* Dobrando a altura para mostrar 5 itens confortavelmente */
+    max-height: calc(10 * (12px + 15px + 1px) * 2); /* Dobrando a altura para mostrar 5 itens confortavelmente */
     overflow-y: auto;
 }
 
@@ -309,12 +352,6 @@
     background-color: var(--gray-300);
     cursor: not-allowed;
     opacity: 0.7;
-}
-
-.action-buttons {
-    display: flex;
-    gap: 5px;
-    justify-content: flex-end;
 }
 
 /* Modal */
