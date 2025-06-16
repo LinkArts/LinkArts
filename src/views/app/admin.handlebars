@@ -212,9 +212,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', () =>
     {
-        // --- Dados Simulados (Substitua por chamadas Fetch reais ao seu Backend) ---
+        // Mudar pra dados do backend
         const simulatedData = {
-            // Dashboard Overview
             totalUsers: {
                 artists: 125,
                 establishments: 48,
@@ -266,7 +265,6 @@
                 { id: 'u006', name: 'Ana Paula', email: 'ana.p@email.com', type: 'Geral', isActive: false },
             ],
 
-            // Content Management
             music: [
                 { id: 'm01', title: 'Minha Melodia', artist: 'João Silva', album: 'Primeiro Acorde' },
                 { id: 'm02', title: 'Ritmo Urbano', artist: 'Banda da Esquina', album: 'Grandes Sucessos' },
@@ -289,7 +287,6 @@
                 { id: 't04', name: 'Festa' },
             ],*/
 
-            // Service Management
             serviceRequests: [
                 { id: 'sr001', title: 'Show para Casamento', client: 'Família Santos', date: '2024-07-20', status: 'Pendente', description: 'Show acústico para cerimônia de casamento. Repertório de músicas românticas.' },
                 { id: 'sr002', title: 'DJ para Festa de 15 Anos', client: 'Isabela Costa', date: '2024-08-10', status: 'Aceito', description: 'DJ para festa de 15 anos com mix de pop e eletrônica.' },
@@ -302,14 +299,12 @@
                 { id: 'sp003', title: 'Show de Forró - Clube da Alegria', proponent: 'Forrozeiros do Sul', price: 1500.00, status: 'Rejeitado', description: 'Proposta para show de forró em festa junina.' },
             ],
 
-            // Event Management
             events: [
                 { id: 'ev001', name: 'Noite de Talentos Locais', establishment: 'Centro Cultural', date: '2024-07-15', views: 1200, highlighted: true, description: 'Evento para apresentação de novos talentos musicais da cidade.' },
                 { id: 'ev002', name: 'Happy Hour com Música ao Vivo', establishment: 'Bar do Zé', date: '2024-06-20', views: 850, highlighted: false, description: 'Música ao vivo e promoções de bebidas no happy hour.' },
                 { id: 'ev003', name: 'Feira de Artesanato e Cultura', establishment: 'Praça Principal', date: '2024-08-01', views: 2500, highlighted: false, description: 'Feira com artistas locais, comidas típicas e apresentações culturais.' },
             ],
 
-            // Reports and Statistics
             userGrowth: [
                 { month: 'Jan', total: 100 },
                 { month: 'Fev', total: 120 },
@@ -331,7 +326,6 @@
                 { name: 'Eletrônica', count: 90 },
             ],
 
-            // Complaints
             complaints: [
                 { id: 'den001', type: 'Comportamento Inapropriado', reported: 'João Silva (Artista)', status: 'Pendente', date: '2024-06-01', details: 'Comentários ofensivos em chat de serviço.' },
                 { id: 'den002', type: 'Conteúdo Irregular', reported: 'Música "Livre Mente"', status: 'Revisado', date: '2024-05-28', details: 'Música com letra de ódio.' },
@@ -340,18 +334,14 @@
             ]
         };
 
-        // --- Referências aos Elementos DOM ---
         const navLinks = document.querySelectorAll('.nav-link');
         const contentSections = document.querySelectorAll('.content-section');
 
-        // Modal de Detalhes
         const detailsViewModalOverlay = document.getElementById('details-view-modal-overlay');
         const detailsViewModal = document.getElementById('details-view-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalBodyContent = document.getElementById('modal-body-content');
         const modalCloseBtns = detailsViewModal.querySelectorAll('.modal-close-btn');
-
-        // --- Funções Auxiliares de UI ---
 
         function openModal(title, contentHtml)
         {
@@ -379,9 +369,6 @@
             }
         });
 
-        // --- Funções de Renderização para cada Seção ---
-
-        // Dashboard
         function renderDashboardOverview()
         {
             const totalUsersContainer = document.getElementById('total-users-metrics');
@@ -440,7 +427,6 @@
                 `;
         }
 
-        // Gerenciamento de Usuários
         function renderUserManagement()
         {
             const userListBody = document.getElementById('user-list-tbody');
@@ -473,11 +459,10 @@
                     const user = simulatedData.users.find(u => u.id === userId);
                     if (user)
                     {
-                        // === COLOQUE SEU FETCH AQUI PARA ATIVAR/DESATIVAR USUÁRIO ===
-                        // Ex: await fetch(`/api/users/${userId}/toggle-status`, { method: 'PUT' });
+                        // Fetch de suspender
                         user.isActive = !user.isActive;
                         alert(`Usuário "${ user.name }" ${ user.isActive ? 'ativado' : 'desativado' } (simulado).`);
-                        renderUserManagement(); // Re-renderiza a lista
+                        renderUserManagement();
                     }
                 });
             });
@@ -502,7 +487,6 @@
             });
         }
 
-        // Gerenciamento de Conteúdo
         function renderContentManagement()
         {
             document.getElementById('total-music-count').textContent = simulatedData.music.length;
@@ -561,7 +545,6 @@
             });*/
         }
 
-        // Gerenciamento de Serviços
         function renderServiceManagement()
         {
             const serviceRequestsBody = document.getElementById('service-requests-tbody');
@@ -621,7 +604,6 @@
             });
         }
 
-        // Gerenciamento de Eventos
         function renderEventManagement()
         {
             document.getElementById('total-events-count').textContent = simulatedData.events.length;
@@ -646,7 +628,6 @@
             });
         }
 
-        // Denúncias
         function renderComplaints()
         {
             const complaintsListBody = document.getElementById('complaints-list-tbody');
@@ -658,8 +639,8 @@
                 switch (item.status)
                 {
                     case 'Pendente': statusColor = 'var(--star-rating-color)'; break;
-                    case 'Revisado': statusColor = '#17a2b8'; break; /* Azul para revisado */
-                    case 'Resolvido': statusColor = '#28a745'; break; /* Verde para resolvido */
+                    case 'Revisado': statusColor = '#17a2b8'; break;
+                    case 'Resolvido': statusColor = '#28a745'; break;
                     default: statusColor = 'var(--secondary-text-color)';
                 }
                 tr.innerHTML = `
@@ -705,7 +686,7 @@
                     const complaint = simulatedData.complaints.find(c => c.id === id);
                     if (complaint && confirm(`Marcar denúncia ${ id } como resolvida?`))
                     {
-                        // === COLOQUE SEU FETCH AQUI PARA RESOLVER DENÚNCIA ===
+                        // Fetch pra fechar denuncia
                         complaint.status = 'Resolvido';
                         alert(`Denúncia ${ id } marcada como resolvida (simulado).`);
                         renderComplaints();
@@ -714,7 +695,6 @@
             });
         }
 
-        // --- Gerenciador de Seções ---
         const sectionRenderFunctions = {
             'dashboard-section': renderDashboardOverview,
             'user-management-section': renderUserManagement,
@@ -726,27 +706,22 @@
 
         function showSection(sectionId)
         {
-            // Esconde todas as seções
             contentSections.forEach(section =>
             {
                 section.classList.remove('active');
             });
 
-            // Remove 'active' de todos os links de navegação
             navLinks.forEach(link =>
             {
                 link.classList.remove('active');
             });
 
-            // Mostra a seção desejada
             const activeSection = document.getElementById(sectionId);
             if (activeSection)
             {
                 activeSection.classList.add('active');
-                // Adiciona 'active' ao link de navegação correspondente
                 document.querySelector(`.nav-link[data-section="${ sectionId }"]`).classList.add('active');
 
-                // Chama a função de renderização específica para a seção
                 if (sectionRenderFunctions[sectionId])
                 {
                     sectionRenderFunctions[sectionId]();
@@ -754,7 +729,6 @@
             }
         }
 
-        // --- Event Listeners de Navegação ---
         navLinks.forEach(link =>
         {
             link.addEventListener('click', (e) =>
@@ -768,8 +742,6 @@
             });
         });
 
-        // --- Inicialização ---
-        // Carregar e renderizar a seção de dashboard ao carregar a página
-        showSection('dashboard-section'); // Define a seção inicial
+        showSection('dashboard-section');
     });
 </script>

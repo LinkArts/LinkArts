@@ -135,7 +135,6 @@
       {
         e.stopPropagation();
 
-        // Close all other popups
         icons.forEach(otherIcon =>
         {
           if (otherIcon !== icon)
@@ -145,17 +144,14 @@
           }
         });
 
-        // Toggle current popup
         popupElement.classList.toggle('active');
         
-        // Carregar dados de mensagens quando o popup de mensagens for aberto
         if (icon === 'message' && popupElement.classList.contains('active')) {
           loadNavbarMessages();
         }
       });
     });
 
-    // Close popups when clicking outside
     document.addEventListener('click', (e) =>
     {
       if (!e.target.closest('.popup') && !e.target.closest('.nav-icon'))
@@ -173,7 +169,6 @@
     const messagesContent = document.getElementById('navbar-messages-content');
     
     try {
-      // Mostrar loading
       messagesContent.innerHTML = `
         <div class="popup-item">
           <div class="popup-item-content">
@@ -200,7 +195,6 @@
         return;
       }
 
-      // Renderizar chats
       let html = '';
       chats.forEach(chat => {
         const timeAgo = chat.latestMessage.createdAt ? formatTimeAgo(new Date(chat.latestMessage.createdAt)) : '';
@@ -249,9 +243,7 @@
   }
 
   function openChat(chatId) {
-    // Fechar popup
     document.getElementById('message-popup').classList.remove('active');
-    // Navegar para o chat
     window.location.href = `/chat/{{session.userid}}#chat-${chatId}`;
   }
 

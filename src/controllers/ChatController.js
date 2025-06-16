@@ -1,17 +1,13 @@
 const { Op } = require("sequelize");
-const { getIo } = require("../websocket_setup"); // Importar getIo
+const { getIo } = require("../websocket_setup");
 const handlebars = require("handlebars");
 
 const User = require("../models/User");
 const Message = require("../models/Message");
 const Chat = require("../models/Chat");
 
-// Importar os modelos Artist e Establishment no topo do arquivo
 const { Artist, Establishment } = require('../models');
 
-// getIo importado e funcionando corretamente
-
-// Registrar helper substring se não existir
 if (!handlebars.helpers.substring) {
     handlebars.registerHelper("substring", function(str, start, length) {
         if (!str) return "";
@@ -20,8 +16,6 @@ if (!handlebars.helpers.substring) {
 }
 
 module.exports = class ChatController {
-
-    // Método original para renderizar a página (mantido como no original)
     static async showChatPage(req, res) {
         if (!req.session.userid) {
             return res.redirect("/login");
@@ -85,7 +79,6 @@ module.exports = class ChatController {
         }
     }
 
-    // --- API: Obter lista de chats do usuário logado ---
     static async getChatsApi(req, res) {
         if (!req.session.userid) {
             return res.status(401).json({ message: "Não autorizado" });
@@ -98,7 +91,6 @@ module.exports = class ChatController {
                  return res.status(401).json({ message: "Usuário não encontrado" });
             }
 
-            // Busca todos os chats do usuário, incluindo TODOS os usuários do chat
             const chats = await user.getChats({
                 include: [
                     {
@@ -115,11 +107,9 @@ module.exports = class ChatController {
                 ]
             });
 
-            // Formata para o frontend
             const formattedChats = chats.map(chat => {
-                // Identifica os outros usuários (diferente do logado)
                 const otherUsers = chat.Users.filter(u => u.id !== userId);
-                const otherUser = otherUsers.length > 0 ? otherUsers[0] : null; // Pega o primeiro para chats 1:1
+                const otherUser = otherUsers.length > 0 ? otherUsers[0] : null;
                 const latestMessage = chat.Messages.length > 0 ? chat.Messages[0] : null;
 
                 return {
@@ -136,8 +126,7 @@ module.exports = class ChatController {
                     participantCount: otherUsers.length + 1
                 };
             });
-            
-             // Ordena novamente no JS caso a ordenação do include não seja perfeita
+
              formattedChats.sort((a, b) => {
                 const dateA = a.latestMessage ? new Date(a.latestMessage.createdAt) : new Date(0);
                 const dateB = b.latestMessage ? new Date(b.latestMessage.createdAt) : new Date(0);
@@ -152,7 +141,6 @@ module.exports = class ChatController {
         }
     }
 
-    // --- API: Obter mensagens de um chat específico ---
     static async getChatMessages(req, res) {
         if (!req.session.userid) {
             return res.status(401).json({ message: "Não autorizado" });
@@ -189,7 +177,6 @@ module.exports = class ChatController {
                 otherUser = participants.find(participant => participant.id !== userId);
             }
 
-            // Busca as mensagens do chat com paginação
             const { count, rows: messages } = await Message.findAndCountAll({
                 where: { chatid: chatId },
                 include: [
@@ -198,16 +185,15 @@ module.exports = class ChatController {
                         attributes: ["id", "name"]
                     }
                 ],
-                order: [["date", "ASC"]], // Ordena por "date"
+                order: [["date", "ASC"]],
                 limit: limit,
                 offset: offset
             });
 
-            // Formata as mensagens para o frontend
             const formattedMessages = messages.map(msg => ({
                 id: msg.id,
                 message: msg.message,
-                date: msg.date, // Usa o campo "date"
+                date: msg.date,
                 userid: msg.userid,
                 sender: msg.User ? {
                     id: msg.User.id,
@@ -215,7 +201,6 @@ module.exports = class ChatController {
                 } : null,
             }));
 
-            // Retorna as mensagens e informações do outro usuário
             return res.status(200).json({
                 messages: formattedMessages,
                 totalMessages: count,
@@ -235,7 +220,6 @@ module.exports = class ChatController {
         }
     }
 
-    // --- API: Enviar nova mensagem para um chat ---
     static async sendMessageApi(req, res) {
         if (!req.session.userid) {
             return res.status(401).json({ message: "Não autorizado" });
@@ -243,10 +227,9 @@ module.exports = class ChatController {
 
         const chatId = req.params.chatId;
         const userId = req.session.userid;
-        const { message } = req.body; // Pega o conteúdo da mensagem do corpo da requisição
+        const { message } = req.body;
 
         try {
-            // Verifica se o usuário pertence ao chat antes de permitir enviar mensagem
             const chat = await Chat.findOne({
                 where: { id: chatId },
                 include: [
@@ -266,20 +249,17 @@ module.exports = class ChatController {
 
             console.log(`sendMessageApi: Criando mensagem para chat ${chatId} user ${userId}: "${message}"`);
             
-            // Cria a mensagem no banco de dados
             const newMessage = await Message.create({
                 message: message,
                 chatid: chatId,
-                userid: userId, // Associa ao usuário logado
-                date: new Date(), // Garante que o campo "date" seja preenchido
+                userid: userId,
+                date: new Date(),
             });
 
             console.log(`sendMessageApi: Mensagem criada com ID ${newMessage.id}`);
 
-            // Busca informações do remetente para retornar
             const sender = await User.findByPk(userId, { attributes: ["id", "name"] });
 
-            // Emite a mensagem via Socket.IO para todos os usuários do chat
             const socketData = {
                 id: newMessage.id,
                 message: newMessage.message,
@@ -292,8 +272,7 @@ module.exports = class ChatController {
             };
 
             console.log(`sendMessageApi: Emitindo evento new_message para chat ${chatId}:`, socketData);
-            
-            // Emite a mensagem via Socket.IO
+
             try {
                 const io = getIo();
                 if (io) {
@@ -304,10 +283,8 @@ module.exports = class ChatController {
                 }
             } catch (socketError) {
                 console.error(`sendMessageApi: Erro ao emitir evento Socket.IO para chat ${chatId}:`, socketError.message);
-                // Não falha a requisição se Socket.IO não funcionar, apenas não envia em tempo real
             }
-            
-            // Retorna a mensagem criada
+
             return res.status(201).json({
                 id: newMessage.id,
                 message: newMessage.message,
@@ -325,7 +302,6 @@ module.exports = class ChatController {
         }
     }
 
-    // Método createChat original (mantido como no original)
     static async createChat(req, res) {
         if (!req.session.userid) {
             return res.redirect("/login");
@@ -339,7 +315,6 @@ module.exports = class ChatController {
         }
 
         try {
-            // Verifica se já existe um chat entre os dois usuários
             const existingChats = await Chat.findAll({
                 include: [{
                     model: User,
@@ -348,7 +323,6 @@ module.exports = class ChatController {
                 }]
             });
 
-            // Filtra chats que têm exatamente os dois usuários
             const chat = existingChats.find(c =>
                 c.Users.length === 2 &&
                 c.Users.some(u => u.id === userId) &&
@@ -356,15 +330,12 @@ module.exports = class ChatController {
             );
 
             if (chat) {
-                // Chat já existe, redireciona para o chat existente
                 return res.redirect(`/chat/${chat.id}`);
             }
 
-            // Cria novo chat e associa os dois usuários
             const newChat = await Chat.create();
             await newChat.addUsers([userId, otherUserId]);
 
-            // Redireciona para o novo chat
             return res.redirect(`/chat/${newChat.id}`);
         } catch (error) {
             console.error("Erro ao criar chat:", error);
@@ -372,7 +343,6 @@ module.exports = class ChatController {
         }
     }
 
-    // --- API: Obter HTML dos blocos do chat (mensagens, header, perfil) ---
     static async getChatHtml(req, res) {
         if (!req.session.userid) {
             return res.status(401).json({ message: "Não autorizado" });
@@ -381,7 +351,6 @@ module.exports = class ChatController {
         const userId = parseInt(req.session.userid, 10);
 
         try {
-            // Busca o chat e valida se o usuário pertence
             const chat = await Chat.findOne({
                 where: { id: chatId },
                 include: [
@@ -397,15 +366,12 @@ module.exports = class ChatController {
                 return res.status(404).json({ message: "Chat não encontrado ou acesso negado." });
             }
 
-            // Identifica todos os outros usuários (para suporte a chats em grupo)
             const otherUsers = chat.Users.filter(u => u.id !== userId);
-            const otherUser = otherUsers.length > 0 ? otherUsers[0] : null; // Por enquanto, pega o primeiro
+            const otherUser = otherUsers.length > 0 ? otherUsers[0] : null;
 
-            // Busca informações adicionais do outro usuário (Artist/Establishment)
             let otherUserDetails = null;
             if (otherUser) {
                 try {
-                    // Verifica se é Artist
                     const artist = await Artist.findOne({ where: { userid: otherUser.id } });
                     if (artist) {
                         otherUserDetails = {
@@ -415,7 +381,6 @@ module.exports = class ChatController {
                             additionalInfo: artist.dataValues
                         };
                     } else {
-                        // Verifica se é Establishment
                         const establishment = await Establishment.findOne({ where: { userid: otherUser.id } });
                         if (establishment) {
                             otherUserDetails = {
@@ -441,15 +406,13 @@ module.exports = class ChatController {
                     };
                 }
             }
-            
-            // Busca mensagens do chat
+
             const messages = await Message.findAll({
                 where: { chatid: chatId },
                 include: [{ model: User, attributes: ["id", "name"] }],
                 order: [["date", "ASC"]]
             });
 
-            // Função para formatar tempo
             const formatTime = (date) => {
                 if (!date) return "";
                 try {
@@ -460,7 +423,6 @@ module.exports = class ChatController {
                 }
             };
 
-            // Formata mensagens para o parcial com separação por dias
             const formattedMessages = [];
             let lastDate = null;
 
@@ -470,13 +432,11 @@ module.exports = class ChatController {
                         let msgDate = new Date(msg.date);
                         if (isNaN(msgDate.getTime())) {
                             console.error(`[getChatHtml] Data inválida na mensagem ${msg.id}:`, msg.date);
-                            // Use data atual como fallback
                             msgDate = new Date();
                         }
                         
                         const currentDate = msgDate.toDateString();
-                        
-                        // Adiciona separador de dia se a data mudou
+
                         if (lastDate && lastDate !== currentDate) {
                             const today = new Date();
                             const yesterday = new Date(today);
@@ -518,7 +478,6 @@ module.exports = class ChatController {
                         lastDate = currentDate;
                     } catch (msgError) {
                         console.error(`[getChatHtml] Erro ao formatar mensagem ${msg.id}:`, msgError);
-                        // Adiciona mensagem de erro como fallback
                         formattedMessages.push({
                             id: msg.id || Date.now(),
                             message: "Erro ao carregar mensagem",
@@ -531,7 +490,6 @@ module.exports = class ChatController {
                 });
             } catch (formatError) {
                 console.error(`[getChatHtml] Erro geral ao formatar mensagens:`, formatError);
-                // Se houver erro geral, adiciona apenas uma mensagem de erro
                 formattedMessages.push({
                     id: Date.now(),
                     message: "Erro ao carregar mensagens do chat",
@@ -542,7 +500,6 @@ module.exports = class ChatController {
                 });
             }
 
-            // Renderiza os parciais com tratamento de erro individual
             let messagesHtml, chatHeaderHtml, profileHtml;
 
             try {
@@ -622,7 +579,7 @@ module.exports = class ChatController {
                     userType: otherUserDetails.userType,
                     profession: otherUserDetails.profession
                 } : null,
-                chatParticipants: otherUsers.length + 1, // Total de participantes
+                chatParticipants: otherUsers.length + 1,
                 isGroupChat: otherUsers.length > 1
             });
 
@@ -639,7 +596,6 @@ module.exports = class ChatController {
         }
     }
 
-    // --- API: Definir status de digitação ---
     static async setTypingStatus(req, res) {
         if (!req.session.userid) {
             return res.status(401).json({ message: "Não autorizado" });
@@ -649,7 +605,6 @@ module.exports = class ChatController {
         const { isTyping } = req.body;
 
         try {
-            // Verifica se o usuário tem acesso ao chat
             const chat = await Chat.findOne({
                 where: { id: chatId },
                 include: [
@@ -666,13 +621,9 @@ module.exports = class ChatController {
                 return res.status(404).json({ message: "Chat não encontrado." });
             }
 
-            // Emitir evento via Socket.IO para o outro usuário
-            const io = getIo(); // Obtém a instância do Socket.IO
+            const io = getIo();
             if (io) {
                 const eventName = isTyping ? "user_typing" : "user_stopped_typing";
-                // Emite para a sala do chat, excluindo o remetente
-                // É importante que o cliente que está digitando NÃO receba o próprio evento de digitação
-                // O cliente já gerencia seu próprio estado de digitação localmente.
                 io.to(chatId.toString()).emit(eventName, {
                     userId: userId,
                     chatId: chatId,
@@ -692,7 +643,6 @@ module.exports = class ChatController {
         }
     }
 
-    // --- API: Obter lista resumida de chats para navbar ---
     static async getNavbarChatsApi(req, res) {
         if (!req.session.userid) {
             return res.status(401).json({ message: "Não autorizado" });
@@ -705,7 +655,6 @@ module.exports = class ChatController {
                 return res.status(401).json({ message: "Usuário não encontrado" });
             }
 
-            // Busca os últimos 4 chats do usuário com mensagem mais recente
             const chats = await user.getChats({
                 include: [
                     {
@@ -724,7 +673,6 @@ module.exports = class ChatController {
                 order: [["updatedAt", "DESC"]]
             });
 
-            // Formata para o frontend da navbar
             const formattedChats = chats.map(chat => {
                 const otherUser = chat.Users.find(u => u.id !== userId);
                 const latestMessage = chat.Messages.length > 0 ? chat.Messages[0] : null;

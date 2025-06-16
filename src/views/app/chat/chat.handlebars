@@ -112,7 +112,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // --- Elementos da DOM ---
             const usersListContainer = document.getElementById("users-list-container");
             const messagesContainer = document.getElementById("messages-container");
             const chatHeaderContainer = document.getElementById("chat-header-container");
@@ -129,7 +128,6 @@
             const loadingIndicator = messagesContainer.querySelector(".loading-indicator");
             const chatUserHeader = document.getElementById("chat-user-header");
 
-            // --- Estado da Aplicação ---
             let currentChatId = null;
             let currentOtherUserId = null;
             let currentOtherUserName = null;
@@ -148,7 +146,6 @@
                 disableChatInput();
             }
 
-            // --- Função para alternar visibilidade da coluna do perfil ---
             window.toggleProfileColumn = function() {
                 console.log('toggleProfileColumn chamado, isProfileColumnVisible:', isProfileColumnVisible);
                 const profileColumn = document.getElementById("profile-column-container");
@@ -174,9 +171,7 @@
                 console.log('Novo estado isProfileColumnVisible:', isProfileColumnVisible);
             }
 
-            // Event delegation para clique no header do chat - método mais robusto
             document.addEventListener('click', function(e) {
-                // Verifica se o clique foi dentro do elemento .chat-user
                 const chatUser = e.target.closest('.chat-user');
                 if (chatUser && chatUser.closest('#chat-header-container')) {
                     console.log('Click detectado no header do chat!');
@@ -193,7 +188,6 @@
                 }
             });
 
-            // --- Inicialização do Socket.IO ---
             function initializeWebSocket() {
                 try {
                     console.log('Inicializando Socket.IO...');
@@ -227,7 +221,6 @@
                 }
             }
 
-            // --- Funções de Typing ---
             function handleUserTyping(data) {
                 console.log('Recebido evento user_typing:', data, 'currentOtherUserId:', currentOtherUserId);
                 if (data.userId !== currentOtherUserId) {
@@ -250,10 +243,8 @@
 
             function showTypingIndicatorInMessages() {
                 console.log('showTypingIndicatorInMessages: Iniciando');
-                // Remove indicador existente se houver
                 hideTypingIndicatorInMessages();
                 
-                // Cria o novo indicador de digitação
                 const typingMessage = document.createElement('div');
                 typingMessage.className = 'typing-message';
                 typingMessage.id = 'typing-message-indicator';
@@ -268,7 +259,6 @@
                     </div>
                 `;
                 
-                // Adiciona ao final do container de mensagens
                 if (messagesContainer) {
                     messagesContainer.appendChild(typingMessage);
                     console.log('Indicador de digitação adicionado ao container');
@@ -276,7 +266,6 @@
                     console.error('messagesContainer não encontrado');
                 }
                 
-                // Rola para baixo para mostrar o indicador
                 scrollToBottom(messagesContainer);
             }
 
@@ -323,7 +312,6 @@
                 }
             });
 
-            // --- Função auxiliar para fetch com tratamento de erro ---
             async function fetchData(url, options = {}) {
                 isLoadingMessages = true;
                 try {
@@ -350,7 +338,6 @@
                 }
             }
 
-            // --- Função para atualizar a lista de conversas (coluna da esquerda) ---
             async function updateChatList(newMessage = null) {
                 try {
                     const response = await fetch("/api/chats");
@@ -419,7 +406,6 @@
                 }
             }
 
-            // --- Função para atualizar o popup do ícone de mensagens (navbar) ---
             async function updateMessagePopup() {
                 try {
                     const popup = document.getElementById("message-popup");
@@ -440,11 +426,10 @@
                     }
                     contentDiv.innerHTML = html;
                 } catch (error) {
-                    // Erro silencioso para não atrapalhar o chat
+
                 }
             }
 
-            // --- Função para formatar data das mensagens ---
             function formatMessageDate(dateString) {
                 if (!dateString) return "";
                 
@@ -456,7 +441,6 @@
                 }
             }
 
-            // --- Função para criar separadores de dia ---
             function createDaySeparator(date) {
                 const today = new Date();
                 const messageDate = new Date(date);
@@ -482,7 +466,6 @@
                 return `<div class="day-separator"><span>${dateText}</span></div>`;
             }
 
-            // --- Lógica do Chat ---
             function handleNewMessage(newMessage) {
                 console.log('handleNewMessage recebida:', newMessage);
                 console.log('currentChatId:', currentChatId, 'newMessage.chatId:', newMessage.chatId);
@@ -495,7 +478,6 @@
                 }
 
                 console.log('Processando nova mensagem no chat atual');
-                // Remove indicador de digitação quando nova mensagem chega
                 hideTypingIndicatorInMessages();
 
                 const isMessageFromCurrentUser = newMessage.sender?.id === loggedInUserId;
@@ -650,13 +632,11 @@
                 }, 3000);
             }
 
-            // --- Função para carregar HTML do chat ---
             async function loadChatHtml(chatId) {
                 if (isLoadingMessages) {
                     return;
                 }
 
-                // Remove indicador de digitação ao trocar de chat
                 hideTypingIndicatorInMessages();
 
                 const url = `/api/chats/${chatId}/html`;
@@ -682,7 +662,6 @@
                 scrollToBottom(messagesContainer);
             }
 
-            // Listener para clique nas conversas
             usersListContainer.addEventListener("click", function (e) {
                 const conversationElement = e.target.closest(".user-conversation");
                 if (!conversationElement) {
@@ -711,13 +690,11 @@
                 
                 console.log('Chat selecionado:', { chatId, currentOtherUserId, currentOtherUserName });
                 
-                // Mostra o header do chat quando um chat é aberto
                 const chatHeader = document.querySelector('.chat-header');
                 if (chatHeader) {
                     chatHeader.style.display = 'flex';
                 }
-                
-                // Mostra o campo de escrever mensagem quando um chat é aberto
+
                 const messageInputContainer = document.querySelector('.input-area');
                 if (messageInputContainer) {
                     messageInputContainer.style.display = 'flex';
@@ -737,7 +714,6 @@
                 loadChatHtml(chatId);
             });
 
-            // Listener para envio de mensagem
             sendButton.addEventListener("click", sendMessage);
             messageInput.addEventListener("keydown", function (e) {
                 if (e.key === "Enter" && !e.shiftKey) {
@@ -746,15 +722,12 @@
                 }
             });
             
-            // --- Inicialização ---
             initializeWebSocket();
             updateChatList();
             updateMessagePopup();
             
-            // Verificar se há um chat específico para abrir via hash da URL
             checkUrlHash();
             
-            // Esconde header e campo de mensagem inicialmente se não há chat ativo
             if (!currentChatId) {
                 const chatHeader = document.querySelector('.chat-header');
                 if (chatHeader) {
@@ -767,7 +740,6 @@
                 }
             }
             
-            // Garante que a coluna direita comece escondida
             const profileColumn = document.getElementById("profile-column-container");
             const chatColumn = document.getElementById("chat-column");
             if (profileColumn && chatColumn) {
@@ -775,44 +747,34 @@
                 chatColumn.style.width = "75%";
                 isProfileColumnVisible = false;
             }
-            
 
-
-            // Adicionando funcionalidade da tecla ESC
             document.addEventListener('keydown', function(event) {
                 if (event.key === 'Escape') {
                     event.preventDefault();
                     
-                    // Verifica se a coluna direita está aberta usando a variável de estado
                     if (isProfileColumnVisible) {
-                        // Se a coluna direita está aberta, fecha ela
                         toggleProfileColumn();
                     } else {
-                        // Se a coluna direita já está fechada, fecha o chat atual
                         closeChatAndReturnToWelcome();
                     }
                 }
             });
 
             function closeChatAndReturnToWelcome() {
-                // Remove active de todas as conversations
                 document.querySelectorAll('.user-conversation').forEach(conv => {
                     conv.classList.remove('active');
                 });
                 
-                // Esconde o header do chat
                 const chatHeader = document.querySelector('.chat-header');
                 if (chatHeader) {
                     chatHeader.style.display = 'none';
                 }
-                
-                // Esconde o campo de escrever mensagem
+
                 const messageInputContainer = document.querySelector('.input-area');
                 if (messageInputContainer) {
                     messageInputContainer.style.display = 'none';
                 }
-                
-                // Mostra a tela de welcome
+
                 const messagesContainer = document.querySelector('.messages-container');
                 if (messagesContainer) {
                     messagesContainer.innerHTML = `
@@ -826,12 +788,10 @@
                         </div>
                     `;
                 }
-                
-                // Limpa o profile
+
                 currentChatId = null;
                 currentOtherUserId = null;
-                
-                // Fecha a coluna direita usando a função correta
+
                 if (isProfileColumnVisible) {
                     toggleProfileColumn();
                 }
@@ -847,10 +807,8 @@
                     const chatId = parseInt(hash.replace('#chat-', ''), 10);
                     if (chatId && !isNaN(chatId)) {
                         console.log('Abrindo chat via URL hash:', chatId);
-                        // Aguardar carregamento da lista de conversas
                         setTimeout(() => {
                             selectChatById(chatId);
-                            // Limpar o hash
                             window.location.hash = '';
                         }, 1000);
                     }
@@ -859,10 +817,8 @@
             
             async function selectChatById(chatId) {
                 try {
-                    // Buscar o elemento da conversa na lista
                     const conversationElement = document.querySelector(`[data-chat-id="${chatId}"]`);
                     if (conversationElement) {
-                        // Simular clique na conversa
                         conversationElement.click();
                     } else {
                         console.warn('Chat não encontrado na lista:', chatId);

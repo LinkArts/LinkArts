@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize')
-const db = require('../db/conn') // Certifique-se de que o caminho para seu arquivo de conexão está correto
+const db = require('../db/conn')
 
 const ServiceNote = db.define('ServiceNote', {
     id: {

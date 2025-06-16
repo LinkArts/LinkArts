@@ -4,7 +4,6 @@ const { checkAuth } = require('../middlewares/checkAuth')
 
 const AgendaController = require('../controllers/AgendaController');
 
-// Rotas da agenda
 router.get('/agenda/:id', AgendaController.showAgenda);
 router.get('/agenda/servicos/:id', AgendaController.getServices);
 router.get('/agenda/propostas/:id', AgendaController.getProposals);

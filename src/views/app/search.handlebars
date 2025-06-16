@@ -74,23 +74,18 @@
 
     filtroButton.addEventListener('click', async (event) =>
     {
-        //alert("CLICK")
         event.preventDefault();
 
         const formData = new FormData(formFiltro);
         const tipoUsuario = formData.get('tipoUsuario');
-
-        //alert(`Filtrando por: ${ tipoUsuario }`);
 
         try
         {
             const response = await fetch(`/filtrar?search=${ searchInput.value }&type=${ tipoUsuario }`);
             const data = await response.json();
 
-            // Limpa a lista de perfis
             profilesListDiv.innerHTML = '';
 
-            // 2. Verifica se data.results2 é um array válido
             if (Array.isArray(data.results2))
             {
                 data.results2.forEach((perfil) =>

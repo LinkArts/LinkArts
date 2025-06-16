@@ -13,13 +13,10 @@ module.exports = class AdminController
     static async getUserStats(req, res)
     {
         try {
-            // Conta total de artistas (usuários que têm registro na tabela Artist)
             const totalArtists = await Artist.count();
 
-            // Conta total de estabelecimentos (usuários que têm registro na tabela Establishment)
             const totalEstablishments = await Establishment.count();
 
-            // Conta total de usuários gerais (usuários que não são nem artistas nem estabelecimentos)
             const totalGeneralUsers = await User.count({
                 include: [
                     {
@@ -45,7 +42,6 @@ module.exports = class AdminController
                 }
             });
 
-            // Soma total de todos os usuários
             const totalUsers = totalArtists + totalEstablishments + totalGeneralUsers;
 
             return res.json({

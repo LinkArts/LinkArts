@@ -6,7 +6,7 @@ function checkAuth(req, res, next)
     {
         req.flash('message', 'Sua sessão expirou. Faça login novamente.')
         req.flash('messageType', 'error')
-        return res.redirect('/login') // redireciona para tela de login
+        return res.redirect('/login')
     }
 
     next()

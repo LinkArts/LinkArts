@@ -99,19 +99,6 @@
       </div>-->
     </section>
 
-    <!--<section class="availability-section">
-      <h2>Disponibilidade</h2>
-      <div class="availability-details">
-        <p><strong>Status:</strong> Disponível para novos projetos</p>
-        <p><strong>Resposta Média:</strong> 24 horas</p>
-        <p><strong>Horário de Atendimento:</strong> Segunda a Sexta, 9h-18h</p>
-      </div>
-      <p class="availability-note">
-        Por favor, entre em contato para verificar a disponibilidade para datas específicas e para orçamentos
-        personalizados.
-      </p>
-    </section>-->
-
     <section class="service-requests-section">
       <div class="section-header">
         <h2>Pedidos de Serviço</h2>
@@ -239,17 +226,13 @@
 </div>
 
 <script>
-  // Wait for the DOM to be fully loaded
   document.addEventListener('DOMContentLoaded', async function ()
   {
     console.log("DOM carregado. Iniciando script v9 - Integração Backend (Fetch).");
     const isProfileOwner = document.getElementById('is-profile-owner')?.value === 'true';
 
-    // --- Configuração da URL da API (AJUSTE CONFORME SEU BACKEND!) ---
-    // Alterado para incluir o prefixo '/profile'
-    const API_BASE_URL = '/profile'; // Substitua pela URL real do seu backend e prefixo
+    const API_BASE_URL = '/profile';
 
-    // --- Seletores Globais ---
     const addEventButton = document.getElementById('add-event-btn');
     const eventsContainer = document.querySelector('.events-container');
     const editProfileButton = document.getElementById('edit-profile-btn');
@@ -257,19 +240,17 @@
     const addServiceRequestButton = document.getElementById('add-service-request-btn');
     const serviceRequestsContainer = document.querySelector('.service-requests-container');
 
-    // Seletores para os dados do perfil (assumindo que o perfil também pode vir do backend)
     const profileNameElement = document.getElementById('profile-name');
     const profileLocationElement = document.getElementById('profile-location');
     const profileAboutElement = document.getElementById('profile-about');
     const profileImageElement = document.getElementById('profile-main-image');
 
     availableTags = [];
-    let lastFocusedElement = null; // Para restaurar foco ao fechar modais
+    let lastFocusedElement = null;
 
     loadEvents();
     loadServiceRequests();
 
-    // --- Função Toast ---
     function showToast(message, type = 'success')
     {
       document.querySelectorAll('.toast.show').forEach(t => t.remove());
@@ -290,7 +271,6 @@
       }, 3500);
     }
 
-    // --- Fechar Modal (Atualizado para transição) ---
     function closeModal(modalOverlay)
     {
       if (modalOverlay && modalOverlay.classList.contains('is-visible'))
@@ -343,7 +323,6 @@
       }
     }
 
-    // --- Focus Trap ---
     function trapFocus(modalElement)
     {
       const focusableElements = modalElement.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
@@ -375,7 +354,6 @@
       };
     }
 
-    // --- Função Auxiliar Genérica para Abrir Modal ---
     function openModal(overlaySelector, modalClass, modalHTMLContent, triggerButton)
     {
       console.log(`Tentando abrir modal com seletor ${ overlaySelector }.`);
@@ -384,7 +362,7 @@
       if (existingOverlay)
       {
         console.warn(`Overlay ${ overlaySelector } já existe. Removendo antes de criar novo.`);
-        closeModal(existingOverlay); // Garante que o modal existente seja totalmente removido
+        closeModal(existingOverlay);
       }
 
       console.log(`Criando novo modal ${ modalClass }.`);
@@ -428,17 +406,15 @@
       return modal;
     }
 
-    // --- Funções Auxiliares de Data e Hora ---
     function formatDateForInput(dateString)
     {
       if (!dateString) return '';
-      // Assume format 'DD/MM/YYYY' for input, convert to 'YYYY-MM-DD'
       const parts = dateString.split('/');
       if (parts.length === 3)
       {
         return `${ parts[2] }-${ parts[1] }-${ parts[0] }`;
       }
-      return dateString; // Return original if not in expected format
+      return dateString;
     }
 
     function formatDisplayDate(dateRaw)
@@ -446,7 +422,7 @@
       if (!dateRaw) return '';
       try
       {
-        const dateObj = new Date(dateRaw + 'T00:00:00'); // Ensure UTC for consistent parsing
+        const dateObj = new Date(dateRaw + 'T00:00:00');
         if (!isNaN(dateObj))
         {
           return dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -458,12 +434,10 @@
       return dateRaw;
     }
 
-    // --- Funções de Renderização de Cards (Agora recebem dados do backend) ---
     function renderEventCard(eventData)
     {
       const eventItem = document.createElement('li');
       eventItem.className = 'event-card';
-      // Adiciona um atributo de dados para armazenar o ID do backend
       eventItem.dataset.id = eventData.id;
       eventItem.innerHTML = `
                 <div class="event-img">
@@ -485,11 +459,10 @@
       {
         if (isProfileOwner)
         {
-          setupEditEventModal(eventItem, eventData); // Abre para editar
+          setupEditEventModal(eventItem, eventData);
         } else
         {
-          // Se não for o dono, abre um modal apenas para visualização
-          setupViewEventModal(eventItem, eventData); // Você precisará criar esta nova função
+          setupViewEventModal(eventItem, eventData);
         }
       });
       return eventItem;
@@ -499,7 +472,6 @@
     {
       const requestItem = document.createElement('li');
       requestItem.className = 'service-request-card';
-      // Adiciona um atributo de dados para armazenar o ID do backend
       requestItem.dataset.id = requestData.id;
 
       let timeRange = requestData.startTime;
@@ -520,7 +492,6 @@
                 </div>`;
 
       const tagsDiv = requestItem.querySelector('.request-tags');
-      // Assumimos que requestData.tags é um array de strings
       console.log(requestData);
       requestData.Tags.forEach(tagText =>
       {
@@ -534,11 +505,10 @@
       {
         if (isProfileOwner)
         {
-          setupEditServiceRequestModal(requestItem, requestData); // Abre para editar
+          setupEditServiceRequestModal(requestItem, requestData);
         } else
         {
-          // Se não for o dono, abre um modal apenas para visualização
-          setupViewServiceRequestModal(requestItem, requestData); // Você precisará criar esta nova função
+          setupViewServiceRequestModal(requestItem, requestData);
         }
       });
       return requestItem;
@@ -561,10 +531,8 @@
         </div>`;
 
       const modalElement = openModal('.view-event-overlay', 'view-event-modal', modalHTML, eventCard);
-      // Não precisa de listener para submit, apenas fechar
     }
 
-    // Exemplo de `setupViewServiceRequestModal`:
     function setupViewServiceRequestModal(requestCard, requestData)
     {
       let timeRange = requestData.startTime;
@@ -591,21 +559,18 @@
         </div>`;
 
       const modalElement = openModal('.view-service-request-overlay', 'view-service-request-modal', modalHTML, requestCard);
-      // Não precisa de listener para submit, apenas fechar
     }
 
-    // --- Fetch para Carregar Dados (Eventos e Pedidos de Serviço) ---
     async function loadEvents()
     {
       console.log("Carregando eventos do backend...");
       try
       {
-        // Rota atualizada para /eventos
         const response = await fetch(`${ API_BASE_URL }/eventos`);
         if (!response.ok) throw new Error(`HTTP error! status: ${ response.status }`);
         const events = await response.json();
 
-        eventsContainer.innerHTML = ''; // Limpa o container
+        eventsContainer.innerHTML = '';
         if (events.length === 0)
         {
           const placeholderItem = document.createElement('p');
@@ -617,7 +582,6 @@
           {
             eventsContainer.appendChild(renderEventCard(event));
           });
-          // Garante que o scroll vá para o início ao carregar
           eventsContainer.closest('.scroll-container')?.scrollTo({ left: 0, behavior: 'smooth' });
         }
       } catch (error)
@@ -632,12 +596,11 @@
       console.log("Carregando pedidos de serviço do backend...");
       try
       {
-        // Rota atualizada para /pedidos-serviço
         const response = await fetch(`${ API_BASE_URL }/pedidos-servico`);
         if (!response.ok) throw new Error(`HTTP error! status: ${ response.status }`);
         const requests = await response.json();
 
-        serviceRequestsContainer.innerHTML = ''; // Limpa o container
+        serviceRequestsContainer.innerHTML = '';
         if (requests.length === 0)
         {
           const placeholderItem = document.createElement('p');
@@ -649,7 +612,7 @@
           {
             serviceRequestsContainer.appendChild(renderServiceRequestCard(request));
           });
-          // Garante que o scroll vá para o início ao carregar
+
           serviceRequestsContainer.closest('.scroll-container')?.scrollTo({ left: 0, behavior: 'smooth' });
         }
       } catch (error)
@@ -659,11 +622,9 @@
       }
     }
 
-
-    // --- Lógica Específica: Modal Adicionar Evento (AGORA COM FETCH) ---
     if (addEventButton && eventsContainer)
     {
-      addEventButton.removeEventListener('click', handleAddEventClick); // Evita duplicação
+      addEventButton.removeEventListener('click', handleAddEventClick);
       addEventButton.addEventListener('click', handleAddEventClick);
     }
 
@@ -696,7 +657,7 @@
         const modalOverlay = modalElement.closest('.modal-overlay');
 
         const eventTitle = eventTitleInput.value.trim();
-        const eventDate = eventDateInput.value; // Formato YYYY-MM-DD
+        const eventDate = eventDateInput.value;
         const eventDescription = eventDescriptionInput.value.trim();
         const eventImageUrl = eventImageUrlInput.value.trim();
 
@@ -712,15 +673,11 @@
           date: eventDate,
           description: eventDescription,
           imageUrl: eventImageUrl,
-          // !!! IMPORTANTE: Você precisa adicionar o establishmentid aqui !!!
-          // Exemplo: establishmentid: ID_DO_ESTABELECIMENTO_AQUI
-          // Este ID viria do contexto do usuário logado ou de alguma configuração.
-          establishmentid: 1 // Substitua por um ID dinâmico real
+          establishmentid: 1
         };
 
         try
         {
-          // Rota atualizada para /criar-evento
           const response = await fetch(`${ API_BASE_URL }/criar-evento`, {
             method: 'POST',
             headers: {
@@ -747,8 +704,6 @@
       });
     }
 
-
-    // --- Lógica Específica: Modal Editar Perfil (MANTIDO SEM FETCH por agora) ---
     async function setupEditProfileModal()
     {
       const modalHTML = `
@@ -771,7 +726,6 @@
       if (!modalElement) return;
 
       try {
-        // Fetch user data from the server
         const response = await fetch('/profile/user-data');
         if (!response.ok) {
           throw new Error('Failed to fetch user data');
@@ -779,7 +733,6 @@
         const data = await response.json();
         const userData = data.userData;
 
-        // Populate form fields with fetched data
         const nameInput = modalElement.querySelector('#edit-profile-name');
         const locationInput = modalElement.querySelector('#edit-profile-location');
         const aboutInput = modalElement.querySelector('#edit-profile-about');
@@ -881,7 +834,6 @@
             }
           }
 
-          // Update social media links in the about section
           const socialIcons = document.querySelector('.social-icons');
           if (socialIcons) {
             socialIcons.innerHTML = '';
@@ -932,7 +884,6 @@
       console.warn("Botão 'Editar Perfil' (#edit-profile-btn) não encontrado.");
     }
 
-    // --- Lógica Específica: Modal Editar Evento (AGORA COM FETCH) ---
     function setupEditEventModal(eventCard, eventData)
     {
       const eventId = eventData.id;
@@ -967,7 +918,6 @@
       const editImageUrlInput = modalElement.querySelector('#edit-event-image-url');
       const deleteEventBtn = modalElement.querySelector('#delete-event-btn');
 
-      // Lógica para Excluir Evento
       deleteEventBtn?.addEventListener('click', async function ()
       {
         const confirmDelete = confirm(`Tem certeza que deseja excluir o evento "${ eventData.title }"?`);
@@ -975,7 +925,6 @@
         {
           try
           {
-            // Rota atualizada para /deletar-evento/:id
             const response = await fetch(`${ API_BASE_URL }/deletar-evento/${ eventId }`, {
               method: 'DELETE',
             });
@@ -1003,7 +952,7 @@
         const modalOverlay = modalElement.closest('.modal-overlay');
 
         const newTitle = editTitleInput.value.trim();
-        const newDate = editDateInput.value; // Formato YYYY-MM-DD
+        const newDate = editDateInput.value;
         const newDescription = editDescriptionInput.value.trim();
         const newImageUrl = editImageUrlInput.value.trim();
 
@@ -1019,13 +968,11 @@
           date: newDate,
           description: newDescription,
           imageUrl: newImageUrl,
-          // !!! IMPORTANTE: Inclua o establishmentid aqui também para a atualização
-          establishmentid: eventData.establishmentid // Mantenha o ID existente
+          establishmentid: eventData.establishmentid
         };
 
         try
         {
-          // Rota atualizada para /atualizar-evento/:id
           const response = await fetch(`${ API_BASE_URL }/atualizar-evento/${ eventId }`, {
             method: 'PUT',
             headers: {
@@ -1052,7 +999,6 @@
       });
     }
 
-    // --- Lógica Específica: Modal Adicionar Pedido de Serviço (AGORA COM FETCH) ---
     const response = await fetch('/profile/tags')
     const res = await response.json()
 
@@ -1069,7 +1015,6 @@
       console.warn("Elementos necessários para 'Adicionar Pedido de Serviço' não encontrados.");
     }
 
-    // Event listener para o botão de denúncia
     if (reportProfileButton)
     {
       reportProfileButton.addEventListener('click', handleReportProfileClick);
@@ -1139,7 +1084,7 @@
         const modalOverlay = modalElement.closest('.modal-overlay');
 
         const requestName = requestNameInput.value.trim();
-        const requestDate = requestDateInput.value; // Formato YYYY-MM-DD
+        const requestDate = requestDateInput.value;
         const requestStartTime = requestStartTimeInput.value.trim();
         const requestEndTime = requestEndTimeInput.value.trim();
         const selectedTags = $(tagsSelect).val() || [];
@@ -1160,13 +1105,11 @@
           startTime: requestStartTime,
           endTime: requestEndTime,
           tags: selectedTags,
-          // !!! IMPORTANTE: Você precisa adicionar o establishmentid aqui !!!
-          establishmentid: 1 // Substitua por um ID dinâmico real
+          establishmentid: 1
         };
 
         try
         {
-          // Rota atualizada para /criar-pedido-serviço
           const response = await fetch(`${ API_BASE_URL }/criar-pedido-servico`, {
             method: 'POST',
             headers: {
@@ -1193,7 +1136,6 @@
       });
     }
 
-    // --- Função para lidar com denúncia de perfil ---
     function handleReportProfileClick()
     {
       const userId = reportProfileButton.dataset.userId;
@@ -1276,11 +1218,9 @@
         }
       });
       
-      // Remove erro visual quando usuário corrige
       reasonSelect?.addEventListener('change', () => reasonSelect.classList.remove('input-error'));
     }
 
-    // --- Nova Lógica: Editar Pedido de Serviço (AGORA COM FETCH) ---
     function setupEditServiceRequestModal(requestCard, requestData)
     {
       console.log(requestData);
@@ -1347,7 +1287,6 @@
       const editEndTimeInput = modalElement.querySelector('#edit-request-end-time');
       const deleteServiceRequestBtn = modalElement.querySelector('#delete-service-request-btn');
 
-      // Lógica para Excluir Pedido de Serviço
       deleteServiceRequestBtn?.addEventListener('click', async function ()
       {
         const confirmDelete = confirm(`Tem certeza que deseja excluir o pedido de serviço "${ requestData.name }"?`);
@@ -1355,7 +1294,6 @@
         {
           try
           {
-            // Rota atualizada para /deletar-pedido-serviço/:id
             const response = await fetch(`${ API_BASE_URL }/deletar-pedido-servico/${ requestId }`, {
               method: 'DELETE',
             });
@@ -1385,7 +1323,7 @@
 
         const newName = editNameInput.value.trim();
         const newDescription = editDescriptionInput.value.trim();
-        const newDate = editDateInput.value; // Formato YYYY-MM-DD
+        const newDate = editDateInput.value;
         const newStartTime = editStartTimeInput.value.trim();
         const newEndTime = editEndTimeInput.value.trim();
         const newSelectedTags = $(tagsSelect).val() || [];
@@ -1406,13 +1344,11 @@
           startTime: newStartTime,
           endTime: newEndTime,
           tags: newSelectedTags,
-          // !!! IMPORTANTE: Inclua o establishmentid aqui também para a atualização
-          establishmentid: requestData.establishmentid // Mantenha o ID existente
+          establishmentid: requestData.establishmentid
         };
 
         try
         {
-          // Rota atualizada para /atualizar-pedido-serviço/:id
           const response = await fetch(`${ API_BASE_URL }/atualizar-pedido-servico/${ requestId }`, {
             method: 'PUT',
             headers: {
@@ -1439,7 +1375,6 @@
       });
     }
 
-    // Adicionar handler para o botão de chat
     document.getElementById('create-chat-btn')?.addEventListener('click', async function() {
         const userId = this.dataset.userId;
         try {
@@ -1466,8 +1401,6 @@
             showToast('Erro ao criar chat', 'error');
         }
     });
-
-    // Inicializa os carregamentos de dados quando o DOM estiver pronto
 
     console.log("Script perfEmp.js totalmente carregado e inicializado (v9 com fetch e rotas /profile).");
   });

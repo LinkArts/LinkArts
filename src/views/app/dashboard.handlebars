@@ -1,13 +1,10 @@
 <div class="main-container">
-    <!-- Left Content -->
     <div class="content">
-        <!-- Tabs -->
         <div class="tabs">
             <div class="tab active" onclick="changeTab('novidades')">Recomendações para você</div>
             {{#if userInfo.establishments}}<div class="tab" onclick="changeTab('servicos')">Pedidos de Serviço</div>{{/if}}
         </div>
 
-        <!-- Novidades Tab Content -->
         <div id="novidades" class="tab-content active">
             <div class="card-grid">
                 {{#if userInfo.establishments}}
@@ -26,7 +23,6 @@
             </div>
         </div>
 
-        <!-- Serviços Tab Content -->
         <div id="servicos" class="tab-content">
             <div class="card-grid">
                 {{#if userInfo.services}}
@@ -40,7 +36,6 @@
         </div>
     </div>
 
-    <!-- Right Sidebar - Agenda -->
     <div class="sidebar">
         <div class="agenda">
             <h2 class="agenda-title">Agenda</h2>
@@ -88,24 +83,20 @@
 <script>
     function changeTab(tabName)
     {
-        // Hide all tabs
         const tabContents = document.querySelectorAll('.tab-content');
         tabContents.forEach(tab =>
         {
             tab.classList.remove('active');
         });
 
-        // Remove active class from all tab buttons
         const tabs = document.querySelectorAll('.tab');
         tabs.forEach(tab =>
         {
             tab.classList.remove('active');
         });
 
-        // Activate selected tab
         document.getElementById(tabName).classList.add('active');
 
-        // Activate selected tab button
         const activeTabButton = document.querySelector(`.tab[onclick="changeTab('${ tabName }')"]`);
         activeTabButton.classList.add('active');
     }

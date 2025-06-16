@@ -58,7 +58,6 @@ module.exports = class ServiceController
                 });
             }
 
-            // Formata os dados para o frontend
             const formattedService = {
                 id: service.id,
                 title: service.name,

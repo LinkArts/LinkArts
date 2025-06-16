@@ -43,7 +43,6 @@ const Message = db.define('Message',
         }
     })
 
-// Associações
 Message.belongsTo(User, { foreignKey: 'userid' })
 Message.belongsTo(Chat, { foreignKey: 'chatid' })
 

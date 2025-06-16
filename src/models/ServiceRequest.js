@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize')
-const db = require('../db/conn') // Certifique-se de que o caminho para seu arquivo de conexão está correto
+const db = require('../db/conn')
 
 const ServiceRequest = db.define('ServiceRequest',
     {
@@ -10,23 +10,23 @@ const ServiceRequest = db.define('ServiceRequest',
             allowNull: false
         },
         name: {
-            type: DataTypes.STRING(255), // Nome do pedido de serviço
+            type: DataTypes.STRING(255),
             allowNull: false
         },
         description: {
-            type: DataTypes.TEXT, // Descrição do pedido
+            type: DataTypes.TEXT,
             allowNull: true
         },
         date: {
-            type: DataTypes.DATEONLY, // Data do pedido
+            type: DataTypes.DATEONLY,
             allowNull: false
         },
         startTime: {
-            type: DataTypes.TIME, // Hora de início
+            type: DataTypes.TIME,
             allowNull: false
         },
         endTime: {
-            type: DataTypes.TIME, // Hora de término (opcional)
+            type: DataTypes.TIME,
             allowNull: true
         }
     }

@@ -1,12 +1,10 @@
 :root {
-  /* Core Theme Colors */
   --purple: #9b87f5;
   --purple-light: #DDD6FE;
   --purple-dark: #6D28D9;
   --purple-vivid: #8B5CF6;
   --white: #ffffff;
 
-  /* Grayscale */
   --gray-50: #F9FAFB;
   --gray-100: #F3F4F6;
   --gray-200: #E5E7EB;
@@ -18,7 +16,6 @@
   --gray-800: #1F2937;
   --gray-900: #111827;
 
-  /* Semantic Aliases & Specific Use */
   --primary-color: var(--purple);
   --primary-light-color: var(--purple-light);
   --primary-dark-color: var(--purple-dark);
@@ -31,44 +28,25 @@
   --input-border-color: var(--gray-300);
   --placeholder-color: var(--gray-400);
 
-  /* Status Colors */
   --success-color: #28a745;
   --warning-color: #ffc107;
   --error-color: #dc3545;
   --star-rating-color: #FBBF24;
 
-  /* Shadows */
   --modal-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   --card-shadow: 0 3px 6px rgba(0, 0, 0, 0.07);
   --card-hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  /* --popup-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* REMOVIDO - Era dos popups do header */
-  /* --header-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* REMOVIDO - Era do header */
   --btn-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   --btn-primary-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
   --btn-primary-hover-shadow: 0 4px 8px rgba(139, 92, 246, 0.25);
   --toast-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-  /* Mantido para toasts dos modais */
-
-  /* Focus Rings */
   --focus-shadow-primary: 0 0 0 3px rgba(155, 135, 245, 0.4);
-  /* var(--purple) with opacity */
   --focus-shadow-primary-light: 0 0 0 3px rgba(155, 135, 245, 0.3);
-  /* Lighter purple ring */
   --focus-shadow-primary-vivid: 0 0 0 3px rgba(139, 92, 246, 0.25);
-  /* var(--purple-vivid) for inputs */
   --focus-shadow-gray: 0 0 0 3px rgba(209, 213, 219, 0.5);
-  /* var(--gray-300) with opacity */
 }
 
-/* ================================= */
-/* == BASE & GLOBAL STYLES        == */
-/* ================================= */
-
-/* ================================= */
-/* == UTILITIES                   == */
-/* ================================= */
 .visually-hidden {
-  /* Mantido pois é usado no corpo do HTML */
   position: absolute;
   width: 1px;
   height: 1px;
@@ -80,9 +58,6 @@
   border: 0;
 }
 
-/* ================================= */
-/* == LAYOUT                      == */
-/* ================================= */
 .container-profile {
   width: 100%;
   max-width: 1200px;
@@ -92,12 +67,10 @@
 
 .main-content {
   padding-top: 84px;
-  /* header height (64px) + space (20px) - PODE PRECISAR DE AJUSTE SEM HEADER */
   padding-bottom: 60px;
   line-height: 1.5;
 }
 
-/* Generic Section Styling */
 section {
   margin-top: 40px;
 }
@@ -122,15 +95,6 @@ section h2 {
   gap: 10px;
 }
 
-/* ================================= */
-/* == HEADER (Icon Size Adjusted) == */
-/* ================================= */
-/* ESTILOS DO HEADER REMOVIDOS */
-
-
-/* ================================= */
-/* == PROFILE SECTION             == */
-/* ================================= */
 .profile-info {
   display: flex;
   flex-direction: column;
@@ -183,16 +147,13 @@ section h2 {
   display: flex;
   align-items: center;
   gap: 8px;
-  /* ICON SIZE INCREASED (adjusted gap) */
 }
 
 .profile-location::before {
   content: '';
   display: inline-block;
   width: 18px;
-  /* ICON SIZE INCREASED */
   height: 18px;
-  /* ICON SIZE INCREASED */
   background-color: var(--gray-500);
   mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10Zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/></svg>');
   mask-size: contain;
@@ -213,10 +174,8 @@ section h2 {
 
 .star {
   font-size: 22px;
-  /* ICON SIZE INCREASED (font-size for star char) */
   line-height: 1;
   margin-right: 2px;
-  /* Adjust if needed */
   display: inline-block;
   position: relative;
 }
@@ -256,9 +215,6 @@ section h2 {
   flex-shrink: 0;
 }
 
-/* ================================= */
-/* == BUTTONS                     == */
-/* ================================= */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -282,13 +238,10 @@ section h2 {
 
 .btn svg {
   width: 16px;
-  /* ICON SIZE INCREASED */
   height: 16px;
-  /* ICON SIZE INCREASED */
   flex-shrink: 0;
 }
 
-/* Primary Button */
 .btn-primary {
   background-color: var(--primary-color);
   color: var(--white);
@@ -305,7 +258,6 @@ section h2 {
   background-color: var(--primary-dark-color);
 }
 
-/* Outline Button */
 .btn-outline {
   background-color: rgba(155, 135, 245, 0.1);
   color: var(--primary-dark-color);
@@ -321,7 +273,6 @@ section h2 {
   box-shadow: var(--focus-shadow-primary-light);
 }
 
-/* Purple Border Button */
 .btn-purple {
   border: 1px solid var(--primary-color);
   color: var(--primary-color);
@@ -339,7 +290,6 @@ section h2 {
   border-color: var(--primary-color);
 }
 
-/* Link Button */
 .btn-link {
   background: none;
   border: none;
@@ -350,7 +300,6 @@ section h2 {
   text-decoration: none;
   padding: 8px 0;
   transition: color 0.2s ease, text-decoration 0.2s ease;
-  /* Icons in link buttons aren't explicitly styled, inherits .btn svg */
 }
 
 .btn-link:hover {
@@ -363,7 +312,6 @@ section h2 {
   text-decoration: underline;
 }
 
-/* Cancel Button */
 .btn-cancel {
   background-color: var(--white);
   color: var(--gray-700);
@@ -387,10 +335,6 @@ section h2 {
   background-color: var(--gray-50);
 }
 
-
-/* ================================= */
-/* == ABOUT SECTION               == */
-/* ================================= */
 .about-section p {
   color: var(--gray-700);
   margin-bottom: 20px;
@@ -420,11 +364,7 @@ section h2 {
   text-transform: capitalize;
 }
 
-/* ================================= */
-/* == AVAILABILITY SECTION        == */
-/* ================================= */
 .availability-section {
-  /*background-color: var(--body-bg); /* No CSS original era white, aqui mantido body-bg */
   padding: 24px;
   border-radius: 16px;
   border: 2px #00000047 solid;
@@ -454,140 +394,89 @@ section h2 {
   font-size: 14px;
   color: var(--secondary-text-color);
   font-style: normal;
-  /* No original era italic, aqui normal */
   border-top: 1px solid var(--border-color);
   padding-top: 16px;
 }
 
 .btn-delete {
   background-color: #dc3545;
-  /* Vermelho padrão para "danger" */
   color: var(--white);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 .btn-delete:hover {
   background-color: #c82333;
-  /* Vermelho mais escuro no hover */
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Ajuste o grupo de botões nos modais para alinhar o botão de excluir */
 .modal .button-group {
   display: flex;
   justify-content: space-between;
-  /* Alinha o excluir à esquerda, os outros à direita */
   align-items: center;
   gap: 10px;
   margin-top: 30px;
 }
 
-/* Para telas menores, os botões ficam em coluna */
 @media (max-width: 768px) {
   .modal .button-group {
     flex-direction: column-reverse;
-    /* Excluir no topo, depois cancelar, depois salvar */
     align-items: stretch;
-    /* Estica os botões para a largura total */
   }
 }
 
-/* ================================= */
-/* == SCROLL CONTAINER            == */
-/* ================================= */
 .scroll-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-
-  /* REMOVA ESTAS DUAS LINHAS para Firefox, IE e Edge: */
-  /* scrollbar-width: none; */
-  /* -ms-overflow-style: none; */
-
   padding-bottom: 10px;
   margin: 0 -10px;
   padding-left: 10px;
   padding-right: 10px;
 }
 
-
-/* --- Estilos para os Contêineres dos Cards (Eventos e Pedidos de Serviço) --- */
-/* Transformam os ULs em flex containers para que os LIs (cards) fiquem lado a lado */
 .events-container,
 .service-requests-container {
   display: flex;
-  /* Transforma o UL em um Flexbox container */
   flex-wrap: nowrap;
-  /* ESSENCIAL: Impede que os cards quebrem para a próxima linha, forçando-os a ficarem em uma única linha horizontal */
   gap: 20px;
-  /* Define o espaçamento entre os cards */
   padding: 0;
-  /* Remove padding padrão da lista */
   list-style: none;
-  /* Remove marcadores de lista */
-  /* Remove padding-bottom aqui se você já tiver no .scroll-container,
-     para evitar padding duplicado no final da rolagem */
 }
 
-/* --- Ajustes para os Cards Individuais (Eventos e Pedidos de Serviço) --- */
-/* Garantem que os cards mantenham uma largura fixa e não encolham */
 .event-card {
   min-width: 280px;
-  /* Largura mínima para o card de evento */
   width: 280px;
-  /* Largura preferencial para o card de evento */
   flex-shrink: 0;
-  /* Impede que o card encolha para caber no espaço disponível */
-  /* O restante do estilo do card de evento deve permanecer como estava originalmente (background, border, shadow, etc.) */
 }
 
 .service-request-card {
   min-width: 300px;
-  /* Largura mínima para o card de pedido de serviço */
   width: 300px;
-  /* Largura preferencial para o card de pedido de serviço */
   flex-shrink: 0;
-  /* Impede que o card encolha */
-  /* O restante do estilo do card de pedido de serviço deve permanecer como estava (background, border, shadow, padding, etc.) */
 }
 
-/* --- Ajuste para a descrição do Pedido de Serviço (se quiser limitar linhas) --- */
-/* Isso foi adicionado para evitar descrições muito longas que desequilibram o card */
 .service-request-card .request-description {
   max-height: 3.5em;
-  /* Limita a altura para aproximadamente 2 linhas de texto (ajuste conforme a line-height) */
   overflow: hidden;
   text-overflow: ellipsis;
-  /* Adiciona '...' se o texto for cortado */
   display: -webkit-box;
-  /* Propriedades para WebKit para limitar linhas */
   -webkit-line-clamp: 2;
-  /* Limita a 2 linhas */
   -webkit-box-orient: vertical;
 }
 
-/* --- Ajuste para a área de tags (se quiser que fique sempre no final do card) --- */
 .service-request-card .request-tags {
   margin-top: auto;
-  /* Empurra as tags para o final do espaço disponível dentro do card */
 }
 
-/* --- Ícones para Data e Hora nos Pedidos de Serviço (Cor ajustada para var(--primary-color)) --- */
-/* Certifique-se de que estes estilos estão presentes e com a cor desejada */
 .request-date-time .date-icon,
 .request-date-time .time-icon {
   background-color: var(--primary-color);
-  /* Cor do ícone, use sua --primary-color */
-  /* O restante do estilo (mask-image, width, height, etc.) deve estar no seu CSS */
 }
 
-/* --- Ajustes responsivos para os cards no scroll horizontal --- */
 @media (max-width: 768px) {
-
   .event-card,
   .service-request-card {
     min-width: 260px;
-    /* Um pouco menor para caber melhor em telas médias */
     width: 260px;
   }
 }
@@ -597,22 +486,16 @@ section h2 {
   .event-card,
   .service-request-card {
     min-width: 90%;
-    /* Ocupa a maior parte da tela em dispositivos muito pequenos */
     width: 90%;
     margin: 0 auto;
-    /* Centraliza o card na rolagem se houver espaço */
   }
 
   .scroll-container {
     padding-left: 5%;
-    /* Ajusta o padding para telas muito pequenas */
     padding-right: 5%;
   }
 }
 
-/* ================================= */
-/* == EVENTS SECTION              == */
-/* ================================= */
 .event-card {
   min-width: 240px;
   width: 240px;
@@ -636,7 +519,6 @@ section h2 {
   width: 100%;
   aspect-ratio: 16/10;
   background-color: var(--gray-100);
-  /* Placeholder bg */
 }
 
 .event-img img {
@@ -647,7 +529,6 @@ section h2 {
 }
 
 .event-content {
-  /* Este wrapper não existia no HTML original para o card estático, mas é usado pelo JS */
   padding: 14px;
   flex-grow: 1;
   display: flex;
@@ -655,7 +536,6 @@ section h2 {
 }
 
 .event-content h3 {
-  /* Ajustado para estar dentro de .event-content */
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 6px 0;
@@ -664,23 +544,19 @@ section h2 {
 }
 
 .event-date {
-  /* Ajustado para estar dentro de .event-content */
   font-size: 0.8rem;
   color: var(--secondary-text-color);
   margin: 0 0 10px 0;
   display: flex;
   align-items: center;
   gap: 5px;
-  /* ICON SIZE INCREASED (adjusted gap) */
 }
 
 .event-date::before {
   content: '';
   display: inline-block;
   width: 15px;
-  /* ICON SIZE INCREASED */
   height: 15px;
-  /* ICON SIZE INCREASED */
   background-color: currentColor;
   mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M9.5 1h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5ZM8 5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.992.089L7.5 8.5v-3A.5.5 0 0 1 8 5Zm1 3.5a.5.5 0 0 0-.492-.086l-.008.007-1.5.75a.5.5 0 0 0-.032.86l1.5.75a.5.5 0 0 0 .532-.773V8.5Z"/><path fill-rule="evenodd" d="M2.5 0A1.5 1.5 0 0 0 1 1.5V3h14V1.5A1.5 1.5 0 0 0 13.5 0h-11ZM15 4H1v10.5A1.5 1.5 0 0 0 2.5 16h11a1.5 1.5 0 0 0 1.5-1.5V4Z"/></svg>');
   mask-size: contain;
@@ -690,7 +566,6 @@ section h2 {
 }
 
 .event-description {
-  /* Ajustado para estar dentro de .event-content */
   font-size: 0.85rem;
   color: var(--gray-700);
   margin: 0;
@@ -698,9 +573,6 @@ section h2 {
   flex-grow: 1;
 }
 
-/* ================================= */
-/* == REVIEWS SECTION             == */
-/* ================================= */
 .reviews-list {
   list-style: none;
   padding: 0;
@@ -714,7 +586,6 @@ section h2 {
   padding: 24px;
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-  /* Ligeiramente diferente do --card-shadow original */
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -724,12 +595,9 @@ section h2 {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  /* Changed from center to align with multi-line titles */
   margin-bottom: 14px;
   flex-wrap: wrap;
-  /* Allow wrapping if title is too long */
   gap: 5px;
-  /* Space between title and stars if they wrap */
 }
 
 .review-header h3 {
@@ -742,9 +610,7 @@ section h2 {
 .review-stars {
   display: flex;
   flex-shrink: 0;
-  /* Prevent stars from shrinking if title is long */
   color: var(--gray-300);
-  /* Relies on .star font-size for sizing */
 }
 
 .review-text {
@@ -753,56 +619,37 @@ section h2 {
   line-height: 1.7;
   margin: 0;
   flex-grow: 1;
-  /* Ensure card takes full height if in a grid */
 }
 
 .review-text::before {
   content: '“';
   display: inline;
   font-size: 1.5em;
-  /* Kept relative size */
   color: var(--primary-light-color);
   margin-right: 2px;
   line-height: 0;
-  /* Helps with vertical alignment */
   position: relative;
   top: 0.1em;
-  /* Adjust as needed for font */
 }
 
-/* ================================= */
-/* == POPUPS (Generic)            == */
-/* ================================= */
-/* ESTILOS DOS POPUPS DO HEADER REMOVIDOS */
-
-
-/* ================================= */
-/* == MODAL & OVERLAY             == */
-/* ================================= */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background-color: rgba(17, 24, 39, 0.75);
-  /* Cor de fundo do overlay com opacidade */
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
-  /* Espaçamento para o modal não colar nas bordas da tela */
   z-index: 1050;
-  /* Alto z-index para sobrepor outros conteúdos */
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-  /* Transição suave */
   backdrop-filter: blur(4px);
-  /* Efeito de desfoque no fundo */
   -webkit-backdrop-filter: blur(4px);
 }
 
 .modal-overlay.is-visible,
 body.modal-open .modal-overlay {
-  /* .is-visible é adicionado via JS */
   opacity: 1;
   visibility: visible;
   transition: opacity 0.3s ease, visibility 0s linear;
@@ -815,48 +662,34 @@ body.modal-open .modal-overlay {
 .add-service-request-modal,
 .view-service-request-modal,
 .view-event-modal {
-  /* ADICIONADO AQUI */
   position: relative;
   background-color: var(--white);
   padding: 30px 35px;
-  /* Espaçamento interno do modal */
   border-radius: 10px;
   border: 1px solid var(--border-color);
   border-top: 4px solid var(--primary-color);
-  /* Destaque no topo */
   box-shadow: var(--modal-shadow);
   width: 100%;
   max-width: 550px;
-  /* Largura máxima do modal */
   z-index: 1051;
-  /* Acima do overlay */
   box-sizing: border-box;
   max-height: calc(100vh - 40px);
-  /* Altura máxima, permitindo scroll */
   overflow-y: auto;
-  /* Scroll vertical se o conteúdo exceder */
   scrollbar-width: thin;
-  /* Estilo da barra de rolagem (Firefox) */
   scrollbar-color: var(--primary-light-color) var(--gray-100);
-  /* Cores da barra de rolagem (Firefox) */
   opacity: 1;
-  /* Mantido, mas a transição principal é no overlay */
   transform: none;
-  /* Mantido, mas a transição principal é no overlay */
 }
 
-/* Estilo da barra de rolagem para WebKit (Chrome, Safari) */
 .add-event-modal::-webkit-scrollbar,
 .edit-profile-modal::-webkit-scrollbar,
 .edit-event-modal::-webkit-scrollbar {
-  /* ADICIONADO AQUI */
   width: 7px;
 }
 
 .add-event-modal::-webkit-scrollbar-track,
 .edit-profile-modal::-webkit-scrollbar-track,
 .edit-event-modal::-webkit-scrollbar-track {
-  /* ADICIONADO AQUI */
   background: var(--gray-100);
   border-radius: 4px;
 }
@@ -864,7 +697,6 @@ body.modal-open .modal-overlay {
 .add-event-modal::-webkit-scrollbar-thumb,
 .edit-profile-modal::-webkit-scrollbar-thumb,
 .edit-event-modal::-webkit-scrollbar-thumb {
-  /* ADICIONADO AQUI */
   background-color: var(--primary-light-color);
   border-radius: 4px;
   border: 1px solid var(--gray-100);
@@ -877,38 +709,29 @@ body.modal-open .modal-overlay {
   background: none;
   border: none;
   padding: 10px;
-  /* ICON SIZE INCREASED (adjusted padding) */
   cursor: pointer;
   color: var(--gray-500);
   transition: color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
   line-height: 1;
-  /* Evita altura extra */
   border-radius: 50%;
-  /* Botão redondo */
 }
 
 .modal-close-btn svg {
   width: 24px;
-  /* ICON SIZE INCREASED */
   height: 24px;
-  /* ICON SIZE INCREASED */
   display: block;
-  /* Remove espaço extra abaixo do SVG */
 }
 
 .modal-close-btn:hover {
   color: var(--gray-700);
   background-color: var(--gray-100);
-  /* Fundo suave no hover */
   transform: rotate(90deg);
-  /* Efeito de rotação */
 }
 
 .modal-close-btn:focus {
   outline: none;
   color: var(--gray-700);
   box-shadow: var(--focus-shadow-primary-light);
-  /* Anel de foco customizado */
   background-color: var(--gray-100);
 }
 
@@ -917,18 +740,14 @@ body.modal-open .modal-overlay {
 .edit-event-modal h2,
 .view-service-request-modal h2,
 .view-event-modal h2 {
-  /* ADICIONADO AQUI */
   margin: 0 0 35px 0;
-  /* Espaçamento abaixo do título */
   padding-right: 45px;
-  /* ICON SIZE INCREASED (adjusted for larger close button) */
   text-align: left;
   font-size: 1.6rem;
   font-weight: 700;
   color: var(--heading-color);
   line-height: 1.3;
   border-left: 4px solid var(--primary-light-color);
-  /* Destaque à esquerda */
   padding-left: 15px;
 }
 
@@ -1009,17 +828,13 @@ body.modal-open .modal-overlay {
 .add-event-modal .btn,
 .edit-profile-modal .btn,
 .edit-event-modal .btn .view-service-request-modal .btn {
-  /* ADICIONADO AQUI */
   padding: 10px 24px;
-  /* Padding maior para botões de modal */
   font-size: 0.95rem;
-  /* Icons will inherit size from base .btn svg */
 }
 
 .add-event-modal .btn:active,
 .edit-profile-modal .btn:active,
 .edit-event-modal .btn:active {
-  /* ADICIONADO AQUI */
   transform: scale(0.97);
   box-shadow: none;
 }
@@ -1027,7 +842,6 @@ body.modal-open .modal-overlay {
 .add-event-modal .btn-primary,
 .edit-profile-modal .btn-primary,
 .edit-event-modal .btn-primary {
-  /* ADICIONADO AQUI */
   box-shadow: var(--btn-primary-shadow);
   border-color: transparent;
 }
@@ -1035,7 +849,6 @@ body.modal-open .modal-overlay {
 .add-event-modal .btn-primary:hover,
 .edit-profile-modal .btn-primary:hover,
 .edit-event-modal .btn-primary:hover {
-  /* ADICIONADO AQUI */
   box-shadow: var(--btn-primary-hover-shadow);
   transform: translateY(-1px);
   background-color: var(--primary-dark-color);
@@ -1044,16 +857,12 @@ body.modal-open .modal-overlay {
 .add-event-modal .btn-primary:focus,
 .edit-profile-modal .btn-primary:focus,
 .edit-event-modal .btn-primary:focus {
-  /* ADICIONADO AQUI */
   outline: none;
   border-color: transparent;
   box-shadow: var(--focus-shadow-primary), var(--btn-primary-hover-shadow);
   background-color: var(--primary-dark-color);
 }
 
-/* ================================= */
-/* == TOAST NOTIFICATIONS         == */
-/* ================================= */
 .toast {
   position: fixed;
   bottom: 20px;
@@ -1072,7 +881,6 @@ body.modal-open .modal-overlay {
   display: flex;
   align-items: center;
   gap: 12px;
-  /* ICON SIZE INCREASED (adjusted gap) */
   min-width: 250px;
   max-width: 90%;
 }
@@ -1085,9 +893,7 @@ body.modal-open .modal-overlay {
 
 .toast svg {
   width: 22px;
-  /* ICON SIZE INCREASED */
   height: 22px;
-  /* ICON SIZE INCREASED */
   flex-shrink: 0;
   fill: currentColor;
 }
@@ -1107,11 +913,6 @@ body.modal-open .modal-overlay {
   color: var(--white);
 }
 
-
-/* ================================= */
-/* == RESPONSIVE ADJUSTMENTS      == */
-/* ================================= */
-/* Responsividade melhorada - Desktop grande */
 @media (min-width: 768px) {
   .profile-info {
     flex-direction: row;
@@ -1124,7 +925,6 @@ body.modal-open .modal-overlay {
   }
 }
 
-/* Responsividade melhorada - Tablet */
 @media (max-width: 1024px) {
   .container-profile {
     padding: 0 0.5rem;
@@ -1154,7 +954,6 @@ body.modal-open .modal-overlay {
   }
 }
 
-/* Responsividade - Tablet pequeno */
 @media (max-width: 768px) {
   .main-content {
     padding: 85px 0 40px 0;
@@ -1222,13 +1021,11 @@ body.modal-open .modal-overlay {
   }
 }
 
-/* Responsividade - Mobile */
 @media (max-width: 640px) {
   .main-content {
     padding: 80px 0 30px 0;
   }
 
-  /* --- Profile --- */
   .profile-info {
     gap: 16px;
     flex-direction: column;
@@ -1283,7 +1080,6 @@ body.modal-open .modal-overlay {
     min-width: 120px;
   }
 
-  /* --- General Sections --- */
   section {
     margin-top: 24px;
   }
@@ -1293,7 +1089,6 @@ body.modal-open .modal-overlay {
     margin-bottom: 12px;
   }
 
-  /* --- Availability --- */
   .availability-section {
     padding: 16px;
   }
@@ -1315,7 +1110,6 @@ body.modal-open .modal-overlay {
     padding-top: 10px;
   }
 
-  /* --- Scroll Container / Event Cards --- */
   .scroll-container {
     gap: 10px;
   }
@@ -1331,7 +1125,6 @@ body.modal-open .modal-overlay {
     padding: 12px;
   }
 
-  /* --- Reviews --- */
   .reviews-section .reviews-list {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -1341,7 +1134,6 @@ body.modal-open .modal-overlay {
     padding: 12px;
   }
 
-  /* --- Modals --- */
   .add-event-modal,
   .edit-profile-modal {
     padding: 25px;
@@ -1376,7 +1168,6 @@ body.modal-open .modal-overlay {
   }
 }
 
-/* Responsividade - Mobile pequeno */
 @media (max-width: 480px) {
   .container-profile {
     padding: 0 0.25rem;
@@ -1547,7 +1338,6 @@ body.modal-open .modal-overlay {
 
 .service-request-card {
   min-width: 280px;
-  /* Um pouco mais largo para acomodar mais texto */
   width: 280px;
   flex-shrink: 0;
   background-color: var(--white);
@@ -1559,9 +1349,7 @@ body.modal-open .modal-overlay {
   display: flex;
   flex-direction: column;
   padding: 18px;
-  /* Padding interno, já que não há imagem no topo */
   cursor: pointer;
-  /* Indica que é clicável */
 }
 
 .service-request-card:hover {
@@ -1589,7 +1377,6 @@ body.modal-open .modal-overlay {
   margin: 0 0 12px 0;
   line-height: 1.5;
   flex-grow: 1;
-  /* Garante que a descrição preencha o espaço disponível */
 }
 
 .request-date-time {
@@ -1598,7 +1385,6 @@ body.modal-open .modal-overlay {
   margin: 0 0 12px 0;
   display: flex;
   flex-direction: column;
-  /* Coloca data e hora em linhas separadas */
   gap: 4px;
 }
 
@@ -1634,23 +1420,17 @@ body.modal-open .modal-overlay {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  /* Espaço menor entre as tags no card */
   margin-top: 5px;
-  /* Espaço acima das tags */
 }
 
 .request-tags .tag {
-  /* Herda estilos da tag genérica, mas pode ser ajustado */
   padding: 4px 10px;
   font-size: 12px;
 }
 
-
-/* RESPONSIVE ADJUSTMENTS para a nova seção */
 @media (max-width: 640px) {
   .service-request-card {
     min-width: 240px;
-    /* Ajuste para telas menores */
     width: 240px;
     padding: 15px;
   }
@@ -1665,17 +1445,13 @@ body.modal-open .modal-overlay {
   }
 }
 
-/* Modificação para o modal de edição de pedido de serviço */
 @media (max-width: 640px) {
 
-  /* ... (outras regras de modal responsivas) ... */
   .add-service-request-modal {
-    /* ADICIONADO AQUI */
     padding: 25px;
   }
 
   .add-service-request-modal h2 {
-    /* ADICIONADO AQUI */
     font-size: 1.5rem;
     margin-bottom: 30px;
     padding-left: 10px;
@@ -1683,15 +1459,12 @@ body.modal-open .modal-overlay {
   }
 
   .add-service-request-modal .btn {
-    /* ADICIONADO AQUI */
     width: 100%;
     padding: 14px;
     font-size: 1rem;
   }
 }
-/* ================================= */
-/* == SOCIAL ICONS                == */
-/* ================================= */
+
 .about-header {
   display: flex;
   justify-content: space-between;
@@ -1755,9 +1528,6 @@ body.modal-open .modal-overlay {
   box-shadow: 0 4px 8px rgba(24, 119, 242, 0.3);
 }
 
-/* ================================= */
-/* == REPORT MODAL                == */
-/* ================================= */
 .report-profile-overlay {
   position: fixed;
   top: 0;
@@ -1909,10 +1679,6 @@ body.modal-open .modal-overlay {
   }
 }
 
-
-/* ================================= */
-/* == EDIT PROFILE MODAL SECTIONS == */
-/* ================================= */
 .form-section {
   margin-top: 24px;
   padding-top: 20px;

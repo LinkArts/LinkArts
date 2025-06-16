@@ -4,21 +4,19 @@ const handlebars = require("express-handlebars");
 const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const flash = require("express-flash");
-const http = require("http"); // Importar o módulo http
-const { initWebSocket, setupChatHandlers } = require("./websocket_setup"); // Importar o inicializador do WebSocket
-const path = require("path"); // Importar path
-const os = require("os"); // Importar os
+const http = require("http");
+const { initWebSocket, setupChatHandlers } = require("./websocket_setup");
+const path = require("path");
+const os = require("os");
 
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-const server = http.createServer(app); // Criar servidor HTTP a partir do app Express
-const io = initWebSocket(server); // Inicializar o Socket.IO com o servidor HTTP
+const server = http.createServer(app);
+const io = initWebSocket(server);
 
-// Configurar handlers específicos do chat após a inicialização
 setupChatHandlers();
 
-// Rotas e Controladores
 const authRoutes = require("./routes/authRoutes");
 const AuthController = require("./controllers/AuthController");
 const dashboardRoutes = require("./routes/dashboardRoutes");
@@ -34,10 +32,8 @@ const AgendaController = require("./controllers/AgendaController");
 const serviceRoutes = require('./routes/serviceRoutes')
 const adminRoutes = require('./routes/adminRoutes')
 
-// Models
 const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest, Service, ServiceNote, ServiceProposal } = require('./models/index')
 
-// Template Engine Handlebars com Helpers Corrigidos
 app.engine(
   "handlebars",
   handlebars.engine({
@@ -50,7 +46,6 @@ app.engine(
       {
         return JSON.stringify(context);
       },
-      // Helper para formatar data (mantido)
       formatDate: function (timestamp)
       {
         if (!timestamp) return "";
@@ -62,15 +57,12 @@ app.engine(
           yesterday.setDate(yesterday.getDate() - 1);
           if (date.toDateString() === now.toDateString())
           {
-            // Retorna hora se for hoje
             return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
           } else if (date.toDateString() === yesterday.toDateString())
           {
-            // Retorna "Ontem" se for ontem
             return "Ontem";
           } else
           {
-            // Retorna data dd/mm se for mais antigo
             return date.toLocaleDateString([], { day: "2-digit", month: "2-digit" });
           }
         } catch (e)
@@ -79,13 +71,11 @@ app.engine(
           return "";
         }
       },
-      // Helper para cor aleatória (ADICIONADO)
       randomColor: function ()
       {
         const colors = ["FFA500", "008000", "FFC0CB", "0000FF", "800080", "FF0000", "4B0082"];
         return colors[Math.floor(Math.random() * colors.length)];
       },
-      // Helper substring para truncar strings com validação
       substring: function (str, start, length)
       {
         if (!str || typeof str !== 'string') return "";
@@ -100,14 +90,12 @@ app.engine(
           return "";
         }
       },
-      // Helper para verificar se string começa com texto específico
       startsWith: function (str, prefix)
       {
         if (!str || typeof str !== 'string') return false;
         if (!prefix || typeof prefix !== 'string') return false;
         return str.startsWith(prefix);
       },
-      // Helper para verificar se pelo menos um dos valores é verdadeiro
       or: function ()
       {
         for (let i = 0; i < arguments.length - 1; i++)
@@ -122,11 +110,9 @@ app.engine(
 );
 app.set("view engine", "handlebars");
 
-// Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Session Middleware
 app.use(
   session({
     name: "session",
@@ -146,19 +132,15 @@ app.use(
   })
 );
 
-// Flash Messages
 app.use(flash());
 
-// Public Path
 app.use(express.static("public"));
 
-// Middleware Global
 app.use((req, res, next) =>
 {
   if (req.session.userid)
   {
     res.locals.session = req.session;
-    // res.locals.username = req.username; // Verificar se req.username é necessário/definido
   }
 
   const message = req.flash("message")[0];
@@ -180,13 +162,11 @@ app.use('/', serviceRoutes)
 app.use('/', adminRoutes)
 app.get('/', AuthController.renderLogin)
 
-// Rota 404
 app.use((req, res) =>
 {
   res.status(404).render("layouts/404");
 });
 
-// Conexão com DB e Inicialização do Servidor
 const conn = require("./db/conn");
 
 conn

@@ -15,9 +15,7 @@ const ServiceProposal = require('./ServiceProposal');
 
 const models = { User, Artist, Establishment, Music, Album, Genre, Chat, Tag, Message, Event, ServiceRequest, Service, ServiceNote, ServiceProposal };
 
-// Setup associations
 const setupAssociations = require('./associations');
 setupAssociations(models);
 
-// Exporte os modelos prontos
 module.exports = models;

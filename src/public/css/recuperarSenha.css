@@ -1,4 +1,3 @@
-/* Reset do padding global do body para páginas de autenticação */
 body {
     padding-top: 0 !important;
 }
@@ -13,7 +12,6 @@ body {
     overflow: hidden;
 }
 
-/* Painel esquerdo - Formulário de recuperação */
 .recuperar-panel {
     width: 20%;
     background-color: #673AB7;
@@ -26,7 +24,6 @@ body {
     overflow-y: auto;
 }
 
-/* Responsividade melhorada */
 @media (max-width: 1024px) {
     .recuperar-panel {
         width: 45%;
@@ -171,7 +168,6 @@ input {
     box-sizing: border-box;
 }
 
-/* Responsividade dos elementos do formulário */
 @media (max-width: 768px) {
     h2 {
         font-size: 1.3rem;
@@ -340,7 +336,6 @@ input {
     margin-top: 1rem;
 }
 
-/* Painel direito - Imagem de boas-vindas */
 .welcome-panel {
     width: 80%;
     background-color: #f1f1f1;
@@ -370,7 +365,6 @@ input {
     max-height: 60vh;
 }
 
-/* Responsividade do painel de boas-vindas */
 @media (max-width: 1024px) {
     .welcome-container h1 {
         font-size: 1.8rem;

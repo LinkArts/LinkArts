@@ -151,7 +151,6 @@
 <script>
     document.addEventListener('DOMContentLoaded', () =>
     {
-        // === Referências aos elementos DOM ===
         const scheduledServicesList = document.getElementById('scheduled-services-list');
         const receivedProposalsList = document.getElementById('received-proposals-list');
         const serviceNotesTextarea = document.getElementById('service-notes');
@@ -160,29 +159,24 @@
         const notesLabel = document.querySelector('.notes-area label');
         const notesBtnContainer = document.querySelector('.notes-area .btn-container');
 
-        // Referências para o modal de visualização de proposta/serviço
         const proposalViewModalOverlay = document.getElementById('proposal-view-modal-overlay');
         const proposalViewModal = document.getElementById('proposal-view-modal');
 
-        // Referências para o modal de envio de proposta
         const sendProposalBtn = document.getElementById('send-proposal-btn');
         const sendProposalModalOverlay = document.getElementById('send-proposal-modal-overlay');
         const sendProposalModal = document.getElementById('send-proposal-modal');
         const closeSendProposalModalBtn = document.getElementById('close-send-proposal-modal');
         const cancelSendProposalModalBtn = document.getElementById('cancel-send-proposal-modal');
         const sendProposalForm = document.getElementById('send-proposal-form');
-        const proposalTagsSelect = document.getElementById('proposal-tags'); // Novo campo Select2
+        const proposalTagsSelect = document.getElementById('proposal-tags');
 
         const id = {{userid}};
         const isOwner = {{isOwner}};
 
-        // Variável para controlar qual serviço agendado está selecionado para anotações
         let currentSelectedServiceId = null;
 
-        // === Dados Locais (Serão populados pelas chamadas fetch) ===
         let scheduledServices = [];
         let receivedProposals = [];
-        // Tags disponíveis para o Select2 (em um cenário real, viriam do backend)
         let availableTags = [
             { id: 'musica', text: 'Música' },
             { id: 'evento', text: 'Evento' },
@@ -193,7 +187,6 @@
             { id: 'outros', text: 'Outros' }
         ];
 
-        // === Funções Auxiliares ===
 
         const resetNotesArea = () =>
         {
@@ -202,38 +195,32 @@
             notesLabel.style.display = 'none';
             serviceNotesTextarea.style.display = 'none';
             notesBtnContainer.style.display = 'none';
-            // Remove a classe 'active' de todos os cards de serviço agendado
             document.querySelectorAll('#scheduled-services-list .card.active').forEach(c => c.classList.remove('active'));
-            currentSelectedServiceId = null; // Zera o ID do serviço selecionado
+            currentSelectedServiceId = null;
         };
 
         document.addEventListener('click', (e) =>
         {
             const clickedCard = e.target.closest('.scheduled-service-card');
-            const clickedNotesArea = e.target.closest('.notes-area'); // Pega o elemento pai .notes-area
-            const clickedModal = e.target.closest('.modal-overlay'); // Pega o modal (overlay ou o modal em si)
+            const clickedNotesArea = e.target.closest('.notes-area');
+            const clickedModal = e.target.closest('.modal-overlay');
 
-            // Se clicou em um card de serviço agendado, ou na área de anotações, ou em um modal,
-            // não faz nada para desativar. A ativação/visualização será tratada pelos listeners específicos.
             if (clickedCard || clickedNotesArea || clickedModal)
             {
                 return;
             }
 
-            // Se nenhum dos acima foi clicado, redefine a área de anotações
             resetNotesArea();
         });
 
-        // Formata o preço para moeda local
         const formatPrice = (price) =>
         {
             return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price);
         };
 
-        // Aplica o scroll à lista de cards se houver mais de 4 itens
         const applyScrollToCardList = (listElement, cardCount) =>
         {
-            const singleCardHeight = 160; // Altura aproximada de um card, ajuste se necessário
+            const singleCardHeight = 160;
             const maxHeightForFourCards = singleCardHeight * 4;
 
             if (cardCount > 4)
@@ -247,16 +234,12 @@
             }
         };
 
-        // === Funções de Renderização ===
-
-        // Carrega e renderiza os cards de serviços agendados
         const loadAndRenderScheduledServices = async () =>
         {
             try
             {
                 const response = await fetch(`/agenda/servicos/${ id }`)
                 const data = await response.json();
-                //console.log(data);
 
                 scheduledServices = data.services;
                 scheduledServicesList.innerHTML = '';
@@ -285,7 +268,6 @@
             }
         };
 
-        // Carrega e renderiza os cards de propostas recebidas
         const loadAndRenderReceivedProposals = async () =>
         {
             try
@@ -332,23 +314,18 @@
             }
         };
 
-        // === Funções de Gerenciamento de Modais ===
-
-        // Abre o modal de visualização (proposta/serviço agendado)
         const openProposalViewModal = () =>
         {
             proposalViewModalOverlay.classList.add('active');
             proposalViewModal.classList.add('active');
         };
 
-        // Fecha o modal de visualização
         const closeProposalViewModal = () =>
         {
             proposalViewModalOverlay.classList.remove('active');
             proposalViewModal.classList.remove('active');
         };
 
-        // Configura e exibe o modal de visualização de proposta/serviço
         const setupViewProposalModal = (data, isPending = false) =>
         {
             let actionButtonsHtml = '';
@@ -380,13 +357,11 @@
             </div>
         `;
 
-            // Adicionar listeners para os botões de fechar dentro do modal
             proposalViewModal.querySelectorAll('.modal-close-btn').forEach(btn =>
             {
                 btn.onclick = closeProposalViewModal;
             });
 
-            // Adicionar listeners para os botões de ação (Aceitar/Recusar) dentro do modal
             if (isPending)
             {
                 proposalViewModal.querySelectorAll('.proposal-action-btn').forEach(btn =>
@@ -398,36 +373,29 @@
             openProposalViewModal();
         };
 
-        // Abre o modal de envio de proposta
         const openSendProposalModal = () =>
         {
             sendProposalModalOverlay.classList.add('active');
             sendProposalModal.classList.add('active');
-            // Inicializa/re-inicializa o Select2 ao abrir o modal
-            // Certifique-se de que o jQuery e o Select2 estejam carregados antes deste ponto
             $(proposalTagsSelect).select2({
                 placeholder: "Selecione as tags",
-                data: availableTags, // Popula as opções com as tags disponíveis
-                allowClear: true // Permite limpar a seleção
+                data: availableTags,
+                allowClear: true
             });
         };
 
-        // Fecha o modal de envio de proposta e limpa o formulário
         const closeSendProposalModal = () =>
         {
             sendProposalModalOverlay.classList.remove('active');
             sendProposalModal.classList.remove('active');
-            sendProposalForm.reset(); // Limpa os campos do formulário
-            // Limpa o Select2
+            sendProposalForm.reset();
+
             if ($(proposalTagsSelect).data('select2'))
-            { // Verifica se Select2 foi inicializado
+            { 
                 $(proposalTagsSelect).val(null).trigger('change');
             }
         };
 
-        // === Funções de Lógica de Negócio (Comentadas para Fetch) ===
-
-        // Lida com a ação de aceitar ou recusar uma proposta via API
         const handleProposalAction = async (e, proposalId) =>
         {
             const action = e.target.dataset.action; // 'accept' ou 'reject'
@@ -449,12 +417,10 @@
                 const result = await response.json();
                 alert(result.message || `Proposta ${ action === 'accept' ? 'aceita' : 'recusada' } com sucesso!`);
 
-                // Re-renderizar as listas após a ação bem-sucedida
                 await loadAndRenderScheduledServices();
                 await loadAndRenderReceivedProposals();
-                closeProposalViewModal(); // Fechar o modal de visualização após a ação
+                closeProposalViewModal();
 
-                // Resetar área de anotações se o serviço selecionado era uma proposta aceita
                 if (action === 'accept' && currentSelectedServiceId === proposalId)
                 {
                     serviceNotesTextarea.value = '';
@@ -472,7 +438,6 @@
             }
         };
 
-        // Salva as anotações de um serviço agendado via API
         const saveServiceNotes = async () =>
         {
             if (!currentSelectedServiceId)
@@ -484,20 +449,6 @@
             try
             {
                 const notes = serviceNotesTextarea.value;
-                // === COLOQUE SEU FETCH REAL AQUI PARA ATUALIZAR ANOTAÇÕES ===
-                // Exemplo:
-                // const response = await fetch(`/api/services/${currentSelectedServiceId}/notes`, {
-                //     method: 'PUT',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify({ notes: notes })
-                // });
-                //
-                // if (!response.ok) {
-                //     const errorData = await response.json();
-                //     throw new Error(errorData.message || 'Erro ao salvar anotações');
-                // }
-                //
-                // const result = await response.json();
 
                 const response = await fetch(`/agenda/salvar-anotacao/${ currentSelectedServiceId }`,
                     {
@@ -509,7 +460,6 @@
                 const data = await response.json();
                 alert(data.message); // Simulação de sucesso
 
-                // Atualizar o dado no array local para consistência (sem re-renderizar tudo)
                 console.log(currentSelectedServiceId);
                 const serviceIndex = scheduledServices.findIndex(s => s.id === Number(currentSelectedServiceId));
                 if (serviceIndex !== -1)
@@ -524,35 +474,24 @@
             }
         };
 
-
-        // === Listeners de Eventos ===
-
         if (isOwner)
         {
-            // Listener para clicar em serviços agendados (selecionar para anotações e abrir modal de visualização)
             scheduledServicesList.addEventListener('click', async (e) =>
             {
                 const card = e.target.closest('.card');
                 if (card && card.dataset.id)
                 {
-                    // Remove 'active' de todos os cards de agendados
                     document.querySelectorAll('#scheduled-services-list .card').forEach(c => c.classList.remove('active'));
-                    // Adiciona 'active' ao card clicado
                     card.classList.add('active');
 
                     currentSelectedServiceId = card.dataset.id;
                     console.log(currentSelectedServiceId);
-                    // Em um cenário real, você faria um fetch para obter os detalhes mais recentes do serviço:
-                    // const response = await fetch(`/api/services/${currentSelectedServiceId}`);
-                    // const service = await response.json();
-                    // Para simulação, busca no array local:
                     console.log(scheduledServices)
                     const service = scheduledServices.find(s => s.id === Number(currentSelectedServiceId));
                     console.log(service)
 
                     if (service)
                     {
-                        // Exibe a área de anotações
                         noServiceSelectedMessage.style.display = 'none';
                         notesLabel.style.display = 'block';
                         serviceNotesTextarea.style.display = 'block';
@@ -566,13 +505,11 @@
             });
         }
 
-        // Listener para o botão Salvar Anotações
         if (saveNotesBtn)
         {
             saveNotesBtn.addEventListener('click', saveServiceNotes);
         }
 
-        // Listener para clicar em propostas recebidas (abrir modal de visualização ou executar ação)
         if (receivedProposalsList)
         {
             receivedProposalsList.addEventListener('click', async (e) =>
@@ -583,16 +520,11 @@
                     const proposalId = card.dataset.id;
                     const proposalStatus = card.dataset.type;
 
-                    // Só permite ações se a proposta estiver pendente
                     if (proposalStatus !== 'pending')
                     {
                         return;
                     }
 
-                    // Em um cenário real, você faria um fetch para obter os detalhes mais recentes da proposta:
-                    // const response = await fetch(`/api/proposals/${proposalId}`);
-                    // const proposal = await response.json();
-                    // Para simulação, busca no array local:
                     const proposal = receivedProposals.find(p => p.id === Number(proposalId));
 
                     if (proposal)
@@ -610,7 +542,6 @@
             });
         }
 
-        // Listener para o botão "Enviar Proposta"
         if (sendProposalBtn)
         {
             sendProposalBtn.addEventListener('click', () =>
@@ -619,7 +550,6 @@
             });
         }
 
-        // Listeners para fechar o modal de envio de proposta
         if (closeSendProposalModalBtn)
         {
             closeSendProposalModalBtn.addEventListener('click', closeSendProposalModal);
@@ -636,7 +566,6 @@
             }
         });
 
-        // Listener para o envio do formulário de proposta
         if (sendProposalForm)
         {
             sendProposalForm.addEventListener('submit', async (e) =>
@@ -664,7 +593,7 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            userid: id, // ID do usuário que receberá a proposta
+                            userid: id,
                             name: title,
                             description: description,
                             date: date,
@@ -683,10 +612,8 @@
                     const result = await response.json();
                     alert(result.message || 'Proposta enviada com sucesso!');
 
-                    // Fecha o modal e limpa o formulário
                     closeSendProposalModal();
 
-                    // Recarrega as listas para mostrar a nova proposta
                     if (isOwner)
                     {
                         await loadAndRenderScheduledServices();
@@ -701,33 +628,11 @@
             });
         }
 
-        // === Inicialização ===
-
-        // Carregar e renderizar as listas ao carregar a página
         loadAndRenderScheduledServices();
 
         if (isOwner)
         {
             loadAndRenderReceivedProposals();
         }
-
-        // NOTA: A inicialização do Select2 para `proposalTagsSelect` é feita dentro de `openSendProposalModal`
-        // para garantir que o elemento já esteja no DOM e pronto para ser inicializado.
-        // Se `availableTags` precisasse ser carregado do backend, essa lógica deveria
-        // vir antes da chamada a `openSendProposalModal`, provavelmente na inicialização.
-        // Exemplo para carregar tags:
-        /*
-        async function loadAvailableTags() {
-            try {
-                const response = await fetch('/api/tags');
-                const data = await response.json();
-                availableTags = data.map(tag => ({ id: tag.id, text: tag.name })); // Assumindo {id, name}
-            } catch (error) {
-                console.error('Erro ao carregar tags disponíveis:', error);
-                availableTags = []; // Garante que a lista não esteja nula
-            }
-        }
-        loadAvailableTags(); // Chame esta função na inicialização se precisar carregar tags
-        */
     });
 </script>

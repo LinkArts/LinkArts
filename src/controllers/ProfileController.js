@@ -307,15 +307,6 @@ module.exports = class ProfileController
     static async createMusic(req, res)
     {
         const { title, tag, album } = req.body
-        //checar palavroes
-
-        /*const checkGenre = await Genre.findOne({ where: { genre: generoMusica } })
-        if (!checkGenre)
-        {
-            req.flash('message', 'O gênero não é valido!')
-            req.flash('messageType', 'error')
-            return res.redirect('/profile/:id')
-        }*/
 
         const user = await User.findOne({
             where: {
@@ -445,8 +436,7 @@ module.exports = class ProfileController
         try
         {
             const events = await Event.findAll({
-                order: [['date', 'ASC'], ['id', 'ASC']] // Opcional: ordenar por data
-                // include: Establishment // Se quiser incluir dados da empresa associada
+                order: [['date', 'ASC'], ['id', 'ASC']]
             })
             return res.status(200).json(events)
         } catch (error)
@@ -463,7 +453,6 @@ module.exports = class ProfileController
         const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
         const establishmentid = user.Establishment.dataValues.cnpj
 
-        // Validações básicas (você pode adicionar mais, ex: Joi, Express Validator)
         if (!title || !date || !establishmentid)
         {
             return res.status(400).json({ message: "Título, data e ID do estabelecimento são obrigatórios." })
@@ -471,7 +460,6 @@ module.exports = class ProfileController
 
         try
         {
-            // Verifica se o estabelecimento existe antes de criar o evento
             const establishment = await Establishment.findByPk(establishmentid)
             if (!establishment)
             {
@@ -483,7 +471,7 @@ module.exports = class ProfileController
                 date,
                 description,
                 imageUrl,
-                establishmentid // ID do estabelecimento associado
+                establishmentid
             })
             return res.status(201).json(newEvent)
         } catch (error)
@@ -514,7 +502,6 @@ module.exports = class ProfileController
                 return res.status(404).json({ message: "Evento não encontrado." })
             }
 
-            // Opcional: verificar se o estabelecimentoid foi alterado e se o novo existe
             if (establishmentid && event.establishmentid !== establishmentid)
             {
                 const newEstablishment = await Establishment.findByPk(establishmentid);
@@ -528,7 +515,7 @@ module.exports = class ProfileController
                 { title, date, description, imageUrl, establishmentid },
                 { where: { id: id } }
             )
-            const updatedEvent = await Event.findByPk(id) // Busca o evento atualizado para retornar
+            const updatedEvent = await Event.findByPk(id)
             return res.status(200).json(updatedEvent)
         } catch (error)
         {
@@ -561,16 +548,14 @@ module.exports = class ProfileController
         try
         {
             const requests = await ServiceRequest.findAll({
-                // Para incluir as tags corretamente devido à associação Many-to-Many
                 include: {
                     model: Tag,
-                    as: 'Tags', // Usar o 'as' definido na associação
-                    through: { attributes: [] } // Não precisamos dos atributos da tabela intermediária
+                    as: 'Tags',
+                    through: { attributes: [] }
                 },
                 order: [['date', 'ASC'], ['startTime', 'ASC'], ['id', 'ASC']]
             })
-            // Os getters/setters no modelo ServiceRequest já devem formatar as tags
-            // mas se não, aqui você poderia fazer um map para garantir que `tags` é um array.
+
             return res.status(200).json(requests)
         } catch (error)
         {
@@ -606,24 +591,20 @@ module.exports = class ProfileController
                 date,
                 startTime,
                 endTime,
-                // O setter do modelo já transforma o array de tags em JSON string
-                tags: tags || [], // Garante que é um array, mesmo que vazio
+                tags: tags || [],
                 establishmentid
             })
 
-            // Se você estiver usando a associação Many-to-Many com a tabela Tag:
             if (tags && tags.length > 0)
             {
                 const tagInstances = await Promise.all(tags.map(async (tagName) =>
                 {
-                    // findOrCreate: Se a tag existir, usa; se não, cria.
                     const [tag] = await Tag.findOrCreate({ where: { id: tagName.trim() } });
                     return tag;
                 }));
-                await newServiceRequest.addTags(tagInstances); // Associa as tags ao pedido
+                await newServiceRequest.addTags(tagInstances);
             }
 
-            // Para retornar o objeto completo com as tags (se for o caso de many-to-many)
             const createdServiceRequestWithTags = await ServiceRequest.findByPk(newServiceRequest.id, {
                 include: {
                     model: Tag,
@@ -675,7 +656,6 @@ module.exports = class ProfileController
                 { where: { id: id } }
             )
 
-            // Lógica para atualizar tags na associação Many-to-Many
             if (tags && tags.length > 0)
             {
                 const tagInstances = await Promise.all(tags.map(async (tagName) =>
@@ -683,10 +663,10 @@ module.exports = class ProfileController
                     const [tag] = await Tag.findOrCreate({ where: { id: tagName.trim() } });
                     return tag;
                 }));
-                await serviceRequest.setTags(tagInstances); // Sobrescreve as tags existentes
+                await serviceRequest.setTags(tagInstances);
             } else
             {
-                await serviceRequest.setTags([]); // Remove todas as tags se o array estiver vazio
+                await serviceRequest.setTags([]);
             }
 
             const updatedServiceRequest = await ServiceRequest.findByPk(id, {

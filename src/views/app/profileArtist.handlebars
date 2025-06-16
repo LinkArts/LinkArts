@@ -166,7 +166,6 @@
         <div class="review-header">
           <h3>{{this.reviewerName}}</h3>
           <div class="review-stars" aria-label="Avaliação: {{this.rating}} de 5 estrelas">
-            {{!-- {{{renderStars this.rating}}} --}}
           </div>
         </div>
         <p class="review-text">"{{{this.text}}}"</p>''
@@ -185,7 +184,6 @@
     let availableAlbums = [];
     let availableTags = [];
 
-    // Ajustes nos Seletores
     const Selectors = {
       profileName: document.getElementById('profile-name') ?? document.querySelector('.profile-details h1'),
       //profileTag: document.getElementById('profile-tag') ?? document.querySelector('.profile-tag'),
@@ -193,7 +191,6 @@
       profileAbout: document.getElementById('profile-about') ?? document.querySelector('.about-section p'),
       profileImage: document.getElementById('profile-main-image') ?? document.querySelector('.profile-img img'),
 
-      // Ajustado para usar o ID, que é mais específico
       addMusicBtn: document.getElementById('add-music-action-button'),
       addAlbumBtn: document.getElementById('add-album-action-button'),
       editProfileBtn: document.getElementById('edit-profile-btn'),
@@ -591,7 +588,7 @@
             showToast('Álbum já existe.', 'error');
             nameInput.classList.add('input-error');
             nameInput.focus();
-            return; // << PARADA AQUI
+            return;
           }
         }
         catch (err)
@@ -603,13 +600,13 @@
 
         try
         {
-          await renderAlbumCard(newName); // Adiciona o álbum à interface
+          await renderAlbumCard(newName);
 
           const addMusicSelect = document.getElementById('song-album');
           if (addMusicSelect && document.body.contains(addMusicSelect))
           {
             await populateAlbumDropdown('song-album');
-            addMusicSelect.value = newName; // Seleciona o álbum recém-criado
+            addMusicSelect.value = newName;
           }
 
           closeModal(modalElement.closest('.modal-overlay'));
@@ -627,7 +624,6 @@
 
     async function openAlbumContentModal(albumName, albumid, triggerButton = null)
     {
-      // Converte o nome do álbum do HTML para minúsculas para comparação
       const albumNameLower = albumName.toLowerCase();
       let songsForAlbum = [];
 
@@ -664,7 +660,7 @@
     async function setupAddMusicModal()
     {
       if (Selectors.addMusicBtn)
-      { // Verifica se o botão existe
+      {
         Selectors.addMusicBtn.addEventListener('click', async () =>
         {
           const modalElement = openModal('.add-music-overlay', 'add-music-modal', getAddMusicModalHTML(), Selectors.addMusicBtn);
@@ -674,7 +670,7 @@
           }, 0);
 
           const tagSelect = document.getElementById('song-tag');
-          tagSelect.innerHTML = ''; // Limpa opções existentes
+          tagSelect.innerHTML = '';
 
           availableTags.forEach(tag =>
           {
@@ -792,7 +788,7 @@
       }, 0);
 
       const tagSelect = document.getElementById('edit-song-tag');
-      tagSelect.innerHTML = ''; // Limpa opções existentes
+      tagSelect.innerHTML = '';
 
       availableTags.forEach(tag =>
       {
@@ -812,16 +808,14 @@
       const albumSelect = modalElement.querySelector('#edit-song-album');
       const deleteBtn = modalElement.querySelector('#delete-music-btn');
 
-      // Popula o dropdown de álbuns no modal de edição
       await populateAlbumDropdown('edit-song-album');
-      albumSelect.value = songData.album || ""; // Seleciona o álbum atual da música
+      albumSelect.value = songData.album || "";
       const id = songData.id;
 
-      setTimeout(() => titleInput?.focus(), 100); // Foca no campo de título
+      setTimeout(() => titleInput?.focus(), 100);
 
       const allInputs = [titleInput, tagInput, albumSelect];
 
-      // Lógica de Submissão do Formulário (Salvar)
       form?.addEventListener('submit', async (e) =>
       {
         e.preventDefault();
@@ -860,7 +854,6 @@
           return;
         }
 
-        // Lógica para encontrar e atualizar a música no mockAllSongs
         const originalTitle = originalTitleInput.value;
         const originalAlbum = originalAlbumInput.value;
 
@@ -885,8 +878,6 @@
           return;
         }
 
-        // Atualizar o card da música no DOM se estiver visível (apenas na seção de Músicas)
-        // Melhoria: Encontrar o card original e atualizar o seu conteúdo
         const existingSongCard = Selectors.musicContainer?.querySelector(`.song-card[data-id="${ id }"] > .song-info > h3`)
           ?.closest('.song-card');
 
@@ -911,10 +902,8 @@
         }
 
         closeModal(modalElement.closest('.modal-overlay'));
-        // O foco retornará automaticamente ao elemento que abriu o modal
       });
 
-      // Lógica de Exclusão da Música
       deleteBtn?.addEventListener('click', async () =>
       {
         if (!confirm(`Tem certeza que deseja excluir a música "${ songData.title }"?`))
@@ -957,10 +946,8 @@
         }
 
         closeModal(modalElement.closest('.modal-overlay'));
-        // O foco retornará automaticamente ao elemento que abriu o modal
       });
 
-      // Remove classes de erro ao digitar
       allInputs.forEach(input =>
       {
         const eventType = input.tagName === 'SELECT' ? 'change' : 'input';
@@ -1015,14 +1002,11 @@
     {
       containerElement.querySelectorAll('.song-card').forEach(songCard =>
       {
-        // Remover listeners anteriores para evitar duplicações
         songCard.removeEventListener('click', handleSongCardClick); // NOVO: Remover o listener de clique no card
         songCard.querySelector('.play-button')?.removeEventListener('click', handlePlayButtonClick); // NOVO: Remover listener do play button
 
-        // Adicionar listener para o clique em qualquer lugar do card (para editar/excluir)
         songCard.addEventListener('click', handleSongCardClick);
 
-        // Adicionar listener para o botão de play (impedindo a propagação)
         const playBtn = songCard.querySelector('.play-button');
         if (playBtn)
         {
@@ -1033,7 +1017,7 @@
 
     function handlePlayButtonClick(e)
     {
-      e.stopPropagation(); // MUITO IMPORTANTE: Impede que o clique no play button ative o clique no song-card
+      e.stopPropagation();
       const songTitle = e.currentTarget.closest('.song-card').querySelector('h3')?.textContent;
       if (songTitle)
       {
@@ -1044,8 +1028,6 @@
     async function handleSongCardClick(e)
     {
       const songCard = e.currentTarget;
-      //const title = songCard.querySelector('h3')?.textContent;
-      //const genre = songCard.querySelector('p:not(.song-card-album)')?.textContent.replace('Gênero: ', '').trim();
 
       try
       {
@@ -1059,15 +1041,6 @@
       {
         showToast('DEU RUIM!!!', 'error');
       }
-
-      // Se as informações estiverem completas, abre o modal de edição
-      /*if (title && genre && album)
-      {
-      } else
-      {
-        showToast('Não foi possível obter os detalhes da música.', 'error');
-        console.error("Detalhes da música ausentes para o card:", songCard);
-      }*/
     }
 
     async function handleAlbumCardClick(event)
@@ -1097,7 +1070,7 @@
     function setupAddAlbumModal()
     {
       if (Selectors.addAlbumBtn)
-      { // Verifica se o botão existe antes de adicionar o listener
+      {
         Selectors.addAlbumBtn.addEventListener('click', () =>
         {
           openCreateAlbumModal(Selectors.addAlbumBtn);
@@ -1196,7 +1169,6 @@
             }
           });
           
-          // Remove erro visual quando usuário corrige
           reasonSelect?.addEventListener('change', () => reasonSelect.classList.remove('input-error'));
         });
       } else
@@ -1208,7 +1180,7 @@
     async function setupEditProfileModal()
     {
       if (Selectors.editProfileBtn)
-      { // Verifica se o botão existe
+      {
         Selectors.editProfileBtn.addEventListener('click', async () =>
         {
           const requiredElements = [Selectors.profileName/*, Selectors.profileTag*/, Selectors.profileLocation, Selectors.profileAbout, Selectors.profileImage];
@@ -1219,7 +1191,6 @@
           }
 
           try {
-            // Fetch user data from the server
             const response = await fetch('/profile/user-data');
             const data = await response.json();
             
@@ -1242,7 +1213,6 @@
             const facebookInput = modalElement.querySelector('#edit-profile-facebook');
             const allInputs = [nameInput, locationInput, aboutInput, imageUrlInput, linkedinInput, instagramInput, facebookInput];
 
-            // Populate form with user data
             nameInput.value = userData.name || '';
             locationInput.value = userData.city || '';
             aboutInput.value = userData.description || '';
@@ -1341,7 +1311,6 @@
                   console.log("Profile image URL cleared.");
                 }
 
-                // Update social media icons
                 const socialIconsContainer = document.querySelector('.social-icons');
                 if (socialIconsContainer) {
                   socialIconsContainer.innerHTML = '';
@@ -1426,11 +1395,9 @@
 
       if (Selectors.musicContainer)
       {
-        setupPlayButtons(Selectors.musicContainer); // Chame para as músicas já no DOM
+        setupPlayButtons(Selectors.musicContainer);
       }
 
-      // 3. Configura os listeners dos botões de adicionar música/álbum e editar perfil
-      // Agora que Selectors são mais robustos, eles devem ser encontrados.
       setupAddMusicModal();
       setupAddAlbumModal();
       setupEditProfileModal();
@@ -1439,7 +1406,6 @@
       console.log("Initialization complete.");
     }
 
-    // Adicionar handler para o botão de chat
     document.getElementById('create-chat-btn')?.addEventListener('click', async function() {
         const userId = this.dataset.userId;
         try {

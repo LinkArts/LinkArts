@@ -77,10 +77,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', () =>
     {
-        // Dados do serviço vindo do backend
         const serviceData = {{{json service}}};
 
-        // --- Referências aos Elementos DOM ---
         const serviceTitleElem = document.getElementById('service-title');
         const serviceCurrentStatusElem = document.getElementById('service-current-status');
 
@@ -112,8 +110,6 @@
         const reviewFeedbackMessage = document.getElementById('review-feedback-message');
 
         let currentRating = 0;
-
-        // --- Funções de Renderização e Lógica da UI ---
 
         function getStatusColor(status)
         {
@@ -160,8 +156,6 @@
                 reviewSection.classList.remove('active');
             }
         }
-
-        // --- Event Listeners ---
 
         confirmServiceBtn.addEventListener('click', async () =>
         {
@@ -220,7 +214,6 @@
             }
         });
 
-        // Lógica de Avaliação por Estrelas
         starRatingContainer.addEventListener('mouseover', (e) =>
         {
             if (e.target.classList.contains('star'))
@@ -312,7 +305,6 @@
             }, 5000);
         }
 
-        // Inicialização
         updateActionButtons();
         updateReviewSectionVisibility();
     });

@@ -1,9 +1,7 @@
 :root {
     --primary-color: #6a0dad;
-    /* Roxo */
     --primary-dark-color: #5a099d;
     --secondary-color: #ffd700;
-    /* Dourado */
     --background-light: #f4f7f6;
     --background-card: #ffffff;
     --text-color: #333;
@@ -15,7 +13,6 @@
     --info-color: #007bff;
     --warning-color: #ffc107;
 
-    /* Cores do Modal (pode ser as mesmas do seu projeto) */
     --modal-bg: #ffffff;
     --modal-border: #ccc;
     --modal-shadow: rgba(0, 0, 0, 0.2);
@@ -36,33 +33,21 @@
     padding: 20px;
     gap: 20px;
     flex-wrap: wrap;
-    /* Permite que as colunas quebrem em telas menores */
 }
 
-/* Garante que a coluna ocupe a largura total quando for a única no contêiner */
 .container-agenda>.column:only-child {
     max-width: 80%;
-    /* Remove a restrição de largura máxima de 400px */
     width: 100%;
-    /* Permite que ocupe toda a largura disponível */
 }
 
-/* Quando a coluna de serviços agendados é a única e visível, organize seus cards em grid */
 .container-agenda>.column:only-child #scheduled-services-list {
     display: grid;
-    /* grid-template-columns: Cria 3 colunas com largura flexível, mas mínima de 300px.
-auto-fit: Faz com que as colunas se ajustem ao espaço disponível, preenchendo a linha. */
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
-    /* Espaço entre os cards no grid */
-
-    /* Mantém a altura máxima e o scroll como antes */
     max-height: 640px;
-    /* (160px de altura por card * 4 cards empilhados) - Reajuste conforme a altura real do seu card */
     overflow-y: auto;
 }
 
-/* Remova a margem inferior dos cards dentro do grid, pois o 'gap' já gerencia o espaçamento */
 .container-agenda>.column:only-child #scheduled-services-list .card {
     margin-bottom: 0;
 }
@@ -73,11 +58,8 @@ auto-fit: Faz com que as colunas se ajustem ao espaço disponível, preenchendo 
     box-shadow: 0 4px 15px var(--shadow-light);
     padding: 25px;
     flex: 1;
-    /* Permite que as colunas cresçam e encolham */
     min-width: 300px;
-    /* Largura mínima para evitar que fiquem muito estreitas */
     max-width: 500px;
-    /* Largura máxima para colunas em telas grandes */
     display: flex;
     flex-direction: column;
 }
@@ -91,50 +73,31 @@ auto-fit: Faz com que as colunas se ajustem ao espaço disponível, preenchendo 
     padding-bottom: 10px;
 }
 
-/* Container para o título e o botão no cabeçalho da coluna */
 .column-header-container {
     display: flex;
     justify-content: space-between;
-    /* Espaça o título e o botão */
     align-items: center;
-    /* Alinha verticalmente */
     margin-bottom: 20px;
-    /* Mantém a margem inferior */
     border-bottom: 2px solid var(--border-color);
-    /* Mantém a linha de baixo */
     padding-bottom: 10px;
-    /* Mantém o padding da linha */
-
 }
 
-/* Estilo para o título dentro do novo contêiner */
 .column-header-title {
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--primary-color);
     margin: 0;
-    /* Remove margem padrão do h2 */
 }
 
-/* Ajuste a regra existente se você tinha um .column-header sem o -title */
-/* Se a sua regra .column-header atual já era apenas para o texto, pode remover */
-/* Caso contrário, renomeie o h2 na coluna de anotações e propostas para column-header-title também,
-ou crie uma regra mais específica para eles, ex: #notes-column .column-header */
-
-/* Estilos para o botão "Enviar Proposta" (já deve herdar de .btn e .btn-primary) */
 #send-proposal-btn {
     white-space: nowrap;
-    /* Evita que o texto do botão quebre em várias linhas */
 }
 
-/* Media query para ajustar o botão em telas menores, se necessário */
 @media (max-width: 480px) {
     .column-header-container {
         flex-direction: column;
-        /* Empilha título e botão em telas muito pequenas */
         align-items: flex-start;
         gap: 10px;
-        /* Espaço entre eles quando empilhados */
     }
 }
 
@@ -142,39 +105,26 @@ ou crie uma regra mais específica para eles, ex: #notes-column .column-header *
     list-style: none;
     padding: 0;
     margin: 0;
-    /* Esta é a linha chave para o scroll */
     max-height: 640px;
-    /* (160px de altura por card * 4 cards) - Ajuste este valor! */
     overflow-y: auto;
-    /* Adiciona scroll vertical apenas quando o conteúdo excede max-height */
     flex-grow: 1;
-    /* Mantém o crescimento da lista dentro da coluna */
-
-    /* Opcional: Estilize a barra de rolagem */
     scrollbar-width: thin;
-    /* Para Firefox */
     scrollbar-color: var(--primary-color) var(--background-light);
-    /* Para Firefox */
 }
 
-/* Opcional: Estilizar a barra de rolagem para navegadores WebKit (Chrome, Safari) */
 .card-list::-webkit-scrollbar {
     width: 8px;
-    /* Largura da barra de rolagem */
 }
 
 .card-list::-webkit-scrollbar-track {
     background: var(--background-light);
-    /* Cor do fundo da trilha */
     border-radius: 10px;
 }
 
 .card-list::-webkit-scrollbar-thumb {
     background-color: var(--primary-color);
-    /* Cor da "alça" da barra de rolagem */
     border-radius: 10px;
     border: 2px solid var(--background-light);
-    /* Borda para dar um efeito 3D */
 }
 
 .card {
@@ -186,7 +136,6 @@ ou crie uma regra mais específica para eles, ex: #notes-column .column-header *
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     position: relative;
-    /* Para o status */
 }
 
 .card:hover {
@@ -277,10 +226,8 @@ ou crie uma regra mais específica para eles, ex: #notes-column .column-header *
     transform: translateY(-1px);
 }
 
-/* Estilos específicos para a coluna de anotações */
 .notes-area {
     flex-grow: 1;
-    /* Permite que o textarea preencha o espaço */
     display: flex;
     flex-direction: column;
 }
@@ -295,18 +242,14 @@ ou crie uma regra mais específica para eles, ex: #notes-column .column-header *
 .notes-area textarea {
     width: 100%;
     flex-grow: 1;
-    /* Permite que o textarea cresça */
     min-height: 150px;
-    /* Altura mínima para o textarea */
     padding: 10px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     font-family: 'Poppins', sans-serif;
     font-size: 0.95rem;
     resize: vertical;
-    /* Permite redimensionar verticalmente */
     box-sizing: border-box;
-    /* Garante que padding e border sejam incluídos na largura/altura */
 }
 
 .notes-area .btn-container {
@@ -320,7 +263,6 @@ ou crie uma regra mais específica para eles, ex: #notes-column .column-header *
     margin-top: 50px;
 }
 
-/* --- Estilos do Modal de Visualização --- */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -412,16 +354,12 @@ ou crie uma regra mais específica para eles, ex: #notes-column .column-header *
     border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: flex-end;
-    /* Alinha botões à direita */
     gap: 10px;
 }
 
-/* --- Estilos para o Modal de Envio de Proposta --- */
+/*#send-proposal-modal-overlay {
 
-/* O .modal-overlay já está definido, basta aplicá-lo a este novo ID */
-#send-proposal-modal-overlay {
-    /* Herda de .modal-overlay */
-}
+}*/
 
 .modal-send-proposal {
     background-color: var(--modal-bg);
@@ -430,13 +368,11 @@ ou crie uma regra mais específica para eles, ex: #notes-column .column-header *
     box-shadow: 0 5px 20px var(--modal-shadow);
     width: 90%;
     max-width: 600px;
-    /* Um pouco maior para o formulário */
     box-sizing: border-box;
     transform: translateY(-20px);
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease;
     position: relative;
-    /* Para o botão de fechar */
 }
 
 .modal-send-proposal.active {
@@ -499,12 +435,10 @@ ou crie uma regra mais específica para eles, ex: #notes-column .column-header *
     font-family: 'Poppins', sans-serif;
     font-size: 1rem;
     box-sizing: border-box;
-    /* Garante que padding e border sejam incluídos na largura */
 }
 
 .modal-send-proposal .form-group textarea {
     resize: vertical;
-    /* Permite redimensionar verticalmente */
 }
 
 .modal-send-proposal .modal-footer {
@@ -515,7 +449,6 @@ ou crie uma regra mais específica para eles, ex: #notes-column .column-header *
     border-top: 1px solid var(--border-color);
 }
 
-/* Responsividade melhorada */
 @media (max-width: 1200px) {
     .all {
         padding: 15px;
