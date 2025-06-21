@@ -2,7 +2,8 @@
     <div class="content">
         <div class="tabs">
             <div class="tab active" onclick="changeTab('novidades')">Recomendações para você</div>
-            {{#if userInfo.establishments}}<div class="tab" onclick="changeTab('servicos')">Pedidos de Serviço</div>{{/if}}
+            {{#if userInfo.establishments}}<div class="tab" onclick="changeTab('servicos')">Pedidos de Serviço</div>
+            {{/if}}
         </div>
 
         <div id="novidades" class="tab-content active">
@@ -39,41 +40,40 @@
     <div class="sidebar">
         <div class="agenda">
             <h2 class="agenda-title">Agenda</h2>
-            <h3>Próximos eventos</h3>
+            <h3 style="margin-bottom: 10px;">Próximos eventos</h3>
 
             <div class="event-list">
                 {{#if userInfo.agendados}}
-                    {{#each userInfo.agendados}}
-                    <div class="event">
-                        <div class="event-name">{{this.name}}</div>
-                        <div class="event-date">
-                            <svg class="clock-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                            {{this.date}}
-                            <span class="event-time">{{this.time}} - {{this.time}}</span>
-                        </div>
-                        <div class="event-description">
-                            {{this.description}}
-                            {{#if this.establishment}}
-                            <br>
-                            <small>Estabelecimento: {{this.establishment}}</small>
-                            {{/if}}
-                            {{#if this.artist}}
-                            <br>
-                            <small>Artista: {{this.artist}}</small>
-                            {{/if}}
-                        </div>
+                {{#each userInfo.agendados}}
+                <div class="event">
+                    <div class="event-name">{{this.name}}</div>
+                    <div class="event-date">
+                        <svg class="clock-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        {{formatDatePtBr this.date}}  |  <span class="event-time">{{formatTime this.startTime}} - {{formatTime this.endTime}}</span>
                     </div>
-                    {{/each}}
+                    <div class="event-description">
+                        {{this.description}}
+                        {{#if this.establishment}}
+                        <br>
+                        <small>Estabelecimento: {{this.establishment}}</small>
+                        {{/if}}
+                        {{#if this.artist}}
+                        <br>
+                        <small>Artista: {{this.artist}}</small>
+                        {{/if}}
+                    </div>
+                </div>
+                {{/each}}
                 {{else}}
-                    <div class="event">
-                        <div class="event-name">Nenhum serviço agendado</div>
-                        <div class="event-description">Você ainda não tem serviços agendados.</div>
-                    </div>
+                <div class="event">
+                    <div class="event-name">Nenhum serviço agendado</div>
+                    <div class="event-description">Você ainda não tem serviços agendados.</div>
+                </div>
                 {{/if}}
             </div>
         </div>

@@ -17,6 +17,18 @@
                 <label for="filterEstabelecimento">Estabelecimentos</label>
             </div>
 
+            <div class="filter-group">
+                <input type="radio" id="filterServico" name="tipoUsuario" value="servico">
+                <label for="filterServico">Serviços</label>
+            </div>
+
+            <hr>
+
+            <div class="filter-group" style="font-weight: bold; margin-top: 0.8rem;">
+                <label for="tagSelect">Tags</label>
+                <select id="tagSelect" name="tags" multiple style="width: 100%"></select>
+            </div>
+
             <button type="button" id="filtrar">Filtrar</button>
         </form>
     </aside>
@@ -25,7 +37,11 @@
         <h1>Resultados da Pesquisa</h1>
         <div id="profilesList" class="profiles-grid">
             {{#each results}}
+            {{#if (eq _type 'user')}}
             {{> dashboardCard}}
+            {{else if (eq _type 'service')}}
+            {{> dashboardService}}
+            {{/if}}
             {{/each}}
         </div>
     </main>
@@ -71,6 +87,36 @@
     const formFiltro = document.getElementById('filtroUsuariosForm');
     const profilesListDiv = document.getElementById('profilesList');
     const searchInput = document.getElementById('search-input');
+    const tagSelect = document.getElementById('tagSelect');
+
+    document.addEventListener('DOMContentLoaded', async function ()
+    {
+        try
+        {
+            const response = await fetch('/profile/tags');
+            const data = await response.json();
+            if (Array.isArray(data.tags))
+            {
+                data.tags.forEach(tag =>
+                {
+                    const option = document.createElement('option');
+                    option.value = tag.id;
+                    option.textContent = tag.name;
+                    tagSelect.appendChild(option);
+                });
+            }
+        } catch (error)
+        {
+            console.error('Erro ao carregar tags:', error);
+        }
+        if (window.$ && $(tagSelect).select2)
+        {
+            $(tagSelect).select2({
+                placeholder: 'Selecione as tags',
+                allowClear: true
+            });
+        }
+    });
 
     filtroButton.addEventListener('click', async (event) =>
     {
@@ -78,48 +124,93 @@
 
         const formData = new FormData(formFiltro);
         const tipoUsuario = formData.get('tipoUsuario');
+        const tags = $(tagSelect).val() || [];
+        console.log(tags);
 
         try
         {
-            const response = await fetch(`/filtrar?search=${ searchInput.value }&type=${ tipoUsuario }`);
+            const response = await fetch(`/filtrar?search=${ searchInput.value }&type=${ tipoUsuario }&tags=${ tags }`);
             const data = await response.json();
+            console.log(data)
 
             profilesListDiv.innerHTML = '';
 
             if (Array.isArray(data.results2))
             {
-                data.results2.forEach((perfil) =>
+                data.results2.forEach((result) =>
                 {
-                    const html = `
+                    if (result._type === 'user')
+                    {
+                        const html = `
                     <div class="card">
                         <span class="status-indicator status-available" title="Contratando"></span>
                         <div class="card-image-container">
                             <div class="card-image">
-                                <img src="img/default.jpg" alt="${ perfil.name }">
+                                <img src="img/default.jpg" alt="${ result.name }">
                             </div>
                         </div>
-                        <h3 class="card-title">${ perfil.name }</h3>
-                        <p class="card-location">${ perfil.city ? perfil.city : 'Cidade não informada' }</p>
+                        <h3 class="card-title">${ result.name }</h3>
+                        <p class="card-location">${ result.city ? result.city : 'Cidade não informada' }</p>
                         <div class="card-rating">
                             <span class="star">★</span>
-                            <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">${perfil.rating ? perfil.rating : '0.0'}
-                                ( ${perfil.rating ? perfil.rating : '0'} )</span>
+                            <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">${ result.rating ? result.rating : '0.0' }
+                                ( ${ result.rating ? result.rating : '0' } )</span>
                         </div>
-                        <p class="card-description">${ perfil.description ? perfil.description : 'Descrição não informada' }</p>
+                        <p class="card-description">${ result.description ? result.description : 'Descrição não informada' }</p>
                         <div class="card-tags">
-                            ${ Array.isArray(perfil.tags) && perfil.tags.length > 0
-                            ? perfil.tags.map(tag => `<span class="tag">${ tag }</span>`).join("")
-                            : `<span class="tag">Sem Tags</span>` }
+                            ${ Array.isArray(result.Tags) && result.Tags.length > 0
+                                ? result.Tags.map(tag => `<span class="tag">${ tag.name }</span>`).join("")
+                                : `<span class="tag">Sem Tags</span>` }
                         </div>
                         <div class="card-action">
-                            <a href="/profile/${perfil.id}" class="profile-button">
+                            <a href="/profile/${ result.id }" class="profile-button">
                                 Ver perfil
                                 <span class="arrow-icon">→</span>
                             </a>
                         </div>
                     </div>
                     `
-                    profilesListDiv.innerHTML += html;
+                        profilesListDiv.innerHTML += html;
+                    }
+                    else
+                    {
+                        const html = `
+    <div class="card">
+        <span class="status-indicator status-available" title="Disponível"></span>
+        <div class="card-image-container">
+            <div class="card-image">
+                <img src="img/default.jpg" alt="${ result.Establishment.User.name }">
+            </div>
+        </div>
+        <h3 class="card-title">${ result.Establishment.User.name }</h3>
+        <p class="card-location">${ result.Establishment.User.city }</p>
+        <div class="card-rating">
+            <span class="star">★</span>
+            <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">
+                ${ result.rating ? result.rating : '0.0' } (${ result.reviews ? result.reviews : '0' })
+            </span>
+        </div>
+        <p class="service-date">
+            ${ formatDateTime(result.date, result.startTime, result.endTime) }
+        </p>
+        <p class="card-description">${ result.description }</p>
+        <div class="card-tags">
+            ${ Array.isArray(result.Tags) && result.Tags.length > 0
+                                ? result.Tags.map(tag => `<span class="tag">${ tag.name }</span>`).join("")
+                                : `<span class="tag">Sem Tags</span>` }
+        </div>
+        <div class="service-actions">
+            <a href="/profile/${ result.Establishment.User.id }">
+                <button class="profile-button">Ver perfil</button>
+            </a>
+            <a href="/servico/${ result.id }">
+                <button class="service-button">Ir para serviço</button>
+            </a>
+        </div>
+    </div>
+                        `
+                        profilesListDiv.innerHTML += html;
+                    }
                 });
             } else
             {
@@ -131,4 +222,34 @@
             alert(error);
         }
     });
+
+    function formatDateTime(dateString, startTime, endTime)
+    {
+        try
+        {
+            // Formatar a data
+            const date = new Date(dateString);
+            const formattedDate = date.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+
+            // Formatar a hora
+            const formattedStartTime = new Date(`1970-01-01T${ startTime }`).toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const formattedEndTime = new Date(`1970-01-01T${ endTime }`).toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            return `${ formattedDate } | ${ formattedStartTime } - ${ formattedEndTime }`;
+        } catch (error)
+        {
+            console.error('Erro ao formatar data e hora:', error);
+            return `${ dateString } | ${ startTime } - ${ endTime }`; // Retorna o original em caso de erro
+        }
+    }
 </script>

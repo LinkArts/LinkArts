@@ -46,6 +46,33 @@ app.engine(
       {
         return JSON.stringify(context);
       },
+      formatDatePtBr: function (dateString) {
+        if (!dateString) return "";
+        try {
+          const date = new Date(dateString);
+          return date.toLocaleDateString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          });
+        } catch (e) {
+          console.error("Erro no helper formatDatePtBr:", e);
+          return "";
+        }
+      },
+      formatTime: function (timeString) {
+        if (!timeString) return "";
+        try {
+          const time = new Date(`1970-01-01T${timeString}`);
+          return time.toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        } catch (e) {
+          console.error("Erro no helper formatTime:", e);
+          return "";
+        }
+      },
       formatDate: function (timestamp)
       {
         if (!timestamp) return "";

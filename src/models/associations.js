@@ -1,6 +1,6 @@
 module.exports = function setupAssociations(models)
 {
-    const { User, Artist, Establishment, Album, Music, Genre, Tag, Chat, Message, Event, ServiceRequest, Service, ServiceNote, ServiceProposal } = models;
+    const { User, Artist, Establishment, Album, Music, Genre, Tag, Chat, Message, Event, ServiceRequest, Service, ServiceNote, ServiceProposal, Rating } = models;
 
     Artist.belongsTo(User, {
         foreignKey: 'userid',
@@ -163,6 +163,22 @@ module.exports = function setupAssociations(models)
         as: 'ServiceRequests'
     })
 
+    User.belongsToMany(Tag, {
+        foreignKey: 'userid',
+        otherKey: 'tagid',
+        through: 'UserTag',
+        onDelete: 'CASCADE',
+        as: 'Tags'
+    })
+
+    Tag.belongsToMany(User, {
+        foreignKey: 'tagid',
+        otherKey: 'userid',
+        through: 'UserTag',
+        onDelete: 'CASCADE',
+        as: 'Users'
+    })
+
     Service.belongsTo(User, { 
         foreignKey: 'userid',
         as: 'Receiver',
@@ -242,4 +258,30 @@ module.exports = function setupAssociations(models)
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
+
+    Rating.belongsTo(User, {
+        as: 'Sender',
+        foreignKey: 'senderUserid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    })
+    Rating.belongsTo(User, {
+        as: 'Receiver',
+        foreignKey: 'receiverUserid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    })
+    User.hasMany(Rating, { 
+        as: 'ReceivedRatings', 
+        foreignKey: 'receiverUserid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+    User.hasMany(Rating, { 
+        as: 'SentRatings', 
+        foreignKey: 'senderUserid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
 };

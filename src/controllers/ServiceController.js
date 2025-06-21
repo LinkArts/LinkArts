@@ -52,9 +52,8 @@ module.exports = class ServiceController
             });
 
             if (!service) {
-                return res.status(404).render('error', { 
+                return res.status(404).render('layouts/404', { 
                     message: 'Serviço não encontrado',
-                    css: 'error.css'
                 });
             }
 

@@ -10,15 +10,15 @@
         informada{{/if}}</p>
     <div class="card-rating">
         <span class="star">★</span>
-        <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">{{#if rating }}
-            {{rating}} {{else}} 0.0 {{/if}}
-            ({{#if reviews }} {{reviews}} {{else}} 0 {{/if}})</span>
+        <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">{{#if (eq TotalRatings 0) }}
+            0.0 {{else}} {{AverageRating}} {{/if}}
+            {{#if (eq TotalRatings 0) }} ( 0 ) {{else}} ( {{TotalRatings}} ) {{/if}}</span>
     </div>
     <p class="card-description">{{#if description}} {{description}} {{else}} Não há descrição! {{/if}}</p>
     <div class="card-tags">
-        {{#if tags}}
-        {{#each tags}}
-        <span class="tag">{{this}}</span>
+        {{#if Tags}}
+        {{#each Tags}}
+        <span class="tag">{{name}}</span>
         {{/each}}
         {{else}}
         <span class="tag">Sem Tags</span>
@@ -27,7 +27,6 @@
     <div class="card-action">
         <a href="/profile/{{id}}" class="profile-button">
             Ver perfil
-            <span class="arrow-icon">→</span>
         </a>
     </div>
 </div>

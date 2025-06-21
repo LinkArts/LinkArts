@@ -5,15 +5,13 @@
             <img src="img/default.jpg" alt="{{name}}">
         </div>
     </div>
-    <h3 class="card-title">Blue Note Café</h3>
-    <p class="card-location">Chicago, IL</p>
+    <h3 class="card-title">{{Establishment.User.name}}</h3>
+    <p class="card-location">{{Establishment.User.city}}</p>
     <div class="card-rating">
         <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span>(4.7)</span>
+        <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">{{#if (eq Establishment.User.TotalRatings 0) }}
+            0.0 {{else}} {{Establishment.User.AverageRating}} {{/if}}
+            {{#if (eq Establishment.User.TotalRatings 0) }} ( 0 ) {{else}} ( {{Establishment.User.TotalRatings}} ) {{/if}}</span>
     </div>
     <p class="service-date">
         <svg class="clock-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -21,20 +19,24 @@
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
-        15/10/2023
+        {{formatDatePtBr date}} | {{formatTime startTime}} - {{formatTime endTime}}
     </p>
-    <p class="card-description">Texto de exemplo sobre o serviço oferecido, breve descrição curta.</p>
+    <p class="card-description">{{description}}</p>
     <div class="card-tags">
-        <span class="tag">Música ao vivo</span>
-        <span class="tag">Jazz</span>
+        {{#each Tags}}
+        <span class="tag">{{name}}</span>
+        {{/each}}
     </div>
     <div class="service-actions">
-        <button class="profile-button">
-            Ver perfil
-            <span class="arrow-icon">→</span>
-        </button>
-        <button class="service-button">
-            Ir para serviço
-        </button>
+        <a href="/profile/{{Establishment.User.id}}">
+            <button class="profile-button">
+                Ver perfil
+            </button>
+        </a>
+        <a href="/servico/{{id}}">
+            <button class="service-button">
+                Ir para serviço
+            </button>
+        </a>
     </div>
 </div>
