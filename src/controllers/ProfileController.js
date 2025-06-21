@@ -1,6 +1,6 @@
 const { Op, Model, fn, col, where } = require('sequelize');
 
-const { User, Artist, Establishment, Album, Music, Genre, Tag, Event, ServiceRequest } = require('../models/index');
+const { User, Artist, Establishment, Album, Music, Tag, Event, ServiceRequest, Favorite } = require('../models/index');
 
 module.exports = class ProfileController
 {
@@ -702,10 +702,12 @@ module.exports = class ProfileController
         }
     }
 
-    static async getUserData(req, res) {
+    static async getUserData(req, res)
+    {
         const id = req.session.userid;
 
-        try {
+        try
+        {
             const user = await User.findOne({
                 where: { id: id },
                 include: [{
@@ -715,7 +717,8 @@ module.exports = class ProfileController
                 attributes: { exclude: ['password'] }
             });
 
-            if (!user) {
+            if (!user)
+            {
                 return res.status(404).json({ message: "Usuário não encontrado!" });
             }
 
@@ -730,9 +733,66 @@ module.exports = class ProfileController
             };
 
             return res.json({ userData });
-        } catch (error) {
+        } catch (error)
+        {
             console.error("Erro ao buscar dados do usuário:", error);
             return res.status(500).json({ message: "Erro ao buscar dados do usuário." });
+        }
+    }
+
+    static async searchFavorites(req, res) {
+        const userid = req.session.userid;
+    
+        try {
+            const user = await User.findByPk(userid, {
+                include: {
+                    model: User, // Inclui os dados completos dos usuários favoritados
+                    as: 'FavoritedUsers', // Usa o alias único configurado na associação
+                    attributes: { exclude: ['password'] }
+                }
+            });
+    
+            if (!user) {
+                return res.status(404).json({ message: "Usuário não encontrado!" });
+            }
+    
+            const favorites = user.FavoritedUsers.map(favorite => favorite.get({ plain: true }));
+    
+            return res.status(200).json({ favorites });
+        } catch (error) {
+            console.error("Erro ao buscar favoritos:", error);
+            return res.status(500).json({ message: "Erro ao buscar favoritos." });
+        }
+    }
+
+    static async addFavorite(req, res) {
+        const userid = req.session.userid;
+        const favoriteid = req.params.id;
+    
+        try {
+            const user = await User.findByPk(userid);
+            const favoriteUser = await User.findByPk(favoriteid);
+    
+            if (!user || !favoriteUser) {
+                return res.status(404).json({ message: "Usuário ou favorito não encontrado!" });
+            }
+    
+            const favorite = await Favorite.findOne({
+                where: { userid: userid, favoriteid: favoriteid }
+            });
+    
+            if (favorite) {
+                // Remove o favorito
+                await favorite.destroy();
+                return res.status(200).json({ message: "Favorito removido com sucesso!", removed: true });
+            } else {
+                // Adiciona o favorito
+                await Favorite.create({ userid: userid, favoriteid: favoriteid });
+                return res.status(200).json({ message: "Favorito adicionado com sucesso!", removed: false  });
+            }
+        } catch (error) {
+            console.error("Erro ao alternar favorito:", error);
+            return res.status(500).json({ message: "Erro ao alternar favorito." });
         }
     }
 }

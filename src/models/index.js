@@ -13,8 +13,9 @@ const Service = require('./Service');
 const ServiceNote = require('./ServiceNote');
 const ServiceProposal = require('./ServiceProposal');
 const Rating = require('./Rating')
+const Favorite = require('./Favorite')
 
-const models = { User, Artist, Establishment, Music, Album, Genre, Chat, Tag, Message, Event, ServiceRequest, Service, ServiceNote, ServiceProposal, Rating };
+const models = { User, Artist, Establishment, Music, Album, Genre, Chat, Tag, Message, Event, ServiceRequest, Service, ServiceNote, ServiceProposal, Rating, Favorite };
 
 const setupAssociations = require('./associations');
 setupAssociations(models);

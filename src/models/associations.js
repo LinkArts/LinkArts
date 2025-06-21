@@ -1,6 +1,6 @@
 module.exports = function setupAssociations(models)
 {
-    const { User, Artist, Establishment, Album, Music, Genre, Tag, Chat, Message, Event, ServiceRequest, Service, ServiceNote, ServiceProposal, Rating } = models;
+    const { User, Artist, Establishment, Album, Music, Genre, Tag, Chat, Message, Event, ServiceRequest, Service, ServiceNote, ServiceProposal, Rating, Favorite } = models;
 
     Artist.belongsTo(User, {
         foreignKey: 'userid',
@@ -284,4 +284,21 @@ module.exports = function setupAssociations(models)
         onUpdate: 'CASCADE'
     });
 
+    User.belongsToMany(User, {
+        through: Favorite,
+        as: 'FavoritedUsers', // Alias único para os usuários favoritados
+        foreignKey: 'userid', // ID do usuário que tem favoritos
+        otherKey: 'favoriteid', // ID do usuário favoritado
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+    
+    User.belongsToMany(User, {
+        through: Favorite,
+        as: 'FavoritedByUsers', // Alias único para os usuários que favoritaram
+        foreignKey: 'favoriteid', // ID do usuário favoritado
+        otherKey: 'userid', // ID do usuário que favoritou
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
 };

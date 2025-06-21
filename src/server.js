@@ -32,7 +32,7 @@ const AgendaController = require("./controllers/AgendaController");
 const serviceRoutes = require('./routes/serviceRoutes')
 const adminRoutes = require('./routes/adminRoutes')
 
-const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest, Service, ServiceNote, ServiceProposal } = require('./models/index')
+const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest, Service, ServiceNote, ServiceProposal, Rating } = require('./models/index')
 
 app.engine(
   "handlebars",

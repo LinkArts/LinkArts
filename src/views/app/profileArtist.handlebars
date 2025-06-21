@@ -40,14 +40,25 @@
         </button>
         {{else}}
         <button id="create-chat-btn" class="btn btn-primary" data-user-id="{{values.id}}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           Abrir Chat
         </button>
+        <button id="add-favorite-btn" class="btn btn-outline" data-user-id="{{values.id}}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+          Adicionar aos Favoritos
+        </button>
         <button id="report-profile-btn" class="btn btn-outline" data-user-id="{{values.id}}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 3l18 18M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M3 3l18 18M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
           Denunciar Perfil
         </button>
@@ -60,27 +71,33 @@
         <h2>Sobre </h2>
         <div class="social-icons">
           {{#if values.linkedin}}
-          <a href="{{values.linkedin}}" target="_blank" rel="noopener noreferrer" class="social-icon linkedin" aria-label="LinkedIn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-              <rect width="4" height="12" x="2" y="9"/>
-              <circle cx="4" cy="4" r="2"/>
+          <a href="{{values.linkedin}}" target="_blank" rel="noopener noreferrer" class="social-icon linkedin"
+            aria-label="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+              <rect width="4" height="12" x="2" y="9" />
+              <circle cx="4" cy="4" r="2" />
             </svg>
           </a>
           {{/if}}
           {{#if values.instagram}}
-          <a href="{{values.instagram}}" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-              <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+          <a href="{{values.instagram}}" target="_blank" rel="noopener noreferrer" class="social-icon instagram"
+            aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+              <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
             </svg>
           </a>
           {{/if}}
           {{#if values.facebook}}
-          <a href="{{values.facebook}}" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+          <a href="{{values.facebook}}" target="_blank" rel="noopener noreferrer" class="social-icon facebook"
+            aria-label="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
             </svg>
           </a>
           {{/if}}
@@ -199,6 +216,32 @@
       musicContainer: document.querySelector('.music-container'),
       albumContainer: document.querySelector('.albums-container'),
     };
+
+    document.getElementById('add-favorite-btn')?.addEventListener('click', async function ()
+    {
+      const userId = this.dataset.userId;
+      try
+      {
+        const response = await fetch(`/profile/adicionar-favorito/${ userId }`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+        if (data.removed)
+          showToast(data.message || 'Erro ao adicionar aos favoritos', 'error');
+        else
+          showToast(data.message || 'Erro ao adicionar aos favoritos', 'success');
+
+      } catch (error)
+      {
+        console.error('Erro ao adicionar aos favoritos:', error);
+        showToast('Erro ao adicionar aos favoritos', 'error');
+      }
+    });
 
     function showToast(message, type = 'success', duration = 3500)
     {
@@ -1120,25 +1163,25 @@
           const userId = Selectors.reportProfileBtn.dataset.userId;
           const modalElement = openModal('.report-profile-overlay', 'report-profile-modal', getReportModalHTML(), Selectors.reportProfileBtn);
           if (!modalElement) return;
-          
+
           const form = modalElement.querySelector('#report-profile-form');
           const reasonSelect = modalElement.querySelector('#report-reason');
           const descriptionTextarea = modalElement.querySelector('#report-description');
-          
+
           form?.addEventListener('submit', async (e) =>
           {
             e.preventDefault();
-            
+
             const reason = reasonSelect.value;
             const description = descriptionTextarea.value;
-            
+
             if (!reason)
             {
               reasonSelect.classList.add('input-error');
               showToast('Por favor, selecione um motivo para a denúncia.', 'error');
               return;
             }
-            
+
             try
             {
               const response = await fetch('/api/reports', {
@@ -1152,7 +1195,7 @@
                   description: description
                 })
               });
-              
+
               if (response.ok)
               {
                 showToast('Denúncia enviada com sucesso. Obrigado por nos ajudar a manter a comunidade segura.', 'success');
@@ -1168,7 +1211,7 @@
               showToast('Erro de conexão. Verifique sua internet e tente novamente.', 'error');
             }
           });
-          
+
           reasonSelect?.addEventListener('change', () => reasonSelect.classList.remove('input-error'));
         });
       } else
@@ -1190,19 +1233,21 @@
             return;
           }
 
-          try {
+          try
+          {
             const response = await fetch('/profile/user-data');
             const data = await response.json();
-            
-            if (!response.ok) {
+
+            if (!response.ok)
+            {
               throw new Error(data.message || 'Erro ao buscar dados do usuário');
             }
 
             const userData = data.userData;
             const modalElement = openModal('.edit-profile-overlay', 'edit-profile-modal', getEditProfileModalHTML(), Selectors.editProfileBtn);
-            
+
             if (!modalElement) return;
-            
+
             const form = modalElement.querySelector('#edit-profile-form');
             const nameInput = modalElement.querySelector('#edit-profile-name');
             const locationInput = modalElement.querySelector('#edit-profile-location');
@@ -1312,12 +1357,14 @@
                 }
 
                 const socialIconsContainer = document.querySelector('.social-icons');
-                if (socialIconsContainer) {
+                if (socialIconsContainer)
+                {
                   socialIconsContainer.innerHTML = '';
-                  
-                  if (newLinkedin) {
+
+                  if (newLinkedin)
+                  {
                     socialIconsContainer.innerHTML += `
-                      <a href="${newLinkedin}" target="_blank" rel="noopener noreferrer" class="social-icon linkedin" aria-label="LinkedIn">
+                      <a href="${ newLinkedin }" target="_blank" rel="noopener noreferrer" class="social-icon linkedin" aria-label="LinkedIn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
                           <rect width="4" height="12" x="2" y="9"/>
@@ -1325,10 +1372,11 @@
                         </svg>
                       </a>`;
                   }
-                  
-                  if (newInstagram) {
+
+                  if (newInstagram)
+                  {
                     socialIconsContainer.innerHTML += `
-                      <a href="${newInstagram}" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
+                      <a href="${ newInstagram }" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
                           <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
@@ -1336,10 +1384,11 @@
                         </svg>
                       </a>`;
                   }
-                  
-                  if (newFacebook) {
+
+                  if (newFacebook)
+                  {
                     socialIconsContainer.innerHTML += `
-                      <a href="${newFacebook}" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
+                      <a href="${ newFacebook }" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
                         </svg>
@@ -1356,7 +1405,8 @@
               }
             });
             allInputs.forEach(input => input?.addEventListener('input', () => input.classList.remove('input-error')));
-          } catch (error) {
+          } catch (error)
+          {
             console.error('Erro ao carregar dados do usuário:', error);
             showToast('Erro ao carregar dados do usuário', 'error');
           }
@@ -1406,31 +1456,38 @@
       console.log("Initialization complete.");
     }
 
-    document.getElementById('create-chat-btn')?.addEventListener('click', async function() {
-        const userId = this.dataset.userId;
-        try {
-            const response = await fetch(`/chat/create/${userId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include'
-            });
+    document.getElementById('create-chat-btn')?.addEventListener('click', async function ()
+    {
+      const userId = this.dataset.userId;
+      try
+      {
+        const response = await fetch(`/chat/create/${ userId }`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        });
 
-            if (response.redirected) {
-                window.location.href = response.url;
-            } else {
-                const data = await response.json();
-                if (response.ok) {
-                    window.location.href = `/chat/${data.chatId}`;
-                } else {
-                    showToast(data.message || 'Erro ao criar chat', 'error');
-                }
-            }
-        } catch (error) {
-            console.error('Erro ao criar chat:', error);
-            showToast('Erro ao criar chat', 'error');
+        if (response.redirected)
+        {
+          window.location.href = response.url;
+        } else
+        {
+          const data = await response.json();
+          if (response.ok)
+          {
+            window.location.href = `/chat/${ data.chatId }`;
+          } else
+          {
+            showToast(data.message || 'Erro ao criar chat', 'error');
+          }
         }
+      } catch (error)
+      {
+        console.error('Erro ao criar chat:', error);
+        showToast('Erro ao criar chat', 'error');
+      }
     });
 
     initialize();

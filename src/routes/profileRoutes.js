@@ -26,6 +26,9 @@ router.post('/criar-pedido-servico', ProfileController.createServiceRequest)
 router.put('/atualizar-pedido-servico/:id', ProfileController.updateServiceRequest)
 router.delete('/deletar-pedido-servico/:id', ProfileController.deleteServiceRequest)
 
+router.get('/procurar-favoritos', ProfileController.searchFavorites)
+router.post('/adicionar-favorito/:id', ProfileController.addFavorite)
+
 
 router.get('/:id', checkAuth, ProfileController.showProfile)
 

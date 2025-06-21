@@ -26,37 +26,16 @@
           <div class="popup-header">
             <h3 class="popup-title">Favoritos</h3>
           </div>
-          <div class="popup-content">
+          <div class="popup-content" id="navbar-favorites-content">
+            <!-- Conteúdo será carregado dinamicamente via JavaScript -->
             <div class="popup-item">
-              <div class="popup-item-image">
-                <img src="/img/placeholder.svg" alt="Blue Note Café">
-              </div>
               <div class="popup-item-content">
-                <h4 class="popup-item-title">Blue Note Café</h4>
-                <p class="popup-item-description">Jazz e café</p>
-              </div>
-            </div>
-            <div class="popup-item">
-              <div class="popup-item-image">
-                <img src="/img/placeholder.svg" alt="Show de Jazz">
-              </div>
-              <div class="popup-item-content">
-                <h4 class="popup-item-title">Show de Jazz</h4>
-                <p class="popup-item-description">Evento especial</p>
-              </div>
-            </div>
-            <div class="popup-item">
-              <div class="popup-item-image">
-                <img src="/img/placeholder.svg" alt="Workshop Musical">
-              </div>
-              <div class="popup-item-content">
-                <h4 class="popup-item-title">Workshop Musical</h4>
-                <p class="popup-item-description">Aprenda música</p>
+                <p style="text-align: center; color: #666; padding: 1rem;">Carregando favoritos...</p>
               </div>
             </div>
           </div>
           <div class="popup-footer">
-            <button class="popup-button">Ver todos</button>
+            <button class="popup-button" onclick="window.location.href='/favoritos/{{session.userid}}'">Ver todos</button>
           </div>
         </div>
       </div>
@@ -248,8 +227,79 @@
     window.location.href = `/chat/{{session.userid}}#chat-${chatId}`;
   }
 
+  async function loadNavbarFavorites() {
+    const favoritesContent = document.getElementById('navbar-favorites-content');
+    
+    try {
+      favoritesContent.innerHTML = `
+        <div class="popup-item">
+          <div class="popup-item-content">
+            <p style="text-align: center; color: #666; padding: 1rem;">Carregando favoritos...</p>
+          </div>
+        </div>
+      `;
+
+      const response = await fetch('/profile/procurar-favoritos');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar favoritos');
+      }
+
+      const favorites = await response.json();
+      console.log(favorites)
+      
+      if (favorites.length === 0) {
+        favoritesContent.innerHTML = `
+          <div class="popup-item">
+            <div class="popup-item-content">
+              <p style="text-align: center; color: #666; padding: 1rem;">Nenhum favorito encontrado</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      favorites.favorites.forEach(favorite => {
+        html += `
+          <a href="/profile/${favorite.userId}" class="popup-item" style="cursor: pointer;">
+            <div class="popup-item-image">
+              <img src="${favorite.profilePicture || '/img/default.jpg'}" alt="${favorite.name}">
+            </div>
+            <div class="popup-item-content">
+              <h4 class="popup-item-title">${favorite.name}</h4>
+              <p class="popup-item-description">${favorite.description || 'Sem descrição disponível'}</p>
+            </div>
+          </a>
+        `;
+      });
+
+      favoritesContent.innerHTML = html;
+
+    } catch (error) {
+      console.error('Erro ao carregar favoritos da navbar:', error);
+      favoritesContent.innerHTML = `
+        <div class="popup-item">
+          <div class="popup-item-content">
+            <p style="text-align: center; color: #e53e3e; padding: 1rem;">Erro ao carregar favoritos</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () =>
   {
     setupPopups();
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const heartIcon = document.getElementById('heart-icon');
+    const heartPopup = document.getElementById('heart-popup');
+
+    heartIcon.addEventListener('click', () => {
+      if (heartPopup.classList.contains('active')) {
+        loadNavbarFavorites();
+      }
+    });
   });
 </script>

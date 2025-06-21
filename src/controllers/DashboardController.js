@@ -92,7 +92,7 @@ module.exports = class DashboardController {
                 agendados: agendadosPlain
             };
 
-            console.log(userInfo);
+            //console.log(userInfo);
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' });
         }
 
@@ -132,7 +132,7 @@ module.exports = class DashboardController {
                 artists: artistsPlain
             };
 
-            console.log(userInfo);
+            //console.log(userInfo);
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' });
         }
     }
