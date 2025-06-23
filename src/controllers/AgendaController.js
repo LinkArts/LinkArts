@@ -31,7 +31,12 @@ module.exports = class AgendaController
                 where: { userid: id },
                 include: [
                     { model: Tag, as: 'Tags', required: false },
-                    { model: ServiceNote, required: false }
+                    { model: ServiceNote, required: false },
+                    {
+                        model: User,
+                        as: 'Sender', // Relaciona o outro usuário envolvido na proposta
+                        attributes: ['name', 'city'] // Inclui nome e cidade do outro usuário
+                    }
                 ]
             });
 
@@ -46,11 +51,14 @@ module.exports = class AgendaController
 
                 const formattedService = {
                     id: serviceData.id,
-                    name: serviceData.name,
+                    title: serviceData.name,
                     description: serviceData.description,
                     price: serviceData.price,
-                    time: serviceData.time,
-                    establishmentName: serviceData.establishmentName,
+                    date: serviceData.date,
+                    startTime: serviceData.startTime,
+                    endTime: serviceData.endTime,
+                    senderName: serviceData.Sender ? serviceData.Sender.name : null,
+                    senderCity: serviceData.Sender ? serviceData.Sender.city : null,
                     notes: notes,
                     tags: serviceData.Tags || []
                 };
@@ -419,14 +427,38 @@ module.exports = class AgendaController
                 });
             }
 
+            const loggedUser = await User.findOne({
+                where: { id: req.session.userid },
+                include: [
+                    { model: Artist, required: false },
+                    { model: Establishment, required: false }
+                ]
+            });
+
+            if (!loggedUser)
+            {
+                req.flash('message', 'Usuário logado não encontrado!');
+                req.flash('messageType', 'error');
+                return req.session.save(() =>
+                {
+                    res.redirect('/login');
+                });
+            }
+
             const isOwner = req.session.userid === parseInt(id);
             const isNotOwner = !isOwner;
+
+            // Verifica se o tipo de usuário é o mesmo
+            const isSameType =
+                (user.Artist && loggedUser.Artist) ||
+                (user.Establishment && loggedUser.Establishment);
 
             return res.render('app/agenda', {
                 userid: id,
                 user: user,
                 isOwner,
                 isNotOwner,
+                isSameType, // Envia o boolean ao frontend
                 css: 'agenda.css'
             });
         } catch (err)

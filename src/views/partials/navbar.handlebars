@@ -261,7 +261,7 @@
       let html = '';
       favorites.favorites.forEach(favorite => {
         html += `
-          <a href="/profile/${favorite.userId}" class="popup-item" style="cursor: pointer;">
+          <a href="/profile/${favorite.id}" class="popup-item" style="cursor: pointer;">
             <div class="popup-item-image">
               <img src="${favorite.profilePicture || '/img/default.jpg'}" alt="${favorite.name}">
             </div>

@@ -337,6 +337,11 @@ html {
 .popup-item-description {
     font-size: 0.75rem;
     color: #6b7280;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limita a descrição a 2 linhas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .popup-notification {

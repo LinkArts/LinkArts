@@ -49,7 +49,7 @@
 
 <script id="card-template" type="text/x-handlebars-template">
     <div class="card">
-        <span class="status-indicator status-available" title="Contratando"></span>
+        <!--<span class="status-indicator status-available" title="Contratando"></span>-->
         <div class="card-image-container">
             <div class="card-image">
                 <img src="img/default.jpg" alt="{{name}}">
@@ -143,7 +143,6 @@
                     {
                         const html = `
                     <div class="card">
-                        <span class="status-indicator status-available" title="Contratando"></span>
                         <div class="card-image-container">
                             <div class="card-image">
                                 <img src="img/default.jpg" alt="${ result.name }">
@@ -176,7 +175,6 @@
                     {
                         const html = `
     <div class="card">
-        <span class="status-indicator status-available" title="Disponível"></span>
         <div class="card-image-container">
             <div class="card-image">
                 <img src="img/default.jpg" alt="${ result.Establishment.User.name }">

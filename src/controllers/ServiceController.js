@@ -1,15 +1,13 @@
-const { Op, where, col, fn } = require('sequelize');
-const User = require('../models/User');
-const Service = require('../models/Service');
-const ServiceProposal = require('../models/ServiceProposal');
-const Tag = require('../models/Tag');
-const { Artist, Establishment } = require('../models');
+const { Op, where, col, fn, Sequelize } = require('sequelize');
+
+const { User, Artist, Establishment, Service, Tag, Rating } = require('../models/index');
 
 module.exports = class ServiceController
 {
     static async showService(req, res)
     {
-        try {
+        try
+        {
             const serviceId = req.params.id;
 
             const service = await Service.findOne({
@@ -51,11 +49,41 @@ module.exports = class ServiceController
                 ]
             });
 
-            if (!service) {
-                return res.status(404).render('layouts/404', { 
+            if (!service)
+            {
+                return res.status(404).render('layouts/404', {
                     message: 'Serviço não encontrado',
                 });
             }
+
+            // Identifica o artista e o estabelecimento
+            const artist = service.Sender.Artist ? service.Sender : service.Receiver;
+            const establishment = service.Sender.Establishment ? service.Sender : service.Receiver;
+
+            // Calcula média e total de avaliações para o artista
+            const totalRatingsArtist = await Rating.count({ where: { receiverUserid: artist.id } }) || 0;
+            const averageRatingArtist = await Rating.findOne({
+                where: { receiverUserid: artist.id },
+                attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
+            });
+            const averageRatingArtistValue = averageRatingArtist && averageRatingArtist.dataValues.averageRating
+                ? parseFloat(averageRatingArtist.dataValues.averageRating).toFixed(1)
+                : 0;
+
+            // Calcula média e total de avaliações para o estabelecimento
+            const totalRatingsEstablishment = await Rating.count({ where: { receiverUserid: establishment.id } }) || 0;
+            const averageRatingEstablishment = await Rating.findOne({
+                where: { receiverUserid: establishment.id },
+                attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
+            });
+            const averageRatingEstablishmentValue = averageRatingEstablishment && averageRatingEstablishment.dataValues.averageRating
+                ? parseFloat(averageRatingEstablishment.dataValues.averageRating).toFixed(1)
+                : 0;
+
+            console.log(totalRatingsArtist);
+            console.log(totalRatingsEstablishment)
+            console.log(averageRatingArtistValue)
+            console.log(averageRatingEstablishmentValue)
 
             const formattedService = {
                 id: service.id,
@@ -63,34 +91,43 @@ module.exports = class ServiceController
                 type: service.Tags.map(tag => tag.name).join(', '),
                 description: service.description,
                 date: new Date(service.date).toLocaleDateString('pt-BR'),
-                budget: parseFloat(service.price),
+                startTime: service.startTime,
+                endTime: service.endTime,
+                price: parseFloat(service.price),
                 status: service.status || 'Pendente',
-                requester: {
-                    id: service.Receiver.id,
-                    name: service.Receiver.name,
-                    email: service.Receiver.email,
-                    location: `${service.Receiver.city}, ${service.Receiver.state}`,
-                    profileImg: service.Receiver.profileImg || `https://via.placeholder.com/100/9b87f5/ffffff?text=${service.Receiver.name.charAt(0)}`
+                artist: {
+                    id: artist.id,
+                    name: artist.name,
+                    email: artist.email,
+                    city: artist.city,
+                    description: artist.description,
+                    profileImg: artist.profileImg || `https://via.placeholder.com/100/9b87f5/ffffff?text=${ artist.name.charAt(0) }`,
+                    totalRatings: totalRatingsArtist,
+                    averageRating: averageRatingArtistValue ? parseFloat(averageRatingArtist.dataValues.averageRating).toFixed(1) : 0
                 },
-                provider: {
-                    id: service.Sender.id,
-                    name: service.Sender.name,
-                    email: service.Sender.email,
-                    location: `${service.Sender.city}, ${service.Sender.state}`,
-                    profileImg: service.Sender.profileImg || `https://via.placeholder.com/100/6D28D9/ffffff?text=${service.Sender.name.charAt(0)}`
+                establishment: {
+                    id: establishment.id,
+                    name: establishment.name,
+                    email: establishment.email,
+                    city: establishment.city,
+                    description: establishment.description,
+                    profileImg: establishment.profileImg || `https://via.placeholder.com/100/6D28D9/ffffff?text=${ establishment.name.charAt(0) }`,
+                    totalRatings: totalRatingsEstablishment,
+                    averageRating: averageRatingEstablishmentValue ? parseFloat(averageRatingEstablishment.dataValues.averageRating).toFixed(1) : 0
                 },
                 isRequesterConfirmed: service.requesterConfirmed || false,
                 isProviderConfirmed: service.providerConfirmed || false,
                 hasBeenReviewed: service.reviewed || false
             };
 
-            return res.render('app/service', { 
+            return res.render('app/service', {
                 css: 'servico.css',
                 service: formattedService
             });
-        } catch (error) {
+        } catch (error)
+        {
             console.error('Erro ao buscar serviço:', error);
-            return res.status(500).render('error', { 
+            return res.status(500).render('error', {
                 message: 'Erro ao carregar serviço',
                 css: 'error.css'
             });

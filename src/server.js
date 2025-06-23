@@ -46,29 +46,35 @@ app.engine(
       {
         return JSON.stringify(context);
       },
-      formatDatePtBr: function (dateString) {
+      formatDatePtBr: function (dateString)
+      {
         if (!dateString) return "";
-        try {
+        try
+        {
           const date = new Date(dateString);
           return date.toLocaleDateString("pt-BR", {
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
           });
-        } catch (e) {
+        } catch (e)
+        {
           console.error("Erro no helper formatDatePtBr:", e);
           return "";
         }
       },
-      formatTime: function (timeString) {
+      formatTime: function (timeString)
+      {
         if (!timeString) return "";
-        try {
-          const time = new Date(`1970-01-01T${timeString}`);
+        try
+        {
+          const time = new Date(`1970-01-01T${ timeString }`);
           return time.toLocaleTimeString("pt-BR", {
             hour: "2-digit",
             minute: "2-digit",
           });
-        } catch (e) {
+        } catch (e)
+        {
           console.error("Erro no helper formatTime:", e);
           return "";
         }
@@ -130,6 +136,10 @@ app.engine(
           if (arguments[i]) return true;
         }
         return false;
+      },
+      and: function (a, b)
+      {
+        return a && b;
       }
     },
     partialsDir: path.join(__dirname, "views", "partials"),
