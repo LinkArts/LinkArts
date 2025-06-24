@@ -38,6 +38,14 @@ const Service = db.define('Service', {
     endTime: {
         type: DataTypes.TIME,
         allowNull: true
+    },
+    artistStatus: {
+        type: DataTypes.ENUM('pending', 'confirmed', 'cancelled'),
+        defaultValue: 'pending'
+    },
+    establishmentStatus: {
+        type: DataTypes.ENUM('pending', 'confirmed', 'cancelled'),
+        defaultValue: 'pending'
     }
 });
 

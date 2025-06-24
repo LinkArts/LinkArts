@@ -28,14 +28,24 @@ module.exports = class AgendaController
             }
 
             const services = await Service.findAll({
-                where: { userid: id },
+                where: {
+                    [Op.or]: [
+                        { userid: id }, // Serviços recebidos
+                        { senderid: id } // Serviços enviados e aceitos
+                    ]
+                },
                 include: [
                     { model: Tag, as: 'Tags', required: false },
                     { model: ServiceNote, required: false },
                     {
                         model: User,
-                        as: 'Sender', // Relaciona o outro usuário envolvido na proposta
-                        attributes: ['name', 'city'] // Inclui nome e cidade do outro usuário
+                        as: 'Sender',
+                        attributes: ['id', 'name', 'city'] // Inclui informações do remetente
+                    },
+                    {
+                        model: User,
+                        as: 'Receiver',
+                        attributes: ['id', 'name', 'city'] // Inclui informações do destinatário
                     }
                 ]
             });
@@ -49,6 +59,11 @@ module.exports = class AgendaController
                     ? serviceData.ServiceNotes[0].content
                     : '';
 
+                // Determina quem é o outro usuário relacionado ao serviço
+                const otherUser = serviceData.userid === parseInt(id)
+                    ? serviceData.Sender
+                    : serviceData.Receiver;
+
                 const formattedService = {
                     id: serviceData.id,
                     title: serviceData.name,
@@ -57,8 +72,9 @@ module.exports = class AgendaController
                     date: serviceData.date,
                     startTime: serviceData.startTime,
                     endTime: serviceData.endTime,
-                    senderName: serviceData.Sender ? serviceData.Sender.name : null,
-                    senderCity: serviceData.Sender ? serviceData.Sender.city : null,
+                    otherUserName: otherUser ? otherUser.name : null,
+                    otherUserCity: otherUser ? otherUser.city : null,
+                    otherUserId: otherUser ? otherUser.id : null,
                     notes: notes,
                     tags: serviceData.Tags || []
                 };
@@ -192,27 +208,68 @@ module.exports = class AgendaController
                     {
                         model: User,
                         as: 'Sender',
-                        attributes: ['id', 'name', 'email']
+                        attributes: ['name', 'city'] // Inclui nome e cidade do remetente
                     }
                 ]
             });
 
-            const sentProposals = await ServiceProposal.findAll({
+            /*const sentProposals = await ServiceProposal.findAll({
                 where: { senderUserid: userid },
                 include: [
                     {
                         model: User,
                         as: 'Receiver',
-                        attributes: ['id', 'name', 'email']
+                        attributes: ['name', 'city'] // Inclui nome e cidade do destinatário
                     }
                 ]
+            });*/
+
+            //const sent = [];
+            const received = [];
+
+            receivedProposals.forEach(proposal =>
+            {
+                const proposalData = proposal.get({ plain: true });
+
+                const formattedProposal = {
+                    id: proposalData.id,
+                    title: proposalData.name,
+                    description: proposalData.description,
+                    price: proposalData.price,
+                    date: proposalData.date,
+                    startTime: proposalData.startTime,
+                    endTime: proposalData.endTime,
+                    senderName: proposalData.Sender ? proposalData.Sender.name : null,
+                    senderCity: proposalData.Sender ? proposalData.Sender.city : null,
+                    status: proposalData.status || 'pending' // pending, accepted, rejected
+                };
+
+                received.push(formattedProposal);
             });
+
+            /*sentProposals.forEach(proposal => {
+                const proposalData = proposal.get({ plain: true });
+    
+                const formattedProposal = {
+                    id: proposalData.id,
+                    title: proposalData.name,
+                    description: proposalData.description,
+                    price: proposalData.price,
+                    date: proposalData.date,
+                    startTime: proposalData.startTime,
+                    endTime: proposalData.endTime,
+                    receiverName: proposalData.Receiver ? proposalData.Receiver.name : null,
+                    receiverCity: proposalData.Receiver ? proposalData.Receiver.city : null,
+                    status: proposalData.status || 'pending' // pending, accepted, rejected
+                };
+    
+                allProposals.push(formattedProposal);
+            });*/
 
             const isOwner = userid === req.session.userid;
 
             return res.json({
-                received: receivedProposals,
-                sent: sentProposals,
+                proposals: received,
                 isOwner: isOwner
             });
         } catch (err)

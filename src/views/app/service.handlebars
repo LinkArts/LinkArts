@@ -4,7 +4,7 @@
             <div class="card profile-info-card">
                 <div class="profile-img">
                     <img id="requester-profile-img"
-                        src="./Servico-Avaliacao_files/pessoa-de-origem-indiana-a-divertir-se_23-2150285283.jpg"
+                        src="/img/default.jpg"
                         alt="Foto do Solicitante">
                 </div>
                 <div>
@@ -15,7 +15,8 @@
                         <span class="rating-value">{{service.artist.averageRating}}</span>
                         <span class="reviews-count">({{service.artist.totalRatings}})</span>
                     </div>
-                    <p id="requester-contact" class="">Descrição: {{#if service.artist.description}} {{service.artist.description}} {{else}} Descrição não informada. {{/if}}</p>
+                    <p id="requester-contact" class="">Descrição: {{#if service.artist.description}}
+                        {{service.artist.description}} {{else}} Descrição não informada. {{/if}}</p>
                     <p id="requester-location">Cidade: {{service.artist.city}}</p>
                 </div>
             </div>
@@ -25,14 +26,50 @@
                 <div class="details-group">
                     <p><strong>Descrição:</strong> <span id="service-description">{{service.description}}</span></p>
                     <p><strong>Data:</strong> <span id="service-date">{{service.date}}</span></p>
-                    <p><strong>Horário:</strong> <span id="service-date">{{formatTime service.startTime}} - {{formatTime service.endTime}} 
-                    </span></p><p><strong>Preço:</strong> <span id="service-budget">R$ {{service.price}}</span></p>
-                    <p><strong>Status Atual:</strong> <span id="service-current-status" style="color: #1bb50a;font-weight: bold;">Confirmado</span></p>
+                    <p><strong>Horário:</strong> <span id="service-date">{{formatTime service.startTime}} - {{formatTime
+                            service.endTime}}
+                        </span></p>
+                    <p><strong>Preço:</strong> <span id="service-budget">R$ {{service.price}}</span></p>
+                    <p><strong>Status Atual:</strong>
+                        {{#if (and (eq service.artistStatus 'confirmed') (eq service.establishmentStatus 'confirmed'))}}
+                        <span id="service-current-status" class="status-text success">Confirmado</span>
+                        {{else if (or (eq service.artistStatus 'cancelled') (eq service.establishmentStatus
+                        'cancelled'))}}
+                        <span id="service-current-status" class="status-text error">Cancelado</span>
+                        {{else if (eq service.artistStatus 'confirmed')}}
+                        <span id="service-current-status" class="status-text warning">Aguardando resposta do
+                            estabelecimento</span>
+                        {{else if (eq service.establishmentStatus 'confirmed')}}
+                        <span id="service-current-status" class="status-text warning">Aguardando resposta do
+                            artista</span>
+                        {{else}}
+                        <span id="service-current-status" class="status-text warning">Pendente</span>
+                        {{/if}}
+                    </p>
                 </div>
 
                 <div class="service-actions" id="service-action-buttons">
+                    {{#if isArtist}}
+                    {{#if (eq service.artistStatus 'pending')}}
                     <button class="btn btn-success" id="confirm-service-btn">Confirmar Serviço</button>
                     <button class="btn btn-danger" id="cancel-service-btn">Cancelar Serviço</button>
+                    {{else if (eq service.artistStatus 'confirmed')}}
+                    <p class="feedback-message success">Você já confirmou este serviço.</p>
+                    {{else if (eq service.artistStatus 'cancelled')}}
+                    <p class="feedback-message error">Você cancelou este serviço.</p>
+                    {{/if}}
+                    {{/if}}
+
+                    {{#if isEstablishment}}
+                    {{#if (eq service.establishmentStatus 'pending')}}
+                    <button class="btn btn-success" id="confirm-service-btn">Confirmar Serviço</button>
+                    <button class="btn btn-danger" id="cancel-service-btn">Cancelar Serviço</button>
+                    {{else if (eq service.establishmentStatus 'confirmed')}}
+                    <p class="feedback-message success">Você já confirmou este serviço.</p>
+                    {{else if (eq service.establishmentStatus 'cancelled')}}
+                    <p class="feedback-message error">Você cancelou este serviço.</p>
+                    {{/if}}
+                    {{/if}}
                 </div>
                 <p id="confirmation-message" class="feedback-message" style="display: none;"></p>
             </div>
@@ -40,24 +77,28 @@
             <div class="card profile-info-card">
                 <div class="profile-img">
                     <img id="provider-profile-img"
-                        src="./Servico-Avaliacao_files/pessoa-de-origem-indiana-a-divertir-se_23-2150285283.jpg"
+                        src="/img/default.jpg"
                         alt="Foto do Solicitante">
                 </div>
                 <div>
                     <h3 id="provider-name">{{service.establishment.name}}</h3>
-                    <div class="establishment-rating" aria-label="Avaliação: 4.8 de 5 estrelas (baseado em 32 avaliações)"
+                    <div class="establishment-rating"
+                        aria-label="Avaliação: 4.8 de 5 estrelas (baseado em 32 avaliações)"
                         style="margin-bottom: 10px;">
                         <span class="star" aria-hidden="true">★</span>
                         <span class="rating-value">{{service.establishment.averageRating}}</span>
                         <span class="reviews-count">({{service.establishment.totalRatings}})</span>
                     </div>
-                    <p id="provider-contact" class="">Descrição: {{#if service.establishment.description}} {{service.establishment.description}} {{else}} Descrição não informada. {{/if}}</p>
-                    <p id="provider-location">Cidade: {{#if service.establishment.city}} {{service.establishment.city}} {{else}} Cidade não informada. {{/if}}</p>
+                    <p id="provider-contact" class="">Descrição: {{#if service.establishment.description}}
+                        {{service.establishment.description}} {{else}} Descrição não informada. {{/if}}</p>
+                    <p id="provider-location">Cidade: {{#if service.establishment.city}} {{service.establishment.city}}
+                        {{else}} Cidade não informada. {{/if}}</p>
                 </div>
             </div>
         </section>
 
-        {{#unless service.hasBeenReviewed}}
+        {{#if (and (eq service.artistStatus 'confirmed') (eq service.establishmentStatus 'confirmed'))}}
+    {{#unless service.hasBeenReviewed}}
         <section class="review-section" id="review-section">
             <h3>Avaliar Serviço</h3>
             <form id="review-form">
@@ -81,7 +122,10 @@
                 <p id="review-feedback-message" class="feedback-message" style="display: none;"></p>
             </form>
         </section>
-        {{/unless}}
+    {{else}}
+        <p class="feedback-message success">Você já avaliou este serviço.</p>
+    {{/unless}}
+{{/if}}
     </main>
 </div>
 
@@ -122,6 +166,8 @@
 
         let currentRating = 0;
 
+        updateReviewSectionVisibility()
+
         function getStatusColor(status)
         {
             switch (status)
@@ -136,135 +182,119 @@
 
         function updateActionButtons()
         {
-            if (serviceData.status === 'Pendente')
+            if (serviceData.artistStatus === 'pending' && serviceData.establishmentStatus === 'pending')
             {
                 serviceActionButtons.style.display = 'flex';
                 confirmServiceBtn.disabled = false;
                 cancelServiceBtn.disabled = false;
+            } else if (serviceData.artistStatus === 'confirmed' && serviceData.establishmentStatus === 'confirmed')
+            {
+                serviceActionButtons.style.display = 'none';
+                const feedbackMessage = document.createElement('p');
+                feedbackMessage.className = 'feedback-message success';
+                feedbackMessage.textContent = 'Serviço confirmado por ambas as partes.\nRecarregue a página para avalia-lo!';
+                serviceActionButtons.parentNode.appendChild(feedbackMessage);
+            } else if (serviceData.artistStatus === 'confirmed' && serviceData.establishmentStatus === 'pending')
+            {
+                serviceActionButtons.style.display = 'none';
+                const feedbackMessage = document.createElement('p');
+                feedbackMessage.className = 'feedback-message warning';
+                feedbackMessage.textContent = 'Aguardando resposta do estabelecimento.';
+                serviceActionButtons.parentNode.appendChild(feedbackMessage);
+            } else if (serviceData.artistStatus === 'pending' && serviceData.establishmentStatus === 'confirmed')
+            {
+                serviceActionButtons.style.display = 'none';
+                const feedbackMessage = document.createElement('p');
+                feedbackMessage.className = 'feedback-message warning';
+                feedbackMessage.textContent = 'Aguardando resposta do artista.';
+                serviceActionButtons.parentNode.appendChild(feedbackMessage);
+            } else if (serviceData.artistStatus === 'cancelled' || serviceData.establishmentStatus === 'cancelled')
+            {
+                serviceActionButtons.style.display = 'none';
+                const feedbackMessage = document.createElement('p');
+                feedbackMessage.className = 'feedback-message error';
+                feedbackMessage.textContent = 'Este serviço foi cancelado.';
+                serviceActionButtons.parentNode.appendChild(feedbackMessage);
             } else
             {
                 serviceActionButtons.style.display = 'none';
-                confirmationMessage.style.display = 'block';
-                if (serviceData.status === 'Confirmado' || serviceData.status === 'Concluído')
-                {
-                    confirmationMessage.textContent = 'Serviço confirmado por ambas as partes.';
-                    confirmationMessage.className = 'feedback-message success';
-                } else if (serviceData.status === 'Cancelado')
-                {
-                    confirmationMessage.textContent = 'Este serviço foi cancelado.';
-                    confirmationMessage.className = 'feedback-message error';
-                }
+                const feedbackMessage = document.createElement('p');
+                feedbackMessage.className = 'feedback-message warning';
+                feedbackMessage.textContent = 'Status pendente.';
+                serviceActionButtons.parentNode.appendChild(feedbackMessage);
             }
         }
 
         function updateReviewSectionVisibility()
         {
-            if (serviceData.status === 'Confirmado' && !serviceData.hasBeenReviewed)
+            if (serviceData.artistStatus === 'confirmed' && serviceData.establishmentStatus === 'confirmed')
             {
-                reviewSection.classList.add('active');
-            } else
-            {
-                reviewSection.classList.remove('active');
+                reviewSection?.classList.add('active');
             }
         }
 
-        confirmServiceBtn.addEventListener('click', async () =>
+        if (confirmServiceBtn)
         {
-            if (confirm('Tem certeza que deseja CONFIRMAR este serviço?'))
+            confirmServiceBtn.addEventListener('click', async () =>
             {
-                try
+                if (confirm('Tem certeza que deseja CONFIRMAR este serviço?'))
                 {
-                    const response = await fetch(`/api/service/${ serviceData.id }/confirm`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    if (!response.ok)
+                    try
                     {
-                        throw new Error('Erro ao confirmar serviço');
-                    }
+                        const response = await fetch(`/responder-servico/${ serviceData.id }`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'confirm' }),
+                        });
 
-                    const result = await response.json();
-                    serviceData.status = 'Confirmado';
-                    serviceData.isRequesterConfirmed = true;
-                    serviceData.isProviderConfirmed = true;
+                        if (!response.ok) throw new Error('Erro ao confirmar serviço');
 
-                    alert('Serviço confirmado! Aguardando a outra parte...');
-                    updateActionButtons();
-                    updateReviewSectionVisibility();
-                } catch (error)
-                {
-                    console.error('Erro:', error);
-                    alert('Erro ao confirmar serviço. Tente novamente.');
-                }
-            }
-        });
+                        const result = await response.json();
+                        serviceData.artistStatus = result.service.artistStatus;
+                        serviceData.establishmentStatus = result.service.establishmentStatus;
 
-        cancelServiceBtn.addEventListener('click', async () =>
-        {
-            if (confirm('Tem certeza que deseja CANCELAR este serviço? Esta ação não pode ser desfeita.'))
-            {
-                try
-                {
-                    const response = await fetch(`/api/service/${ serviceData.id }/cancel`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    if (!response.ok)
+                        updateActionButtons();
+                        updateReviewSectionVisibility();
+                    } catch (error)
                     {
-                        throw new Error('Erro ao cancelar serviço');
+                        console.error('Erro:', error);
+                        alert('Erro ao confirmar serviço. Tente novamente.');
                     }
-
-                    serviceData.status = 'Cancelado';
-                    alert('Serviço cancelado.');
-                    updateActionButtons();
-                } catch (error)
-                {
-                    console.error('Erro:', error);
-                    alert('Erro ao cancelar serviço. Tente novamente.');
                 }
-            }
-        });
-
-        starRatingContainer.addEventListener('mouseover', (e) =>
-        {
-            if (e.target.classList.contains('star'))
-            {
-                const value = parseInt(e.target.dataset.value);
-                Array.from(starRatingContainer.children).forEach(star =>
-                {
-                    star.classList.toggle('selected', parseInt(star.dataset.value) <= value);
-                });
-            }
-        });
-
-        starRatingContainer.addEventListener('mouseout', () =>
-        {
-            Array.from(starRatingContainer.children).forEach(star =>
-            {
-                star.classList.toggle('selected', parseInt(star.dataset.value) <= currentRating);
             });
-        });
+        }
 
-        starRatingContainer.addEventListener('click', (e) =>
+        if (cancelServiceBtn)
         {
-            if (e.target.classList.contains('star'))
+            cancelServiceBtn.addEventListener('click', async () =>
             {
-                currentRating = parseInt(e.target.dataset.value);
-                ratingInput.value = currentRating;
-                Array.from(starRatingContainer.children).forEach(star =>
+                if (confirm('Tem certeza que deseja CANCELAR este serviço?'))
                 {
-                    star.classList.toggle('selected', parseInt(star.dataset.value) <= currentRating);
-                });
-            }
-        });
+                    try
+                    {
+                        const response = await fetch(`/responder-servico/${ serviceData.id }`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'cancel' }),
+                        });
 
-        reviewForm.addEventListener('submit', async (e) =>
+                        if (!response.ok) throw new Error('Erro ao cancelar serviço');
+
+                        const result = await response.json();
+                        serviceData.artistStatus = result.service.artistStatus;
+                        serviceData.establishmentStatus = result.service.establishmentStatus;
+
+                        updateActionButtons();
+                    } catch (error)
+                    {
+                        console.error('Erro:', error);
+                        alert('Erro ao cancelar serviço. Tente novamente.');
+                    }
+                }
+            });
+        }
+
+        reviewForm?.addEventListener('submit', async (e) =>
         {
             e.preventDefault();
 
@@ -284,13 +314,12 @@
 
             try
             {
-                const response = await fetch('/api/reviews', {
+                const response = await fetch(`/avaliar-servico/${serviceData.id}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        serviceId: serviceData.id,
                         rating: parseInt(rating),
                         comment: reviewTextValue
                     })
@@ -302,7 +331,22 @@
                 }
 
                 serviceData.hasBeenReviewed = true;
-                showFeedbackMessage(reviewFeedbackMessage, 'Avaliação enviada com sucesso!', 'success');
+
+                // Desativa os campos de avaliação
+                reviewForm.querySelectorAll('input, textarea, button').forEach(field => {
+                    field.disabled = true;
+                });
+
+                // Exibe a mensagem de sucesso permanentemente
+                reviewFeedbackMessage.textContent = 'Avaliação enviada com sucesso!';
+                reviewFeedbackMessage.className = 'feedback-message success';
+                reviewFeedbackMessage.style.display = 'block';
+
+                // Remove interatividade das estrelas
+                starRatingContainer.removeEventListener('mouseover', handleStarHover);
+                starRatingContainer.removeEventListener('click', handleStarClick);
+                starRatingContainer.removeEventListener('mouseout', handleStarMouseOut);
+
                 reviewForm.reset();
                 currentRating = 0;
                 Array.from(starRatingContainer.children).forEach(star => star.classList.remove('selected'));
@@ -313,6 +357,45 @@
                 showFeedbackMessage(reviewFeedbackMessage, 'Erro ao enviar avaliação. Tente novamente.', 'error');
             }
         });
+
+        // Funções para manipular estrelas
+        function handleStarHover(e)
+        {
+            if (e.target.classList.contains('star'))
+            {
+                const value = parseInt(e.target.dataset.value);
+                Array.from(starRatingContainer.children).forEach(star =>
+                {
+                    star.classList.toggle('selected', parseInt(star.dataset.value) <= value);
+                });
+            }
+        }
+
+        function handleStarClick(e)
+        {
+            if (e.target.classList.contains('star'))
+            {
+                currentRating = parseInt(e.target.dataset.value);
+                ratingInput.value = currentRating;
+                Array.from(starRatingContainer.children).forEach(star =>
+                {
+                    star.classList.toggle('selected', parseInt(star.dataset.value) <= currentRating);
+                });
+            }
+        }
+
+        function handleStarMouseOut()
+        {
+            Array.from(starRatingContainer.children).forEach(star =>
+            {
+                star.classList.toggle('selected', parseInt(star.dataset.value) <= currentRating);
+            });
+        }
+
+        // Adiciona eventos às estrelas
+        starRatingContainer.addEventListener('mouseover', handleStarHover);
+        starRatingContainer.addEventListener('click', handleStarClick);
+        starRatingContainer.addEventListener('mouseout', handleStarMouseOut);
 
         function showFeedbackMessage(element, message, type)
         {

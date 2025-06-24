@@ -275,6 +275,29 @@ textarea:focus {
     text-align: center;
 }
 
+.status-text {
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.status-text.success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.status-text.warning {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.status-text.error {
+    background-color: #dc3545;
+    color: #fff;
+}
+
 .feedback-message.success {
     background-color: #d4edda;
     color: #155724;
@@ -285,6 +308,26 @@ textarea:focus {
     background-color: #f8d7da;
     color: #721c24;
     border-color: #f5c6cb;
+}
+
+.feedback-message.warning {
+    background-color: #ffda69;
+    color: #000;
+    border-color: #efd074;
+}
+
+.feedback-message.success {
+    color: #28a745;
+    font-weight: bold;
+    display: block;
+}
+
+.review-section input[disabled],
+.review-section textarea[disabled],
+.review-section button[disabled] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.65;
 }
 
 @media (max-width: 992px) {

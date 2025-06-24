@@ -140,6 +140,9 @@ app.engine(
       and: function (a, b)
       {
         return a && b;
+      },
+      not: function (value) {
+        return !value;
       }
     },
     partialsDir: path.join(__dirname, "views", "partials"),

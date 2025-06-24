@@ -254,8 +254,8 @@
                     li.dataset.id = service.id;
                     li.innerHTML = `
                     <h4>${ service.title }</h4>
-                    <p>Cliente: ${ service.senderName }</p>
-                    <p>Cidade: ${ service.senderCity } </p>
+                    <p>Cliente: ${ service.otherUserName }</p>
+                    <p>Cidade: ${ service.otherUserCity ? service.otherUserCity : 'Cidade não informada.'} </p>
                     <p class="card-price">Preço: ${ formatPrice(service.price) }</p>
                     <div class="card-meta">
                         <span>Data: ${ formatDatePtBr(service.date) }</span>
@@ -280,7 +280,7 @@
                 const data = await response.json();
                 console.log(data);
 
-                receivedProposals = data.received;
+                receivedProposals = data.proposals;
                 receivedProposalsList.innerHTML = '';
                 receivedProposals.forEach(proposal =>
                 {
@@ -289,13 +289,13 @@
                     li.dataset.id = proposal.id;
                     li.dataset.type = proposal.status;
                     li.innerHTML = `
-                    <h4>${ proposal.name }</h4>
-                    <p>Cliente: ${ proposal.client }</p>
-                    <p>Tipo: ${ proposal.type }</p>
+                    <h4>${ proposal.title }</h4>
+                    <p>Cliente: ${ proposal.senderName }</p>
+                    <p>Cidade: ${ proposal.senderCity ? proposal.senderCity : 'Cidade não informada.' }</p>
                     <p class="card-price">Preço: ${ formatPrice(proposal.price) }</p>
                     <div class="card-meta">
-                        <span>Data: ${ proposal.date }</span>
-                        <span>Horário: ${ proposal.startTime } - ${ proposal.endTime }</span>
+                        <span>Data: ${ formatDatePtBr(proposal.date) }</span>
+                        <span>Horário: ${ formatTime(proposal.startTime) } - ${ formatTime(proposal.endTime) }</span>
                     </div>
                     ${ proposal.status === 'pending' ? `
                     <div class="card-actions">

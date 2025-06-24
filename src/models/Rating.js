@@ -27,6 +27,14 @@ const Rating = db.define('Rating', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
+    serviceid: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Services',
+            key: 'id'
+        }
+    }
 });
 
 module.exports = Rating
