@@ -1,6 +1,6 @@
 const { Op, where, col, fn, Sequelize } = require('sequelize');
 
-const { User, Artist, Establishment, Service, Tag, Rating } = require('../models/index');
+const { User, Artist, Establishment, Service, Tag, Rating, ServiceRequest } = require('../models/index');
 
 module.exports = class ServiceController
 {
@@ -268,6 +268,268 @@ module.exports = class ServiceController
         {
             console.error('Erro ao avaliar serviço:', error);
             return res.status(500).json({ message: 'Erro ao avaliar serviço!' });
+        }
+    }
+
+    static async addArtist(req, res)
+    {
+        try
+        {
+            const { id } = req.params; // ID do ServiceRequest
+            const loggedUserId = req.session.userid; // ID do usuário logado
+
+            // Verifica se o usuário logado é um artista
+            const artist = await Artist.findOne({
+                where: { userid: loggedUserId },
+            });
+
+            if (!artist)
+            {
+                return res.json({ message: 'Apenas artistas podem demonstrar interesse em pedidos de serviço!' });
+            }
+
+            // Verifica se o ServiceRequest existe
+            const serviceRequest = await ServiceRequest.findOne({
+                where: { id: id },
+            });
+
+            if (!serviceRequest)
+            {
+                return res.json({ message: 'Pedido de serviço não encontrado!' });
+            }
+
+            // Verifica se o artista já está associado ao ServiceRequest
+            const existingAssociation = await serviceRequest.hasArtist(artist.dataValues.cpf);
+
+            if (existingAssociation)
+            {
+                return res.json({ message: 'Você já demonstrou interesse neste pedido de serviço!' });
+            }
+
+            // Associa o artista ao ServiceRequest
+            await serviceRequest.addArtist(artist);
+
+            return res.json({ message: 'Interesse demonstrado com sucesso!' });
+        } catch (error)
+        {
+            console.error('Erro ao associar artista ao pedido de serviço:', error);
+            return res.json({ message: 'Erro ao demonstrar interesse no pedido de serviço!' });
+        }
+    }
+
+    static async removeArtist(req, res)
+    {
+        try
+        {
+            const { id } = req.params; // ID do ServiceRequest
+            const loggedUserId = req.session.userid; // ID do usuário logado
+
+            // Verifica se o usuário logado é um artista
+            const artist = await Artist.findOne({
+                where: { userid: loggedUserId },
+            });
+
+            if (!artist)
+            {
+                return res.json({ message: 'Apenas artistas podem remover interesse em pedidos de serviço!' });
+            }
+
+            // Verifica se o ServiceRequest existe
+            const serviceRequest = await ServiceRequest.findOne({
+                where: { id: id },
+            });
+
+            if (!serviceRequest)
+            {
+                return res.json({ message: 'Pedido de serviço não encontrado!' });
+            }
+
+            // Verifica se o artista está associado ao ServiceRequest
+            const existingAssociation = await serviceRequest.hasArtist(artist);
+
+            if (!existingAssociation)
+            {
+                return res.json({ message: 'Você não demonstrou interesse neste pedido de serviço!' });
+            }
+
+            // Remove a associação entre o artista e o ServiceRequest
+            await serviceRequest.removeArtist(artist);
+
+            return res.json({ message: 'Interesse removido com sucesso!' });
+        } catch (error)
+        {
+            console.error('Erro ao remover interesse do artista no pedido de serviço:', error);
+            return res.json({ message: 'Erro ao remover interesse no pedido de serviço!' });
+        }
+    }
+
+    static async renderServiceRequest(req, res) {
+        try {
+            const { id } = req.params; // ID do ServiceRequest
+            const loggedUserId = req.session.userid;
+
+            // Fetch the ServiceRequest with associated Establishment and Artists
+            const serviceRequest = await ServiceRequest.findOne({
+                where: { id: id },
+                include: [
+                    {
+                        model: Establishment,
+                        include: [
+                            {
+                                model: User,
+                                include: [
+                                    { model: Tag, as: 'Tags' } // Include Tags related to the user
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        model: Artist,
+                        as: 'Artists', // Use the alias specified in the association
+                        include: [
+                            {
+                                model: User,
+                                include: [
+                                    { model: Tag, as: 'Tags' } // Include Tags related to the artist
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            });
+
+            if (!serviceRequest) {
+                return res.status(404).render('app/dashboard', {
+                    css: 'dashboard.css',
+                });
+            }
+
+            // Calculate ratings for the establishment
+            const establishment = serviceRequest.Establishment.User;
+            const totalRatingsEstablishment = await Rating.count({ where: { receiverUserid: establishment.id } }) || 0;
+            const averageRatingEstablishment = await Rating.findOne({
+                where: { receiverUserid: establishment.id },
+                attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
+            });
+            const averageRatingEstablishmentValue = averageRatingEstablishment && averageRatingEstablishment.dataValues.averageRating
+                ? parseFloat(averageRatingEstablishment.dataValues.averageRating).toFixed(1)
+                : 0;
+
+            // Map artists and calculate their ratings
+            const artists = await Promise.all(
+                serviceRequest.Artists.map(async (artist) => {
+                    const totalRatingsArtist = await Rating.count({ where: { receiverUserid: artist.User.id } }) || 0;
+                    const averageRatingArtist = await Rating.findOne({
+                        where: { receiverUserid: artist.User.id },
+                        attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
+                    });
+                    const averageRatingArtistValue = averageRatingArtist && averageRatingArtist.dataValues.averageRating
+                        ? parseFloat(averageRatingArtist.dataValues.averageRating).toFixed(1)
+                        : 0;
+
+                    return {
+                        id: artist.userid,
+                        name: artist.User.name,
+                        city: artist.User.city,
+                        profileImg: artist.User.profileImg || `https://via.placeholder.com/100/9b87f5/ffffff?text=${artist.User.name.charAt(0)}`,
+                        totalRatings: totalRatingsArtist,
+                        averageRating: averageRatingArtistValue
+                    };
+                })
+            );
+
+            return res.render('app/serviceRequest', {
+                css: 'pedidoServico.css',
+                serviceRequest: {
+                    id: serviceRequest.id,
+                    title: serviceRequest.title,
+                    description: serviceRequest.description,
+                    date: serviceRequest.date,
+                    startTime: serviceRequest.startTime,
+                    endTime: serviceRequest.endTime,
+                    price: serviceRequest.price,
+                    establishment: {
+                        id: establishment.id,
+                        name: establishment.name,
+                        city: establishment.city,
+                        description: establishment.description,
+                        profileImg: establishment.profileImg || `https://via.placeholder.com/100/6D28D9/ffffff?text=${establishment.name.charAt(0)}`,
+                        totalRatings: totalRatingsEstablishment,
+                        averageRating: averageRatingEstablishmentValue
+                    },
+                    artists
+                }
+            });
+        } catch (error) {
+            console.error('Error loading service request:', error);
+            return res.status(500).render('app/dashboard', {
+                css: 'dashboard.css'
+            });
+        }
+    }
+
+    static async removeServiceRequest(req, res)
+    {
+        try
+        {
+            const { id } = req.params; // ID do ServiceRequest
+
+            const serviceRequest = await ServiceRequest.findOne({ where: { id: id } });
+
+            if (!serviceRequest)
+            {
+                return res.status(404).json({ message: 'Pedido de serviço não encontrado!' });
+            }
+
+            await serviceRequest.destroy();
+
+            return res.json({ message: 'Pedido de serviço cancelado com sucesso!' });
+        } catch (error)
+        {
+            console.error('Erro ao cancelar pedido de serviço:', error);
+            return res.status(500).json({ message: 'Erro ao cancelar pedido de serviço!' });
+        }
+    }
+
+    static async createService(req, res) {
+        try {
+            const { id } = req.params; // ID do ServiceRequest
+            const { artistId } = req.body; // ID do artista escolhido
+    
+            const serviceRequest = await ServiceRequest.findOne({
+                where: { id: id },
+                include: [{ model: Establishment }]
+            });
+    
+            if (!serviceRequest) {
+                return res.status(404).json({ message: 'Pedido de serviço não encontrado!' });
+            }
+    
+            const artist = await Artist.findOne({ where: { userid: artistId } });
+    
+            if (!artist) {
+                return res.status(404).json({ message: 'Artista não encontrado!' });
+            }
+
+            // Cria o serviço
+            await Service.create({
+                name: serviceRequest.name,
+                description: serviceRequest.description,
+                date: serviceRequest.date,
+                startTime: serviceRequest.startTime,
+                endTime: serviceRequest.endTime,
+                price: serviceRequest.price,
+                senderid: serviceRequest.Establishment.userid,
+                userid: artist.userid
+            });
+    
+            // Remove o pedido de serviço
+            await serviceRequest.destroy();
+    
+            return res.json({ message: 'Serviço criado com sucesso!' });
+        } catch (error) {
+            console.error('Erro ao criar serviço:', error);
+            return res.status(500).json({ message: 'Erro ao criar serviço!' });
         }
     }
 }

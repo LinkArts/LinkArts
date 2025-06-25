@@ -3,11 +3,14 @@ const Sequelize = require('sequelize');
 
 const { User, Artist, Establishment, Album, Music, Genre, Tag, Event, ServiceRequest, Service, Rating } = require('../models/index');
 
-module.exports = class DashboardController {
-    static async showDashboard(req, res) {
+module.exports = class DashboardController
+{
+    static async showDashboard(req, res)
+    {
         // SE O USUARIO ATUAL É ARTISTA
         const isArtist = await Artist.findOne({ where: { userid: req.session.userid } });
-        if (isArtist) {
+        if (isArtist)
+        {
             const establishments = await Establishment.findAll({
                 include: [
                     {
@@ -20,7 +23,14 @@ module.exports = class DashboardController {
                 ]
             });
 
-            const agendados = await Service.findAll({ where: { userid: isArtist.userid } });
+            const agendados = await Service.findAll({
+                where: {
+                    [Op.or]: [
+                        { userid: isArtist.userid },
+                        { senderid: isArtist.userid }
+                    ]
+                }
+            });
 
             const services = await ServiceRequest.findAll({
                 include: [
@@ -40,7 +50,8 @@ module.exports = class DashboardController {
             });
 
             const establishmentPlain = await Promise.all(
-                establishments.map(async (x) => {
+                establishments.map(async (x) =>
+                {
                     const totalRatings = await Rating.count({ where: { receiverUserid: x.User.id } });
                     const averageRating = await Rating.findOne({
                         where: { receiverUserid: x.User.id },
@@ -57,12 +68,15 @@ module.exports = class DashboardController {
             );
 
             const servicesPlain = await Promise.all(
-                services.map(async (x) => {
+                services.map(async (x) =>
+                {
                     const totalRatings = await Rating.count({ where: { receiverUserid: x.Establishment.User.id } });
                     const averageRating = await Rating.findOne({
                         where: { receiverUserid: x.Establishment.User.id },
                         attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
                     });
+
+                    const isInterested = await x.hasArtist(isArtist);
 
                     return {
                         ...x.toJSON(),
@@ -79,7 +93,8 @@ module.exports = class DashboardController {
                                     }
                                     : null
                             }
-                            : null
+                            : null,
+                        isInterested
                     };
                 })
             );
@@ -98,7 +113,8 @@ module.exports = class DashboardController {
 
         // SE O USUARIO ATUAL É ESTABELECIMENTO
         const isEstablishment = await Establishment.findOne({ where: { userid: req.session.userid } });
-        if (isEstablishment) {
+        if (isEstablishment)
+        {
             const artists = await Artist.findAll({
                 include: [
                     {
@@ -111,8 +127,18 @@ module.exports = class DashboardController {
                 ]
             });
 
+            const agendados = await Service.findAll({
+                where: {
+                    [Op.or]: [
+                        { userid: isEstablishment.userid },
+                        { senderid: isEstablishment.userid }
+                    ]
+                }
+            });
+
             const artistsPlain = await Promise.all(
-                artists.map(async (x) => {
+                artists.map(async (x) =>
+                {
                     const totalRatings = await Rating.count({ where: { receiverUserid: x.User.id } });
                     const averageRating = await Rating.findOne({
                         where: { receiverUserid: x.User.id },
@@ -128,11 +154,13 @@ module.exports = class DashboardController {
                 })
             );
 
+            const agendadosPlain = agendados.map(x => x.toJSON());
+
             const userInfo = {
-                artists: artistsPlain
+                artists: artistsPlain,
+                agendados: agendadosPlain
             };
 
-            //console.log(userInfo);
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' });
         }
     }

@@ -7,4 +7,11 @@ router.get('/servico/:id', ServiceController.showService)
 router.put('/responder-servico/:id', ServiceController.answerService);
 router.post('/avaliar-servico/:id', ServiceController.rateService);
 
+router.post('/pedido-servico/inscrever/:id', ServiceController.addArtist)
+router.delete('/pedido-servico/esquecer/:id', ServiceController.removeArtist);
+
+router.get('/pedido-servico/:id', ServiceController.renderServiceRequest)
+router.delete('/pedido-servico/:id', ServiceController.removeServiceRequest)
+router.post('/pedido-servico/:id/criar-servico', ServiceController.createService);
+
 module.exports = router

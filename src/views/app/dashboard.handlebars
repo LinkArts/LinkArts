@@ -54,7 +54,8 @@
                             <circle cx="12" cy="12" r="10"></circle>
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
-                        {{formatDatePtBr this.date}}  |  <span class="event-time">{{formatTime this.startTime}} - {{formatTime this.endTime}}</span>
+                        {{formatDatePtBr this.date}} | <span class="event-time">{{formatTime this.startTime}} -
+                            {{formatTime this.endTime}}</span>
                     </div>
                     <div class="event-description">
                         {{this.description}}
@@ -99,5 +100,84 @@
 
         const activeTabButton = document.querySelector(`.tab[onclick="changeTab('${ tabName }')"]`);
         activeTabButton.classList.add('active');
+    }
+
+    function registerInterest(serviceRequestId)
+    {
+        if (confirm('Tem certeza que deseja se cadastrar neste pedido de serviço?'))
+        {
+            fetch(`/pedido-servico/inscrever/${ serviceRequestId }`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response =>
+                {
+                    if (!response.ok)
+                    {
+                        throw new Error('Erro ao se cadastrar no pedido de serviço.');
+                    }
+                    return response.json();
+                })
+                .then(data =>
+                {
+                    alert(data.message || 'Cadastro realizado com sucesso!');
+                    updateButton(serviceRequestId, true); // Atualiza o botão para "Esquecer"
+                })
+                .catch(error =>
+                {
+                    console.error('Erro:', error);
+                    alert('Erro ao se cadastrar no pedido de serviço. Tente novamente.');
+                });
+        }
+    }
+
+    function removeInterest(serviceRequestId)
+    {
+        if (confirm('Tem certeza que deseja remover seu interesse neste pedido de serviço?'))
+        {
+            fetch(`/pedido-servico/esquecer/${ serviceRequestId }`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response =>
+                {
+                    if (!response.ok)
+                    {
+                        throw new Error('Erro ao remover interesse no pedido de serviço.');
+                    }
+                    return response.json();
+                })
+                .then(data =>
+                {
+                    alert(data.message || 'Interesse removido com sucesso!');
+                    updateButton(serviceRequestId, false); // Atualiza o botão para "Cadastrar"
+                })
+                .catch(error =>
+                {
+                    console.error('Erro:', error);
+                    alert('Erro ao remover interesse no pedido de serviço. Tente novamente.');
+                });
+        }
+    }
+
+    function updateButton(serviceRequestId, isInterested)
+    {
+        const button = document.querySelector(`button[onclick="registerInterest('${ serviceRequestId }')"], button[onclick="removeInterest('${ serviceRequestId }')"]`);
+        if (button)
+        {
+            if (isInterested)
+            {
+                button.textContent = 'Esquecer';
+                button.setAttribute('onclick', `removeInterest('${ serviceRequestId }')`);
+            } else
+            {
+                button.textContent = 'Cadastrar';
+                button.setAttribute('onclick', `registerInterest('${ serviceRequestId }')`);
+            }
+        }
     }
 </script>

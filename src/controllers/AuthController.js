@@ -116,10 +116,10 @@ module.exports = class AuthController
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' })
 
-            const confirmationTemplate = getTemplate('confirmation')({
-                name: user.name,
-                confirmationUrl: `http://localhost:3000/confirm/${ user.id }/${ token }`
-            })
+                const confirmationTemplate = getTemplate('confirmation')({
+                    name: user.name,
+                    confirmationUrl: `${req.protocol}://${req.get('host')}/confirm/${user.id}/${token}` // URL dinâmica
+                });
 
             sendEmail(email, 'Confirmação de Conta: LinkArts', confirmationTemplate)
 

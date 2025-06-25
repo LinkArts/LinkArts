@@ -181,7 +181,7 @@ module.exports = function setupAssociations(models)
         as: 'Users'
     })
 
-    Service.belongsTo(User, { 
+    Service.belongsTo(User, {
         foreignKey: 'userid',
         as: 'Receiver',
         onDelete: 'CASCADE',
@@ -195,7 +195,7 @@ module.exports = function setupAssociations(models)
         onUpdate: 'CASCADE'
     });
 
-    User.hasMany(Service, { 
+    User.hasMany(Service, {
         foreignKey: 'userid',
         as: 'ReceivedServices',
         onDelete: 'CASCADE',
@@ -209,7 +209,7 @@ module.exports = function setupAssociations(models)
         onUpdate: 'CASCADE'
     });
 
-    Service.belongsToMany(Tag, { 
+    Service.belongsToMany(Tag, {
         foreignKey: 'serviceid',
         otherKey: 'tagid',
         through: 'ServiceTags',
@@ -217,7 +217,7 @@ module.exports = function setupAssociations(models)
         onUpdate: 'CASCADE'
     });
 
-    Tag.belongsToMany(Service, { 
+    Tag.belongsToMany(Service, {
         foreignKey: 'tagid',
         otherKey: 'serviceid',
         through: 'ServiceTags',
@@ -225,37 +225,37 @@ module.exports = function setupAssociations(models)
         onUpdate: 'CASCADE'
     });
 
-    Service.hasMany(ServiceNote, { 
+    Service.hasMany(ServiceNote, {
         foreignKey: 'serviceid',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
-    ServiceNote.belongsTo(Service, { 
+    ServiceNote.belongsTo(Service, {
         foreignKey: 'serviceid',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
 
-    ServiceProposal.belongsTo(User, { 
-        as: 'Receiver', 
+    ServiceProposal.belongsTo(User, {
+        as: 'Receiver',
         foreignKey: 'userid',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
-    ServiceProposal.belongsTo(User, { 
-        as: 'Sender', 
+    ServiceProposal.belongsTo(User, {
+        as: 'Sender',
         foreignKey: 'senderUserid',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
-    User.hasMany(ServiceProposal, { 
-        as: 'ReceivedProposals', 
+    User.hasMany(ServiceProposal, {
+        as: 'ReceivedProposals',
         foreignKey: 'userid',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
-    User.hasMany(ServiceProposal, { 
-        as: 'SentProposals', 
+    User.hasMany(ServiceProposal, {
+        as: 'SentProposals',
         foreignKey: 'senderUserid',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
@@ -273,14 +273,14 @@ module.exports = function setupAssociations(models)
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
-    User.hasMany(Rating, { 
-        as: 'ReceivedRatings', 
+    User.hasMany(Rating, {
+        as: 'ReceivedRatings',
         foreignKey: 'receiverUserid',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
-    User.hasMany(Rating, { 
-        as: 'SentRatings', 
+    User.hasMany(Rating, {
+        as: 'SentRatings',
         foreignKey: 'senderUserid',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
@@ -294,7 +294,7 @@ module.exports = function setupAssociations(models)
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
-    
+
     User.belongsToMany(User, {
         through: Favorite,
         as: 'FavoritedByUsers', // Alias único para os usuários que favoritaram
@@ -303,4 +303,22 @@ module.exports = function setupAssociations(models)
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
+
+    ServiceRequest.belongsToMany(Artist, {
+        foreignKey: 'servicerequestid',
+        otherKey: 'artistid',
+        through: 'ServiceRequestArtists',
+        as: 'Artists',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    })
+
+    Artist.belongsToMany(ServiceRequest, {
+        foreignKey: 'artistid',
+        otherKey: 'servicerequestid',
+        through: 'ServiceRequestArtists',
+        as: 'ServiceRequests',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    })
 };

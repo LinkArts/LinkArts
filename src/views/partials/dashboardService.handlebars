@@ -9,9 +9,11 @@
     <p class="card-location">{{Establishment.User.city}}</p>
     <div class="card-rating">
         <span class="star">★</span>
-        <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">{{#if (eq Establishment.User.TotalRatings 0) }}
+        <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">{{#if (eq
+            Establishment.User.TotalRatings 0) }}
             0.0 {{else}} {{Establishment.User.AverageRating}} {{/if}}
-            {{#if (eq Establishment.User.TotalRatings 0) }} ( 0 ) {{else}} ( {{Establishment.User.TotalRatings}} ) {{/if}}</span>
+            {{#if (eq Establishment.User.TotalRatings 0) }} ( 0 ) {{else}} ( {{Establishment.User.TotalRatings}} )
+            {{/if}}</span>
     </div>
     <p class="service-date">
         <svg class="clock-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -28,15 +30,13 @@
         {{/each}}
     </div>
     <div class="service-actions">
-        <a href="/profile/{{Establishment.User.id}}">
-            <button class="profile-button">
-                Ver perfil
-            </button>
-        </a>
-        <a href="/servico/{{id}}">
-            <button class="service-button">
-                Ir para serviço
-            </button>
-        </a>
-    </div>
+    <a href="/profile/{{Establishment.User.id}}">
+        <button class="profile-button">Ver perfil</button>
+    </a>
+    {{#if isInterested}}
+        <button class="service-button" onclick="removeInterest('{{id}}')">Esquecer</button>
+    {{else}}
+        <button class="service-button" onclick="registerInterest('{{id}}')">Cadastrar</button>
+    {{/if}}
+</div>
 </div>

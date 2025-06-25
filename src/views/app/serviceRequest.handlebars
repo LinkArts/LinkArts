@@ -1,0 +1,139 @@
+<div class="all">
+    <main class="service-container">
+        <section class="service-details-grid">
+            <div class="card artists-container-card">
+                <h3 class="card-header">Artistas Interessados</h3>
+                <ul class="artists-list">
+                    {{#each serviceRequest.artists}}
+                    <li class="artist-card">
+                        <div class="artist-img">
+                            <img src="/img/default.jpg" alt="Foto do Artista {{name}}">
+                        </div>
+                        <div class="artist-details" style="width: 100%;">
+                            <div class="artist-name">{{name}}</div>
+                            <div class="artist-location">{{city}}</div>
+                            <div class="artist-rating">
+                                <span class="star">★</span>
+                                <span class="rating-value">{{averageRating}}</span>
+                                <span class="reviews-count">({{totalRatings}})</span>
+                            </div>
+                        </div>
+                        <div class="artist-actions"
+                            style="width: 100%; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                            <button class="btn-accept"
+                                style="display: flex; width: 90%; justify-content: center;"
+                                onclick="acceptArtist('{{id}}')">Aceitar</button>
+                            <a href="/profile/{{id}}" class="btn-view-profile"
+                                style="display: flex; width: 90%; justify-content: center;">Ver Perfil</a>
+                        </div>
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+
+            <div class="card service-main-card">
+                <h3 class="card-header" id="service-title">Rock Acústico de Sábado</h3>
+                <div class="details-group">
+
+                    <p><strong>Descrição:</strong> <span id="service-description">Apresentação acústica com repertório
+                            de
+                            rock nacional e internacional. O artista contratado tocou clássicos de bandas como Legião
+                            Urbana, Nirvana, The Beatles e Cazuza, criando um clima animado e nostálgico para os
+                            clientes do
+                            Bar do Zeca. O serviço incluiu voz e violão com sistema de som fornecido pelo próprio
+                            músico.</span></p>
+                    <p><strong>Data:</strong> <span id="service-date">22/06/2025</span></p>
+                    <p><strong>Horário:</strong> <span id="service-date">20h00 - 23h00</span></p>
+                    <p><strong>Preço:</strong> <span id="service-budget">R$ 450</span></p>
+                    <p><strong>Status Atual:</strong> <span id="service-current-status"
+                            style="color: #b1b50a;font-weight: bold;">Aguardando início</span></p>
+                </div>
+
+                <div class="service-actions" id="service-action-buttons" style="display: flex;">
+
+                    <button class="btn btn-danger" id="cancel-service-btn" onclick="cancelServiceRequest()"> Cancelar Pedido de Serviço</button>
+                </div>
+                <p id="confirmation-message" class="feedback-message" style="display: none;"></p>
+            </div>
+
+            <div class="card profile-info-card" style="
+    display: flex;
+">
+                <div class="profile-img">
+                    <img id="provider-profile-img" src="/img/default.jpg"
+                        alt="Foto do Prestador">
+                </div>
+                <div style="
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+">
+                    <h3 id="provider-name">Bar do Zeca</h3>
+                    <div class="artist-rating" aria-label="Avaliação: 4.8 de 5 estrelas (baseado em 32 avaliações)"
+                        style="
+    margin-bottom: 10px;
+">
+                        <span class="star" aria-hidden="true">★</span>
+                        <span class="rating-value">4.8</span>
+                        <span class="reviews-count">(32)</span>
+                    </div>
+                    <p id="provider-contact">Um bar de esquina com mais de 15 anos de história, famoso pela cerveja
+                        gelada,
+                        ambiente descontraído e apoio à cena musical local. Promovemos shows ao vivo aos fins de semana,
+                        abrindo espaço para artistas independentes e tributos a grandes nomes da música brasileira. É
+                        frequentado por um público fiel que valoriza boa música e bons momentos entre amigos.</p>
+                    <p id="provider-location">Cidade: Sorocaba</p>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    function acceptArtist(artistId)
+    {
+        fetch(`/pedido-servico/${ {{serviceRequest.id}} }/criar-servico`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ artistId })
+        })
+            .then(response =>
+            {
+                if (!response.ok) throw new Error('Erro ao aceitar artista');
+                return response.json();
+            })
+            .then(data =>
+            {
+                alert(data.message || 'Serviço criado com sucesso!');
+                document.querySelector('.service-actions').innerHTML = '<p class="feedback-message success">Serviço criado com sucesso!</p>';
+            })
+            .catch(error =>
+            {
+                console.error('Erro:', error);
+                alert('Erro ao aceitar artista. Tente novamente.');
+            });
+    }
+
+    function cancelServiceRequest()
+    {
+        fetch(`/pedido-servico/${ {{serviceRequest.id}} }`, {
+            method: 'DELETE'
+        })
+            .then(response =>
+            {
+                if (!response.ok) throw new Error('Erro ao cancelar pedido de serviço');
+                return response.json();
+            })
+            .then(data =>
+            {
+                alert(data.message || 'Pedido de serviço cancelado com sucesso!');
+                document.querySelector('.service-actions').innerHTML = '<p class="feedback-message error">Pedido de serviço cancelado!</p>';
+            })
+            .catch(error =>
+            {
+                console.error('Erro:', error);
+                alert('Erro ao cancelar pedido de serviço. Tente novamente.');
+            });
+    }
+</script>
