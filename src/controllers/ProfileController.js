@@ -62,6 +62,18 @@ module.exports = class ProfileController
             }));
 
             const isOwner = user.dataValues.id === req.session.userid
+            
+            // Verificar se o perfil está nos favoritos do usuário logado
+            let isFavorite = false;
+            if (req.session.userid && !isOwner) {
+                const favorite = await Favorite.findOne({
+                    where: { 
+                        userid: req.session.userid, 
+                        favoriteid: id 
+                    }
+                });
+                isFavorite = !!favorite;
+            }
 
             if (user.Establishment)
             {
@@ -73,7 +85,7 @@ module.exports = class ProfileController
                     imageUrl: user.imageUrl, // Incluir imageUrl do usuário
                     tags: user.Tags?.map(tag => tag.dataValues) || [] // Incluir tags do usuário
                 }
-                return res.render('app/profileEstablishment', { values, isOwner, css: 'perfilEstabelecimento.css' })
+                return res.render('app/profileEstablishment', { values, isOwner, isFavorite, css: 'perfilEstabelecimento.css' })
             }
             else if (user.Artist)
             {
@@ -89,7 +101,7 @@ module.exports = class ProfileController
                     tags: user.Tags?.map(tag => tag.dataValues) || [] // Incluir tags do usuário
                 }
 
-                return res.render('app/profileArtist', { values, isOwner, css: 'perfilArtista.css' })
+                return res.render('app/profileArtist', { values, isOwner, isFavorite, css: 'perfilArtista.css' })
             }
             else
             {

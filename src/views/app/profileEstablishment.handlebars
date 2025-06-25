@@ -46,13 +46,20 @@
             </svg>
             Abrir Chat
           </button>
-          <button id="add-favorite-btn" class="btn btn-outline" data-user-id="{{values.id}}">
+          <button id="add-favorite-btn" class="btn btn-outline" data-user-id="{{values.id}}" data-is-favorite="{{isFavorite}}">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              {{#if isFavorite}}
+              <!-- Ícone X para remover -->
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+              {{else}}
+              <!-- Ícone coração para adicionar -->
               <path
                 d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              {{/if}}
             </svg>
-            Adicionar aos Favoritos
+            {{#if isFavorite}}Remover dos Favoritos{{else}}Adicionar aos Favoritos{{/if}}
           </button>
           <button id="report-profile-btn" class="btn btn-outline" data-user-id="{{values.id}}">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -270,6 +277,8 @@
     document.getElementById('add-favorite-btn')?.addEventListener('click', async function ()
     {
       const userId = this.dataset.userId;
+      const button = this;
+      
       try
       {
         const response = await fetch(`/profile/adicionar-favorito/${ userId }`, {
@@ -281,17 +290,49 @@
         });
 
         const data = await response.json();
-        if (data.removed)
-          showToast(data.message || 'Erro ao adicionar aos favoritos', 'error');
-        else
-          showToast(data.message || 'Erro ao adicionar aos favoritos', 'success');
+        
+        if (response.ok) {
+          // Atualizar o botão baseado na resposta
+          updateFavoriteButton(button, !data.removed);
+          
+          if (data.removed) {
+            showToast(data.message || 'Removido dos favoritos', 'success');
+          } else {
+            showToast(data.message || 'Adicionado aos favoritos', 'success');
+          }
+        } else {
+          showToast(data.message || 'Erro ao alterar favoritos', 'error');
+        }
 
       } catch (error)
       {
-        console.error('Erro ao adicionar aos favoritos:', error);
-        showToast('Erro ao adicionar aos favoritos', 'error');
+        console.error('Erro ao alterar favoritos:', error);
+        showToast('Erro ao alterar favoritos', 'error');
       }
     });
+
+    function updateFavoriteButton(button, isFavorite) {
+      const svg = button.querySelector('svg');
+      const textNode = button.childNodes[button.childNodes.length - 1];
+      
+      // Atualizar o data attribute
+      button.dataset.isFavorite = isFavorite;
+      
+      if (isFavorite) {
+        // Mudar para ícone X e texto "Remover dos Favoritos"
+        svg.innerHTML = `
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        `;
+        textNode.textContent = 'Remover dos Favoritos';
+      } else {
+        // Mudar para ícone coração e texto "Adicionar aos Favoritos"
+        svg.innerHTML = `
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+        `;
+        textNode.textContent = 'Adicionar aos Favoritos';
+      }
+    }
 
     function showToast(message, type = 'success')
     {
