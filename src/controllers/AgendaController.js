@@ -27,11 +27,23 @@ module.exports = class AgendaController
                 });
             }
 
+            // Determina o tipo de usuário
+            const isArtist = !!user.Artist;
+            const isEstablishment = !!user.Establishment;
+
+            // Define o campo de status com base no tipo de usuário
+            const statusField = isArtist ? 'artistStatus' : 'establishmentStatus';
+
             const services = await Service.findAll({
                 where: {
-                    [Op.or]: [
-                        { userid: id }, // Serviços recebidos
-                        { senderid: id } // Serviços enviados e aceitos
+                    [Op.and]: [
+                        { [statusField]: 'pending' }, // Filtra serviços com status "pending"
+                        {
+                            [Op.or]: [
+                                { userid: id }, // Serviços recebidos
+                                { senderid: id } // Serviços enviados e aceitos
+                            ]
+                        }
                     ]
                 },
                 include: [

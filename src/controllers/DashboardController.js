@@ -25,9 +25,14 @@ module.exports = class DashboardController
 
             const agendados = await Service.findAll({
                 where: {
-                    [Op.or]: [
-                        { userid: isArtist.userid },
-                        { senderid: isArtist.userid }
+                    [Op.and]: [
+                        { artistStatus: 'pending' }, // Filtra serviços com status "pending" para artistas
+                        {
+                            [Op.or]: [
+                                { userid: isArtist.userid },
+                                { senderid: isArtist.userid }
+                            ]
+                        }
                     ]
                 }
             });
@@ -129,9 +134,14 @@ module.exports = class DashboardController
 
             const agendados = await Service.findAll({
                 where: {
-                    [Op.or]: [
-                        { userid: isEstablishment.userid },
-                        { senderid: isEstablishment.userid }
+                    [Op.and]: [
+                        { establishmentStatus: 'pending' }, // Filtra serviços com status "pending" para estabelecimentos
+                        {
+                            [Op.or]: [
+                                { userid: isEstablishment.userid },
+                                { senderid: isEstablishment.userid }
+                            ]
+                        }
                     ]
                 }
             });
