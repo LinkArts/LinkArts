@@ -1908,6 +1908,10 @@
                   Selectors.profileImage.src = result.imageUrl;
                   Selectors.profileImage.alt = `Foto de ${userData.name}`;
                 }
+                // Atualizar foto na navbar também
+                if (window.updateNavbarProfilePhoto) {
+                  window.updateNavbarProfilePhoto(result.imageUrl);
+                }
               },
               onError: (error) => {
                 console.error('Erro no upload de perfil:', error);

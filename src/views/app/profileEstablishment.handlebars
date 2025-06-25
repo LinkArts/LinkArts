@@ -177,9 +177,9 @@
           {{#if values.events}}
           {{#each values.events}}
           <li class="event-card">
-            <div class="event-img"><img src="{{imageUrl}}" alt="Evento Empresarial"></div>
+            <div class="event-img"><img src="{{#if imageUrl}}{{imageUrl}}{{else}}/img/placeholder.svg{{/if}}" alt="{{title}}" onerror="this.src='/img/placeholder.svg'"></div>
             <div class="event-content">
-              <h3>{{name}}</h3>
+              <h3>{{title}}</h3>
               <p class="event-date">Data: {{date}}</p>
               <p class="event-description">{{description}}</p>
             </div>
@@ -244,7 +244,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', async function ()
   {
-    console.log("DOM carregado. Iniciando script v9 - Integração Backend (Fetch).");
+    
     const isProfileOwner = document.getElementById('is-profile-owner')?.value === 'true';
 
     const API_BASE_URL = '/profile';
@@ -483,7 +483,7 @@
       eventItem.dataset.id = eventData.id;
       eventItem.innerHTML = `
                 <div class="event-img">
-                    <img src="${ eventData.imageUrl || 'imagens/placeholder-event.jpg' }" alt="${ eventData.title || 'Placeholder Evento' }">
+                    <img src="${ eventData.imageUrl || '/img/placeholder.svg' }" alt="${ eventData.title || 'Placeholder Evento' }">
                 </div>
                 <div class="event-content">
                     <h3>${ eventData.title || 'Sem Título' }</h3>
@@ -493,7 +493,7 @@
 
       eventItem.querySelector('img').onerror = function ()
       {
-        this.src = 'imagens/placeholder-event.jpg';
+        this.src = '/img/placeholder.svg';
         this.alt = 'Placeholder Evento';
       };
 
@@ -534,7 +534,7 @@
                 </div>`;
 
       const tagsDiv = requestItem.querySelector('.request-tags');
-      console.log(requestData);
+      
       requestData.Tags.forEach(tagText =>
       {
         const tagSpan = document.createElement('span');
@@ -605,7 +605,6 @@
 
     async function loadEvents()
     {
-      console.log("Carregando eventos do backend...");
       try
       {
         const response = await fetch(`${ API_BASE_URL }/eventos`);
@@ -635,7 +634,6 @@
 
     async function loadServiceRequests()
     {
-      console.log("Carregando pedidos de serviço do backend...");
       try
       {
         const response = await fetch(`${ API_BASE_URL }/pedidos-servico`);
@@ -678,7 +676,7 @@
                 </button>
                 <h2 id="add-event-heading">Adicionar Novo Evento</h2>
                 <form id="add-event-form" novalidate>
-                    <div class="form-group"> <label for="event-title">Título do Evento</label> <input type="text" id="event-title" required> </div>
+                    <div class="form-group"> <label for="event-title">Título do Evento</label> <input type="text" id="event-title" maxlength="60" required> </div>
                     <div class="form-group"> <label for="event-date">Data do Evento</label> <input type="date" id="event-date" required> </div>
                     <div class="form-group"> <label for="event-description">Descrição (Opcional)</label> <textarea id="event-description" rows="3"></textarea> </div>
                     <div class="form-group"> 
@@ -692,17 +690,20 @@
       if (!modalElement) return;
 
       // Inicializar componente de upload de imagem de evento
+      let eventImageUrl = null;
       const eventUploader = createImageUploader({
         containerId: 'event-image-uploader',
         uploadEndpoint: '/upload/event/photo',
         currentImageUrl: null,
         label: 'Escolher Imagem',
         onSuccess: (result) => {
-          console.log('Upload de evento bem-sucedido:', result);
-          // A imagem será usada quando o evento for criado
+          console.log('🎉 [EVENT DEBUG] Upload de evento bem-sucedido:', result);
+          console.log('🔗 [EVENT DEBUG] URL recebida:', result.imageUrl);
+          // Não armazenar URL aqui - será feito no upload pendente
+          console.log('💾 [EVENT DEBUG] Upload pendente configurado');
         },
         onError: (error) => {
-          console.error('Erro no upload de evento:', error);
+          console.error('💥 [EVENT DEBUG] Erro no upload de evento:', error);
         }
       });
 
@@ -726,12 +727,46 @@
           return;
         }
 
+        if (eventTitle.length > 60)
+        {
+          showToast('Título do evento deve ter no máximo 60 caracteres.', 'error');
+          eventTitleInput.focus();
+          return;
+        }
+
         const newEventData = {
           title: eventTitle,
           date: eventDate,
           description: eventDescription,
+          imageUrl: eventImageUrl,
           establishmentid: 1
         };
+
+        console.log('📋 [EVENT DEBUG] Dados do evento a serem enviados:', newEventData);
+        console.log('🖼️ [EVENT DEBUG] URL da imagem no momento do envio:', eventImageUrl);
+
+        // Fazer upload da imagem se houver uma pendente
+        let finalImageUrl = null;
+        if (eventUploader && eventUploader.hasPendingUpload()) {
+          console.log('🚀 [EVENT DEBUG] Fazendo upload da imagem de evento...');
+          const uploadResult = await eventUploader.uploadPendingImage();
+          if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
+            finalImageUrl = uploadResult.imageUrl;
+            console.log('✅ [EVENT DEBUG] Upload da imagem concluído, nova URL:', finalImageUrl);
+          } else {
+            throw new Error('Erro ao fazer upload da imagem: ' + (uploadResult.message || 'Erro desconhecido'));
+          }
+        }
+
+        const eventDataToSend = {
+          title: eventTitle,
+          date: eventDate,
+          description: eventDescription,
+          imageUrl: finalImageUrl,
+          establishmentid: 1
+        };
+
+        console.log('📋 [EVENT DEBUG] Dados finais do evento a serem enviados:', eventDataToSend);
 
         try
         {
@@ -740,7 +775,7 @@
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(newEventData),
+            body: JSON.stringify(eventDataToSend),
           });
 
           if (!response.ok)
@@ -825,6 +860,10 @@
             if (profileImageElement && result.imageUrl) {
               profileImageElement.src = result.imageUrl;
               profileImageElement.alt = `Logo de ${userData.name}`;
+            }
+            // Atualizar foto na navbar também
+            if (window.updateNavbarProfilePhoto) {
+              window.updateNavbarProfilePhoto(result.imageUrl);
             }
           },
           onError: (error) => {
@@ -1041,7 +1080,7 @@
                 </button>
                 <h2 id="edit-event-heading">Editar Evento</h2>
                 <form id="edit-event-form" novalidate>
-                    <div class="form-group"> <label for="edit-event-title">Título do Evento</label> <input type="text" id="edit-event-title" value="${ eventData.title }" required> </div>
+                    <div class="form-group"> <label for="edit-event-title">Título do Evento</label> <input type="text" id="edit-event-title" value="${ eventData.title }" maxlength="60" required> </div>
                     <div class="form-group"> <label for="edit-event-date">Data do Evento</label> <input type="date" id="edit-event-date" value="${ formattedDate }" required> </div>
                     <div class="form-group"> <label for="edit-event-description">Descrição (Opcional)</label> <textarea id="edit-event-description" rows="3">${ eventData.description || '' }</textarea> </div>
                     <div class="form-group"> 
@@ -1060,11 +1099,27 @@
       const modalElement = openModal('.edit-event-overlay', 'edit-event-modal', modalHTML, eventCard);
       if (!modalElement) return;
 
+      // Inicializar componente de upload de imagem de evento para edição
+      let currentImageUrl = eventData.imageUrl; // Inicializar com a imagem atual
+      const editEventUploader = createImageUploader({
+        containerId: 'edit-event-image-uploader',
+        uploadEndpoint: '/upload/event/photo',
+        currentImageUrl: eventData.imageUrl,
+        label: 'Escolher Imagem',
+        onSuccess: (result) => {
+          console.log('🎉 [EVENT DEBUG] Upload de evento bem-sucedido:', result);
+          // Não atualizar currentImageUrl aqui - será feito no upload pendente
+          console.log('💾 [EVENT DEBUG] Upload pendente configurado para edição');
+        },
+        onError: (error) => {
+          console.error('💥 [EVENT DEBUG] Erro no upload de evento:', error);
+        }
+      });
+
       const editEventForm = modalElement.querySelector('#edit-event-form');
       const editTitleInput = modalElement.querySelector('#edit-event-title');
       const editDateInput = modalElement.querySelector('#edit-event-date');
       const editDescriptionInput = modalElement.querySelector('#edit-event-description');
-      const editImageUrlInput = modalElement.querySelector('#edit-event-image-url');
       const deleteEventBtn = modalElement.querySelector('#delete-event-btn');
 
       deleteEventBtn?.addEventListener('click', async function ()
@@ -1103,7 +1158,6 @@
         const newTitle = editTitleInput.value.trim();
         const newDate = editDateInput.value;
         const newDescription = editDescriptionInput.value.trim();
-        const newImageUrl = editImageUrlInput.value.trim();
 
         if (!newTitle || !newDate)
         {
@@ -1112,13 +1166,43 @@
           return;
         }
 
+        if (newTitle.length > 60)
+        {
+          showToast('Título do evento deve ter no máximo 60 caracteres.', 'error');
+          editTitleInput.focus();
+          return;
+        }
+
         const updatedEventData = {
           title: newTitle,
           date: newDate,
           description: newDescription,
-          imageUrl: newImageUrl,
+          imageUrl: currentImageUrl,
           establishmentid: eventData.establishmentid
         };
+
+        // Fazer upload da imagem se houver uma pendente
+        let finalImageUrl = currentImageUrl;
+        if (editEventUploader && editEventUploader.hasPendingUpload()) {
+          console.log('🚀 [EVENT DEBUG] Fazendo upload da nova imagem de evento...');
+          const uploadResult = await editEventUploader.uploadPendingImage();
+          if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
+            finalImageUrl = uploadResult.imageUrl;
+            console.log('✅ [EVENT DEBUG] Upload da nova imagem concluído, nova URL:', finalImageUrl);
+          } else {
+            throw new Error('Erro ao fazer upload da imagem: ' + (uploadResult.message || 'Erro desconhecido'));
+          }
+        }
+
+        const eventDataToUpdate = {
+          title: newTitle,
+          date: newDate,
+          description: newDescription,
+          imageUrl: finalImageUrl,
+          establishmentid: eventData.establishmentid
+        };
+
+        console.log('📋 [EVENT DEBUG] Dados finais do evento para atualização:', eventDataToUpdate);
 
         try
         {
@@ -1127,7 +1211,7 @@
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(updatedEventData),
+            body: JSON.stringify(eventDataToUpdate),
           });
 
           if (!response.ok)
@@ -1372,7 +1456,7 @@
 
     function setupEditServiceRequestModal(requestCard, requestData)
     {
-      console.log(requestData);
+      
       const requestId = requestData.id;
       const formattedDate = formatDateForInput(requestData.date);
 
@@ -1558,6 +1642,6 @@
       }
     });
 
-    console.log("Script perfEmp.js totalmente carregado e inicializado (v9 com fetch e rotas /profile).");
+
   });
 </script>

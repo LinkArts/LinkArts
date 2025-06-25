@@ -9,6 +9,17 @@ const { initWebSocket, setupChatHandlers } = require("./websocket_setup");
 const path = require("path");
 const os = require("os");
 
+// Suprimir erros EPERM específicos de arquivos de sessão
+const originalConsoleError = console.error;
+console.error = function(...args) {
+  const message = args.join(' ');
+  // Filtrar apenas erros EPERM relacionados a arquivos de sessão
+  if (message.includes('EPERM') && message.includes('sessions') && message.includes('operation not permitted')) {
+    return; // Não exibir esses erros específicos
+  }
+  originalConsoleError.apply(console, args);
+};
+
 const PORT = process.env.PORT || 3000;
 
 const app = express();
@@ -161,7 +172,7 @@ app.use(
     saveUninitialized: false,
     rolling: true,
     store: new FileStore({
-      logFn: function () { },
+      logFn: function () { }, // Suprimir todos os logs do FileStore
       path: path.join(os.tmpdir(), "sessions"),
     }),
     cookie: {
@@ -188,6 +199,43 @@ app.use((req, res, next) =>
 
   res.locals.message = message;
   res.locals.type = type;
+
+  next();
+});
+
+// Middleware para carregar dados do usuário logado para a navbar
+app.use(async (req, res, next) =>
+{
+  if (req.session.userid)
+  {
+    try
+    {
+      const user = await User.findOne({
+        where: { id: req.session.userid },
+        attributes: ['id', 'name', 'email', 'imageUrl'],
+        include: [
+          { model: Artist, required: false, attributes: ['cpf'] },
+          { model: Establishment, required: false, attributes: ['cnpj'] }
+        ]
+      });
+
+      if (user)
+      {
+        res.locals.currentUser = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          imageUrl: user.imageUrl,
+          isArtist: !!user.Artist,
+          isEstablishment: !!user.Establishment
+        };
+      }
+    }
+    catch (err)
+    {
+      console.error('Erro ao carregar dados do usuário para navbar:', err);
+    }
+  }
 
   next();
 });

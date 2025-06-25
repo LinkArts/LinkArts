@@ -60,6 +60,14 @@ router.post('/event/photo',
                 });
             }
 
+            // Se eventId foi fornecido, salvar no banco automaticamente
+            if (req.body.eventId) {
+                const event = await Event.findByPk(req.body.eventId);
+                if (event) {
+                    await event.update({ imageUrl: req.uploadedFile.url });
+                }
+            }
+
             res.json({
                 success: true,
                 message: 'Imagem do evento enviada com sucesso!',

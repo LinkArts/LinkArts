@@ -83,15 +83,33 @@
         </div>
       </div>
       <div class="nav-icon" id="user-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
+        {{#if currentUser}}
+          {{#if currentUser.imageUrl}}
+            <div class="user-profile-photo">
+              <img src="{{currentUser.imageUrl}}" alt="{{currentUser.name}}" />
+            </div>
+          {{else}}
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          {{/if}}
+        {{else}}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        {{/if}}
         <div class="popup" id="user-popup">
           <div class="popup-content">
+            {{#if currentUser.email}}
+            <div class="popup-user-info" data-no-click="true" style="cursor: default !important;">
+              <span class="popup-user-email" data-no-click="true" style="cursor: default !important;">{{currentUser.email}}</span>
+            </div>
+            <div class="popup-divider"></div>
+            {{/if}}
             <a href="/profile/{{session.userid}}"><button class="popup-menu-item">Perfil</button></a>
             <a href="/agenda/{{session.userid}}"><button class="popup-menu-item">Agenda</button></a>
-            <a href="/configuracoes/{{session.userid}}"><button class="popup-menu-item">Configurações</button></a>
             <div class="popup-divider"></div>
             <a href="/logout"><button class="popup-menu-item danger">Logout</button></a>
           </div>
@@ -245,7 +263,6 @@
       }
 
       const favorites = await response.json();
-      console.log(favorites)
       
       if (favorites.length === 0) {
         favoritesContent.innerHTML = `
@@ -301,5 +318,52 @@
         loadNavbarFavorites();
       }
     });
+  });
+
+  // Função para atualizar a foto de perfil na navbar
+  function updateNavbarProfilePhoto(newImageUrl) {
+    const userIcon = document.getElementById('user-icon');
+    const existingPhoto = userIcon.querySelector('.user-profile-photo img');
+    
+    if (existingPhoto) {
+      existingPhoto.src = newImageUrl;
+    } else {
+      // Se não existe foto, criar o elemento
+      const svg = userIcon.querySelector('svg');
+      if (svg) {
+        const photoDiv = document.createElement('div');
+        photoDiv.className = 'user-profile-photo';
+        const img = document.createElement('img');
+        img.src = newImageUrl;
+        img.alt = 'Foto do usuário';
+        photoDiv.appendChild(img);
+        
+        userIcon.insertBefore(photoDiv, svg);
+        svg.style.display = 'none';
+      }
+    }
+  }
+
+  // Tornar a função global para uso em outras partes da aplicação
+  window.updateNavbarProfilePhoto = updateNavbarProfilePhoto;
+
+  // Forçar cursor default na área do email
+  document.addEventListener('DOMContentLoaded', () => {
+    const userInfo = document.querySelector('.popup-user-info[data-no-click]');
+    const userEmail = document.querySelector('.popup-user-email[data-no-click]');
+    
+    if (userInfo) {
+      userInfo.style.cursor = 'default';
+      userInfo.addEventListener('mouseenter', () => {
+        userInfo.style.cursor = 'default';
+      });
+    }
+    
+    if (userEmail) {
+      userEmail.style.cursor = 'default';
+      userEmail.addEventListener('mouseenter', () => {
+        userEmail.style.cursor = 'default';
+      });
+    }
   });
 </script>

@@ -7,7 +7,6 @@ module.exports = class ProfileController
 {
     static async showProfile(req, res)
     {
-        console.log("SHOW PROFILE!!!")
         const { id } = req.params
 
         try
@@ -121,9 +120,7 @@ module.exports = class ProfileController
 
     static async createAlbum(req, res)
     {
-        console.log("CREATE ALBUM")
         const { albumName, imageUrl } = req.body
-        console.log("Dados recebidos:", { albumName, imageUrl, userId: req.session.userid })
 
         // Validar o nome do álbum
         if (!albumName || albumName.trim().length === 0) {
@@ -191,7 +188,6 @@ module.exports = class ProfileController
 
     static async updateAlbumCover(req, res)
     {
-        console.log("UPDATE ALBUM COVER")
         const { albumId, imageUrl } = req.body
 
         try
@@ -882,7 +878,21 @@ module.exports = class ProfileController
     {
         try
         {
+            // Buscar o estabelecimento do usuário logado
+            const user = await User.findOne({ 
+                where: { id: req.session.userid }, 
+                include: { model: Establishment } 
+            })
+            
+            if (!user || !user.Establishment) {
+                return res.status(404).json({ message: "Estabelecimento não encontrado." })
+            }
+            
+            const establishmentid = user.Establishment.dataValues.cnpj
+            
+            // Buscar apenas eventos do estabelecimento
             const events = await Event.findAll({
+                where: { establishmentid: establishmentid },
                 order: [['date', 'ASC'], ['id', 'ASC']]
             })
             return res.status(200).json(events)
@@ -895,7 +905,11 @@ module.exports = class ProfileController
 
     static async createEvent(req, res)
     {
+        console.log('🏢 [CONTROLLER DEBUG] createEvent - dados recebidos:', req.body);
+        
         const { title, date, description, imageUrl } = req.body
+
+        console.log('🖼️ [CONTROLLER DEBUG] imageUrl recebida:', imageUrl);
 
         const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
         const establishmentid = user.Establishment.dataValues.cnpj
@@ -913,17 +927,24 @@ module.exports = class ProfileController
                 return res.status(404).json({ message: "Estabelecimento não encontrado." })
             }
 
-            const newEvent = await Event.create({
+            const eventData = {
                 title,
                 date,
                 description,
                 imageUrl,
                 establishmentid
-            })
+            };
+
+            console.log('💾 [CONTROLLER DEBUG] Dados a serem salvos no banco:', eventData);
+
+            const newEvent = await Event.create(eventData)
+            
+            console.log('✅ [CONTROLLER DEBUG] Evento criado com sucesso:', newEvent.toJSON());
+            
             return res.status(201).json(newEvent)
         } catch (error)
         {
-            console.error("Erro ao criar evento:", error)
+            console.error("💥 [CONTROLLER DEBUG] Erro ao criar evento:", error)
             return res.status(500).json({ message: "Erro ao criar evento.", error: error.message })
         }
     }

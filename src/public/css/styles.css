@@ -248,6 +248,102 @@ html {
     }
 }
 
+/* Estilos para foto de perfil na navbar */
+.user-profile-photo {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.user-profile-photo:hover {
+    border-color: #9b87f5;
+    box-shadow: 0 2px 8px rgba(155, 135, 245, 0.3);
+    transform: scale(1.05);
+}
+
+.user-profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .user-profile-photo {
+        width: 1.8rem;
+        height: 1.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-profile-photo {
+        width: 1.6rem;
+        height: 1.6rem;
+    }
+}
+
+/* Estilos para informação do usuário no popup */
+.popup-user-info {
+    padding: 0.75rem 1rem;
+    text-align: center;
+    cursor: default !important;
+    user-select: text;
+}
+
+.popup-user-email {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+    word-break: break-word;
+    display: block;
+    cursor: default !important;
+    user-select: text;
+}
+
+/* Garantir que todos os elementos dentro do popup-user-info tenham cursor normal */
+.popup-user-info,
+.popup-user-info *,
+.popup-user-info span,
+.popup-user-email {
+    cursor: default !important;
+}
+
+/* Sobrescrever especificamente qualquer estilo de popup-menu-item para a área do usuário */
+.popup #user-popup .popup-user-info,
+.popup #user-popup .popup-user-info *,
+.popup-content .popup-user-info,
+.popup-content .popup-user-info *,
+#user-popup .popup-user-info,
+#user-popup .popup-user-info *,
+#user-popup .popup-user-email {
+    cursor: default !important;
+}
+
+/* Usar atributo data para máxima especificidade */
+[data-no-click="true"],
+[data-no-click="true"] *,
+div[data-no-click="true"],
+span[data-no-click="true"] {
+    cursor: default !important;
+}
+
+/* CSS universal para forçar cursor default */
+.popup-user-info[data-no-click],
+.popup-user-email[data-no-click] {
+    cursor: default !important;
+}
+
+.popup-divider {
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 0.25rem 0;
+}
+
 .popup {
     position: absolute;
     right: 0;
@@ -409,7 +505,4 @@ html {
     color: #ef4444;
 }
 
-.popup-divider {
-    border-top: 1px solid #000000;
-    margin: 0.25rem 0;
-}
+/* Force CSS reload - Updated cursor fix v2 */
