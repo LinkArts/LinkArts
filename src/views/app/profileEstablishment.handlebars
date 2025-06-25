@@ -772,9 +772,9 @@
         </button>
         <h2 id="edit-profile-heading">Editar Perfil da Empresa</h2>
         <form id="edit-profile-form" novalidate>
-          <div class="form-group"> <label for="edit-profile-name">Nome da Empresa</label> <input type="text" id="edit-profile-name" required> </div>
-          <div class="form-group"> <label for="edit-profile-location">Localização</label> <input type="text" id="edit-profile-location" required> </div>
-          <div class="form-group"> <label for="edit-profile-about">Sobre a Empresa</label> <textarea id="edit-profile-about" rows="5" required></textarea> </div>
+          <div class="form-group"> <label for="edit-profile-name">Nome da Empresa</label> <input type="text" id="edit-profile-name" maxlength="100" required> </div>
+          <div class="form-group"> <label for="edit-profile-location">Localização</label> <input type="text" id="edit-profile-location" maxlength="30" required> </div>
+          <div class="form-group"> <label for="edit-profile-about">Sobre a Empresa</label> <textarea id="edit-profile-about" rows="5" maxlength="500" required></textarea> </div>
           <div class="form-group"> 
             <label>Foto de Perfil</label> 
             <div id="profile-image-uploader"></div> 
@@ -900,6 +900,31 @@
           return;
         }
 
+        // Validar limites de caracteres
+        if (newName.length > 100)
+        {
+          showToast('Nome da empresa deve ter no máximo 100 caracteres.', 'error');
+          nameInput.classList.add('input-error');
+          nameInput.focus();
+          return;
+        }
+
+        if (newLocation.length > 30)
+        {
+          showToast('Localização deve ter no máximo 30 caracteres.', 'error');
+          locationInput.classList.add('input-error');
+          locationInput.focus();
+          return;
+        }
+
+        if (newAbout.length > 500)
+        {
+          showToast('Descrição deve ter no máximo 500 caracteres.', 'error');
+          aboutInput.classList.add('input-error');
+          aboutInput.focus();
+          return;
+        }
+
         try
         {
           // Fazer upload da imagem se houver uma pendente
@@ -927,7 +952,21 @@
 
           if (!response.ok)
           {
-            throw new Error('Failed to update profile');
+            if (response.status === 401) {
+              showToast('Sua sessão expirou. Redirecionando...', 'error');
+              setTimeout(() => window.location.href = '/login', 2000);
+              return;
+            }
+            
+            let errorMessage = 'Erro ao atualizar perfil';
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.message || errorMessage;
+            } catch (e) {
+              // Se não conseguir fazer parse do JSON, usa mensagem padrão
+            }
+            
+            throw new Error(errorMessage);
           }
 
           const res = await response.json();
@@ -978,7 +1017,7 @@
         } catch (error)
         {
           console.error('Error updating profile:', error);
-          showToast('Erro ao atualizar perfil. Tente novamente.', 'error');
+          showToast(`Erro ao atualizar perfil: ${error.message}`, 'error');
         }
       });
     }

@@ -94,6 +94,14 @@ router.post('/music/cover',
                 });
             }
 
+            // Se musicId foi fornecido, salvar no banco automaticamente
+            if (req.body.musicId) {
+                const music = await Music.findByPk(req.body.musicId);
+                if (music) {
+                    await music.update({ image: req.uploadedFile.url });
+                }
+            }
+
             res.json({
                 success: true,
                 message: 'Capa da música enviada com sucesso!',
@@ -126,6 +134,14 @@ router.post('/album/cover',
                     success: false,
                     message: 'Nenhuma imagem foi enviada' 
                 });
+            }
+
+            // Se albumId foi fornecido, salvar no banco automaticamente
+            if (req.body.albumId) {
+                const album = await Album.findByPk(req.body.albumId);
+                if (album) {
+                    await album.update({ imageUrl: req.uploadedFile.url });
+                }
             }
 
             res.json({

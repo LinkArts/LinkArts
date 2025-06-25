@@ -12,7 +12,7 @@ const Album = db.define('Album',
             autoIncrement: true,
         },
         name: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.STRING(50),
             require: true
         },
         userid: {

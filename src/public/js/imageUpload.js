@@ -35,6 +35,7 @@ function createImageUploader(options = {}) {
         currentImageUrl = null,
         onSuccess = () => {},
         onError = () => {},
+        onImageSelect = () => {},
         label = 'Escolher Imagem',
         acceptTypes = 'image/jpeg,image/jpg,image/png,image/webp'
     } = options;
@@ -122,6 +123,9 @@ function createImageUploader(options = {}) {
         reader.onload = (e) => {
             imagePreview.src = e.target.result;
             imagePreview.style.border = '2px solid #4f46e5'; // Indicar que há mudança pendente
+            
+            // Chamar callback de seleção de imagem para atualização em tempo real
+            onImageSelect(e.target.result);
         };
         reader.readAsDataURL(file);
 

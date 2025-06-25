@@ -125,6 +125,17 @@ module.exports = class ProfileController
         const { albumName, imageUrl } = req.body
         console.log("Dados recebidos:", { albumName, imageUrl, userId: req.session.userid })
 
+        // Validar o nome do álbum
+        if (!albumName || albumName.trim().length === 0) {
+            return res.status(400).json({ message: "Nome do álbum é obrigatório!" })
+        }
+        
+        if (albumName.length > 50) {
+            return res.status(400).json({ 
+                message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres." 
+            })
+        }
+
         try
         {
             const album = await Album.findOne({ where: { name: albumName } })
@@ -159,6 +170,21 @@ module.exports = class ProfileController
         catch (err)
         {
             console.error("Erro ao criar álbum:", err)
+            
+            // Verificar se é erro de limite de caracteres
+            if (err.name === 'SequelizeDatabaseError' && err.original && err.original.code === '22001') {
+                return res.status(400).json({ 
+                    message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres." 
+                })
+            }
+            
+            // Verificar se é erro de validação do Sequelize
+            if (err.name === 'SequelizeValidationError') {
+                return res.status(400).json({ 
+                    message: "Dados inválidos para criar o álbum!" 
+                })
+            }
+            
             return res.status(500).json({ message: "Erro ao criar álbum!", error: err.message })
         }
     }
@@ -185,6 +211,134 @@ module.exports = class ProfileController
         {
             console.log(err)
             return res.status(500).json({ message: "Erro ao atualizar capa do álbum!" })
+        }
+    }
+
+    static async updateAlbumName(req, res)
+    {
+        console.log("UPDATE ALBUM NAME")
+        const { albumId, name } = req.body
+
+        // Validar o nome do álbum
+        if (!name || name.trim().length === 0) {
+            return res.status(400).json({ message: "Nome do álbum é obrigatório!" })
+        }
+        
+        if (name.length > 50) {
+            return res.status(400).json({ 
+                message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres." 
+            })
+        }
+
+        try
+        {
+            // Verificar se o usuário está logado
+            if (!req.session.userid)
+            {
+                return res.status(401).json({ message: "Usuário não autenticado!" })
+            }
+
+            // Buscar o álbum
+            const album = await Album.findByPk(albumId)
+            
+            if (!album)
+            {
+                return res.status(404).json({ message: "Álbum não encontrado!" })
+            }
+
+            // Verificar se o usuário logado é o dono do álbum
+            const user = await User.findOne({
+                where: { id: req.session.userid },
+                include: [{ model: Artist }]
+            })
+
+            if (!user || !user.Artist)
+            {
+                return res.status(403).json({ message: "Usuário não é um artista!" })
+            }
+
+            // Verificar se o álbum pertence ao artista logado
+            if (album.userid !== user.Artist.cpf)
+            {
+                return res.status(403).json({ message: "Você não tem permissão para editar este álbum!" })
+            }
+
+            // Verificar se já existe outro álbum com o mesmo nome
+            const existingAlbum = await Album.findOne({
+                where: {
+                    name: name,
+                    userid: user.Artist.cpf,
+                    id: { [Op.ne]: albumId } // Excluir o álbum atual da busca
+                }
+            })
+
+            if (existingAlbum)
+            {
+                return res.status(400).json({ message: "Já existe um álbum com este nome!" })
+            }
+
+            // Atualizar o nome do álbum
+            await album.update({ name })
+            
+            return res.json({ message: "Nome do álbum atualizado com sucesso!" })
+        }
+        catch (err)
+        {
+            console.error("Erro ao atualizar nome do álbum:", err)
+            
+            // Verificar se é erro de limite de caracteres
+            if (err.name === 'SequelizeDatabaseError' && err.original && err.original.code === '22001') {
+                return res.status(400).json({ 
+                    message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres." 
+                })
+            }
+            
+            // Verificar se é erro de validação do Sequelize
+            if (err.name === 'SequelizeValidationError') {
+                return res.status(400).json({ 
+                    message: "Dados inválidos para atualizar o álbum!" 
+                })
+            }
+            
+            return res.status(500).json({ message: "Erro ao atualizar nome do álbum!", error: err.message })
+        }
+    }
+
+    static async updateMusicCover(req, res)
+    {
+        console.log("UPDATE MUSIC COVER")
+        const { musicId, imageUrl } = req.body
+
+        try
+        {
+            const music = await Music.findByPk(musicId)
+            
+            if (!music)
+            {
+                return res.status(404).json({ message: "Música não encontrada!" })
+            }
+
+            // Verificar se o usuário é o dono da música
+            const user = await User.findOne({
+                where: { id: req.session.userid },
+                include: [{ model: Artist }]
+            })
+
+            if (!user || !user.Artist) {
+                return res.status(403).json({ message: "Usuário não é um artista!" })
+            }
+
+            // Aqui você pode adicionar verificação se a música pertence ao artista
+            // dependendo de como está estruturado o relacionamento
+
+            await music.update({ image: imageUrl })
+            
+            return res.json({ message: "Capa da música atualizada com sucesso!" })
+        }
+        catch (err)
+        {
+            console.log(err)
+            return res.status(500).json({ message: "Erro ao atualizar capa da música!" })
         }
     }
 
@@ -424,9 +578,20 @@ module.exports = class ProfileController
     static async updateMusic(req, res)
     {
         const { id } = req.params
-        const { title, tags, albums } = req.body
+        const { title, tags, albums, imageUrl } = req.body
 
         console.log("UPDATE MUSIC!!!")
+
+        // Validar o título da música
+        if (!title || title.trim().length === 0) {
+            return res.status(400).json({ message: "Título da música é obrigatório!" })
+        }
+        
+        if (title.length > 40) {
+            return res.status(400).json({ 
+                message: "Título da música muito longo! Máximo permitido: 40 caracteres." 
+            })
+        }
 
         try
         {
@@ -450,11 +615,12 @@ module.exports = class ProfileController
 
             if (!music)
             {
-                return res.json({ message: "Música não encontrada!" })
+                return res.status(404).json({ message: "Música não encontrada!" })
             }
 
             const updatedMusic = await music.update({
                 name: title,
+                image: imageUrl !== undefined ? imageUrl : music.image,
             })
 
             // Atualizar álbuns da música
@@ -485,15 +651,41 @@ module.exports = class ProfileController
         }
         catch (error)
         {
-            console.log(error)
-            return res.json({ message: "ERRO!!!" })
+            console.error("Erro ao atualizar música:", error)
+            
+            // Verificar se é erro de limite de caracteres
+            if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001') {
+                return res.status(400).json({ 
+                    message: "Título da música muito longo! Máximo permitido: 40 caracteres." 
+                })
+            }
+            
+            // Verificar se é erro de validação do Sequelize
+            if (error.name === 'SequelizeValidationError') {
+                return res.status(400).json({ 
+                    message: "Dados inválidos para atualizar a música!" 
+                })
+            }
+            
+            return res.status(500).json({ message: "Erro ao atualizar música!", error: error.message })
         }
 
     }
 
     static async createMusic(req, res)
     {
-        const { title, tag, albums } = req.body
+        const { title, tag, albums, imageUrl } = req.body
+
+        // Validar o título da música
+        if (!title || title.trim().length === 0) {
+            return res.status(400).json({ message: "Título da música é obrigatório!" })
+        }
+        
+        if (title.length > 40) {
+            return res.status(400).json({ 
+                message: "Título da música muito longo! Máximo permitido: 40 caracteres." 
+            })
+        }
 
         const user = await User.findOne({
             where: {
@@ -506,12 +698,12 @@ module.exports = class ProfileController
 
         if (!user)
         {
-            return res.json({ message: "Usuario não encontrado!" })
+            return res.status(404).json({ message: "Usuário não encontrado!" })
         }
 
         if (!user.Artist)
         {
-            return res.json({ message: "Usuario não é um artista!" })
+            return res.status(400).json({ message: "Usuário não é um artista!" })
         }
 
         try
@@ -519,7 +711,7 @@ module.exports = class ProfileController
             const savedMusic = await Music.create({
                 name: title,
                 description: null,
-                image: null,
+                image: imageUrl || null,
                 genreid: null,
                 userid: user.Artist.cpf
             })
@@ -547,8 +739,23 @@ module.exports = class ProfileController
         }
         catch (error)
         {
-            console.log(error)
-            return res.json({ message: `ERRO!!!` })
+            console.error("Erro ao criar música:", error)
+            
+            // Verificar se é erro de limite de caracteres
+            if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001') {
+                return res.status(400).json({ 
+                    message: "Título da música muito longo! Máximo permitido: 40 caracteres." 
+                })
+            }
+            
+            // Verificar se é erro de validação do Sequelize
+            if (error.name === 'SequelizeValidationError') {
+                return res.status(400).json({ 
+                    message: "Dados inválidos para criar a música!" 
+                })
+            }
+            
+            return res.status(500).json({ message: "Erro ao criar música!", error: error.message })
         }
     }
 
@@ -595,13 +802,38 @@ module.exports = class ProfileController
         const id = req.session.userid
         const { name, city, description, linkedin, instagram, facebook, tags } = req.body
 
+        // Validar o nome do perfil
+        if (!name || name.trim().length === 0) {
+            return res.status(400).json({ message: "Nome do perfil é obrigatório!" })
+        }
+        
+        if (name.length > 100) {
+            return res.status(400).json({ 
+                message: "Nome do perfil muito longo! Máximo permitido: 100 caracteres." 
+            })
+        }
+
+        // Validar cidade se fornecida
+        if (city && city.length > 30) {
+            return res.status(400).json({ 
+                message: "Nome da cidade muito longo! Máximo permitido: 30 caracteres." 
+            })
+        }
+
+        // Validar descrição se fornecida
+        if (description && description.length > 500) {
+            return res.status(400).json({ 
+                message: "Descrição muito longa! Máximo permitido: 500 caracteres." 
+            })
+        }
+
         try
         {
             const user = await User.findByPk(id)
 
             if (!user)
             {
-                return res.json({ message: "Usuário não encontrado!" })
+                return res.status(404).json({ message: "Usuário não encontrado!" })
             }
 
             const updatedUser = await user.update({
@@ -626,8 +858,23 @@ module.exports = class ProfileController
         }
         catch (error)
         {
-            console.log(error)
-            return res.json({ message: "ERRO!!!" })
+            console.error("Erro ao atualizar perfil:", error)
+            
+            // Verificar se é erro de limite de caracteres
+            if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001') {
+                return res.status(400).json({ 
+                    message: "Dados muito longos! Verifique os limites de caracteres dos campos." 
+                })
+            }
+            
+            // Verificar se é erro de validação do Sequelize
+            if (error.name === 'SequelizeValidationError') {
+                return res.status(400).json({ 
+                    message: "Dados inválidos para atualizar o perfil!" 
+                })
+            }
+            
+            return res.status(500).json({ message: "Erro ao atualizar perfil!", error: error.message })
         }
     }
 
@@ -993,6 +1240,65 @@ module.exports = class ProfileController
         } catch (error) {
             console.error("Erro ao alternar favorito:", error);
             return res.status(500).json({ message: "Erro ao alternar favorito." });
+        }
+    }
+
+    static async removeMusicFromAlbum(req, res) {
+        const { albumId, musicId } = req.params;
+        
+        try {
+            // Verificar se o usuário é dono do álbum
+            const user = await User.findOne({
+                where: { id: req.session.userid },
+                include: [{ model: Artist }]
+            });
+
+            if (!user || !user.Artist) {
+                return res.status(403).json({ 
+                    success: false, 
+                    message: "Usuário não é um artista!" 
+                });
+            }
+
+            // Verificar se o álbum pertence ao artista
+            const album = await Album.findOne({
+                where: { 
+                    id: albumId,
+                    userid: user.Artist.cpf 
+                }
+            });
+
+            if (!album) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: "Álbum não encontrado ou você não tem permissão!" 
+                });
+            }
+
+            // Verificar se a música existe
+            const music = await Music.findByPk(musicId);
+            if (!music) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: "Música não encontrada!" 
+                });
+            }
+
+            // Remover a música do álbum (apenas o relacionamento)
+            await album.removeMusic(music);
+
+            return res.json({ 
+                success: true, 
+                message: "Música removida do álbum com sucesso!" 
+            });
+
+        } catch (error) {
+            console.error("Erro ao remover música do álbum:", error);
+            return res.status(500).json({ 
+                success: false, 
+                message: "Erro interno do servidor!", 
+                error: error.message 
+            });
         }
     }
 }

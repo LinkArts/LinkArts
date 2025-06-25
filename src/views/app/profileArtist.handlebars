@@ -148,12 +148,16 @@
         {{#each values.musics}}
         <div class="song-card" data-id="{{id}}">
           <div class="song-icon">
-            <div class="play-button" aria-label="Tocar {{this.name}}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+            {{#if image}}
+            <img src="{{image}}" alt="{{this.name}}" class="song-image">
+            {{else}}
+            <div class="song-placeholder">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                <path d="M12 3v18m-4-6 4 4 4-4"/>
               </svg>
             </div>
+            {{/if}}
           </div>
           <div class="song-info">
             <h3>{{this.name}}</h3>
@@ -487,13 +491,19 @@
       }
     }
 
+    // Função removida - não atualizar preview até salvar
+    // function updateMusicImagePreview(musicId, imageUrl, musicTitle) {
+    //   // Esta função foi removida para implementar o novo comportamento:
+    //   // Preview apenas no modal do uploader, sem atualizar cards até salvar
+    // }
+
     function getCreateAlbumModalHTML()
     {
       return `
           <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
           <h2 id="create-album-heading">Criar Novo Álbum</h2>
           <form id="create-album-form" novalidate>
-            <div class="form-group"><label for="new-album-name">Nome do Álbum</label><input type="text" id="new-album-name" required></div>
+            <div class="form-group"><label for="new-album-name">Nome do Álbum</label><input type="text" id="new-album-name" maxlength="50" required></div>
             <div class="form-group">
               <label>Capa do Álbum</label>
               <div id="album-cover-uploader"></div>
@@ -510,11 +520,11 @@
     {
       return `
           <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
-          <h2 id="edit-profile-heading">Editar Perfil da Empresa</h2>
+          <h2 id="edit-profile-heading">Editar Perfil do Artista</h2>
           <form id="edit-profile-form" novalidate>
-            <div class="form-group"> <label for="edit-profile-name">Nome da Empresa</label> <input type="text" id="edit-profile-name" required> </div>
-            <div class="form-group"> <label for="edit-profile-location">Localização</label> <input type="text" id="edit-profile-location" required> </div>
-            <div class="form-group"> <label for="edit-profile-about">Sobre a Empresa</label> <textarea id="edit-profile-about" rows="5" required></textarea> </div>
+            <div class="form-group"> <label for="edit-profile-name">Nome do Artista</label> <input type="text" id="edit-profile-name" maxlength="100" required> </div>
+            <div class="form-group"> <label for="edit-profile-location">Localização</label> <input type="text" id="edit-profile-location" maxlength="30" required> </div>
+            <div class="form-group"> <label for="edit-profile-about">Sobre o Artista</label> <textarea id="edit-profile-about" rows="5" maxlength="500" required></textarea> </div>
             <div class="form-group"> 
               <label>Foto de Perfil</label> 
               <div id="profile-image-uploader"></div> 
@@ -537,7 +547,11 @@
           <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
           <h2 id="add-music-heading">Adicionar Nova Música</h2>
           <form id="add-music-form" novalidate>
-            <div class="form-group"><label for="song-title">Título</label><input type="text" id="song-title" required></div>
+            <div class="form-group"><label for="song-title">Título</label><input type="text" id="song-title" maxlength="40" required></div>
+            <div class="form-group">
+              <label>Imagem da Música</label>
+              <div id="music-image-uploader"></div>
+            </div>
             <div class="form-group">
               <label for="song-tag">Tags</label>
               <div class="tag-select-group">
@@ -566,13 +580,15 @@
       {
         songsHTML = songsInAlbum.map(song => `
       <div class="song-card" data-id="${ song.id }">
+        ${isOwner ? `<button class="remove-from-album-btn" data-song-id="${song.id}" aria-label="Remover música do álbum">×</button>` : ''}
         <div class="song-icon">
-          <div class="play-button" aria-label="Tocar ${ song.title }">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+          ${song.image ? `<img src="${song.image}" alt="${song.name}" class="song-image">` : `
+          <div class="song-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              <path d="M12 3v18m-4-6 4 4 4-4"/>
             </svg>
-          </div>
+          </div>`}
         </div>
         <div class="song-info">
           <h3>${ song.name }</h3>
@@ -588,6 +604,7 @@
       // Seção de edição só aparece para o dono do perfil
       const albumEditSection = isOwner ? `
         <div class="album-edit-section">
+          <div class="form-group"><label for="edit-album-name">Nome do Álbum</label><input type="text" id="edit-album-name" value="${albumName}" maxlength="50" required></div>
           <div class="form-group">
             <label>Capa do Álbum</label>
             <div id="album-edit-cover-uploader"></div>
@@ -624,7 +641,11 @@
           <input type="hidden" id="edit-music-original-title" value="${ song.title }">
           <input type="hidden" id="edit-music-original-albums" value="${ Array.isArray(song.albums) ? song.albums.join(',') : '' }">
 
-          <div class="form-group"><label for="edit-song-title">Título</label><input type="text" id="edit-song-title" value="${ song.title }" required></div>
+          <div class="form-group"><label for="edit-song-title">Título</label><input type="text" id="edit-song-title" value="${ song.title }" maxlength="40" required></div>
+          <div class="form-group">
+            <label>Imagem da Música</label>
+            <div id="edit-music-image-uploader"></div>
+          </div>
           <div class="form-group">
               <label for="edit-song-tag">Tags</label>
               <div class="tag-select-group">
@@ -678,6 +699,14 @@
         if (!newName)
         {
           showToast('Nome do álbum é obrigatório.', 'error');
+          nameInput.classList.add('input-error');
+          nameInput.focus();
+          return;
+        }
+
+        if (newName.length > 50)
+        {
+          showToast('Nome do álbum deve ter no máximo 50 caracteres.', 'error');
           nameInput.classList.add('input-error');
           nameInput.focus();
           return;
@@ -807,6 +836,41 @@
       }
     }
 
+    async function updateAlbumName(albumId, newName) {
+      try {
+        const response = await fetch('/profile/atualizar-album-nome', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ albumId, name: newName })
+        });
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            showToast('Sua sessão expirou. Redirecionando...', 'error');
+            setTimeout(() => window.location.href = '/login', 2000);
+            return;
+          }
+          
+          let errorMessage = 'Erro ao atualizar nome do álbum';
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorMessage;
+          } catch (e) {
+            // Se não conseguir fazer parse do JSON, usa mensagem padrão
+          }
+          
+          throw new Error(errorMessage);
+        }
+        
+        return response.json();
+      } catch (error) {
+        console.error('Erro na requisição updateAlbumName:', error);
+        throw error;
+      }
+    }
+
     async function openAlbumContentModal(albumName, albumid, triggerButton = null)
     {
       const albumNameLower = albumName.toLowerCase();
@@ -857,12 +921,95 @@
               }
               modalElement.albumId = albumid;
               
+              // Adicionar evento para remover classe de erro do campo de nome
+              const albumNameInput = modalElement.querySelector('#edit-album-name');
+              albumNameInput?.addEventListener('input', () => {
+                albumNameInput.classList.remove('input-error');
+              });
+              
+              // Configurar botões de remoção de música do álbum (apenas para o dono)
+              if (isOwner) {
+                const removeButtons = modalElement.querySelectorAll('.remove-from-album-btn');
+                removeButtons.forEach(btn => {
+                  btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const musicId = btn.dataset.songId;
+                    const songCard = btn.closest('.song-card');
+                    const songName = songCard?.querySelector('h3')?.textContent || 'Esta música';
+                    
+                    if (!confirm(`Remover "${songName}" deste álbum?`)) {
+                      return;
+                    }
+                    
+                    try {
+                      const response = await fetch(`/profile/remover-musica-album/${albumid}/${musicId}`, {
+                        method: 'DELETE',
+                        headers: {
+                          'Content-Type': 'application/json'
+                        }
+                      });
+                      
+                      if (!response.ok) {
+                        if (response.status === 401) {
+                          showToast('Sua sessão expirou. Redirecionando...', 'error');
+                          setTimeout(() => window.location.href = '/login', 2000);
+                          return;
+                        }
+                        throw new Error(`Erro HTTP ${response.status}`);
+                      }
+                      
+                      const result = await response.json();
+                      
+                      if (result.success) {
+                        // Remover o card da música do modal
+                        songCard.remove();
+                        
+                        // Verificar se ainda há músicas no álbum
+                        const remainingSongs = modalElement.querySelectorAll('.song-card');
+                        if (remainingSongs.length === 0) {
+                          const modalBody = modalElement.querySelector('.modal-body-scrollable');
+                          modalBody.innerHTML = '<p class="modal-empty-state">Nenhuma música encontrada neste álbum.</p>';
+                        }
+                        
+                        showToast(result.message || 'Música removida do álbum com sucesso!', 'success');
+                      } else {
+                        throw new Error(result.message || 'Erro ao remover música do álbum');
+                      }
+                    } catch (error) {
+                      console.error('Erro ao remover música do álbum:', error);
+                      showToast(`Erro ao remover música: ${error.message}`, 'error');
+                    }
+                  });
+                });
+              }
+              
               // Configurar botão de salvar apenas para o dono do perfil
               if (isOwner && albumCoverUploader) {
                 const saveBtn = modalElement.querySelector('#save-album-changes');
                 saveBtn?.addEventListener('click', async () => {
                 try {
+                  const albumNameInput = modalElement.querySelector('#edit-album-name');
+                  const newAlbumName = albumNameInput.value.trim();
+                  
+                  // Validar nome do álbum
+                  if (!newAlbumName) {
+                    showToast('Nome do álbum é obrigatório.', 'error');
+                    albumNameInput.classList.add('input-error');
+                    albumNameInput.focus();
+                    return;
+                  }
+                  
+                  if (newAlbumName.length > 50) {
+                    showToast('Nome do álbum deve ter no máximo 50 caracteres.', 'error');
+                    albumNameInput.classList.add('input-error');
+                    albumNameInput.focus();
+                    return;
+                  }
+                  
                   let finalImageUrl = albumCoverUploader.getCurrentImageUrl();
+                  let imageUpdated = false;
                   
                   // Se há upload pendente, fazer o upload primeiro
                   if (albumCoverUploader.hasPendingUpload()) {
@@ -870,30 +1017,48 @@
                     const uploadResult = await albumCoverUploader.uploadPendingImage();
                     if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
                       finalImageUrl = uploadResult.imageUrl;
+                      imageUpdated = true;
                       console.log('Upload concluído, nova URL:', finalImageUrl);
                     } else {
                       throw new Error('Falha no upload da imagem');
                     }
                   }
                   
-                  // Só atualizar se a URL não for um blob local
-                  if (!finalImageUrl.startsWith('data:') && !finalImageUrl.startsWith('blob:')) {
+                  // Atualizar nome do álbum se foi alterado
+                  if (newAlbumName !== albumName) {
+                    console.log('Atualizando nome do álbum:', newAlbumName);
+                    await updateAlbumName(albumid, newAlbumName);
+                  }
+                  
+                  // Atualizar capa se necessário
+                  if (imageUpdated && !finalImageUrl.startsWith('data:') && !finalImageUrl.startsWith('blob:')) {
                     console.log('Atualizando capa do álbum com URL:', finalImageUrl);
                     await updateAlbumCover(albumid, finalImageUrl);
                   }
                   
                   closeModal(modalElement.closest('.modal-overlay'));
-                  showToast('Capa do álbum atualizada com sucesso!', 'success');
+                  showToast('Álbum atualizado com sucesso!', 'success');
                   
-                  // Atualizar a imagem do card no DOM
+                  // Atualizar o card do álbum no DOM
                   const albumCard = document.querySelector(`[data-id="${albumid}"]`);
                   if (albumCard) {
-                    const img = albumCard.querySelector('img');
-                    if (img) img.src = finalImageUrl;
+                    // Atualizar nome (truncar se necessário para exibição)
+                    const nameElement = albumCard.querySelector('.album-name');
+                    if (nameElement) {
+                      const displayName = newAlbumName.length > 20 ? newAlbumName.substring(0, 20) + '...' : newAlbumName;
+                      nameElement.textContent = displayName;
+                      nameElement.title = newAlbumName; // Tooltip com nome completo
+                    }
+                    
+                    // Atualizar imagem se foi alterada
+                    if (imageUpdated) {
+                      const img = albumCard.querySelector('img');
+                      if (img) img.src = finalImageUrl;
+                    }
                   }
                 } catch (error) {
-                  console.error('Erro ao salvar capa do álbum:', error);
-                  showToast(`Erro ao salvar capa do álbum: ${error.message}`, 'error');
+                  console.error('Erro ao salvar alterações do álbum:', error);
+                  showToast(`Erro ao salvar alterações do álbum: ${error.message}`, 'error');
                 }
               });
               }
@@ -976,6 +1141,21 @@
           setTimeout(() =>
           {
             $('.js-example-basic-multiple').select2();
+            
+            // Inicializar upload de imagem da música
+            const musicImageUploader = createImageUploader({
+              containerId: 'music-image-uploader',
+              uploadEndpoint: '/upload/music/cover',
+              currentImageUrl: '/img/placeholder.svg',
+              // Removido onImageSelect para nova música - preview só dentro do uploader
+              onSuccess: (result) => {
+                console.log('Upload de imagem da música bem-sucedido:', result);
+              },
+              onError: (error) => {
+                console.error('Erro no upload de imagem da música:', error);
+              }
+            });
+            modalElement.musicImageUploader = musicImageUploader;
           }, 0);
 
           const tagSelect = document.getElementById('song-tag');
@@ -1014,6 +1194,14 @@
               titleInput.classList.add('input-error');
               if (!firstInvalid) firstInvalid = titleInput;
             }
+            
+            if (title.length > 40)
+            {
+              showToast('Título da música deve ter no máximo 40 caracteres.', 'error');
+              titleInput.classList.add('input-error');
+              titleInput.focus();
+              return;
+            }
             if (tag.length === 0)
             {
               isValid = false;
@@ -1030,45 +1218,84 @@
 
             let id = null;
             let albumid = null;
+            
+            // Fazer upload da imagem se houver
+            let finalImageUrl = null;
+            if (modalElement.musicImageUploader?.hasPendingUpload()) {
+              console.log('Fazendo upload da imagem da música...');
+              const uploadResult = await modalElement.musicImageUploader.uploadPendingImage();
+              if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
+                finalImageUrl = uploadResult.imageUrl;
+                console.log('Upload da imagem concluído, nova URL:', finalImageUrl);
+              }
+            }
 
-            await fetch('/profile/criar-musica', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ title, tag, albums })
-            })
-              .then(res => res.json())
-              .then(data => 
-              {
-                id = data.songid;
-                showToast(data.message, 'success');
-              })
-              .catch(err => 
-              {
-                console.error("Erro ao criar album:", err);
-                showToast(data.message, 'error');
-              })
+            try {
+              const response = await fetch('/profile/criar-musica', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, tag, albums, imageUrl: finalImageUrl })
+              });
+              
+              if (!response.ok) {
+                if (response.status === 401) {
+                  showToast('Sua sessão expirou. Redirecionando...', 'error');
+                  setTimeout(() => window.location.href = '/login', 2000);
+                  return;
+                }
+                
+                let errorMessage = 'Erro ao criar música';
+                try {
+                  const errorData = await response.json();
+                  errorMessage = errorData.message || errorMessage;
+                } catch (e) {
+                  // Se não conseguir fazer parse do JSON, usa mensagem padrão
+                }
+                
+                throw new Error(errorMessage);
+              }
+              
+              const data = await response.json();
+              id = data.songid;
+              showToast(data.message, 'success');
+            } catch (err) {
+              console.error("Erro ao criar música:", err);
+              showToast(`Erro ao criar música: ${err.message}`, 'error');
+              return; // Não continua se houve erro
+            }
 
             const selectedTags = availableTags
               .filter(t => tag.includes(t.id.toString()))
               .map(tag => tag.name);
 
+            // Criar novo card de música
             const songCard = document.createElement('div');
             songCard.className = 'song-card';
             songCard.dataset.id = id;
+            
+            const imageHtml = finalImageUrl ? 
+              `<img src="${finalImageUrl}" alt="${title}" class="song-image">` : 
+              `<div class="song-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3v18m-4-6 4 4 4-4"/>
+                </svg>
+              </div>`;
+              
             songCard.innerHTML = `
-                  <div class="song-icon"><div class="play-button"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div></div>
-                  <div class="song-info"><h3>${ title }</h3><p>Tags: ${ selectedTags.join(', ') }</p></div>`;
-            const playBtn = songCard.querySelector('.play-button');
-            playBtn?.addEventListener('click', () => showToast(`Play: ${ title }`, 'success', 1500));
-            Selectors.musicContainer.prepend(songCard);
-            const newPlayBtn = songCard.querySelector('.play-button');
-            if (newPlayBtn)
-            {
-              newPlayBtn.addEventListener('click', handlePlayButtonClick);
+              <div class="song-icon">${imageHtml}</div>
+              <div class="song-info">
+                <h3>${title}</h3>
+                <p>Tags: ${selectedTags.join(', ')}</p>
+              </div>`;
+              
+            // Adicionar ao container
+            if (Selectors.musicContainer) {
+              Selectors.musicContainer.prepend(songCard);
+              songCard.addEventListener('click', handleSongCardClick);
             }
-            songCard.addEventListener('click', handleSongCardClick);
+            
             closeModal(modalElement.closest('.modal-overlay'));
           });
           allInputs.forEach(input =>
@@ -1094,6 +1321,24 @@
         if (songData.tags && songData.tags.length > 0) {
           $('#edit-song-tag').val(songData.tags).trigger('change');
         }
+        
+        // Inicializar upload de imagem da música
+        const currentImageUrl = songData.image || '/img/placeholder.svg';
+        const editMusicImageUploader = createImageUploader({
+          containerId: 'edit-music-image-uploader',
+          uploadEndpoint: '/upload/music/cover',
+          currentImageUrl: currentImageUrl,
+          onImageSelect: (imageUrl) => {
+            // NÃO atualizar cards até salvar - apenas preview interno do uploader
+          },
+          onSuccess: (result) => {
+            // Upload concluído com sucesso
+          },
+          onError: (error) => {
+            console.error('Erro no upload de imagem da música:', error);
+          }
+        });
+        modalElement.editMusicImageUploader = editMusicImageUploader;
       }, 0);
 
       const tagSelect = document.getElementById('edit-song-tag');
@@ -1146,6 +1391,14 @@
           titleInput.classList.add('input-error');
           if (!firstInvalid) firstInvalid = titleInput;
         }
+        
+        if (newTitle.length > 40)
+        {
+          showToast('Título da música deve ter no máximo 40 caracteres.', 'error');
+          titleInput.classList.add('input-error');
+          titleInput.focus();
+          return;
+        }
         if (newTags.length === 0)
         {
           isValid = false;
@@ -1164,82 +1417,130 @@
         const originalTitle = originalTitleInput.value;
         const originalAlbums = originalAlbumsInput.value.split(',').filter(a => a.trim());
 
+        // Declarar variáveis fora do try para usar depois
+        let finalImageUrl = undefined;
+        let res = null;
+
         try
         {
+          // Fazer upload da imagem se houver
+          if (modalElement.editMusicImageUploader?.hasPendingUpload()) {
+            const uploadResult = await modalElement.editMusicImageUploader.uploadPendingImage();
+            if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
+              finalImageUrl = uploadResult.imageUrl;
+            } else {
+              throw new Error('Falha no upload da imagem');
+            }
+          } else if (modalElement.editMusicImageUploader) {
+            // Se não há upload pendente, usar a imagem atual (apenas se não for preview local)
+            const currentUrl = modalElement.editMusicImageUploader.getCurrentImageUrl();
+            // Não passar URLs locais (blob/data) para o servidor
+            if (currentUrl && !currentUrl.startsWith('data:') && !currentUrl.startsWith('blob:')) {
+              finalImageUrl = currentUrl === '/img/placeholder.svg' ? null : currentUrl;
+            } else {
+              // Se é preview local, manter imagem original
+              finalImageUrl = songData.image || null;
+            }
+          }
+          
           const response = await fetch(`/profile/alterar-musica/${ id }`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: newTitle,
               tags: newTags,
-              albums: newAlbums
+              albums: newAlbums,
+              imageUrl: finalImageUrl
             })
           })
 
-          const res = await response.json();
+          res = await response.json();
           if (!response.ok) {
             throw new Error(res.message || 'Erro ao atualizar música');
           }
-          showToast(res.message || 'Música atualizada com sucesso!', 'success');
         }
         catch (err)
         {
           console.error("Erro ao atualizar música:", err);
-          showToast('Erro ao atualizar música.', 'error');
+          showToast(`Erro ao atualizar música: ${err.message}`, 'error');
           return;
         }
 
-        const existingSongCard = Selectors.musicContainer?.querySelector(`.song-card[data-id="${ id }"] > .song-info > h3`)
-          ?.closest('.song-card');
+        // Atualizar card principal no container de músicas
+        const existingSongCard = Selectors.musicContainer?.querySelector(`.song-card[data-id="${id}"]`);
 
-        const modal = document.querySelector('.modal-body-scrollable')
-        const card = modal?.querySelector(`.song-card[data-id="${ id }"] > .song-info > h3`)
-          ?.closest('.song-card');
-
-        if (existingSongCard)
-        {
-          existingSongCard.querySelector('h3').textContent = newTitle;
-          // Atualizar tags (não gênero)
+        if (existingSongCard) {
+          // Atualizar título
+          const titleElement = existingSongCard.querySelector('h3');
+          if (titleElement) {
+            titleElement.textContent = newTitle;
+          }
+          
+          // Atualizar imagem - usar a URL final da resposta ou a URL processada
+          const songIcon = existingSongCard.querySelector('.song-icon');
+          if (songIcon) {
+            if (finalImageUrl && finalImageUrl !== '/img/placeholder.svg') {
+              songIcon.innerHTML = `<img src="${finalImageUrl}" alt="${newTitle}" class="song-image">`;
+            } else {
+              songIcon.innerHTML = `
+                <div class="song-placeholder">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3v18m-4-6 4 4 4-4"/>
+                  </svg>
+                </div>`;
+            }
+          }
+          
+          // Atualizar tags
           const tagNames = availableTags
             .filter(t => newTags.includes(t.id.toString()))
             .map(tag => tag.name);
-          existingSongCard.querySelector('p:not(.song-card-album)').textContent = `Tags: ${ tagNames.join(', ') }`;
-          
-          // Atualizar álbuns (agora múltiplos)
-          const albumP = existingSongCard.querySelector('.song-card-album');
-          if (albumP) {
-            // Buscar nomes dos álbuns selecionados
-            const selectedAlbumNames = newAlbums.map(albumId => {
-              const option = document.querySelector(`#edit-song-album option[value="${albumId}"]`);
-              return option ? option.textContent : albumId;
-            });
-            const albumText = selectedAlbumNames.length > 0 ? `Álbuns: ${ selectedAlbumNames.join(', ') }` : 'Sem álbum';
-            albumP.textContent = albumText;
+          const tagElement = existingSongCard.querySelector('p:not(.song-card-album)');
+          if (tagElement) {
+            tagElement.textContent = `Tags: ${tagNames.join(', ')}`;
           }
         }
 
-        if (card)
-        {
-          card.querySelector('h3').textContent = newTitle;
-          // Atualizar tags (não gênero)
+        // Atualizar cards em modais de álbum que possam estar abertos
+        const modalScrollable = document.querySelector('.modal-body-scrollable');
+        const modalCard = modalScrollable?.querySelector(`.song-card[data-id="${id}"]`);
+
+        if (modalCard) {
+          // Atualizar título
+          const titleElement = modalCard.querySelector('h3');
+          if (titleElement) {
+            titleElement.textContent = newTitle;
+          }
+          
+          // Atualizar imagem
+          const songIcon = modalCard.querySelector('.song-icon');
+          if (songIcon) {
+            if (finalImageUrl && finalImageUrl !== '/img/placeholder.svg') {
+              songIcon.innerHTML = `<img src="${finalImageUrl}" alt="${newTitle}" class="song-image">`;
+            } else {
+              songIcon.innerHTML = `
+                <div class="song-placeholder">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3v18m-4-6 4 4 4-4"/>
+                  </svg>
+                </div>`;
+            }
+          }
+          
+          // Atualizar tags
           const tagNames = availableTags
             .filter(t => newTags.includes(t.id.toString()))
             .map(tag => tag.name);
-          card.querySelector('p:not(.song-card-album)').textContent = `Tags: ${ tagNames.join(', ') }`;
-          
-          // Atualizar álbuns (agora múltiplos)
-          const albumP = card.querySelector('.song-card-album');
-          if (albumP) {
-            // Buscar nomes dos álbuns selecionados
-            const selectedAlbumNames = newAlbums.map(albumId => {
-              const option = document.querySelector(`#edit-song-album option[value="${albumId}"]`);
-              return option ? option.textContent : albumId;
-            });
-            const albumText = selectedAlbumNames.length > 0 ? `Álbuns: ${ selectedAlbumNames.join(', ') }` : 'Sem álbum';
-            albumP.textContent = albumText;
+          const tagElement = modalCard.querySelector('p:not(.song-card-album)');
+          if (tagElement) {
+            tagElement.textContent = `Tag: ${tagNames.join(', ')}`;
           }
         }
 
+        // Mostrar toast de sucesso APÓS atualizar interface
+        showToast(res.message || 'Música atualizada com sucesso!', 'success');
+        
+        // Fechar modal automaticamente após sucesso
         closeModal(modalElement.closest('.modal-overlay'));
       });
 
@@ -1267,21 +1568,17 @@
         }
 
 
-        const existingSongCard = Selectors.musicContainer?.querySelector(`.song-card[data-id="${ id }"] > .song-info > h3`)
-          ?.closest('.song-card');
-
-        const modal = document.querySelector('.modal-body-scrollable')
-        const card = modal?.querySelector(`.song-card[data-id="${ id }"] > .song-info > h3`)
-          ?.closest('.song-card');
-
-        if (existingSongCard)
-        {
+        // Remover card principal
+        const existingSongCard = Selectors.musicContainer?.querySelector(`.song-card[data-id="${id}"]`);
+        if (existingSongCard) {
           existingSongCard.remove();
         }
 
-        if (card)
-        {
-          card.remove();
+        // Remover cards em modais
+        const modalScrollable = document.querySelector('.modal-body-scrollable');
+        const modalCard = modalScrollable?.querySelector(`.song-card[data-id="${id}"]`);
+        if (modalCard) {
+          modalCard.remove();
         }
 
         closeModal(modalElement.closest('.modal-overlay'));
@@ -1336,6 +1633,7 @@
         }
 
         const albumImageSrc = imageUrl || '/img/default.jpg';
+        const displayName = albumName.length > 20 ? albumName.substring(0, 20) + '...' : albumName;
         const newAlbumCard = document.createElement('div');
         newAlbumCard.className = 'album-card';
         newAlbumCard.dataset.id = id;
@@ -1343,7 +1641,7 @@
         <div class="album-img" data-id="${ id }">
           <img src="${albumImageSrc}" alt="${ albumName }">
         </div>
-        <h3 class="album-name">${ albumName }</h3>
+        <h3 class="album-name" title="${ albumName }">${ displayName }</h3>
       `;
 
         newAlbumCard.addEventListener('click', handleAlbumCardClick);
@@ -1404,7 +1702,8 @@
           genre: values.description, 
           albums: albumNames,
           tags: tagIds,
-          id: songCard.dataset.id 
+          id: songCard.dataset.id,
+          image: values.image // Adicionar a imagem da música
         }, songCard);
       }
       catch (error)
@@ -1417,7 +1716,9 @@
     async function handleAlbumCardClick(event)
     {
       const albumCard = event.currentTarget;
-      const albumName = albumCard.querySelector('.album-name')?.textContent;
+      const albumNameElement = albumCard.querySelector('.album-name');
+      // Usar o title (nome completo) ao invés do textContent (que pode estar truncado)
+      const albumName = albumNameElement?.title || albumNameElement?.textContent;
       const albumid = albumCard.dataset.id;
       console.log(albumName);
       if (albumName)
@@ -1663,17 +1964,43 @@
                 nameInput.classList.add('input-error');
                 if (!firstInvalid) firstInvalid = nameInput;
               }
+              
+              if (newName.length > 100)
+              {
+                showToast('Nome do artista deve ter no máximo 100 caracteres.', 'error');
+                nameInput.classList.add('input-error');
+                nameInput.focus();
+                return;
+              }
+              
               if (!newLocation)
               {
                 isValid = false;
                 locationInput.classList.add('input-error');
                 if (!firstInvalid) firstInvalid = locationInput;
               }
+              
+              if (newLocation.length > 30)
+              {
+                showToast('Localização deve ter no máximo 30 caracteres.', 'error');
+                locationInput.classList.add('input-error');
+                locationInput.focus();
+                return;
+              }
+              
               if (!newAbout)
               {
                 isValid = false;
                 aboutInput.classList.add('input-error');
                 if (!firstInvalid) firstInvalid = aboutInput;
+              }
+              
+              if (newAbout.length > 500)
+              {
+                showToast('Descrição deve ter no máximo 500 caracteres.', 'error');
+                aboutInput.classList.add('input-error');
+                aboutInput.focus();
+                return;
               }
               if (!isValid)
               {
@@ -1707,7 +2034,26 @@
                     facebook: newFacebook,
                     tags: selectedTags
                   })
-                })
+                });
+                
+                if (!response.ok) {
+                  if (response.status === 401) {
+                    showToast('Sua sessão expirou. Redirecionando...', 'error');
+                    setTimeout(() => window.location.href = '/login', 2000);
+                    return;
+                  }
+                  
+                  let errorMessage = 'Erro ao atualizar perfil';
+                  try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                  } catch (e) {
+                    // Se não conseguir fazer parse do JSON, usa mensagem padrão
+                  }
+                  
+                  throw new Error(errorMessage);
+                }
+                
                 const res = await response.json();
 
                 if (Selectors.profileName) Selectors.profileName.textContent = newName;
@@ -1719,7 +2065,8 @@
               }
               catch (error)
               {
-                showToast('Erro ao atualizar perfil!', 'error');
+                console.error('Erro ao atualizar perfil:', error);
+                showToast(`Erro ao atualizar perfil: ${error.message}`, 'error');
               }
             });
             allInputs.forEach(input => input?.addEventListener('input', () => input.classList.remove('input-error')));

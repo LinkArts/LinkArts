@@ -18,8 +18,8 @@ const Music = db.define('Music',
             require: true
         },
         image: {
-            type: DataTypes.STRING(255),
-            require: true
+            type: DataTypes.TEXT,
+            require: false
         },
     })
 
