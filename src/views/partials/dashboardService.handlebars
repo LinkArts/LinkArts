@@ -5,7 +5,7 @@
             <img src="{{#if Establishment.User.imageUrl}}{{Establishment.User.imageUrl}}{{else}}/img/default.jpg{{/if}}" alt="{{Establishment.User.name}}">
         </div>
     </div>
-    <h3 class="card-title">{{Establishment.User.name}}</h3>
+    <a href="/profile/{{id}}"><h3 class="card-title">{{Establishment.User.name}}</h3></a>
     <p class="card-location">{{Establishment.User.city}}</p>
     <div class="card-rating">
         <span class="star">★</span>

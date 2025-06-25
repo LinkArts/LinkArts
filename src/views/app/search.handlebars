@@ -19,7 +19,7 @@
 
             <div class="filter-group">
                 <input type="radio" id="filterServico" name="tipoUsuario" value="servico">
-                <label for="filterServico">Serviços</label>
+                <label for="filterServico">Pedidos de Serviço</label>
             </div>
 
             <hr>
@@ -148,12 +148,12 @@
                                 <img src="${ result.imageUrl || '/img/default.jpg' }" alt="${ result.name }">
                             </div>
                         </div>
-                        <h3 class="card-title">${ result.name }</h3>
+                        <a href="/profile/${result.id}"><h3 class="card-title">${ result.name }</h3></a>
                         <p class="card-location">${ result.city ? result.city : 'Cidade não informada' }</p>
                         <div class="card-rating">
                             <span class="star">★</span>
-                            <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">${ result.rating ? result.rating : '0.0' }
-                                ( ${ result.rating ? result.rating : '0' } )</span>
+                            <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">${ result.AverageRating != 'NaN' ? result.AverageRating : '0.0' }
+                                ( ${ result.TotalRatings ? result.TotalRatings : '0' } )</span>
                         </div>
                         <p class="card-description">${ result.description ? result.description : 'Descrição não informada' }</p>
                         <div class="card-tags">
@@ -180,35 +180,40 @@
                 <img src="${ result.Establishment.User.imageUrl || '/img/default.jpg' }" alt="${ result.Establishment.User.name }">
             </div>
         </div>
-        <h3 class="card-title">${ result.Establishment.User.name }</h3>
+        <a href="/profile/${result.Establishment.User.userid}"><h3 class="card-title">${ result.Establishment.User.name }</h3></a>
         <p class="card-location">${ result.Establishment.User.city }</p>
         <div class="card-rating">
             <span class="star">★</span>
             <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">
-                ${ result.rating ? result.rating : '0.0' } (${ result.reviews ? result.reviews : '0' })
+                ${ result.Establishment.User.AverageRating != 'NaN' ? result.Establishment.User.AverageRating : '0.0' } ( ${ result.Establishment.User.TotalRatings ? result.Establishment.User.TotalRatings : '0' } )
             </span>
         </div>
         <p class="service-date">
+            <svg class="clock-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
             ${ formatDateTime(result.date, result.startTime, result.endTime) }
         </p>
         <p class="card-description">${ result.description }</p>
         <div class="card-tags">
             ${ Array.isArray(result.Tags) && result.Tags.length > 0
-                                ? result.Tags.map(tag => `<span class="tag">${ tag.name }</span>`).join("")
-                                : `<span class="tag">Sem Tags</span>` }
+                ? result.Tags.map(tag => `<span class="tag">${ tag.name }</span>`).join("")
+                : `<span class="tag">Sem Tags</span>` }
         </div>
         <div class="service-actions">
-    <a href="/profile/${ result.Establishment.User.id }">
-        <button class="profile-button">Ver perfil</button>
-    </a>
-    <button class="service-button" onclick="registerInterest('${ result.id }')">
-        Cadastrar
-    </button>
-</div>
+            <a href="/profile/${ result.Establishment.User.id }">
+                <button class="profile-button">Ver perfil</button>
+            </a>
+            <button class="service-button" onclick="registerInterest('${ result.id }')">
+                Cadastrar
+            </button>
+        </div>
     </div>
-                        `
-                        profilesListDiv.innerHTML += html;
-                    }
+    `;
+    profilesListDiv.innerHTML += html;
+}
                 });
             } else
             {

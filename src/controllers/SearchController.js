@@ -153,7 +153,7 @@ module.exports = class SearchController {
                 return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
             });
 
-            console.log(results);
+            //console.log(results);
             return res.render('app/search', { search: search, results: results, css: 'pesquisar.css' });
         } catch (err) {
             console.error(err);
@@ -198,19 +198,34 @@ module.exports = class SearchController {
                         where: serviceWhere,
                         include: serviceInclude
                     });
-                    const results2 = results.map(result => ({
-                        ...result.dataValues,
-                        Tags: result.Tags.map(tag => tag.dataValues),
-                        Establishment: result.Establishment
-                            ? {
-                                ...result.Establishment.dataValues,
-                                User: result.Establishment.User
-                                    ? result.Establishment.User.dataValues
-                                    : null
-                            }
-                            : null,
-                        _type: 'service'
-                    }));
+                    const results2 = await Promise.all(
+                        results.map(async (result) => {
+                            const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
+                            const averageRating = await Rating.findOne({
+                                where: { receiverUserid: result.Establishment.User.id },
+                                attributes: [[fn('AVG', col('rate')), 'averageRating']]
+                            });
+
+                            return {
+                                ...result.dataValues,
+                                Tags: result.Tags.map(tag => tag.dataValues),
+                                Establishment: result.Establishment
+                                    ? {
+                                        ...result.Establishment.dataValues,
+                                        User: result.Establishment.User
+                                            ? {
+                                                ...result.Establishment.User.dataValues,
+                                                TotalRatings: totalRatings, // Total de análises recebidas
+                                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0 // Média das análises
+                                            }
+                                            : null
+                                    }
+                                    : null,
+                                _type: 'service'
+                            };
+                        })
+                    );
+                    console.log(results2)
                     return res.json({ results2, search: search });
                 } else if (type === 'todos') {
                     const userResults = await Promise.all(
@@ -256,63 +271,43 @@ module.exports = class SearchController {
                         include: serviceInclude
                     });
 
-                    let results2 = [
-                        ...userResults.map(result => ({
-                            ...result,
-                            _type: 'user'
-                        })),
-                        ...serviceResults.map(result => ({
-                            ...result.dataValues,
-                            Tags: result.Tags.map(tag => tag.dataValues),
-                            Establishment: result.Establishment
-                                ? {
-                                    ...result.Establishment.dataValues,
-                                    User: result.Establishment.User
-                                        ? result.Establishment.User.dataValues
-                                        : null
-                                }
-                                : null,
-                            _type: 'service'
-                        }))
-                    ];
+                    let results2 = await Promise.all(
+                        [
+                            ...userResults.map(result => ({
+                                ...result,
+                                _type: 'user'
+                            })),
+                            ...serviceResults.map(async (result) => {
+                                const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
+                                const averageRating = await Rating.findOne({
+                                    where: { receiverUserid: result.Establishment.User.id },
+                                    attributes: [[fn('AVG', col('rate')), 'averageRating']]
+                            });
+
+                            return {
+                                ...result.dataValues,
+                                Tags: result.Tags.map(tag => tag.dataValues),
+                                Establishment: result.Establishment
+                                    ? {
+                                        ...result.Establishment.dataValues,
+                                        User: result.Establishment.User
+                                            ? {
+                                                ...result.Establishment.User.dataValues,
+                                                TotalRatings: totalRatings,
+                                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
+                                            }
+                                            : null
+                                    }
+                                    : null,
+                                _type: 'service'
+                            };
+                        })
+                ]);
                     results2 = results2.sort((a, b) => {
                         if (!a.name) return 1;
                         if (!b.name) return -1;
                         return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
                     });
-                    return res.json({ results2, search: search });
-                } else {
-                    const results = await Promise.all(
-                        (await User.findAll({
-                            where: {
-                                [Op.or]: [
-                                    where(fn('LOWER', col('User.name')), {
-                                        [Op.like]: `%${search.toLowerCase()}%`
-                                    })
-                                ]
-                            },
-                            attributes: { exclude: ['password'] },
-                            include: include
-                        })).map(async (user) => {
-                            const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
-                            const averageRating = await Rating.findOne({
-                                where: { receiverUserid: user.id },
-                                attributes: [[fn('AVG', col('rate')), 'averageRating']]
-                            });
-
-                            return {
-                                ...user.dataValues,
-                                Tags: user.Tags.map(tag => tag.dataValues),
-                                TotalRatings: totalRatings,
-                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
-                            };
-                        })
-                    );
-
-                    const results2 = results.map(result => ({
-                        ...result,
-                        _type: 'user'
-                    }));
                     return res.json({ results2, search: search });
                 }
             } else {
@@ -324,19 +319,34 @@ module.exports = class SearchController {
                     const results = await ServiceRequest.findAll({
                         include: serviceInclude
                     });
-                    const results2 = results.map(result => ({
-                        ...result.dataValues,
-                        Tags: result.Tags.map(tag => tag.dataValues),
-                        Establishment: result.Establishment
-                            ? {
-                                ...result.Establishment.dataValues,
-                                User: result.Establishment.User
-                                    ? result.Establishment.User.dataValues
-                                    : null
-                            }
-                            : null,
-                        _type: 'service'
-                    }));
+                    const results2 = await Promise.all(
+                        results.map(async (result) => {
+                            const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
+                            const averageRating = await Rating.findOne({
+                                where: { receiverUserid: result.Establishment.User.id },
+                                attributes: [[fn('AVG', col('rate')), 'averageRating']]
+                            });
+
+                            return {
+                                ...result.dataValues,
+                                Tags: result.Tags.map(tag => tag.dataValues),
+                                Establishment: result.Establishment
+                                    ? {
+                                        ...result.Establishment.dataValues,
+                                        User: result.Establishment.User
+                                            ? {
+                                                ...result.Establishment.User.dataValues,
+                                                TotalRatings: totalRatings, // Total de análises recebidas
+                                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0 // Média das análises
+                                            }
+                                            : null
+                                    }
+                                    : null,
+                                _type: 'service'
+                            };
+                        })
+                    );
+                    console.log(results2)
                     return res.json({ results2, search: search });
                 } else if (type === 'todos') {
                     const userResults = await Promise.all(
@@ -349,7 +359,7 @@ module.exports = class SearchController {
                                 where: { receiverUserid: user.id },
                                 attributes: [[fn('AVG', col('rate')), 'averageRating']]
                             });
-
+                
                             return {
                                 ...user.dataValues,
                                 Tags: user.Tags.map(tag => tag.dataValues),
@@ -358,7 +368,7 @@ module.exports = class SearchController {
                             };
                         })
                     );
-
+                
                     let serviceInclude = [
                         { model: Tag, as: 'Tags', required: tagsid.length > 0, where: tagsid.length > 0 ? { id: tagsid } : undefined },
                         { model: Establishment, include: [{ model: User }] }
@@ -366,31 +376,47 @@ module.exports = class SearchController {
                     const serviceResults = await ServiceRequest.findAll({
                         include: serviceInclude
                     });
-
-                    let results2 = [
-                        ...userResults.map(result => ({
-                            ...result,
-                            _type: 'user'
-                        })),
-                        ...serviceResults.map(result => ({
-                            ...result.dataValues,
-                            Tags: result.Tags.map(tag => tag.dataValues),
-                            Establishment: result.Establishment
-                                ? {
-                                    ...result.Establishment.dataValues,
-                                    User: result.Establishment.User
-                                        ? result.Establishment.User.dataValues
-                                        : null
-                                }
-                                : null,
-                            _type: 'service'
-                        }))
-                    ];
+                
+                    let results2 = await Promise.all(
+                        [
+                            ...userResults.map(result => ({
+                                ...result,
+                                _type: 'user'
+                            })),
+                            ...serviceResults.map(async (result) => {
+                                const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
+                                const averageRating = await Rating.findOne({
+                                    where: { receiverUserid: result.Establishment.User.id },
+                                    attributes: [[fn('AVG', col('rate')), 'averageRating']]
+                                });
+                
+                                return {
+                                    ...result.dataValues,
+                                    Tags: result.Tags.map(tag => tag.dataValues),
+                                    Establishment: result.Establishment
+                                        ? {
+                                            ...result.Establishment.dataValues,
+                                            User: result.Establishment.User
+                                                ? {
+                                                    ...result.Establishment.User.dataValues,
+                                                    TotalRatings: totalRatings,
+                                                    AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
+                                                }
+                                                : null
+                                        }
+                                        : null,
+                                    _type: 'service'
+                                };
+                            })
+                        ]
+                    );
+                
                     results2 = results2.sort((a, b) => {
                         if (!a.name) return 1;
                         if (!b.name) return -1;
                         return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
                     });
+                
                     return res.json({ results2, search: search });
                 } else {
                     const results = await Promise.all(

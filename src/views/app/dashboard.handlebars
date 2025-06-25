@@ -39,14 +39,14 @@
 
     <div class="sidebar">
         <div class="agenda">
-            <h2 class="agenda-title">Agenda</h2>
+            <a href="/agenda/{{session.userid}}"><h2 class="agenda-title">Agenda</h2></a>
             <h3 style="margin-bottom: 10px;">Próximos eventos</h3>
 
             <div class="event-list">
                 {{#if userInfo.agendados}}
                 {{#each userInfo.agendados}}
                 <div class="event">
-                    <div class="event-name">{{this.name}}</div>
+                    <a href="/servico/{{id}}"><div class="event-name">{{this.name}}</div></a>
                     <div class="event-date">
                         <svg class="clock-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
