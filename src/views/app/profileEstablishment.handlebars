@@ -4,7 +4,7 @@
       <div class="profile-info">
         <div class="profile-left">
           <div class="profile-img">
-            <img id="profile-main-image" src="imagens/placeholder-company.jpg" alt="Foto da Empresa">
+            <img id="profile-main-image" src="{{#if values.imageUrl}}{{values.imageUrl}}{{else}}/img/default.jpg{{/if}}" alt="{{values.name}}">
           </div>
           <div class="profile-details">
             <h1 id="profile-name">{{values.name}}</h1>
@@ -104,15 +104,15 @@
         </div>
       </div>
       <p id="profile-about">
-        {{values.description}}
+        {{#if values.description}}{{values.description}}{{else}}Descrição não informada.{{/if}}
       </p>
-      <!--<div class="tags">
-        <span class="tag">tag</span>
-        <span class="tag">tag</span>
-        <span class="tag">tag</span>
-        <span class="tag">tag</span>
-        <span class="tag">tag</span>
-      </div>-->
+      {{#if values.tags}}
+      <div class="tags">
+        {{#each values.tags}}
+        <span class="tag">{{name}}</span>
+        {{/each}}
+      </div>
+      {{/if}}
     </section>
 
     <section class="service-requests-section">
@@ -681,12 +681,30 @@
                     <div class="form-group"> <label for="event-title">Título do Evento</label> <input type="text" id="event-title" required> </div>
                     <div class="form-group"> <label for="event-date">Data do Evento</label> <input type="date" id="event-date" required> </div>
                     <div class="form-group"> <label for="event-description">Descrição (Opcional)</label> <textarea id="event-description" rows="3"></textarea> </div>
-                    <div class="form-group"> <label for="event-image-url">URL da Imagem (Opcional)</label> <input type="url" id="event-image-url" placeholder="https://exemplo.com/imagem.jpg"> </div>
+                    <div class="form-group"> 
+                      <label>Imagem do Evento (Opcional)</label> 
+                      <div id="event-image-uploader"></div> 
+                    </div>
                     <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Adicionar Evento</button> </div>
                 </form>`;
 
       const modalElement = openModal('.add-event-overlay', 'add-event-modal', modalHTML, addEventButton);
       if (!modalElement) return;
+
+      // Inicializar componente de upload de imagem de evento
+      const eventUploader = createImageUploader({
+        containerId: 'event-image-uploader',
+        uploadEndpoint: '/upload/event/photo',
+        currentImageUrl: null,
+        label: 'Escolher Imagem',
+        onSuccess: (result) => {
+          console.log('Upload de evento bem-sucedido:', result);
+          // A imagem será usada quando o evento for criado
+        },
+        onError: (error) => {
+          console.error('Erro no upload de evento:', error);
+        }
+      });
 
       const addEventForm = modalElement.querySelector('#add-event-form');
       addEventForm?.addEventListener('submit', async function (e)
@@ -695,13 +713,11 @@
         const eventTitleInput = modalElement.querySelector('#event-title');
         const eventDateInput = modalElement.querySelector('#event-date');
         const eventDescriptionInput = modalElement.querySelector('#event-description');
-        const eventImageUrlInput = modalElement.querySelector('#event-image-url');
         const modalOverlay = modalElement.closest('.modal-overlay');
 
         const eventTitle = eventTitleInput.value.trim();
         const eventDate = eventDateInput.value;
         const eventDescription = eventDescriptionInput.value.trim();
-        const eventImageUrl = eventImageUrlInput.value.trim();
 
         if (!eventTitle || !eventDate)
         {
@@ -714,7 +730,6 @@
           title: eventTitle,
           date: eventDate,
           description: eventDescription,
-          imageUrl: eventImageUrl,
           establishmentid: 1
         };
 
@@ -746,6 +761,9 @@
       });
     }
 
+    // Variável para armazenar o profileUploader no escopo da função
+    let profileUploader = null;
+
     async function setupEditProfileModal()
     {
       const modalHTML = `
@@ -757,10 +775,14 @@
           <div class="form-group"> <label for="edit-profile-name">Nome da Empresa</label> <input type="text" id="edit-profile-name" required> </div>
           <div class="form-group"> <label for="edit-profile-location">Localização</label> <input type="text" id="edit-profile-location" required> </div>
           <div class="form-group"> <label for="edit-profile-about">Sobre a Empresa</label> <textarea id="edit-profile-about" rows="5" required></textarea> </div>
-          <div class="form-group"> <label for="edit-profile-image-url">URL da Imagem de Perfil</label> <input type="url" id="edit-profile-image-url" placeholder="https://exemplo.com/logo.png"> </div>
+          <div class="form-group"> 
+            <label>Foto de Perfil</label> 
+            <div id="profile-image-uploader"></div> 
+          </div>
           <div class="form-group"> <label for="edit-profile-linkedin">LinkedIn</label> <input type="url" id="edit-profile-linkedin" placeholder="https://linkedin.com/in/empresa"> </div>
           <div class="form-group"> <label for="edit-profile-instagram">Instagram</label> <input type="url" id="edit-profile-instagram" placeholder="https://instagram.com/empresa"> </div>
           <div class="form-group"> <label for="edit-profile-facebook">Facebook</label> <input type="url" id="edit-profile-facebook" placeholder="https://facebook.com/empresa"> </div>
+          <div class="form-group"><label for="edit-profile-tags">Tags do Perfil</label><select id="edit-profile-tags" name="tags" multiple style="width: 100%"></select></div>
           <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Salvar Alterações</button> </div>
         </form>`;
 
@@ -780,7 +802,6 @@
         const nameInput = modalElement.querySelector('#edit-profile-name');
         const locationInput = modalElement.querySelector('#edit-profile-location');
         const aboutInput = modalElement.querySelector('#edit-profile-about');
-        const imageUrlInput = modalElement.querySelector('#edit-profile-image-url');
         const linkedinInput = modalElement.querySelector('#edit-profile-linkedin');
         const instagramInput = modalElement.querySelector('#edit-profile-instagram');
         const facebookInput = modalElement.querySelector('#edit-profile-facebook');
@@ -788,10 +809,56 @@
         if (nameInput) nameInput.value = userData.name || '';
         if (locationInput) locationInput.value = userData.city || '';
         if (aboutInput) aboutInput.value = userData.description || '';
-        if (imageUrlInput) imageUrlInput.value = userData.imageUrl || '';
         if (linkedinInput) linkedinInput.value = userData.linkedin || '';
         if (instagramInput) instagramInput.value = userData.instagram || '';
         if (facebookInput) facebookInput.value = userData.facebook || '';
+
+        // Inicializar componente de upload de imagem de perfil
+        profileUploader = createImageUploader({
+          containerId: 'profile-image-uploader',
+          uploadEndpoint: '/upload/profile/photo',
+          currentImageUrl: userData.imageUrl,
+          onSuccess: (result) => {
+            console.log('Upload de perfil bem-sucedido:', result);
+            // Atualizar imagem de perfil na página imediatamente
+            const profileImageElement = document.getElementById('profile-main-image');
+            if (profileImageElement && result.imageUrl) {
+              profileImageElement.src = result.imageUrl;
+              profileImageElement.alt = `Logo de ${userData.name}`;
+            }
+          },
+          onError: (error) => {
+            console.error('Erro no upload de perfil:', error);
+          }
+        });
+
+        // Após preencher os campos, popular o select de tags
+        const tagsSelect = modalElement.querySelector('#edit-profile-tags');
+        if (tagsSelect) {
+          tagsSelect.innerHTML = '';
+          const tagsResponse = await fetch('/profile/tags');
+          const tagsData = await tagsResponse.json();
+          if (Array.isArray(tagsData.tags)) {
+            tagsData.tags.forEach(tag => {
+              const option = document.createElement('option');
+              option.value = tag.id;
+              option.textContent = tag.name;
+              tagsSelect.appendChild(option);
+            });
+          }
+          if (window.$ && $(tagsSelect).select2) {
+            $(tagsSelect).select2({
+              placeholder: 'Selecione as tags do perfil',
+              allowClear: true,
+              dropdownParent: modalElement
+            });
+          }
+          // Pré-selecionar as tags do usuário, se houver
+          if (userData.tags && Array.isArray(userData.tags)) {
+            const tagIds = userData.tags.map(t => t.id.toString());
+            $(tagsSelect).val(tagIds).trigger('change');
+          }
+        }
 
       } catch (error)
       {
@@ -809,37 +876,24 @@
         const nameInput = modalElement.querySelector('#edit-profile-name');
         const locationInput = modalElement.querySelector('#edit-profile-location');
         const aboutInput = modalElement.querySelector('#edit-profile-about');
-        const imageUrlInput = modalElement.querySelector('#edit-profile-image-url');
         const linkedinInput = modalElement.querySelector('#edit-profile-linkedin');
         const instagramInput = modalElement.querySelector('#edit-profile-instagram');
         const facebookInput = modalElement.querySelector('#edit-profile-facebook');
+        const tagsSelect = modalElement.querySelector('#edit-profile-tags');
 
         const newName = nameInput.value.trim();
         const newLocation = locationInput.value.trim();
         const newAbout = aboutInput.value.trim();
-        const newImageUrl = imageUrlInput.value.trim();
         const newLinkedin = linkedinInput.value.trim();
         const newInstagram = instagramInput.value.trim();
         const newFacebook = facebookInput.value.trim();
+        const selectedTags = tagsSelect && window.$ ? $(tagsSelect).val() || [] : [];
 
         let isValid = true;
         [nameInput, locationInput, aboutInput].forEach(input =>
         {
           if (!input.value.trim()) isValid = false;
         });
-
-        if (newImageUrl)
-        {
-          try
-          {
-            new URL(newImageUrl);
-          } catch (_)
-          {
-            isValid = false;
-            showToast('URL da imagem inválida.', 'warning');
-            imageUrlInput?.focus();
-          }
-        }
 
         if (!isValid)
         {
@@ -849,6 +903,15 @@
 
         try
         {
+          // Fazer upload da imagem se houver uma pendente
+          if (profileUploader && profileUploader.hasPendingUpload()) {
+            console.log('Fazendo upload da imagem de perfil...');
+            const uploadResult = await profileUploader.uploadPendingImage();
+            if (!uploadResult.success) {
+              throw new Error('Erro ao fazer upload da imagem: ' + uploadResult.message);
+            }
+          }
+
           const response = await fetch('/profile/alterar-perfil', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -856,10 +919,10 @@
               name: newName,
               city: newLocation,
               description: newAbout,
-              imageUrl: newImageUrl,
               linkedin: newLinkedin,
               instagram: newInstagram,
-              facebook: newFacebook
+              facebook: newFacebook,
+              tags: selectedTags
             })
           });
 
@@ -873,23 +936,6 @@
           if (profileNameElement) profileNameElement.textContent = newName;
           if (profileLocationElement) profileLocationElement.innerHTML = newLocation;
           if (profileAboutElement) profileAboutElement.textContent = newAbout;
-          if (profileImageElement)
-          {
-            if (newImageUrl && isValid)
-            {
-              profileImageElement.src = newImageUrl;
-              profileImageElement.alt = `Foto de ${ newName }`;
-              profileImageElement.onerror = () =>
-              {
-                profileImageElement.src = 'imagens/placeholder-company.jpg';
-                profileImageElement.alt = 'Foto da Empresa';
-              };
-            } else
-            {
-              profileImageElement.src = 'imagens/placeholder-company.jpg';
-              profileImageElement.alt = 'Foto da Empresa';
-            }
-          }
 
           const socialIcons = document.querySelector('.social-icons');
           if (socialIcons)
@@ -960,7 +1006,10 @@
                     <div class="form-group"> <label for="edit-event-title">Título do Evento</label> <input type="text" id="edit-event-title" value="${ eventData.title }" required> </div>
                     <div class="form-group"> <label for="edit-event-date">Data do Evento</label> <input type="date" id="edit-event-date" value="${ formattedDate }" required> </div>
                     <div class="form-group"> <label for="edit-event-description">Descrição (Opcional)</label> <textarea id="edit-event-description" rows="3">${ eventData.description || '' }</textarea> </div>
-                    <div class="form-group"> <label for="edit-event-image-url">URL da Imagem (Opcional)</label> <input type="url" id="edit-event-image-url" value="${ eventData.imageUrl !== 'imagens/placeholder-event.jpg' ? eventData.imageUrl : '' }" placeholder="https://exemplo.com/imagem.jpg"> </div>
+                    <div class="form-group"> 
+                      <label>Imagem do Evento (Opcional)</label> 
+                      <div id="edit-event-image-uploader"></div> 
+                    </div>
                     <div class="button-group">
                         <button type="button" class="btn btn-delete" id="delete-event-btn">Excluir</button>
                         <div>

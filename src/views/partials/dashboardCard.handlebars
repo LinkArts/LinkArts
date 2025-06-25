@@ -2,7 +2,7 @@
     <!--<span class="status-indicator status-available" title="Contratando"></span>-->
     <div class="card-image-container">
         <div class="card-image">
-            <img src="img/default.jpg" alt="{{name}}">
+            <img src="{{#if imageUrl}}{{imageUrl}}{{else}}/img/default.jpg{{/if}}" alt="{{name}}">
         </div>
     </div>
     <h3 class="card-title">{{name}}</h3>

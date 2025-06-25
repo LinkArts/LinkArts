@@ -314,16 +314,24 @@ section h2 {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: 12px;
 }
 
 .tag {
-  padding: 4px 12px;
-  background-color: var(--primary-dark-color);
-  color: var(--white);
-  border-radius: 9999px;
+  padding: 6px 14px;
+  background-color: #9b87f5;
+  color: white;
+  border-radius: 20px;
   font-size: 13px;
   font-weight: 500;
   text-transform: capitalize;
+  border: none;
+  transition: transform 0.2s ease;
+}
+
+.tag:hover {
+  background-color: #8b77e5;
+  transform: translateY(-1px);
 }
 
 .scroll-container {
@@ -1799,5 +1807,24 @@ section h2 {
   mask-size: contain;
   mask-repeat: no-repeat;
   flex-shrink: 0;
+}
+
+/* Regras copiadas do perfilEstabelecimento.css para padronizar o Select2 do artista */
+.edit-profile-modal .select2-container {
+  width: 100% !important;
+  font-size: 1rem;
+}
+
+.edit-profile-modal .select2-selection--multiple {
+  border-radius: 6px;
+  border: 1px solid var(--input-border-color);
+  background: var(--white);
+  box-sizing: border-box;
+  padding: 0.25em 0.5em;
+  min-height: 0;
+}
+
+.edit-profile-modal .select2-container--default {
+  padding: 0 !important;
 }
 

@@ -200,6 +200,7 @@ app.use('/', chatRoutes)
 app.use('/', agendaRoutes)
 app.use('/', serviceRoutes)
 app.use('/', adminRoutes)
+app.use('/upload', require('./routes/uploadRoutes'))
 app.get('/', AuthController.renderLogin)
 
 app.use((req, res) =>

@@ -2,7 +2,7 @@
     <!--<span class="status-indicator status-available" title="Disponível"></span>-->
     <div class="card-image-container">
         <div class="card-image">
-            <img src="img/default.jpg" alt="{{name}}">
+            <img src="{{#if Establishment.User.imageUrl}}{{Establishment.User.imageUrl}}{{else}}/img/default.jpg{{/if}}" alt="{{Establishment.User.name}}">
         </div>
     </div>
     <h3 class="card-title">{{Establishment.User.name}}</h3>

@@ -41,6 +41,11 @@ const User = db.define('User',
                 len: [0, 500]
             }
         },
+        imageUrl: {
+            type: DataTypes.STRING(500),
+            allowNull: true,
+            defaultValue: null
+        },
         instagram: {
             type: DataTypes.STRING(50),
             allowNull: true

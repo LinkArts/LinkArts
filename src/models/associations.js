@@ -51,6 +51,7 @@ module.exports = function setupAssociations(models)
         otherKey: 'albumid',
         through: 'AlbumMusic',
         onDelete: 'CASCADE',
+        as: 'Albums'
     })
 
     Album.belongsToMany(Music, {
@@ -58,6 +59,7 @@ module.exports = function setupAssociations(models)
         otherKey: 'musicid',
         through: 'AlbumMusic',
         onDelete: 'CASCADE',
+        as: 'Musics'
     })
 
     Album.belongsTo(Artist, {

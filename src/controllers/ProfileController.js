@@ -1,4 +1,5 @@
 const { Op, Model, fn, col, where } = require('sequelize');
+const sequelize = require('../db/conn');
 
 const { User, Artist, Establishment, Album, Music, Tag, Event, ServiceRequest, Favorite } = require('../models/index');
 
@@ -33,6 +34,11 @@ module.exports = class ProfileController
                             ],
 
                         },
+                        {
+                            model: Tag,
+                            as: 'Tags',
+                            required: false
+                        }
                     ],
                     exclude: ['password'],
                 })
@@ -64,24 +70,24 @@ module.exports = class ProfileController
                     ...user.dataValues,
                     ...user.Establishment.dataValues,
                     events: user.toJSON().Establishment.Events,
-                    serviceRequests: user.toJSON().Establishment.ServiceRequests
+                    serviceRequests: user.toJSON().Establishment.ServiceRequests,
+                    imageUrl: user.imageUrl, // Incluir imageUrl do usuário
+                    tags: user.Tags?.map(tag => tag.dataValues) || [] // Incluir tags do usuário
                 }
                 return res.render('app/profileEstablishment', { values, isOwner, css: 'perfilEstabelecimento.css' })
             }
             else if (user.Artist)
             {
-                const uniqueTags = [
-                    ...new Map(
-                        user.Artist?.Musics?.flatMap(music => music.Tags || []).map(tag => [tag.id, tag])
-                    ).values()
-                ];
-
                 const values = {
                     ...user.dataValues,
                     ...user.Artist.dataValues,
                     musics: musicsTags,
-                    albums: user.Artist?.Albums?.map(album => album.dataValues) || [],
-                    tags: uniqueTags.map(tag => tag.dataValues) || []
+                    albums: user.Artist?.Albums?.map(album => ({
+                        ...album.dataValues,
+                        imageUrl: album.imageUrl || '/img/default.jpg'
+                    })) || [],
+                    imageUrl: user.imageUrl, // Incluir imageUrl do usuário
+                    tags: user.Tags?.map(tag => tag.dataValues) || [] // Incluir tags do usuário
                 }
 
                 return res.render('app/profileArtist', { values, isOwner, css: 'perfilArtista.css' })
@@ -116,25 +122,158 @@ module.exports = class ProfileController
     static async createAlbum(req, res)
     {
         console.log("CREATE ALBUM")
-        const { albumName } = req.body
+        const { albumName, imageUrl } = req.body
+        console.log("Dados recebidos:", { albumName, imageUrl, userId: req.session.userid })
 
         try
         {
             const album = await Album.findOne({ where: { name: albumName } })
             const user = await User.findOne({ where: { id: req.session.userid }, include: [{ model: Artist }] })
 
+            if (!user) {
+                console.log("Usuário não encontrado:", req.session.userid)
+                return res.status(404).json({ message: "Usuário não encontrado!" })
+            }
+
+            if (!user.Artist) {
+                console.log("Usuário não é um artista:", req.session.userid)
+                return res.status(400).json({ message: "Usuário não é um artista!" })
+            }
+
             if (album)
             {
+                console.log("Álbum já existe:", albumName)
                 return res.json({ message: "Album ja existente!!" })
             }
 
-            const result = await Album.create({ name: albumName, userid: user.Artist.cpf })
+            console.log("Criando álbum:", { name: albumName, userid: user.Artist.cpf, imageUrl })
+            const result = await Album.create({ 
+                name: albumName, 
+                userid: user.Artist.cpf,
+                imageUrl: imageUrl || null
+            })
+            
+            console.log("Álbum criado com sucesso:", result.dataValues)
             return res.json({ id: result.dataValues.id, message: `O album ${ albumName } foi criado com sucesso!!!` })
         }
         catch (err)
         {
+            console.error("Erro ao criar álbum:", err)
+            return res.status(500).json({ message: "Erro ao criar álbum!", error: err.message })
+        }
+    }
+
+    static async updateAlbumCover(req, res)
+    {
+        console.log("UPDATE ALBUM COVER")
+        const { albumId, imageUrl } = req.body
+
+        try
+        {
+            const album = await Album.findByPk(albumId)
+            
+            if (!album)
+            {
+                return res.status(404).json({ message: "Álbum não encontrado!" })
+            }
+
+            await album.update({ imageUrl })
+            
+            return res.json({ message: "Capa do álbum atualizada com sucesso!" })
+        }
+        catch (err)
+        {
             console.log(err)
-            return res.json({ message: "ERRO!!!!!" })
+            return res.status(500).json({ message: "Erro ao atualizar capa do álbum!" })
+        }
+    }
+
+    static async deleteAlbum(req, res)
+    {
+        const { id } = req.params
+
+        try
+        {
+            // Buscar o álbum
+            const album = await Album.findByPk(id)
+            
+            if (!album) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: "Álbum não encontrado!" 
+                })
+            }
+
+            // Verificar se o usuário logado é o dono do álbum
+            const userFromSession = await User.findOne({
+                where: { id: req.session.userid },
+                include: [{ model: Artist }]
+            })
+
+            if (!userFromSession || !userFromSession.Artist) {
+                return res.status(403).json({ 
+                    success: false, 
+                    message: "Usuário não é um artista!" 
+                })
+            }
+
+            // Verificar se o álbum pertence ao artista logado
+            if (album.userid !== userFromSession.Artist.cpf) {
+                return res.status(403).json({ 
+                    success: false, 
+                    message: "Você não tem permissão para excluir este álbum!" 
+                })
+            }
+
+            // Buscar músicas relacionadas para informação
+            const albumWithMusics = await Album.findOne({
+                where: { id: id },
+                include: [{ model: Music, required: false }]
+            })
+
+            const musicCount = albumWithMusics && albumWithMusics.Music ? albumWithMusics.Music.length : 0
+
+            // Remover relacionamentos se houver músicas
+            if (musicCount > 0) {
+                try {
+                    await sequelize.query(
+                        'DELETE FROM "AlbumMusic" WHERE "albumid" = :albumId',
+                        {
+                            replacements: { albumId: id },
+                            type: sequelize.QueryTypes.DELETE
+                        }
+                    )
+                } catch (error) {
+                    try {
+                        await sequelize.query(
+                            'DELETE FROM album_music WHERE albumid = :albumId',
+                            {
+                                replacements: { albumId: id },
+                                type: sequelize.QueryTypes.DELETE
+                            }
+                        )
+                    } catch (error2) {
+                        // Se as tabelas não existem, pular essa etapa
+                    }
+                }
+            }
+
+            // Excluir o álbum
+            await album.destroy()
+
+            return res.json({ 
+                success: true, 
+                message: "Album deletado com sucesso!!" 
+            })
+        }
+        catch (err)
+        {
+            console.error("Erro ao excluir álbum:", err)
+            return res.status(500).json({ 
+                success: false, 
+                message: "Erro interno do servidor ao excluir álbum!", 
+                error: err.message 
+            })
         }
     }
 
@@ -143,6 +282,7 @@ module.exports = class ProfileController
         console.log("SEARCH ALBUM!!!");
 
         const { name } = req.params
+        const decodedName = decodeURIComponent(name)
 
         try
         {
@@ -156,14 +296,19 @@ module.exports = class ProfileController
                         model: Album,
                         where: {
                             [Op.and]: [
-                                where(fn('lower', col('name')), name.toLowerCase())
+                                where(fn('lower', col('name')), decodedName.toLowerCase())
                             ]
-                        }
+                        },
+                        required: false
                     }]
                 }]
             })
 
-            if (user.Artist.Albums.length > 0)
+            if (!user || !user.Artist) {
+                return res.json({ albumExists: false })
+            }
+
+            if (user.Artist.Albums && user.Artist.Albums.length > 0)
             {
                 return res.json({ albumExists: true })
             }
@@ -173,7 +318,7 @@ module.exports = class ProfileController
         catch (error)
         {
             console.log(error)
-            return res.json({ message: "ERRO!!!" })
+            return res.json({ albumExists: false, message: "ERRO!!!" })
         }
     }
 
@@ -183,16 +328,27 @@ module.exports = class ProfileController
 
         try
         {
-            const user = await User.findOne({ where: { id: req.session.userid }, include: [{ model: Artist, include: [{ model: Album }] },] })
+            const user = await User.findOne({ 
+                where: { id: req.session.userid }, 
+                include: [{ 
+                    model: Artist, 
+                    include: [{ model: Album }], 
+                    required: false 
+                }] 
+            })
+
+            if (!user || !user.Artist) {
+                return res.json({ albums: [] })
+            }
 
             const data = user.get({ plain: true })
 
-            return res.json({ albums: data.Artist.Albums })
+            return res.json({ albums: data.Artist.Albums || [] })
         }
         catch (err)
         {
             console.log(err)
-            return res.json({ message: "ERRO!!!!!" })
+            return res.json({ albums: [], message: "ERRO!!!!!" })
         }
     }
 
@@ -209,6 +365,7 @@ module.exports = class ProfileController
                 },
                 include: [{
                     model: Music,
+                    as: 'Musics',
                     required: false,
                 }]
             })
@@ -240,10 +397,18 @@ module.exports = class ProfileController
                 where: {
                     id: id
                 },
-                include: [{
-                    model: Album,
-                    required: false
-                }]
+                include: [
+                    {
+                        model: Album,
+                        as: 'Albums',
+                        required: false
+                    },
+                    {
+                        model: Tag,
+                        as: 'Tags',
+                        required: false
+                    }
+                ]
             })
 
             const data = music.get({ plain: true })
@@ -259,7 +424,7 @@ module.exports = class ProfileController
     static async updateMusic(req, res)
     {
         const { id } = req.params
-        const { title, tags, album } = req.body
+        const { title, tags, albums } = req.body
 
         console.log("UPDATE MUSIC!!!")
 
@@ -269,10 +434,18 @@ module.exports = class ProfileController
                 where: {
                     id: id
                 },
-                include: [{
-                    model: Album,
-                    required: false
-                }]
+                include: [
+                    {
+                        model: Album,
+                        as: 'Albums',
+                        required: false
+                    },
+                    {
+                        model: Tag,
+                        as: 'Tags',
+                        required: false
+                    }
+                ]
             })
 
             if (!music)
@@ -284,15 +457,29 @@ module.exports = class ProfileController
                 name: title,
             })
 
-            if (album != music.Albums[0].name)
-            {
-                const newAlbum = await Album.findOne({ where: { name: album } })
-                updatedMusic.setAlbums(newAlbum.id)
+            // Atualizar álbuns da música
+            if (albums && albums.length > 0) {
+                // Buscar álbuns válidos
+                const validAlbums = await Album.findAll({
+                    where: {
+                        name: albums
+                    }
+                });
+                
+                // Associar música aos novos álbuns
+                await updatedMusic.setAlbums(validAlbums.map(album => album.id));
+            } else {
+                // Remover música de todos os álbuns
+                await updatedMusic.setAlbums([]);
             }
 
-            const data = updatedMusic.get({ plain: true })
-            updatedMusic.setTags([])
-            updatedMusic.setTags(tags.map(Number))
+            // Atualizar tags
+            if (tags && tags.length > 0) {
+                await updatedMusic.setTags([]);
+                await updatedMusic.setTags(tags.map(Number));
+            } else {
+                await updatedMusic.setTags([]);
+            }
 
             return res.json({ message: `A música ${ title } foi atualizada com sucesso!` })
         }
@@ -306,18 +493,14 @@ module.exports = class ProfileController
 
     static async createMusic(req, res)
     {
-        const { title, tag, album } = req.body
+        const { title, tag, albums } = req.body
 
         const user = await User.findOne({
             where: {
                 id: req.session.userid,
             },
             include: [{
-                model: Artist,
-                include: [{
-                    model: Album,
-                    where: { name: album },
-                }]
+                model: Artist
             }]
         })
 
@@ -326,15 +509,9 @@ module.exports = class ProfileController
             return res.json({ message: "Usuario não encontrado!" })
         }
 
-        if (!user.Artist.Albums)
+        if (!user.Artist)
         {
-            return res.json({ message: "Usuario não tem album!" })
-        }
-
-        const data = {
-            ...user.dataValues,
-            ...user.Artist.dataValues,
-            album: user.Artist.Albums.dataValues || null,
+            return res.json({ message: "Usuario não é um artista!" })
         }
 
         try
@@ -344,20 +521,33 @@ module.exports = class ProfileController
                 description: null,
                 image: null,
                 genreid: null,
-                userid: data.Artist.cpf
+                userid: user.Artist.cpf
             })
 
-            await user.Artist.Albums[0].addMusic(savedMusic);
-            await savedMusic.addTags(tag.map(Number))
+            // Adicionar tags à música
+            if (tag && tag.length > 0) {
+                await savedMusic.addTags(tag.map(Number))
+            }
+
+            // Adicionar música aos álbuns selecionados
+            if (albums && albums.length > 0) {
+                const selectedAlbums = await Album.findAll({
+                    where: {
+                        name: albums,
+                        userid: user.Artist.cpf // Garantir que os álbuns pertencem ao artista
+                    }
+                });
+                
+                if (selectedAlbums.length > 0) {
+                    await savedMusic.setAlbums(selectedAlbums.map(album => album.id));
+                }
+            }
 
             return res.json({ message: `A música ${ title } foi criada com sucesso!`, songid: savedMusic.id })
         }
         catch (error)
         {
-            /*req.flash('message', 'A música não foi salva corretamente!')
-            req.flash('messageType', 'error')
-            return res.redirect('/profile/:id')*/
-
+            console.log(error)
             return res.json({ message: `ERRO!!!` })
         }
     }
@@ -403,7 +593,7 @@ module.exports = class ProfileController
     static async updateProfile(req, res)
     {
         const id = req.session.userid
-        const { name, city, description, linkedin, instagram, facebook } = req.body
+        const { name, city, description, linkedin, instagram, facebook, tags } = req.body
 
         try
         {
@@ -423,10 +613,20 @@ module.exports = class ProfileController
                 linkedin: linkedin
             })
 
+            // Atualizar tags do perfil
+            if (tags !== undefined) {
+                if (tags && tags.length > 0) {
+                    await user.setTags(tags.map(Number));
+                } else {
+                    await user.setTags([]);
+                }
+            }
+
             return res.json({ message: `O perfil foi atualizado com sucesso!`, user: user })
         }
         catch (error)
         {
+            console.log(error)
             return res.json({ message: "ERRO!!!" })
         }
     }

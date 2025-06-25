@@ -14,6 +14,18 @@ const Album = db.define('Album',
         name: {
             type: DataTypes.STRING(20),
             require: true
+        },
+        userid: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            references: {
+                model: 'Artists',
+                key: 'cpf'
+            }
+        },
+        imageUrl: {
+            type: DataTypes.TEXT,
+            allowNull: true
         }
     })
 

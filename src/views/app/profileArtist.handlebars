@@ -3,21 +3,21 @@
     <section class="profile-info">
       <div class="profile-left">
         <div class="profile-img">
-          <img id="profile-main-image" src="/img/default.jpg" alt="{{artist.profile.imageAlt}}">
+          <img id="profile-main-image" src="{{#if values.imageUrl}}{{values.imageUrl}}{{else}}/img/default.jpg{{/if}}" alt="{{values.name}}">
         </div>
-        <div class="profile-details">
-          <h1 id="profile-name">{{values.name}}</h1>
-          <p id="profile-location" class="profile-location">{{#if values.city}}{{values.city}}{{else}}Cidade não
-            informada{{/if}}</p>
-          <div class="profile-rating"
-            aria-label="Avaliação: {{artist.profile.rating}} de 5 estrelas (baseado em {{artist.profile.reviewCount}} avaliações)">
-            <div class="stars" aria-hidden="true">
-            </div class="rating-content">
-            <span style="margin-bottom: 5px;">★</span>
-            <span class="rating">4.5</span>
-            <span class="reviews">(8 reviews)</span>
+                  <div class="profile-details">
+            <h1 id="profile-name">{{values.name}}</h1>
+            <p id="profile-location" class="profile-location">{{#if values.city}}{{values.city}}{{else}}Cidade não
+              informada{{/if}}</p>
+            <div class="profile-rating"
+              aria-label="Avaliação: {{artist.profile.rating}} de 5 estrelas (baseado em {{artist.profile.reviewCount}} avaliações)">
+              <div class="stars" aria-hidden="true">
+              </div class="rating-content">
+              <span style="margin-bottom: 5px;">★</span>
+              <span class="rating">4.5</span>
+              <span class="reviews">(8 reviews)</span>
+            </div>
           </div>
-        </div>
       </div>
       <div class="profile-actions">
         <a href="/agenda/{{values.id}}" class="btn btn-outline">
@@ -104,11 +104,13 @@
         </div>
       </div>
       <p id="profile-about">{{#if values.description}}{{values.description}}{{else}}Descrição não informada.{{/if}}</p>
+      {{#if values.tags}}
       <div class="tags">
         {{#each values.tags}}
         <span class="tag">{{name}}</span>
         {{/each}}
       </div>
+      {{/if}}
     </section>
 
     <section class="albums-section">
@@ -123,7 +125,7 @@
         {{#each values.albums}}
         <div class="album-card" data-id="{{id}}">
           <div class="album-img">
-            <img src="/img/default.jpg" alt="{{ name }}">
+            <img src="{{#if imageUrl}}{{imageUrl}}{{else}}/img/default.jpg{{/if}}" alt="{{ name }}">
           </div>
           <h3 class="album-name">{{ name }}</h3>
         </div>
@@ -200,6 +202,9 @@
     let lastFocusedElement = null;
     let availableAlbums = [];
     let availableTags = [];
+    
+    // Capturar se o usuário é o dono do perfil
+    const isOwner = {{#if isOwner}}true{{else}}false{{/if}};
 
     const Selectors = {
       profileName: document.getElementById('profile-name') ?? document.querySelector('.profile-details h1'),
@@ -424,40 +429,61 @@
       return modal;
     }
 
-    async function populateAlbumDropdown(selectElementId)
+    async function populateAlbumDropdown(selectElementId, selectedAlbums = null)
     {
-      await fetch('/profile/albums')
-        .then(res => res.json())
-        .then(data =>
-        {
-          availableAlbums = data.albums;
-        })
-        .catch(err =>
-        {
-          console.error("Error fetching albums:", err);
-          showToast('Erro ao carregar álbuns.', 'error');
-        });
+      try {
+        const res = await fetch('/profile/albums');
+        
+        if (!res.ok) {
+          if (res.status === 401) {
+            showToast('Sua sessão expirou. Redirecionando...', 'error');
+            setTimeout(() => window.location.href = '/login', 2000);
+            return;
+          }
+          throw new Error(`HTTP ${res.status}`);
+        }
+        
+        const data = await res.json();
+        availableAlbums = data.albums;
+      } catch (err) {
+        console.error("Error fetching albums:", err);
+        showToast('Erro ao carregar álbuns.', 'error');
+        availableAlbums = [];
+      }
 
       const selectEl = document.getElementById(selectElementId);
       if (!selectEl) return;
-      const currentVal = selectEl.value;
+      
       selectEl.innerHTML = '';
-      if (availableAlbums?.length === 0)
-      {
-        selectEl.innerHTML = '<option value="" disabled>Nenhum álbum disponível</option>';
-        selectEl.disabled = true;
-      } else
-      {
-        selectEl.disabled = false;
-        selectEl.innerHTML = '<option value="">Nenhum</option>';
-        availableAlbums?.forEach(album =>
-        {
+      selectEl.disabled = false;
+      
+      // Adicionar álbuns disponíveis
+      if (availableAlbums?.length > 0) {
+        availableAlbums.forEach(album => {
           const option = document.createElement('option');
           option.value = album.name;
           option.textContent = album.name;
           selectEl.appendChild(option);
         });
-        selectEl.value = availableAlbums.includes(currentVal) ? currentVal : "";
+      }
+      
+      // Inicializar Select2 para seleção múltipla
+      $(selectEl).select2({
+        placeholder: 'Selecione os álbuns (opcional)',
+        allowClear: true,
+        multiple: true,
+        width: '100%'
+      });
+      
+      // Selecionar os álbuns apropriados
+      if (selectedAlbums && Array.isArray(selectedAlbums) && selectedAlbums.length > 0) {
+        // Filtrar apenas álbuns que ainda existem
+        const validAlbums = selectedAlbums.filter(albumName => 
+          availableAlbums?.some(album => album.name === albumName)
+        );
+        $(selectEl).val(validAlbums).trigger('change');
+      } else {
+        $(selectEl).val([]).trigger('change');
       }
     }
 
@@ -468,6 +494,10 @@
           <h2 id="create-album-heading">Criar Novo Álbum</h2>
           <form id="create-album-form" novalidate>
             <div class="form-group"><label for="new-album-name">Nome do Álbum</label><input type="text" id="new-album-name" required></div>
+            <div class="form-group">
+              <label>Capa do Álbum</label>
+              <div id="album-cover-uploader"></div>
+            </div>
             <div class="button-group">
               <button type="button" class="btn btn-cancel">Cancelar</button>
               <button type="submit" class="btn btn-primary">Criar Álbum</button>
@@ -480,20 +510,19 @@
     {
       return `
           <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
-          <h2 id="edit-profile-heading">Editar Perfil</h2>
+          <h2 id="edit-profile-heading">Editar Perfil da Empresa</h2>
           <form id="edit-profile-form" novalidate>
-            <div class="form-group"><label for="edit-profile-name">Nome</label><input type="text" id="edit-profile-name" required></div>
-            <div class="form-group"><label for="edit-profile-location">Localização</label><input type="text" id="edit-profile-location" required></div>
-            <div class="form-group"><label for="edit-profile-about">Sobre</label><textarea id="edit-profile-about" rows="4" required></textarea></div>
-            <div class="form-group"><label for="edit-profile-image-url">URL Imagem Perfil</label><input type="url" id="edit-profile-image-url" placeholder="https://..."></div>
-            
-            <div class="form-section">
-              <h3>Redes Sociais</h3>
-              <div class="form-group"><label for="edit-profile-linkedin">LinkedIn</label><input type="url" id="edit-profile-linkedin" placeholder="https://linkedin.com/in/seu-perfil"></div>
-              <div class="form-group"><label for="edit-profile-instagram">Instagram</label><input type="url" id="edit-profile-instagram" placeholder="https://instagram.com/seu-perfil"></div>
-              <div class="form-group"><label for="edit-profile-facebook">Facebook</label><input type="url" id="edit-profile-facebook" placeholder="https://facebook.com/seu-perfil"></div>
+            <div class="form-group"> <label for="edit-profile-name">Nome da Empresa</label> <input type="text" id="edit-profile-name" required> </div>
+            <div class="form-group"> <label for="edit-profile-location">Localização</label> <input type="text" id="edit-profile-location" required> </div>
+            <div class="form-group"> <label for="edit-profile-about">Sobre a Empresa</label> <textarea id="edit-profile-about" rows="5" required></textarea> </div>
+            <div class="form-group"> 
+              <label>Foto de Perfil</label> 
+              <div id="profile-image-uploader"></div> 
             </div>
-            
+            <div class="form-group"> <label for="edit-profile-linkedin">LinkedIn</label> <input type="url" id="edit-profile-linkedin" placeholder="https://linkedin.com/in/empresa"> </div>
+            <div class="form-group"> <label for="edit-profile-instagram">Instagram</label> <input type="url" id="edit-profile-instagram" placeholder="https://instagram.com/empresa"> </div>
+            <div class="form-group"> <label for="edit-profile-facebook">Facebook</label> <input type="url" id="edit-profile-facebook" placeholder="https://facebook.com/empresa"> </div>
+            <div class="form-group"><label for="edit-profile-tags">Tags do Perfil</label><select id="edit-profile-tags" name="tags" multiple style="width: 100%"></select></div>
             <div class="button-group">
               <button type="button" class="btn btn-cancel">Cancelar</button>
               <button type="submit" class="btn btn-primary">Salvar</button>
@@ -516,9 +545,9 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="song-album">Álbum</label>
+              <label for="song-album">Álbuns</label>
               <div class="album-select-group">
-                <select id="song-album" required><option value="">Carregando...</option></select>
+                <select id="song-album" multiple><option value="">Carregando...</option></select>
                 <button type="button" id="create-album-inline-btn" class="btn btn-link">Criar Novo Álbum</button>
               </div>
             </div>
@@ -530,7 +559,7 @@
         `;
     }
 
-    function getAlbumContentModalHTML(albumName, songsInAlbum)
+    function getAlbumContentModalHTML(albumName, songsInAlbum, albumData = null)
     {
       let songsHTML = '';
       if (songsInAlbum && songsInAlbum.length > 0)
@@ -556,13 +585,31 @@
         songsHTML = '<p class="modal-empty-state">Nenhuma música encontrada neste álbum.</p>';
       }
 
+      // Seção de edição só aparece para o dono do perfil
+      const albumEditSection = isOwner ? `
+        <div class="album-edit-section">
+          <div class="form-group">
+            <label>Capa do Álbum</label>
+            <div id="album-edit-cover-uploader"></div>
+          </div>
+        </div>
+      ` : '';
+
+      // Botões de ação só aparecem para o dono do perfil
+      const actionButtons = isOwner ? `
+        <button type="button" class="btn btn-danger" id="delete-album-btn">Excluir Álbum</button>
+        <button type="button" class="btn btn-primary" id="save-album-changes">Salvar Alterações</button>
+      ` : '';
+
       return `
           <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
           <h2 id="album-content-heading">Músicas do Álbum: "${ albumName }"</h2>
+          ${ albumEditSection }
           <div class="modal-body-scrollable">
             ${ songsHTML }
           </div>
           <div class="button-group">
+            ${ actionButtons }
             <button type="button" class="btn btn-cancel">Fechar</button>
           </div>
         `;
@@ -575,7 +622,7 @@
         <h2 id="edit-music-heading">Editar Música: ${ song.title }</h2>
         <form id="edit-music-form" novalidate>
           <input type="hidden" id="edit-music-original-title" value="${ song.title }">
-          <input type="hidden" id="edit-music-original-album" value="${ song.album }">
+          <input type="hidden" id="edit-music-original-albums" value="${ Array.isArray(song.albums) ? song.albums.join(',') : '' }">
 
           <div class="form-group"><label for="edit-song-title">Título</label><input type="text" id="edit-song-title" value="${ song.title }" required></div>
           <div class="form-group">
@@ -585,8 +632,8 @@
               </div>
             </div>
           <div class="form-group">
-            <label for="edit-song-album">Álbum</label>
-            <select id="edit-song-album" required><option value="">Carregando...</option></select>
+            <label for="edit-song-album">Álbuns</label>
+            <select id="edit-song-album" multiple><option value="">Carregando...</option></select>
           </div>
           <div class="button-group">
             <button type="button" class="btn btn-danger" id="delete-music-btn">Excluir Música</button>
@@ -605,7 +652,22 @@
       const form = modalElement.querySelector('#create-album-form');
       const nameInput = modalElement.querySelector('#new-album-name');
 
-      setTimeout(() => nameInput?.focus(), 100);
+      // Inicializar upload de capa
+      setTimeout(() => {
+        const albumCoverUploader = createImageUploader({
+          containerId: 'album-cover-uploader',
+          uploadEndpoint: '/upload/album/cover',
+          currentImageUrl: '/img/placeholder.svg',
+          onSuccess: (result) => {
+            console.log('Upload de capa do álbum bem-sucedido:', result);
+          },
+          onError: (error) => {
+            console.error('Erro no upload de capa do álbum:', error);
+          }
+        });
+        form.albumCoverUploader = albumCoverUploader;
+        nameInput?.focus();
+      }, 100);
 
       form?.addEventListener('submit', async (e) =>
       {
@@ -623,7 +685,27 @@
 
         try
         {
-          const res = await fetch(`/profile/procurar-album/${ newName }`);
+          const res = await fetch(`/profile/procurar-album/${ encodeURIComponent(newName) }`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!res.ok) {
+            if (res.status === 401) {
+              showToast('Sua sessão expirou. Redirecionando...', 'error');
+              setTimeout(() => window.location.href = '/login', 2000);
+              return;
+            }
+            if (res.status === 404) {
+              showToast('Rota não encontrada. Verifique se o servidor está funcionando.', 'error');
+              return;
+            }
+            throw new Error(`Erro HTTP ${res.status}: ${res.statusText}`);
+          }
+          
           const data = await res.json();
 
           if (data.albumExists)
@@ -637,13 +719,38 @@
         catch (err)
         {
           console.error("Erro ao verificar álbum:", err);
-          showToast('Erro ao verificar álbum.', 'error');
+          
+          // Verificar se é erro de rede
+          if (err instanceof TypeError && err.message.includes('fetch')) {
+            showToast('Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+          } else if (err.message.includes('401')) {
+            showToast('Sua sessão expirou. Faça login novamente.', 'error');
+            setTimeout(() => window.location.href = '/login', 2000);
+          } else if (err.message.includes('404')) {
+            showToast('Serviço temporariamente indisponível. Tente novamente.', 'error');
+          } else {
+            showToast(`Erro ao verificar álbum: ${err.message}`, 'error');
+          }
           return;
         }
 
         try
         {
-          await renderAlbumCard(newName);
+          let finalImageUrl = null;
+          
+          // Fazer upload da imagem se houver alguma pendente
+          if (form.albumCoverUploader?.hasPendingUpload()) {
+            console.log('Fazendo upload da capa do álbum...');
+            const uploadResult = await form.albumCoverUploader.uploadPendingImage();
+            if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
+              finalImageUrl = uploadResult.imageUrl;
+              console.log('Upload da capa concluído, nova URL:', finalImageUrl);
+            } else {
+              throw new Error('Falha no upload da capa do álbum');
+            }
+          }
+
+          await renderAlbumCard(newName, finalImageUrl);
 
           const addMusicSelect = document.getElementById('song-album');
           if (addMusicSelect && document.body.contains(addMusicSelect))
@@ -657,24 +764,61 @@
         }
         catch (error)
         {
-          showToast('Erro ao criar álbum.', 'error')
           console.error("Error creating album:", error);
+          showToast(`Erro ao criar álbum: ${error.message}`, 'error');
         }
       });
 
       nameInput?.addEventListener('input', () => nameInput.classList.remove('input-error'));
     }
 
+    async function updateAlbumCover(albumId, imageUrl) {
+      try {
+        const response = await fetch('/profile/atualizar-album-capa', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ albumId, imageUrl })
+        });
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            showToast('Sua sessão expirou. Redirecionando...', 'error');
+            setTimeout(() => window.location.href = '/login', 2000);
+            return;
+          }
+          
+          let errorMessage = 'Erro ao atualizar capa do álbum';
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorMessage;
+          } catch (e) {
+            // Se não conseguir fazer parse do JSON, usa mensagem padrão
+          }
+          
+          throw new Error(errorMessage);
+        }
+        
+        return response.json();
+      } catch (error) {
+        console.error('Erro na requisição updateAlbumCover:', error);
+        throw error;
+      }
+    }
+
     async function openAlbumContentModal(albumName, albumid, triggerButton = null)
     {
       const albumNameLower = albumName.toLowerCase();
       let songsForAlbum = [];
+      let albumData = null;
 
       await fetch(`/profile/procurar-album-musicas/${ albumid }`)
         .then(res => res.json())
         .then(data =>
         {
-          songsForAlbum = data.data.Music;
+          songsForAlbum = data.data.Musics || [];
+          albumData = data.data;
 
           if (songsForAlbum.length === 0 && Selectors.musicContainer)
           {
@@ -687,10 +831,128 @@
               }));
           }
 
-          const modalElement = openModal('.album-content-overlay', 'album-content-modal', getAlbumContentModalHTML(albumName, songsForAlbum), triggerButton);
+          const modalElement = openModal('.album-content-overlay', 'album-content-modal', getAlbumContentModalHTML(albumName, songsForAlbum, albumData), triggerButton);
           if (modalElement)
           {
             setupPlayButtons(modalElement);
+            
+            // Inicializar upload de capa apenas para o dono do perfil
+            setTimeout(() => {
+              if (isOwner) {
+                const currentCoverUrl = albumData?.imageUrl || '/img/default.jpg';
+                const albumCoverUploader = createImageUploader({
+                  containerId: 'album-edit-cover-uploader',
+                  uploadEndpoint: '/upload/album/cover',
+                  currentImageUrl: currentCoverUrl,
+                  onSuccess: (result) => {
+                    console.log('Upload de capa do álbum bem-sucedido:', result);
+                  },
+                  onError: (error) => {
+                    console.error('Erro no upload de capa do álbum:', error);
+                  }
+                });
+                modalElement.albumCoverUploader = albumCoverUploader;
+              }
+              modalElement.albumId = albumid;
+              
+              // Configurar botão de salvar apenas para o dono do perfil
+              if (isOwner) {
+                const saveBtn = modalElement.querySelector('#save-album-changes');
+                saveBtn?.addEventListener('click', async () => {
+                try {
+                  let finalImageUrl = albumCoverUploader.getCurrentImageUrl();
+                  
+                  // Se há upload pendente, fazer o upload primeiro
+                  if (albumCoverUploader.hasPendingUpload()) {
+                    console.log('Fazendo upload da imagem...');
+                    const uploadResult = await albumCoverUploader.uploadPendingImage();
+                    if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
+                      finalImageUrl = uploadResult.imageUrl;
+                      console.log('Upload concluído, nova URL:', finalImageUrl);
+                    } else {
+                      throw new Error('Falha no upload da imagem');
+                    }
+                  }
+                  
+                  // Só atualizar se a URL não for um blob local
+                  if (!finalImageUrl.startsWith('data:') && !finalImageUrl.startsWith('blob:')) {
+                    console.log('Atualizando capa do álbum com URL:', finalImageUrl);
+                    await updateAlbumCover(albumid, finalImageUrl);
+                  }
+                  
+                  closeModal(modalElement.closest('.modal-overlay'));
+                  showToast('Capa do álbum atualizada com sucesso!', 'success');
+                  
+                  // Atualizar a imagem do card no DOM
+                  const albumCard = document.querySelector(`[data-id="${albumid}"]`);
+                  if (albumCard) {
+                    const img = albumCard.querySelector('img');
+                    if (img) img.src = finalImageUrl;
+                  }
+                } catch (error) {
+                  console.error('Erro ao salvar capa do álbum:', error);
+                  showToast(`Erro ao salvar capa do álbum: ${error.message}`, 'error');
+                }
+              });
+              
+              // Configurar botão de excluir álbum
+              const deleteBtn = modalElement.querySelector('#delete-album-btn');
+              deleteBtn?.addEventListener('click', async () => {
+                const confirmation = confirm(`Você realmente deseja excluir esse album? Suas músicas serão mantidas.`);
+                
+                if (!confirmation) {
+                  return;
+                }
+                
+                try {
+                  const response = await fetch(`/profile/deletar-album/${albumid}`, {
+                    method: 'DELETE',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    }
+                  });
+                  
+                  if (!response.ok) {
+                    if (response.status === 401) {
+                      showToast('Sua sessão expirou. Redirecionando...', 'error');
+                      setTimeout(() => window.location.href = '/login', 2000);
+                      return;
+                    }
+                    throw new Error(`Erro HTTP ${response.status}`);
+                  }
+                  
+                  const result = await response.json();
+                  
+                  if (result.success) {
+                    // Fechar modal
+                    closeModal(modalElement.closest('.modal-overlay'));
+                    
+                    // Remover card do álbum do DOM
+                    const albumCard = document.querySelector(`[data-id="${albumid}"]`);
+                    if (albumCard) {
+                      albumCard.remove();
+                    }
+                    
+                    // Atualizar dropdown de álbuns se estiver aberto
+                    const albumSelects = document.querySelectorAll('#song-album, #edit-song-album');
+                    albumSelects.forEach(select => {
+                      const optionToRemove = select.querySelector(`option[value="${albumName}"]`);
+                      if (optionToRemove) {
+                        optionToRemove.remove();
+                      }
+                    });
+                    
+                    showToast(result.message || 'Álbum excluído com sucesso!', 'success');
+                  } else {
+                    throw new Error(result.message || 'Erro ao excluir álbum');
+                  }
+                } catch (error) {
+                  console.error('Erro ao excluir álbum:', error);
+                  showToast(`Erro ao excluir álbum: ${error.message}`, 'error');
+                }
+              });
+              } // Fim do if (isOwner)
+            }, 100);
           }
         })
         .catch(err =>
@@ -741,7 +1003,7 @@
             const title = titleInput.value.trim();
             const tag = $('#song-tag').val();
             console.log(tag);
-            const album = albumSelect.value;
+            const albums = $('#song-album').val() || [];
             if (!title)
             {
               isValid = false;
@@ -754,12 +1016,7 @@
               tagInput.classList.add('input-error');
               if (!firstInvalid) firstInvalid = tagInput;
             }
-            if (!album)
-            {
-              isValid = false;
-              albumSelect.classList.add('input-error');
-              if (!firstInvalid) firstInvalid = albumSelect;
-            }
+            // Álbuns não são obrigatórios
             if (!isValid)
             {
               showToast('Por favor, preencha todos os campos.', 'warning');
@@ -775,7 +1032,7 @@
               headers: {
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ title, tag, album })
+              body: JSON.stringify({ title, tag, albums })
             })
               .then(res => res.json())
               .then(data => 
@@ -828,6 +1085,11 @@
       setTimeout(() =>
       {
         $('.js-example-basic-multiple').select2();
+        
+        // Definir tags selecionadas após inicialização do Select2
+        if (songData.tags && songData.tags.length > 0) {
+          $('#edit-song-tag').val(songData.tags).trigger('change');
+        }
       }, 0);
 
       const tagSelect = document.getElementById('edit-song-tag');
@@ -838,6 +1100,10 @@
         const option = document.createElement('option');
         option.value = tag.id;
         option.textContent = tag.name;
+        // Selecionar tag se estiver nas tags da música
+        if (songData.tags && songData.tags.includes(tag.id.toString())) {
+          option.selected = true;
+        }
         tagSelect.appendChild(option);
       });
 
@@ -845,14 +1111,13 @@
 
       const form = modalElement.querySelector('#edit-music-form');
       const originalTitleInput = modalElement.querySelector('#edit-music-original-title');
-      const originalAlbumInput = modalElement.querySelector('#edit-music-original-album');
+      const originalAlbumsInput = modalElement.querySelector('#edit-music-original-albums');
       const titleInput = modalElement.querySelector('#edit-song-title');
       const tagInput = modalElement.querySelector('#edit-song-tag');
       const albumSelect = modalElement.querySelector('#edit-song-album');
       const deleteBtn = modalElement.querySelector('#delete-music-btn');
 
-      await populateAlbumDropdown('edit-song-album');
-      albumSelect.value = songData.album || "";
+      await populateAlbumDropdown('edit-song-album', songData.albums);
       const id = songData.id;
 
       setTimeout(() => titleInput?.focus(), 100);
@@ -869,7 +1134,7 @@
 
         const newTitle = titleInput.value.trim();
         const newTags = $('#edit-song-tag').val();
-        const newAlbum = albumSelect.value;
+        const newAlbums = $('#edit-song-album').val() || [];
 
         if (!newTitle)
         {
@@ -880,15 +1145,10 @@
         if (newTags.length === 0)
         {
           isValid = false;
-          newTags.classList.add('input-error');
-          if (!firstInvalid) firstInvalid = newTags;
+          tagInput.classList.add('input-error');
+          if (!firstInvalid) firstInvalid = tagInput;
         }
-        if (!newAlbum)
-        {
-          isValid = false;
-          albumSelect.classList.add('input-error');
-          if (!firstInvalid) firstInvalid = albumSelect;
-        }
+        // Álbum não é obrigatório - "Nenhum" (valor vazio) é uma opção válida
 
         if (!isValid)
         {
@@ -898,7 +1158,7 @@
         }
 
         const originalTitle = originalTitleInput.value;
-        const originalAlbum = originalAlbumInput.value;
+        const originalAlbums = originalAlbumsInput.value.split(',').filter(a => a.trim());
 
         try
         {
@@ -908,11 +1168,15 @@
             body: JSON.stringify({
               title: newTitle,
               tags: newTags,
-              album: newAlbum
+              albums: newAlbums
             })
           })
 
           const res = await response.json();
+          if (!response.ok) {
+            throw new Error(res.message || 'Erro ao atualizar música');
+          }
+          showToast(res.message || 'Música atualizada com sucesso!', 'success');
         }
         catch (err)
         {
@@ -931,17 +1195,45 @@
         if (existingSongCard)
         {
           existingSongCard.querySelector('h3').textContent = newTitle;
-          existingSongCard.querySelector('p:not(.song-card-album)').textContent = `Gênero: ${ newGenre }`;
+          // Atualizar tags (não gênero)
+          const tagNames = availableTags
+            .filter(t => newTags.includes(t.id.toString()))
+            .map(tag => tag.name);
+          existingSongCard.querySelector('p:not(.song-card-album)').textContent = `Tags: ${ tagNames.join(', ') }`;
+          
+          // Atualizar álbuns (agora múltiplos)
           const albumP = existingSongCard.querySelector('.song-card-album');
-          if (albumP) albumP.textContent = `Álbum: ${ newAlbum }`;
+          if (albumP) {
+            // Buscar nomes dos álbuns selecionados
+            const selectedAlbumNames = newAlbums.map(albumId => {
+              const option = document.querySelector(`#edit-song-album option[value="${albumId}"]`);
+              return option ? option.textContent : albumId;
+            });
+            const albumText = selectedAlbumNames.length > 0 ? `Álbuns: ${ selectedAlbumNames.join(', ') }` : 'Sem álbum';
+            albumP.textContent = albumText;
+          }
         }
 
         if (card)
         {
           card.querySelector('h3').textContent = newTitle;
-          card.querySelector('p:not(.song-card-album)').textContent = `Gênero: ${ newGenre }`;
+          // Atualizar tags (não gênero)
+          const tagNames = availableTags
+            .filter(t => newTags.includes(t.id.toString()))
+            .map(tag => tag.name);
+          card.querySelector('p:not(.song-card-album)').textContent = `Tags: ${ tagNames.join(', ') }`;
+          
+          // Atualizar álbuns (agora múltiplos)
           const albumP = card.querySelector('.song-card-album');
-          if (albumP) albumP.textContent = `Álbum: ${ newAlbum }`;
+          if (albumP) {
+            // Buscar nomes dos álbuns selecionados
+            const selectedAlbumNames = newAlbums.map(albumId => {
+              const option = document.querySelector(`#edit-song-album option[value="${albumId}"]`);
+              return option ? option.textContent : albumId;
+            });
+            const albumText = selectedAlbumNames.length > 0 ? `Álbuns: ${ selectedAlbumNames.join(', ') }` : 'Sem álbum';
+            albumP.textContent = albumText;
+          }
         }
 
         closeModal(modalElement.closest('.modal-overlay'));
@@ -998,27 +1290,40 @@
       });
     }
 
-    async function renderAlbumCard(albumName)
+    async function renderAlbumCard(albumName, imageUrl = null)
     {
       let id = null;
 
       if (Selectors.albumContainer)
       {
-        await fetch('/profile/criar-album', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ albumName })
-        })
-          .then(res => res.json())
-          .then(data =>
-          {
-            id = data.id;
-            showToast(data.message)
-          })
-          .catch(err => 
-          {
-            console.error("Erro ao criar album:", err);
-          })
+        try {
+          const response = await fetch('/profile/criar-album', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ albumName, imageUrl })
+          });
+          
+          if (!response.ok) {
+            if (response.status === 401) {
+              showToast('Sua sessão expirou. Redirecionando...', 'error');
+              setTimeout(() => window.location.href = '/login', 2000);
+              return;
+            }
+            throw new Error(`HTTP ${response.status}`);
+          }
+          
+          const data = await response.json();
+          if (data.error) {
+            throw new Error(data.message || data.error);
+          }
+          
+          id = data.id;
+          showToast(data.message, 'success');
+        } catch (err) {
+          console.error("Erro ao criar album:", err);
+          showToast(`Erro ao criar álbum: ${err.message}`, 'error');
+          throw err; // Re-throw para que o modal possa tratar o erro
+        }
 
         const noAlbumsMessage = Selectors.albumContainer.querySelector('p.modal-empty-state');
         if (noAlbumsMessage)
@@ -1026,12 +1331,13 @@
           noAlbumsMessage.remove();
         }
 
+        const albumImageSrc = imageUrl || '/img/default.jpg';
         const newAlbumCard = document.createElement('div');
         newAlbumCard.className = 'album-card';
         newAlbumCard.dataset.id = id;
         newAlbumCard.innerHTML = `
         <div class="album-img" data-id="${ id }">
-          <img src="/img/default.jpg" alt="${ albumName }">
+          <img src="${albumImageSrc}" alt="${ albumName }">
         </div>
         <h3 class="album-name">${ albumName }</h3>
       `;
@@ -1078,11 +1384,29 @@
         const res = await response.json()
 
         const values = res.data;
-        openEditMusicModal({ title: values.name, genre: values.description, album: values.Albums[0].name, id: songCard.dataset.id }, songCard);
+        
+        // Verificação segura para os álbuns - pode não existir se foram excluídos
+        const albumNames = values.Albums && values.Albums.length > 0 
+          ? values.Albums.map(album => album.name) 
+          : [];
+        
+        // Extrair IDs das tags da música
+        const tagIds = values.Tags && values.Tags.length > 0 
+          ? values.Tags.map(tag => tag.id.toString()) 
+          : [];
+        
+        openEditMusicModal({ 
+          title: values.name, 
+          genre: values.description, 
+          albums: albumNames,
+          tags: tagIds,
+          id: songCard.dataset.id 
+        }, songCard);
       }
       catch (error)
       {
-        showToast('DEU RUIM!!!', 'error');
+        console.error('Erro ao carregar dados da música:', error);
+        showToast('Erro ao carregar detalhes da música', 'error');
       }
     }
 
@@ -1220,6 +1544,9 @@
       }
     }
 
+    // Variável para armazenar o profileUploader no escopo da função
+    let profileUploader = null;
+
     async function setupEditProfileModal()
     {
       if (Selectors.editProfileBtn)
@@ -1252,19 +1579,67 @@
             const nameInput = modalElement.querySelector('#edit-profile-name');
             const locationInput = modalElement.querySelector('#edit-profile-location');
             const aboutInput = modalElement.querySelector('#edit-profile-about');
-            const imageUrlInput = modalElement.querySelector('#edit-profile-image-url');
             const linkedinInput = modalElement.querySelector('#edit-profile-linkedin');
             const instagramInput = modalElement.querySelector('#edit-profile-instagram');
             const facebookInput = modalElement.querySelector('#edit-profile-facebook');
-            const allInputs = [nameInput, locationInput, aboutInput, imageUrlInput, linkedinInput, instagramInput, facebookInput];
+            const allInputs = [nameInput, locationInput, aboutInput, linkedinInput, instagramInput, facebookInput];
 
             nameInput.value = userData.name || '';
             locationInput.value = userData.city || '';
             aboutInput.value = userData.description || '';
-            imageUrlInput.value = userData.imageUrl || '';
             linkedinInput.value = userData.linkedin || '';
             instagramInput.value = userData.instagram || '';
             facebookInput.value = userData.facebook || '';
+
+            // Inicializar componente de upload de imagem
+            profileUploader = createImageUploader({
+              containerId: 'profile-image-uploader',
+              uploadEndpoint: '/upload/profile/photo',
+              currentImageUrl: userData.imageUrl,
+              onSuccess: (result) => {
+                console.log('Upload de perfil bem-sucedido:', result);
+                // Atualizar imagem de perfil na página imediatamente
+                if (Selectors.profileImage && result.imageUrl) {
+                  Selectors.profileImage.src = result.imageUrl;
+                  Selectors.profileImage.alt = `Foto de ${userData.name}`;
+                }
+              },
+              onError: (error) => {
+                console.error('Erro no upload de perfil:', error);
+              }
+            });
+
+            // Após preencher os campos, popular o select de tags
+            const tagsSelect = modalElement.querySelector('#edit-profile-tags');
+            if (tagsSelect) {
+              tagsSelect.innerHTML = '';
+              const tagsResponse = await fetch('/profile/tags');
+              const tagsData = await tagsResponse.json();
+              if (Array.isArray(tagsData.tags)) {
+                tagsData.tags.forEach(tag => {
+                  const option = document.createElement('option');
+                  option.value = tag.id;
+                  option.textContent = tag.name;
+                  tagsSelect.appendChild(option);
+                });
+              }
+              // Destruir Select2 anterior, se houver
+              if (window.$ && $(tagsSelect).data('select2')) {
+                $(tagsSelect).select2('destroy');
+              }
+              if (window.$ && $(tagsSelect).select2) {
+                $(tagsSelect).select2({
+                  placeholder: 'Selecione as tags do perfil',
+                  allowClear: true,
+                  dropdownParent: modalElement
+                });
+              }
+              // Pré-selecionar as tags do usuário, se houver
+              if (userData.tags && Array.isArray(userData.tags)) {
+                const tagIds = userData.tags.map(t => t.id.toString());
+                $(tagsSelect).val(tagIds).trigger('change');
+              }
+            }
 
             form?.addEventListener('submit', async (e) =>
             {
@@ -1275,7 +1650,6 @@
               const newName = nameInput.value.trim();
               const newLocation = locationInput.value.trim();
               const newAbout = aboutInput.value.trim();
-              const newImageUrl = imageUrlInput.value.trim();
               const newLinkedin = linkedinInput.value.trim();
               const newInstagram = instagramInput.value.trim();
               const newFacebook = facebookInput.value.trim();
@@ -1298,19 +1672,6 @@
                 aboutInput.classList.add('input-error');
                 if (!firstInvalid) firstInvalid = aboutInput;
               }
-              if (newImageUrl)
-              {
-                try
-                {
-                  new URL(newImageUrl);
-                } catch
-                {
-                  isValid = false;
-                  imageUrlInput.classList.add('input-error');
-                  showToast('URL da imagem inválida.', 'warning');
-                  if (!firstInvalid) firstInvalid = imageUrlInput;
-                }
-              }
               if (!isValid)
               {
                 showToast('Por favor, corrija os campos inválidos.', 'error');
@@ -1318,8 +1679,19 @@
                 return;
               }
 
+              const selectedTags = tagsSelect && window.$ ? $(tagsSelect).val() || [] : [];
+
               try
               {
+                // Fazer upload da imagem se houver uma pendente
+                if (profileUploader && profileUploader.hasPendingUpload()) {
+                  console.log('Fazendo upload da imagem de perfil...');
+                  const uploadResult = await profileUploader.uploadPendingImage();
+                  if (!uploadResult.success) {
+                    throw new Error('Erro ao fazer upload da imagem: ' + uploadResult.message);
+                  }
+                }
+
                 const response = await fetch('/profile/alterar-perfil', {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
@@ -1329,7 +1701,8 @@
                     description: newAbout,
                     linkedin: newLinkedin,
                     instagram: newInstagram,
-                    facebook: newFacebook
+                    facebook: newFacebook,
+                    tags: selectedTags
                   })
                 })
                 const res = await response.json();
@@ -1337,64 +1710,6 @@
                 if (Selectors.profileName) Selectors.profileName.textContent = newName;
                 if (Selectors.profileLocation) Selectors.profileLocation.innerText = newLocation;
                 if (Selectors.profileAbout) Selectors.profileAbout.textContent = newAbout;
-                const oldImageUrl = Selectors.profileImage ? Selectors.profileImage.src : null;
-                if (Selectors.profileImage && newImageUrl && newImageUrl !== oldImageUrl)
-                {
-                  Selectors.profileImage.src = newImageUrl;
-                  Selectors.profileImage.alt = `Foto de ${ newName }`;
-                  Selectors.profileImage.onerror = () =>
-                  {
-                    if (oldImageUrl) Selectors.profileImage.src = oldImageUrl;
-                    Selectors.profileImage.onerror = null;
-                  };
-                  Selectors.profileImage.onload = () =>
-                  {
-                    Selectors.profileImage.onerror = null;
-                  };
-                } else if (Selectors.profileImage && !newImageUrl && oldImageUrl)
-                {
-                  console.log("Profile image URL cleared.");
-                }
-
-                const socialIconsContainer = document.querySelector('.social-icons');
-                if (socialIconsContainer)
-                {
-                  socialIconsContainer.innerHTML = '';
-
-                  if (newLinkedin)
-                  {
-                    socialIconsContainer.innerHTML += `
-                      <a href="${ newLinkedin }" target="_blank" rel="noopener noreferrer" class="social-icon linkedin" aria-label="LinkedIn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-                          <rect width="4" height="12" x="2" y="9"/>
-                          <circle cx="4" cy="4" r="2"/>
-                        </svg>
-                      </a>`;
-                  }
-
-                  if (newInstagram)
-                  {
-                    socialIconsContainer.innerHTML += `
-                      <a href="${ newInstagram }" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-                          <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                          <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-                        </svg>
-                      </a>`;
-                  }
-
-                  if (newFacebook)
-                  {
-                    socialIconsContainer.innerHTML += `
-                      <a href="${ newFacebook }" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-                        </svg>
-                      </a>`;
-                  }
-                }
 
                 showToast('Perfil atualizado com sucesso!', 'success');
                 closeModal(modalElement.closest('.modal-overlay'));
