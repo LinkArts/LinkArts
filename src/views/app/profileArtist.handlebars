@@ -838,9 +838,11 @@
             
             // Inicializar upload de capa apenas para o dono do perfil
             setTimeout(() => {
+              let albumCoverUploader = null;
+              
               if (isOwner) {
                 const currentCoverUrl = albumData?.imageUrl || '/img/default.jpg';
-                const albumCoverUploader = createImageUploader({
+                albumCoverUploader = createImageUploader({
                   containerId: 'album-edit-cover-uploader',
                   uploadEndpoint: '/upload/album/cover',
                   currentImageUrl: currentCoverUrl,
@@ -856,7 +858,7 @@
               modalElement.albumId = albumid;
               
               // Configurar botão de salvar apenas para o dono do perfil
-              if (isOwner) {
+              if (isOwner && albumCoverUploader) {
                 const saveBtn = modalElement.querySelector('#save-album-changes');
                 saveBtn?.addEventListener('click', async () => {
                 try {
@@ -894,10 +896,12 @@
                   showToast(`Erro ao salvar capa do álbum: ${error.message}`, 'error');
                 }
               });
+              }
               
-              // Configurar botão de excluir álbum
-              const deleteBtn = modalElement.querySelector('#delete-album-btn');
-              deleteBtn?.addEventListener('click', async () => {
+              // Configurar botão de excluir álbum apenas para o dono do perfil
+              if (isOwner) {
+                const deleteBtn = modalElement.querySelector('#delete-album-btn');
+                deleteBtn?.addEventListener('click', async () => {
                 const confirmation = confirm(`Você realmente deseja excluir esse album? Suas músicas serão mantidas.`);
                 
                 if (!confirmation) {
@@ -951,7 +955,7 @@
                   showToast(`Erro ao excluir álbum: ${error.message}`, 'error');
                 }
               });
-              } // Fim do if (isOwner)
+              } // Fim do segundo if (isOwner) - botão excluir
             }, 100);
           }
         })
