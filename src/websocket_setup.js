@@ -71,5 +71,40 @@ function setupChatHandlers() {
     });
 }
 
-module.exports = { initWebSocket, getIo, setupChatHandlers };
+function setupServiceHandlers() {
+    if (!io) {
+        console.error("setupServiceHandlers: Socket.IO não inicializado!");
+        return;
+    }
+    
+    io.on("connection", (socket) => {
+        // Entrar em uma sala de serviço
+        socket.on("join_service", (serviceId) => {
+            socket.join(`service_${serviceId}`);
+            console.log(`Cliente entrou na sala do serviço: service_${serviceId}`);
+        });
+
+        // Sair de uma sala de serviço
+        socket.on("leave_service", (serviceId) => {
+            socket.leave(`service_${serviceId}`);
+            console.log(`Cliente saiu da sala do serviço: service_${serviceId}`);
+        });
+    });
+}
+
+// Função para emitir atualizações de status de serviço
+function emitServiceUpdate(serviceId, serviceData) {
+    if (!io) {
+        console.error("emitServiceUpdate: Socket.IO não inicializado!");
+        return;
+    }
+    
+    console.log(`Emitindo atualização para o serviço ${serviceId}:`, serviceData);
+    io.to(`service_${serviceId}`).emit("service_updated", {
+        serviceId: serviceId,
+        serviceData: serviceData
+    });
+}
+
+module.exports = { initWebSocket, getIo, setupChatHandlers, setupServiceHandlers, emitServiceUpdate };
 

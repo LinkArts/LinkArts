@@ -1,6 +1,6 @@
 {{#if otherUser}}
 <div class="chat-user" style="cursor: pointer; padding: 8px; border-radius: 8px; transition: background-color 0.2s ease;">
-    <div class="profile-avatar" style="pointer-events: none; width: 40px; height: 40px; background: url('/img/default.jpg') center/cover; border-radius: 50%;"></div>
+    <div class="profile-avatar" style="pointer-events: none; width: 40px; height: 40px; background: url('{{#if otherUser.imageUrl}}{{otherUser.imageUrl}}{{else}}/img/default.jpg{{/if}}') center/cover; border-radius: 50%;"></div>
     <div class="chat-user-info" style="pointer-events: none;">
         <div class="chat-user-name" style="pointer-events: none; font-size: 16px; font-weight: 600; color: #333; line-height: 1.2;">
             {{#if otherUser.name}}{{otherUser.name}}{{else}}Usuário desconhecido{{/if}}

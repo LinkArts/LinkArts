@@ -1,0 +1,139 @@
+/* Animações para notificações de status em tempo real */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.status-notification {
+    animation: slideIn 0.3s ease-out;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.status-notification.fade-out {
+    animation: slideOut 0.3s ease-out;
+}
+
+/* Transições suaves para mudanças de status */
+.status-text {
+    transition: all 0.3s ease-in-out;
+}
+
+.review-section {
+    transition: all 0.5s ease-in-out;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+}
+
+.review-section[style*="display: block"] {
+    opacity: 1;
+    max-height: 1000px;
+}
+
+/* Efeito de destaque para status confirmado */
+.status-text.success {
+    animation: pulse 1s ease-in-out;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Melhorias na seção de avaliação */
+.review-section h3 {
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+/* Destaque para mensagem de avaliação única */
+.feedback-message.success {
+    position: relative;
+    border-left: 4px solid #28a745;
+    padding-left: 20px;
+}
+
+.feedback-message.success span[style*="color: #dc3545"] {
+    animation: blink 1.5s infinite;
+    text-shadow: 0 0 5px rgba(220, 53, 69, 0.3);
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.7; }
+}
+
+/* Notificação especial para serviço confirmado */
+.status-notification.confirmed-service {
+    font-weight: 600;
+    font-size: 15px;
+    animation: slideIn 0.3s ease-out, glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), 0 4px 6px rgba(0,0,0,0.1);
+    }
+    to {
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.8), 0 4px 6px rgba(0,0,0,0.1);
+    }
+}
+
+.already-reviewed-message {
+    text-align: center;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+/* Indicador de carregamento para mudanças de status */
+.status-loading {
+    position: relative;
+}
+
+.status-loading::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translateY(-50%) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
+} 

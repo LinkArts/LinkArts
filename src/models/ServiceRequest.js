@@ -28,6 +28,10 @@ const ServiceRequest = db.define('ServiceRequest',
         endTime: {
             type: DataTypes.TIME,
             allowNull: true
+        },
+        price: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: true
         }
     }
 )

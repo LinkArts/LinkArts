@@ -34,9 +34,7 @@
               </div>
             </div>
           </div>
-          <div class="popup-footer">
-            <button class="popup-button" onclick="window.location.href='/favoritos/{{session.userid}}'">Ver todos</button>
-          </div>
+
         </div>
       </div>
       <div class="nav-icon" id="message-icon">
@@ -196,11 +194,12 @@
       let html = '';
       chats.forEach(chat => {
         const timeAgo = chat.latestMessage.createdAt ? formatTimeAgo(new Date(chat.latestMessage.createdAt)) : '';
+        const userImageUrl = chat.otherUser.imageUrl || '/img/default.jpg';
         
         html += `
           <div class="popup-item" style="cursor: pointer;" onclick="openChat(${chat.chatId})">
             <div class="popup-item-image">
-              <img src="/img/default.jpg" alt="${chat.otherUser.name}">
+              <img src="${userImageUrl}" alt="${chat.otherUser.name}">
             </div>
             <div class="popup-item-content">
               <h4 class="popup-item-title">${chat.otherUser.name}</h4>
@@ -277,10 +276,11 @@
 
       let html = '';
       favorites.favorites.forEach(favorite => {
+        const userImageUrl = favorite.imageUrl || '/img/default.jpg';
         html += `
           <a href="/profile/${favorite.id}" class="popup-item" style="cursor: pointer;">
             <div class="popup-item-image">
-              <img src="${favorite.profilePicture || '/img/default.jpg'}" alt="${favorite.name}">
+              <img src="${userImageUrl}" alt="${favorite.name}">
             </div>
             <div class="popup-item-content">
               <h4 class="popup-item-title">${favorite.name}</h4>

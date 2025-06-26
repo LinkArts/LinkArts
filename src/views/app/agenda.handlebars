@@ -31,11 +31,6 @@
                         <label for="proposal-price">Preço:</label>
                         <input type="number" id="proposal-price" step="0.01" min="0" required>
                     </div>
-                    <div class="form-group">
-                        <label for="proposal-tags">Tags (Categorias):</label>
-                        <select id="proposal-tags" class="form-control" multiple="multiple" style="width: 100%;">
-                        </select>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -176,7 +171,6 @@
         const closeSendProposalModalBtn = document.getElementById('close-send-proposal-modal');
         const cancelSendProposalModalBtn = document.getElementById('cancel-send-proposal-modal');
         const sendProposalForm = document.getElementById('send-proposal-form');
-        const proposalTagsSelect = document.getElementById('proposal-tags');
 
         const id = {{ userid }};
         const isOwner = {{ isOwner }};
@@ -185,15 +179,7 @@
 
         let scheduledServices = [];
         let receivedProposals = [];
-        let availableTags = [
-            { id: 'musica', text: 'Música' },
-            { id: 'evento', text: 'Evento' },
-            { id: 'aula', text: 'Aula' },
-            { id: 'gravacao', text: 'Gravação' },
-            { id: 'show', text: 'Show' },
-            { id: 'ensaio', text: 'Ensaio' },
-            { id: 'outros', text: 'Outros' }
-        ];
+
 
         const resetNotesArea = () =>
         {
@@ -384,11 +370,6 @@
         {
             sendProposalModalOverlay.classList.add('active');
             sendProposalModal.classList.add('active');
-            $(proposalTagsSelect).select2({
-                placeholder: "Selecione as tags",
-                data: availableTags,
-                allowClear: true
-            });
         };
 
         const closeSendProposalModal = () =>
@@ -396,11 +377,6 @@
             sendProposalModalOverlay.classList.remove('active');
             sendProposalModal.classList.remove('active');
             sendProposalForm.reset();
-
-            if ($(proposalTagsSelect).data('select2'))
-            {
-                $(proposalTagsSelect).val(null).trigger('change');
-            }
         };
 
         const handleProposalAction = async (e, proposalId) =>
@@ -602,7 +578,7 @@
 
                 if (!title || !date || !startTime || !endTime || isNaN(price))
                 {
-                    alert('Por favor, preencha todos os campos obrigatórios (Título, Data, Hora Início, Hora Fim, Preço) e selecione ao menos uma tag.');
+                    alert('Por favor, preencha todos os campos obrigatórios (Título, Data, Hora Início, Hora Fim, Preço).');
                     return;
                 }
 

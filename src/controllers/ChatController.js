@@ -96,7 +96,7 @@ module.exports = class ChatController {
                     {
                         model: User,
                         through: { attributes: [] },
-                        attributes: ["id", "name", "description", "city", "state"]
+                        attributes: ["id", "name", "description", "city", "state", "imageUrl"]
                     },
                     {
                         model: Message,
@@ -119,7 +119,8 @@ module.exports = class ChatController {
                         name: otherUser.name, 
                         description: otherUser.description, 
                         city: otherUser.city,
-                        state: otherUser.state
+                        state: otherUser.state,
+                        imageUrl: otherUser.imageUrl
                     } : null,
                     latestMessage: latestMessage ? { content: latestMessage.message, createdAt: latestMessage.createdAt } : null,
                     isGroupChat: otherUsers.length > 1,
@@ -169,7 +170,7 @@ module.exports = class ChatController {
             }
 
             const participants = await chat.getUsers({
-                attributes: ["id", "name", "description", "city"]
+                attributes: ["id", "name", "description", "city", "imageUrl"]
             });
 
             let otherUser = null;
@@ -182,7 +183,7 @@ module.exports = class ChatController {
                 include: [
                     {
                         model: User,
-                        attributes: ["id", "name"]
+                        attributes: ["id", "name", "imageUrl"]
                     }
                 ],
                 order: [["date", "ASC"]],
@@ -210,7 +211,8 @@ module.exports = class ChatController {
                     id: otherUser.id,
                     name: otherUser.name,
                     description: otherUser.description,
-                    city: otherUser.city
+                    city: otherUser.city,
+                    imageUrl: otherUser.imageUrl
                 } : null,
                 chatId: chat.id
             });
@@ -258,7 +260,7 @@ module.exports = class ChatController {
 
             console.log(`sendMessageApi: Mensagem criada com ID ${newMessage.id}`);
 
-            const sender = await User.findByPk(userId, { attributes: ["id", "name"] });
+            const sender = await User.findByPk(userId, { attributes: ["id", "name", "imageUrl"] });
 
             const socketData = {
                 id: newMessage.id,
@@ -357,7 +359,7 @@ module.exports = class ChatController {
                     {
                         model: User,
                         through: { attributes: [] },
-                        attributes: ["id", "name", "description", "city", "state", "instagram", "facebook", "linkedin"]
+                        attributes: ["id", "name", "description", "city", "state", "instagram", "facebook", "linkedin", "imageUrl"]
                     },
                 ]
             });
@@ -409,7 +411,7 @@ module.exports = class ChatController {
 
             const messages = await Message.findAll({
                 where: { chatid: chatId },
-                include: [{ model: User, attributes: ["id", "name"] }],
+                include: [{ model: User, attributes: ["id", "name", "imageUrl"] }],
                 order: [["date", "ASC"]]
             });
 
@@ -660,7 +662,7 @@ module.exports = class ChatController {
                     {
                         model: User,
                         through: { attributes: [] },
-                        attributes: ["id", "name"]
+                        attributes: ["id", "name", "imageUrl"]
                     },
                     {
                         model: Message,
@@ -681,7 +683,8 @@ module.exports = class ChatController {
                     chatId: chat.id,
                     otherUser: {
                         id: otherUser?.id || null,
-                        name: otherUser?.name || "Usuário desconhecido"
+                        name: otherUser?.name || "Usuário desconhecido",
+                        imageUrl: otherUser?.imageUrl || null
                     },
                     latestMessage: latestMessage ? {
                         content: latestMessage.message.length > 40 

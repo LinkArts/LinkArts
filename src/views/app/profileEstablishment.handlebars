@@ -149,6 +149,7 @@
               <p class="request-date-time">
                 <span class="date">Data: {{date}}</span>
                 <span class="time">Horário: {{startTime}} - {{endTime}}</span>
+                {{#if price}}<span class="price">Preço: R$ {{formatPrice price}}</span>{{/if}}
               </p>
               <div class="request-tags">
                 {{#each Tags}}
@@ -519,6 +520,26 @@
       return dateRaw;
     }
 
+    function formatPrice(price)
+    {
+      if (!price) return "0,00";
+      
+      try
+      {
+        const numericPrice = parseFloat(price);
+        if (isNaN(numericPrice)) return "0,00";
+        
+        return numericPrice.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      } catch (e)
+      {
+        console.error("Erro ao formatar preço:", e);
+        return "0,00";
+      }
+    }
+
     function renderEventCard(eventData)
     {
       const eventItem = document.createElement('li');
@@ -572,6 +593,7 @@
                     <p class="request-date-time">
                         <span class="date date-icon-text">Data: ${ formatDisplayDate(requestData.date) }</span>
                         <span class="time time-icon-text">Horário: ${ timeRange }</span>
+                        ${ requestData.price ? `<span class="price price-icon-text">Preço: R$ ${ formatPrice(requestData.price) }</span>` : '' }
                     </p>
                     <div class="request-tags"></div>
                 </div>`;
@@ -626,6 +648,7 @@
         const description = card.querySelector('.request-description')?.textContent || '';
         const dateText = card.querySelector('.date')?.textContent?.replace('Data: ', '') || '';
         const timeText = card.querySelector('.time')?.textContent?.replace('Horário: ', '') || '';
+        const priceText = card.querySelector('.price')?.textContent?.replace('Preço: R$ ', '') || null;
         const tags = Array.from(card.querySelectorAll('.tag')).map(tag => ({ name: tag.textContent }));
         
         // Separar horário de início e fim
@@ -640,6 +663,7 @@
           date: dateText,
           startTime: startTime,
           endTime: endTime,
+          price: priceText,
           Tags: tags
         };
         
@@ -687,6 +711,7 @@
             ${ requestData.description ? `<p><strong>Descrição:</strong> ${ requestData.description }</p>` : '' }
             <p><strong>Data:</strong> ${ formatDisplayDate(requestData.date) }</p>
             <p><strong>Horário:</strong> ${ timeRange }</p>
+            ${ requestData.price ? `<p><strong>Preço:</strong> R$ ${ formatPrice(requestData.price) }</p>` : '' }
             <p><strong>Tags:</strong> ${ tagsHtml || 'Nenhuma' }</p>
         </div>
         <div class="button-group">
@@ -1485,13 +1510,14 @@
                 <button type="button" class="modal-close-btn" aria-label="Fechar modal">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
-                <h2 id="add-service-request-heading">Adicionar Novo Pedido de Serviço</h2>
+                <h2 id="add-service-request-heading" style="margin-bottom: 25px;">Adicionar Novo Pedido de Serviço</h2>
                 <form id="add-service-request-form" novalidate>
                     <div class="form-group"> <label for="request-name">Nome do Pedido</label> <input type="text" id="request-name" required> </div>
                     <div class="form-group"> <label for="request-description">Descrição do Pedido (Opcional)</label> <textarea id="request-description" rows="3"></textarea> </div>
                     <div class="form-group"> <label for="request-date">Data</label> <input type="date" id="request-date" required> </div>
                     <div class="form-group"> <label for="request-start-time">Hora de Início</label> <input type="time" id="request-start-time" required> </div>
                     <div class="form-group"> <label for="request-end-time">Hora de Término (Opcional)</label> <input type="time" id="request-end-time"> </div>
+                    <div class="form-group"> <label for="request-price">Preço (Opcional)</label> <input type="number" id="request-price" min="0" step="0.01" placeholder="Ex: 150.00"> </div>
                     <div class="form-group">
                         <label for="request-tags">Tags</label>
                         <select id="request-tags" class="select2-hidden-accessible" multiple="multiple" style="width: 100%;">
@@ -1537,12 +1563,14 @@
         const requestDateInput = modalElement.querySelector('#request-date');
         const requestStartTimeInput = modalElement.querySelector('#request-start-time');
         const requestEndTimeInput = modalElement.querySelector('#request-end-time');
+        const requestPriceInput = modalElement.querySelector('#request-price');
         const modalOverlay = modalElement.closest('.modal-overlay');
 
         const requestName = requestNameInput.value.trim();
         const requestDate = requestDateInput.value;
         const requestStartTime = requestStartTimeInput.value.trim();
         const requestEndTime = requestEndTimeInput.value.trim();
+        const requestPrice = requestPriceInput.value.trim();
         const selectedTags = $(tagsSelect).val() || [];
 
         if (!requestName || !requestDate || !requestStartTime)
@@ -1560,6 +1588,7 @@
           date: requestDate,
           startTime: requestStartTime,
           endTime: requestEndTime,
+          price: requestPrice ? parseFloat(requestPrice) : null,
           tags: selectedTags
         };
 
@@ -1693,6 +1722,7 @@
                     <div class="form-group"> <label for="edit-request-date">Data</label> <input type="date" id="edit-request-date" value="${ formattedDate }" required> </div>
                     <div class="form-group"> <label for="edit-request-start-time">Hora de Início</label> <input type="time" id="edit-request-start-time" value="${ requestData.startTime }" required> </div>
                     <div class="form-group"> <label for="edit-request-end-time">Hora de Término (Opcional)</label> <input type="time" id="edit-request-end-time" value="${ requestData.endTime || '' }"> </div>
+                    <div class="form-group"> <label for="edit-request-price">Preço (Opcional)</label> <input type="number" id="edit-request-price" min="0" step="0.01" value="${ requestData.price || '' }" placeholder="Ex: 150.00"> </div>
                     <div class="form-group">
                         <label for="edit-request-tags">Tags</label>
                         <select id="edit-request-tags" class="select2-hidden-accessible" multiple="multiple" style="width: 100%;">
@@ -1740,6 +1770,7 @@
       const editDateInput = modalElement.querySelector('#edit-request-date');
       const editStartTimeInput = modalElement.querySelector('#edit-request-start-time');
       const editEndTimeInput = modalElement.querySelector('#edit-request-end-time');
+      const editPriceInput = modalElement.querySelector('#edit-request-price');
       const deleteServiceRequestBtn = modalElement.querySelector('#delete-service-request-btn');
 
       deleteServiceRequestBtn?.addEventListener('click', async function ()
@@ -1781,6 +1812,7 @@
         const newDate = editDateInput.value;
         const newStartTime = editStartTimeInput.value.trim();
         const newEndTime = editEndTimeInput.value.trim();
+        const newPrice = editPriceInput.value.trim();
         const newSelectedTags = $(tagsSelect).val() || [];
 
         if (!newName || !newDate || !newStartTime)
@@ -1798,6 +1830,7 @@
           date: newDate,
           startTime: newStartTime,
           endTime: newEndTime,
+          price: newPrice ? parseFloat(newPrice) : null,
           tags: newSelectedTags,
           establishmentid: requestData.establishmentid
         };
@@ -1883,9 +1916,6 @@
         showToast('Erro ao criar chat', 'error');
       }
     });
-
-    // Configurar scroll horizontal
-    setupHorizontalScroll();
 
     // Funcionalidade para lidar com reviews
     const viewAllReviewsBtn = document.getElementById('view-all-reviews-btn');

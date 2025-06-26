@@ -1,6 +1,6 @@
 module.exports = function setupAssociations(models)
 {
-    const { User, Artist, Establishment, Album, Music, Genre, Tag, Chat, Message, Event, ServiceRequest, Service, ServiceNote, ServiceProposal, Rating, Favorite } = models;
+    const { User, Artist, Establishment, Album, Music, Genre, Tag, Chat, Message, Event, ServiceRequest, Service, ServiceNote, ServiceProposal, Rating, Favorite, Report } = models;
 
     Artist.belongsTo(User, {
         foreignKey: 'userid',
@@ -321,4 +321,47 @@ module.exports = function setupAssociations(models)
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
+
+    // Report associations
+    Report.belongsTo(User, {
+        foreignKey: 'reporterUserId',
+        as: 'Reporter',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
+    Report.belongsTo(User, {
+        foreignKey: 'reportedUserId',
+        as: 'ReportedUser',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
+    Report.belongsTo(Chat, {
+        foreignKey: 'chatId',
+        as: 'Chat',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
+    User.hasMany(Report, {
+        foreignKey: 'reporterUserId',
+        as: 'MadeReports',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
+    User.hasMany(Report, {
+        foreignKey: 'reportedUserId',
+        as: 'ReceivedReports',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
+    Chat.hasMany(Report, {
+        foreignKey: 'chatId',
+        as: 'Reports',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
 };

@@ -5,7 +5,7 @@ const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const flash = require("express-flash");
 const http = require("http");
-const { initWebSocket, setupChatHandlers } = require("./websocket_setup");
+const { initWebSocket, setupChatHandlers, setupServiceHandlers } = require("./websocket_setup");
 const path = require("path");
 const os = require("os");
 
@@ -27,6 +27,7 @@ const server = http.createServer(app);
 const io = initWebSocket(server);
 
 setupChatHandlers();
+setupServiceHandlers();
 
 const authRoutes = require("./routes/authRoutes");
 const AuthController = require("./controllers/AuthController");
@@ -42,8 +43,9 @@ const agendaRoutes = require("./routes/agendaRoutes");
 const AgendaController = require("./controllers/AgendaController");
 const serviceRoutes = require('./routes/serviceRoutes')
 const adminRoutes = require('./routes/adminRoutes')
+const reportRoutes = require('./routes/reportRoutes')
 
-const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest, Service, ServiceNote, ServiceProposal, Rating } = require('./models/index')
+const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest, Service, ServiceNote, ServiceProposal, Rating, Report } = require('./models/index')
 
 app.engine(
   "handlebars",
@@ -167,6 +169,22 @@ app.engine(
       },
       lte: function(a, b) {
         return a <= b;
+      },
+      formatPrice: function(price) {
+        if (!price) return "0,00";
+        
+        try {
+          const numericPrice = parseFloat(price);
+          if (isNaN(numericPrice)) return "0,00";
+          
+          return numericPrice.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+        } catch (e) {
+          console.error("Erro ao formatar preço:", e);
+          return "0,00";
+        }
       }
     },
     partialsDir: path.join(__dirname, "views", "partials"),
@@ -261,6 +279,7 @@ app.use('/', chatRoutes)
 app.use('/', agendaRoutes)
 app.use('/', serviceRoutes)
 app.use('/', adminRoutes)
+app.use('/', reportRoutes)
 app.use('/upload', require('./routes/uploadRoutes'))
 app.get('/', AuthController.renderLogin)
 

@@ -20,7 +20,7 @@
                 {{#each chats}}
                 <div class="user-conversation {{#if this.isActive}}active{{/if}}" data-chat-id="{{this.chatId}}"
                     data-other-user-id="{{this.otherUser.id}}" data-other-user-name="{{this.otherUser.name}}">
-                    <div class="user-avatar" style="width: 50px; height: 50px; background: url('/img/default.jpg') center/cover; border-radius: 50%; flex-shrink: 0;"></div>
+                    <div class="user-avatar" style="width: 50px; height: 50px; background: url('{{#if this.otherUser.imageUrl}}{{this.otherUser.imageUrl}}{{else}}/img/default.jpg{{/if}}') center/cover; border-radius: 50%; flex-shrink: 0;"></div>
                     <div class="user-info">
                         <div class="user-name-time">
                             <div class="user-name">{{this.otherUser.name}}</div>
@@ -102,10 +102,49 @@
         </div>
     </div>
 
-    <div class="modal" id="proposal-modal">
+    <!-- Modal de Proposta (baseado na agenda) -->
+    <div class="modal-overlay" id="send-proposal-modal-overlay">
+        <div class="modal-send-proposal" id="send-proposal-modal">
+            <div class="modal-header">
+                <h2>Enviar Proposta de Serviço</h2>
+                <button class="modal-close-btn" id="close-send-proposal-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="send-proposal-form">
+                    <div class="form-group">
+                        <label for="proposal-title">Título da Proposta:</label>
+                        <input type="text" id="proposal-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proposal-description">Descrição:</label>
+                        <textarea id="proposal-description" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="proposal-date">Data:</label>
+                        <input type="date" id="proposal-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proposal-start-time">Hora Início:</label>
+                        <input type="time" id="proposal-start-time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proposal-end-time">Hora Fim:</label>
+                        <input type="time" id="proposal-end-time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proposal-price">Preço:</label>
+                        <input type="number" id="proposal-price" step="0.01" min="0" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="submit" form="send-proposal-form">Enviar</button>
+                <button class="btn btn-cancel" id="cancel-send-proposal-modal">Cancelar</button>
+            </div>
+        </div>
     </div>
 
-    <div class="toast" id="toast"></div>
+
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
@@ -118,12 +157,8 @@
             const profileContainer = document.getElementById("profile-column-container");
             const messageInput = document.querySelector(".message-input");
             const sendButton = document.querySelector(".send-button");
-            const toast = document.getElementById("toast");
-            const modal = document.getElementById("proposal-modal");
-            const closeModalButton = modal.querySelector(".close-modal");
-            const cancelButton = modal.querySelector(".cancel-button");
-            const proposalForm = document.getElementById("proposal-form");
-            const proposalConversationIdInput = document.getElementById("proposal-conversation-id");
+
+            // Elementos de modal removidos temporariamente
             const loggedInUserIdInput = document.getElementById("loggedInUserId");
             const loadingIndicator = messagesContainer.querySelector(".loading-indicator");
             const chatUserHeader = document.getElementById("chat-user-header");
@@ -377,12 +412,13 @@
                             const sanitizedUserName = otherUserName.replace(/[<>]/g, '');
                             const sanitizedMessage = lastMessageContent.replace(/[<>]/g, '');
                             
+                            const userImageUrl = chat.otherUser?.imageUrl || '/img/default.jpg';
                             html += `<div class="user-conversation${chat.chatId == currentChatId ? " active" : ""}" 
                                 data-chat-id="${chat.chatId}" 
                                 data-other-user-id="${otherUserId}" 
                                 data-other-user-name="${sanitizedUserName}"
                                 title="${chat.isGroupChat ? `Chat em grupo com ${chat.participantCount} pessoas` : `Chat com ${sanitizedUserName}`}">
-                                <img src="/img/default.jpg" alt="${sanitizedUserName}" class="user-avatar">
+                                <img src="${userImageUrl}" alt="${sanitizedUserName}" class="user-avatar">
                                 <div class="user-info">
                                     <div class="user-name-time">
                                         <div class="user-name">${sanitizedUserName}</div>
@@ -419,7 +455,8 @@
                     let html = "";
                     if (chats.length > 0) {
                         chats.slice(0, 5).forEach(chat => {
-                            html += `<div class="popup-item"><div class="popup-item-image"><img src="/img/default.jpg" alt="${chat.otherUser?.name ?? "Usuário"}"></div><div class="popup-item-content"><h4 class="popup-item-title">${chat.otherUser?.name ?? "Usuário desconhecido"}</h4><p class="popup-item-description">${chat.latestMessage?.content ?? "Sem mensagens"}</p></div></div>`;
+                            const userImageUrl = chat.otherUser?.imageUrl || '/img/default.jpg';
+                            html += `<div class="popup-item"><div class="popup-item-image"><img src="${userImageUrl}" alt="${chat.otherUser?.name ?? "Usuário"}"></div><div class="popup-item-content"><h4 class="popup-item-title">${chat.otherUser?.name ?? "Usuário desconhecido"}</h4><p class="popup-item-description">${chat.latestMessage?.content ?? "Sem mensagens"}</p></div></div>`;
                         });
                     } else {
                         html = "<div class=\"popup-item\"><div class=\"popup-item-content\"><p>Sem conversas.</p></div></div>";
@@ -614,22 +651,50 @@
                         console.error('Falha no envio - resultado inválido:', result);
                         const optimisticElem = messagesContainer.querySelector(`.msg.optimistic-message[data-temp-id="${tempId}"]`);
                         if (optimisticElem) optimisticElem.remove();
-                        showToast("Erro ao enviar mensagem", true);
+                        showToast("Erro ao enviar mensagem", 'error');
                     }
                 } catch (err) {
                     console.error('Erro no envio de mensagem:', err);
                     const optimisticElem = messagesContainer.querySelector(`.msg.optimistic-message[data-temp-id="${tempId}"]`);
                     if (optimisticElem) optimisticElem.remove();
-                    showToast("Erro ao enviar mensagem", true);
+                    showToast("Erro ao enviar mensagem", 'error');
                 }
             }
             
-            function showToast(message, isError = false) {
-                toast.textContent = message;
-                toast.className = `toast show ${isError ? "error" : ""}`;
+            function showToast(message, type = 'success') {
+                // Remove toasts existentes
+                document.querySelectorAll('.toast.show').forEach(t => t.remove());
+                
+                // Cria novo toast
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                // Define ícone baseado no tipo
+                let iconSvg = '';
+                if (type === 'success') {
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>`;
+                } else if (type === 'warning') {
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M8.22 1.754a.25.25 0 0 0-.44 0L1.698 13.939a.25.25 0 0 0 .22.361h12.164a.25.25 0 0 0 .22-.361L8.22 1.754ZM8 11.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM8.25 6v3.5a.25.25 0 0 1-.5 0V6a.25.25 0 0 1 .5 0Z"/></svg>`;
+                } else if (type === 'error') {
+                    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M4.47 4.47a.75.75 0 0 1 1.06 0L8 6.94l2.47-2.47a.75.75 0 1 1 1.06 1.06L9.06 8l2.47 2.47a.75.75 0 1 1-1.06 1.06L8 9.06l-2.47 2.47a.75.75 0 0 1-1.06-1.06L6.94 8 4.47 5.53a.75.75 0 0 1 0-1.06Z"/></svg>`;
+                }
+                
+                toast.innerHTML = `${iconSvg} <span>${message}</span>`;
+                document.body.appendChild(toast);
+                
+                // Força reflow para animação
+                toast.getBoundingClientRect();
+                toast.classList.add('show');
+                
+                // Remove toast após 3.5 segundos
                 setTimeout(() => {
-                    toast.className = toast.className.replace("show", "");
-                }, 3000);
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => {
+                        if (document.body.contains(toast)) {
+                            document.body.removeChild(toast);
+                        }
+                    }, { once: true });
+                }, 3500);
             }
 
             async function loadChatHtml(chatId) {
@@ -673,13 +738,16 @@
                 const otherUserName = conversationElement.dataset.otherUserName;
 
                 if (!chatId || isNaN(chatId)) {
-                    showToast("Erro: ID do chat inválido", true);
+                    showToast("Erro: ID do chat inválido", 'error');
                     return;
                 }
 
                 if (currentChatId === chatId) {
                     return;
                 }
+
+                // Lembrar se era a primeira vez entrando em um chat (se não havia chat ativo antes)
+                const isFirstChatSelection = currentChatId === null;
 
                 document.querySelectorAll(".user-conversation").forEach(conv => conv.classList.remove("active"));
                 conversationElement.classList.add("active");
@@ -688,7 +756,7 @@
                 currentOtherUserId = otherUserId || null;
                 currentOtherUserName = otherUserName || "Usuário desconhecido";
                 
-                console.log('Chat selecionado:', { chatId, currentOtherUserId, currentOtherUserName });
+                console.log('Chat selecionado:', { chatId, currentOtherUserId, currentOtherUserName, isFirstChatSelection });
                 
                 const chatHeader = document.querySelector('.chat-header');
                 if (chatHeader) {
@@ -712,6 +780,16 @@
                 }
 
                 loadChatHtml(chatId);
+
+                // Abrir automaticamente a coluna de perfil se for a primeira seleção de chat
+                // Isso melhora a experiência do usuário mostrando informações do contato imediatamente
+                if (isFirstChatSelection && !isProfileColumnVisible) {
+                    console.log('Primeira seleção de chat - abrindo coluna de perfil automaticamente');
+                    // Aguardar um pouco para que o HTML do chat seja carregado antes de abrir o perfil
+                    setTimeout(() => {
+                        toggleProfileColumn();
+                    }, 500);
+                }
             });
 
             sendButton.addEventListener("click", sendMessage);
@@ -819,6 +897,7 @@
                 try {
                     const conversationElement = document.querySelector(`[data-chat-id="${chatId}"]`);
                     if (conversationElement) {
+                        // O evento de clique já vai lidar com a abertura automática da coluna de perfil
                         conversationElement.click();
                     } else {
                         console.warn('Chat não encontrado na lista:', chatId);
@@ -829,6 +908,268 @@
                     showToast('Erro ao abrir conversa', true);
                 }
             }
+
+            // Funcionalidade do modal de proposta
+            function setupProposalButton() {
+                // Função global para ser chamada pelo botão no profile.handlebars
+                window.openProposalModal = function() {
+                    if (!currentOtherUserId) {
+                        showToast('Selecione uma conversa para enviar proposta', 'warning');
+                        return;
+                    }
+                    
+                    openSendProposalModal();
+                };
+                
+                // Configurar eventos do modal uma única vez
+                setupProposalModalEvents();
+            }
+
+            function openSendProposalModal() {
+                const sendProposalModalOverlay = document.getElementById('send-proposal-modal-overlay');
+                const sendProposalModal = document.getElementById('send-proposal-modal');
+                
+                if (sendProposalModalOverlay && sendProposalModal) {
+                    sendProposalModalOverlay.classList.add('active');
+                    sendProposalModal.classList.add('active');
+                }
+            }
+
+            function closeSendProposalModal() {
+                const sendProposalModalOverlay = document.getElementById('send-proposal-modal-overlay');
+                const sendProposalModal = document.getElementById('send-proposal-modal');
+                const sendProposalForm = document.getElementById('send-proposal-form');
+                
+                if (sendProposalModalOverlay && sendProposalModal) {
+                    sendProposalModalOverlay.classList.remove('active');
+                    sendProposalModal.classList.remove('active');
+                    
+                    if (sendProposalForm) {
+                        sendProposalForm.reset();
+                    }
+                }
+            }
+
+            function setupProposalModalEvents() {
+                // Aguardar o DOM estar totalmente carregado
+                setTimeout(() => {
+                    const closeSendProposalModalBtn = document.getElementById('close-send-proposal-modal');
+                    const cancelSendProposalModalBtn = document.getElementById('cancel-send-proposal-modal');
+                    const sendProposalModalOverlay = document.getElementById('send-proposal-modal-overlay');
+                    const sendProposalForm = document.getElementById('send-proposal-form');
+
+                    // Configurar botões de fechar
+                    if (closeSendProposalModalBtn) {
+                        closeSendProposalModalBtn.addEventListener('click', closeSendProposalModal);
+                    }
+                    
+                    if (cancelSendProposalModalBtn) {
+                        cancelSendProposalModalBtn.addEventListener('click', closeSendProposalModal);
+                    }
+                    
+                    // Fechar ao clicar no overlay
+                    if (sendProposalModalOverlay) {
+                        sendProposalModalOverlay.addEventListener('click', (e) => {
+                            if (e.target === sendProposalModalOverlay) {
+                                closeSendProposalModal();
+                            }
+                        });
+                    }
+
+                    // Configurar envio do formulário
+                    if (sendProposalForm) {
+                        sendProposalForm.addEventListener('submit', async (e) => {
+                            e.preventDefault();
+
+                            const title = document.getElementById('proposal-title').value;
+                            const description = document.getElementById('proposal-description').value;
+                            const date = document.getElementById('proposal-date').value;
+                            const startTime = document.getElementById('proposal-start-time').value;
+                            const endTime = document.getElementById('proposal-end-time').value;
+                            const price = parseFloat(document.getElementById('proposal-price').value);
+
+                            if (!title || !date || !startTime || !endTime || isNaN(price)) {
+                                showToast('Por favor, preencha todos os campos obrigatórios (Título, Data, Hora Início, Hora Fim, Preço).', true);
+                                return;
+                            }
+
+                            try {
+                                const response = await fetch('/agenda/enviar-proposta', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        userid: currentOtherUserId,
+                                        name: title,
+                                        description: description,
+                                        date: date,
+                                        startTime: startTime,
+                                        endTime: endTime,
+                                        price: price.toString(),
+                                    })
+                                });
+
+                                if (!response.ok) {
+                                    const errorData = await response.json();
+                                    throw new Error(errorData.message || 'Erro ao enviar proposta');
+                                }
+
+                                const result = await response.json();
+                                showToast(result.message || 'Proposta enviada com sucesso!', 'success');
+                                closeSendProposalModal();
+
+                            } catch (error) {
+                                console.error('Erro ao enviar proposta:', error);
+                                showToast('Erro ao enviar proposta. Tente novamente.', 'error');
+                            }
+                        });
+                    }
+                }, 100); // Pequeno delay para garantir que os elementos existam
+            }
+
+            // Funcionalidade do modal de denúncia
+            function setupReportButton() {
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.report-button')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        if (!currentChatId) {
+                            showToast('Selecione uma conversa para reportar', true);
+                            return;
+                        }
+                        
+                        openReportModal();
+                    }
+                });
+            }
+
+            function openReportModal() {
+                const modalHTML = `
+                    <div class="report-modal-overlay" id="report-modal-overlay">
+                        <div class="report-modal">
+                            <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
+                            <h2>Denunciar Conversa</h2>
+                            <form id="report-form">
+                                <div class="form-group">
+                                    <label for="report-reason">Motivo da denúncia *</label>
+                                    <select id="report-reason" name="reason" required>
+                                        <option value="">Selecione um motivo</option>
+                                        <option value="spam">Spam ou conteúdo repetitivo</option>
+                                        <option value="fake">Perfil falso ou enganoso</option>
+                                        <option value="harassment">Assédio ou bullying</option>
+                                        <option value="inappropriate">Conteúdo inapropriado</option>
+                                        <option value="copyright">Violação de direitos autorais</option>
+                                        <option value="other">Outro</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="report-description">Descrição detalhada</label>
+                                    <textarea id="report-description" name="description" rows="4" placeholder="Descreva o problema em detalhes (opcional)"></textarea>
+                                </div>
+                                <div class="button-group">
+                                    <button type="button" class="btn btn-cancel">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Enviar Denúncia</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+                const overlay = document.getElementById('report-modal-overlay');
+                const modal = overlay.querySelector('.report-modal');
+                const form = overlay.querySelector('#report-form');
+                const reasonSelect = overlay.querySelector('#report-reason');
+                const descriptionTextarea = overlay.querySelector('#report-description');
+                const closeBtn = overlay.querySelector('.modal-close-btn');
+                const cancelBtn = overlay.querySelector('.btn-cancel');
+
+                // Mostrar modal com animação
+                setTimeout(() => {
+                    overlay.classList.add('is-visible');
+                }, 10);
+
+                // Eventos de fechar modal
+                closeBtn.addEventListener('click', closeReportModal);
+                cancelBtn.addEventListener('click', closeReportModal);
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) {
+                        closeReportModal();
+                    }
+                });
+
+                // Evento de escape para fechar
+                document.addEventListener('keydown', handleEscapeKey);
+
+                // Evento de envio do formulário
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const reason = reasonSelect.value;
+                    const description = descriptionTextarea.value;
+
+                    if (!reason) {
+                        reasonSelect.classList.add('input-error');
+                        showToast('Por favor, selecione um motivo para a denúncia.', true);
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/api/reports', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                chatId: currentChatId,
+                                type: 'chat',
+                                reason: reason,
+                                description: description
+                            })
+                        });
+
+                        if (response.ok) {
+                            showToast('Denúncia enviada com sucesso. Obrigado por nos ajudar a manter a comunidade segura.');
+                            closeReportModal();
+                        } else {
+                            const errorData = await response.json();
+                            showToast(errorData.message || 'Erro ao enviar denúncia. Tente novamente.', true);
+                        }
+                    } catch (error) {
+                        console.error('Erro ao enviar denúncia:', error);
+                        showToast('Erro de conexão. Verifique sua internet e tente novamente.', true);
+                    }
+                });
+
+                // Remover erro quando selecionar um motivo
+                reasonSelect.addEventListener('change', () => {
+                    reasonSelect.classList.remove('input-error');
+                });
+
+                function closeReportModal() {
+                    overlay.classList.remove('is-visible');
+                    document.removeEventListener('keydown', handleEscapeKey);
+                    
+                    setTimeout(() => {
+                        overlay.remove();
+                    }, 300);
+                }
+
+                function handleEscapeKey(e) {
+                    if (e.key === 'Escape') {
+                        closeReportModal();
+                    }
+                }
+            }
+
+            // Inicializar funcionalidade de denúncia
+            setupReportButton();
+            
+            // Inicializar funcionalidade de proposta
+            setupProposalButton();
         });
     </script>
 </body>

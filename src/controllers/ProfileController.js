@@ -1126,7 +1126,7 @@ module.exports = class ProfileController
 
     static async createServiceRequest(req, res)
     {
-        const { name, description, date, startTime, endTime, tags } = req.body
+        const { name, description, date, startTime, endTime, tags, price } = req.body
 
         if (!name || !date || !startTime)
         {
@@ -1155,6 +1155,7 @@ module.exports = class ProfileController
                 date,
                 startTime,
                 endTime,
+                price,
                 tags: tags || [],
                 establishmentid
             })
@@ -1188,7 +1189,7 @@ module.exports = class ProfileController
     static async updateServiceRequest(req, res)
     {
         const id = req.params.id
-        const { name, description, date, startTime, endTime, tags } = req.body
+        const { name, description, date, startTime, endTime, tags, price } = req.body
 
         if (!name || !date || !startTime)
         {
@@ -1221,7 +1222,7 @@ module.exports = class ProfileController
             }
 
             await ServiceRequest.update(
-                { name, description, date, startTime, endTime, tags: tags || [], establishmentid },
+                { name, description, date, startTime, endTime, price, tags: tags || [], establishmentid },
                 { where: { id: id } }
             )
 
@@ -1317,7 +1318,7 @@ module.exports = class ProfileController
                 include: {
                     model: User, // Inclui os dados completos dos usuários favoritados
                     as: 'FavoritedUsers', // Usa o alias único configurado na associação
-                    attributes: { exclude: ['password'] }
+                    attributes: ['id', 'name', 'description', 'city', 'state', 'imageUrl'] // Incluindo explicitamente imageUrl
                 }
             });
     

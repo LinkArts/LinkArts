@@ -1,4 +1,5 @@
 const { Op, where, col, fn, Sequelize } = require('sequelize');
+const { emitServiceUpdate } = require('../websocket_setup');
 
 const { User, Artist, Establishment, Service, Tag, Rating, ServiceRequest } = require('../models/index');
 
@@ -129,6 +130,7 @@ module.exports = class ServiceController
 
             return res.render('app/service', {
                 css: 'servico.css',
+                additionalCss: 'serviceRealtime.css',
                 service: formattedService,
                 isArtist: isArtist,
                 isEstablishment: isEstablishment
@@ -212,6 +214,15 @@ module.exports = class ServiceController
             const isConfirmed = service.artistStatus === 'confirmed' && service.establishmentStatus === 'confirmed';
             const isCancelled = service.artistStatus === 'cancelled' || service.establishmentStatus === 'cancelled';
 
+            // Emite atualização via WebSocket para todos os usuários conectados ao serviço
+            emitServiceUpdate(service.id, {
+                artistStatus: service.artistStatus,
+                establishmentStatus: service.establishmentStatus,
+                isConfirmed: isConfirmed,
+                isCancelled: isCancelled,
+                timestamp: new Date()
+            });
+
             return res.json({
                 message: isConfirmed
                     ? 'Serviço confirmado por ambas as partes!'
@@ -219,6 +230,8 @@ module.exports = class ServiceController
                         ? 'Serviço cancelado!'
                         : 'Ação realizada com sucesso!',
                 service: service,
+                isConfirmed: isConfirmed,
+                isCancelled: isCancelled
             });
         } catch (error)
         {
@@ -406,38 +419,10 @@ module.exports = class ServiceController
 
     static async renderServiceRequest(req, res) {
         try {
-            const { id } = req.params; // ID do ServiceRequest
-            const loggedUserId = req.session.userid;
+            const { id } = req.params;
 
-            // Fetch the ServiceRequest with associated Establishment and Artists
-            const serviceRequest = await ServiceRequest.findOne({
-                where: { id: id },
-                include: [
-                    {
-                        model: Establishment,
-                        include: [
-                            {
-                                model: User,
-                                include: [
-                                    { model: Tag, as: 'Tags' } // Include Tags related to the user
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        model: Artist,
-                        as: 'Artists', // Use the alias specified in the association
-                        include: [
-                            {
-                                model: User,
-                                include: [
-                                    { model: Tag, as: 'Tags' } // Include Tags related to the artist
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            });
+            // Busca simples sem includes complexos primeiro
+            const serviceRequest = await ServiceRequest.findByPk(id);
 
             if (!serviceRequest) {
                 return res.status(404).render('app/dashboard', {
@@ -445,66 +430,122 @@ module.exports = class ServiceController
                 });
             }
 
-            // Calculate ratings for the establishment
-            const establishment = serviceRequest.Establishment.User;
-            const totalRatingsEstablishment = await Rating.count({ where: { receiverUserid: establishment.id } }) || 0;
-            const averageRatingEstablishment = await Rating.findOne({
-                where: { receiverUserid: establishment.id },
-                attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
+            // Busca establishment separadamente
+            const establishment = await Establishment.findByPk(serviceRequest.establishmentid, {
+                include: [{ model: User }]
             });
-            const averageRatingEstablishmentValue = averageRatingEstablishment && averageRatingEstablishment.dataValues.averageRating
-                ? parseFloat(averageRatingEstablishment.dataValues.averageRating).toFixed(1)
-                : 0;
 
-            // Map artists and calculate their ratings
-            const artists = await Promise.all(
-                serviceRequest.Artists.map(async (artist) => {
-                    const totalRatingsArtist = await Rating.count({ where: { receiverUserid: artist.User.id } }) || 0;
-                    const averageRatingArtist = await Rating.findOne({
-                        where: { receiverUserid: artist.User.id },
-                        attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
-                    });
-                    const averageRatingArtistValue = averageRatingArtist && averageRatingArtist.dataValues.averageRating
-                        ? parseFloat(averageRatingArtist.dataValues.averageRating).toFixed(1)
-                        : 0;
+            if (!establishment || !establishment.User) {
+                return res.status(404).render('app/dashboard', {
+                    css: 'dashboard.css',
+                });
+            }
 
-                    return {
-                        id: artist.userid,
-                        name: artist.User.name,
-                        city: artist.User.city,
-                        profileImg: artist.User.profileImg || `https://via.placeholder.com/100/9b87f5/ffffff?text=${artist.User.name.charAt(0)}`,
-                        totalRatings: totalRatingsArtist,
-                        averageRating: averageRatingArtistValue
-                    };
-                })
-            );
+            // Buscar artistas interessados separadamente
+            let artists = [];
+            try {
+                const serviceRequestWithArtists = await ServiceRequest.findByPk(id, {
+                    include: [{
+                        model: Artist,
+                        as: 'Artists',
+                        include: [{
+                            model: User
+                        }]
+                    }]
+                });
+
+                if (serviceRequestWithArtists && serviceRequestWithArtists.Artists) {
+                    
+                    artists = await Promise.all(serviceRequestWithArtists.Artists.map(async (artist) => {
+                        let totalRatings = 0;
+                        let averageRating = 0;
+                        
+                        try {
+                            totalRatings = await Rating.count({ where: { receiverUserid: artist.User.id } }) || 0;
+                            const avgRating = await Rating.findOne({
+                                where: { receiverUserid: artist.User.id },
+                                attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
+                            });
+                            averageRating = avgRating && avgRating.dataValues.averageRating
+                                ? parseFloat(avgRating.dataValues.averageRating).toFixed(1)
+                                : 0;
+                        } catch (ratingError) {
+                            // Erro silencioso ao buscar ratings
+                        }
+
+                        return {
+                            id: artist.userid,
+                            name: artist.User.name || 'Nome não informado',
+                            city: artist.User.city || 'Cidade não informada',
+                            profileImg: artist.User.imageUrl || '/img/imgArtista.png',
+                            totalRatings: totalRatings,
+                            averageRating: averageRating
+                        };
+                    }));
+                }
+            } catch (artistError) {
+                artists = [];
+            }
+
+            // Buscar ratings do estabelecimento
+            let totalRatingsEstablishment = 0;
+            let averageRatingEstablishment = 0;
+            try {
+                totalRatingsEstablishment = await Rating.count({ where: { receiverUserid: establishment.User.id } }) || 0;
+                const avgRatingEst = await Rating.findOne({
+                    where: { receiverUserid: establishment.User.id },
+                    attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
+                });
+                averageRatingEstablishment = avgRatingEst && avgRatingEst.dataValues.averageRating
+                    ? parseFloat(avgRatingEst.dataValues.averageRating).toFixed(1)
+                    : 0;
+            } catch (ratingError) {
+                // Erro silencioso ao buscar ratings do estabelecimento
+            }
+
+            // Formatação de data e hora
+            const formatTime = (timeString) => {
+                if (!timeString) return '';
+                const time = timeString.split(':');
+                return `${time[0]}:${time[1]}`;
+            };
+
+            const formatDate = (dateString) => {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('pt-BR');
+            };
+
+            const serviceData = {
+                id: serviceRequest.id,
+                name: serviceRequest.name || 'Serviço sem nome',
+                description: serviceRequest.description || 'Sem descrição',
+                date: formatDate(serviceRequest.date) || 'Data não informada',
+                startTime: formatTime(serviceRequest.startTime) || 'Horário não informado',
+                endTime: formatTime(serviceRequest.endTime) || '',
+                price: serviceRequest.price || null,
+                establishment: {
+                    id: establishment.User.id,
+                    name: establishment.User.name || 'Nome não informado',
+                    city: establishment.User.city || 'Cidade não informada',
+                    description: establishment.User.description || 'Sem descrição',
+                    profileImg: establishment.User.imageUrl || '/img/imgEmpresa.png',
+                    totalRatings: totalRatingsEstablishment,
+                    averageRating: averageRatingEstablishment
+                },
+                artists: artists
+            };
 
             return res.render('app/serviceRequest', {
                 css: 'pedidoServico.css',
-                serviceRequest: {
-                    id: serviceRequest.id,
-                    title: serviceRequest.title,
-                    description: serviceRequest.description,
-                    date: serviceRequest.date,
-                    startTime: serviceRequest.startTime,
-                    endTime: serviceRequest.endTime,
-                    price: serviceRequest.price,
-                    establishment: {
-                        id: establishment.id,
-                        name: establishment.name,
-                        city: establishment.city,
-                        description: establishment.description,
-                        profileImg: establishment.profileImg || `https://via.placeholder.com/100/6D28D9/ffffff?text=${establishment.name.charAt(0)}`,
-                        totalRatings: totalRatingsEstablishment,
-                        averageRating: averageRatingEstablishmentValue
-                    },
-                    artists
-                }
+                serviceRequest: serviceData
             });
+
         } catch (error) {
-            console.error('Error loading service request:', error);
+            console.error('Erro no renderServiceRequest:', error);
             return res.status(500).render('app/dashboard', {
-                css: 'dashboard.css'
+                css: 'dashboard.css',
+                error: 'Erro ao carregar pedido de serviço'
             });
         }
     }

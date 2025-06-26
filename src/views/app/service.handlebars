@@ -99,9 +99,7 @@
             </div>
         </section>
 
-        {{#if (and (eq service.artistStatus 'confirmed') (eq service.establishmentStatus 'confirmed'))}}
-    {{#unless service.hasBeenReviewed}}
-        <section class="review-section" id="review-section">
+                <section class="review-section" id="review-section" style="display: none;">
             <h3>Avaliar Serviço</h3>
             <form id="review-form">
                 <div class="form-group">
@@ -124,13 +122,14 @@
                 <p id="review-feedback-message" class="feedback-message" style="display: none;"></p>
             </form>
         </section>
-    {{else}}
-        <p class="feedback-message success">Você já avaliou este serviço.</p>
-    {{/unless}}
-{{/if}}
+        
+        <div id="already-reviewed-message" class="feedback-message success" style="display: none;">
+            <p>Você já avaliou este serviço.</p>
+        </div>
     </main>
 </div>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () =>
     {
@@ -160,6 +159,7 @@
         const confirmationMessage = document.getElementById('confirmation-message');
 
         const reviewSection = document.getElementById('review-section');
+        const alreadyReviewedMessage = document.getElementById('already-reviewed-message');
         const starRatingContainer = document.getElementById('star-rating');
         const ratingInput = document.getElementById('rating-input');
         const reviewText = document.getElementById('review-text');
@@ -167,6 +167,36 @@
         const reviewFeedbackMessage = document.getElementById('review-feedback-message');
 
         let currentRating = 0;
+
+        // Configuração do WebSocket
+        const socket = io();
+        
+        // Entrar na sala do serviço
+        socket.emit('join_service', serviceData.id);
+        
+        // Listener para atualizações de serviço via WebSocket
+        socket.on('service_updated', (data) => {
+            console.log('Atualização recebida via WebSocket:', data);
+            
+            if (data.serviceId == serviceData.id) {
+                // Atualiza os dados locais
+                serviceData.artistStatus = data.serviceData.artistStatus;
+                serviceData.establishmentStatus = data.serviceData.establishmentStatus;
+                
+                // Atualiza a interface
+                updateStatusDisplay();
+                updateActionButtons();
+                updateReviewSectionVisibility();
+                
+                // Mostra notificação de mudança
+                showStatusNotification(data.serviceData.isConfirmed, data.serviceData.isCancelled);
+            }
+        });
+        
+        // Cleanup ao sair da página
+        window.addEventListener('beforeunload', () => {
+            socket.emit('leave_service', serviceData.id);
+        });
 
         updateReviewSectionVisibility()
 
@@ -182,48 +212,161 @@
             }
         }
 
+        function updateStatusDisplay() {
+            let statusText = '';
+            let statusClass = '';
+            
+            if (serviceData.artistStatus === 'confirmed' && serviceData.establishmentStatus === 'confirmed') {
+                statusText = 'Confirmado';
+                statusClass = 'status-text success';
+            } else if (serviceData.artistStatus === 'cancelled' || serviceData.establishmentStatus === 'cancelled') {
+                statusText = 'Cancelado';
+                statusClass = 'status-text error';
+            } else if (serviceData.artistStatus === 'confirmed') {
+                statusText = 'Aguardando resposta do estabelecimento';
+                statusClass = 'status-text warning';
+            } else if (serviceData.establishmentStatus === 'confirmed') {
+                statusText = 'Aguardando resposta do artista';
+                statusClass = 'status-text warning';
+            } else {
+                statusText = 'Pendente';
+                statusClass = 'status-text warning';
+            }
+            
+            serviceCurrentStatusElem.textContent = statusText;
+            serviceCurrentStatusElem.className = statusClass;
+        }
+
+        function showStatusNotification(isConfirmed, isCancelled) {
+            const isArtist = {{{json isArtist}}};
+            const isEstablishment = {{{json isEstablishment}}};
+            
+            let message = '';
+            let color = '#17a2b8'; // azul padrão
+            
+            if (isConfirmed) {
+                message = '🎉 Serviço confirmado por ambas as partes! ⚠️ AVALIE AGORA - Esta é sua única chance!';
+                color = '#28a745'; // verde
+            } else if (isCancelled) {
+                message = '❌ Serviço foi cancelado.';
+                color = '#dc3545'; // vermelho
+            } else {
+                // Determina quem fez a ação baseado no status
+                if (serviceData.artistStatus === 'confirmed' && serviceData.establishmentStatus === 'pending') {
+                    if (isArtist) {
+                        message = '✅ Você confirmou o serviço. Aguardando resposta do estabelecimento...';
+                    } else {
+                        message = '🔔 O artista confirmou o serviço. Sua resposta é necessária!';
+                    }
+                } else if (serviceData.establishmentStatus === 'confirmed' && serviceData.artistStatus === 'pending') {
+                    if (isEstablishment) {
+                        message = '✅ Você confirmou o serviço. Aguardando resposta do artista...';
+                    } else {
+                        message = '🔔 O estabelecimento confirmou o serviço. Sua resposta é necessária!';
+                    }
+                } else {
+                    message = '🔄 Status do serviço foi atualizado.';
+                }
+                color = '#17a2b8'; // azul
+            }
+            
+            // Cria notificação temporária
+            const notification = document.createElement('div');
+            notification.className = 'status-notification' + (isConfirmed ? ' confirmed-service' : '');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${color};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 5px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 9999;
+                max-width: 300px;
+                animation: slideIn 0.3s ease-out;
+                ${isConfirmed ? 'border: 2px solid #ffd700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);' : ''}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Aumenta o tempo da notificação se for confirmação (mais importante)
+            const notificationTime = isConfirmed ? 8000 : 5000;
+            setTimeout(() => {
+                notification.remove();
+            }, notificationTime);
+        }
+
         function updateActionButtons()
         {
-            if (serviceData.artistStatus === 'pending' && serviceData.establishmentStatus === 'pending')
-            {
-                serviceActionButtons.style.display = 'flex';
-                confirmServiceBtn.disabled = false;
-                cancelServiceBtn.disabled = false;
-            } else if (serviceData.artistStatus === 'confirmed' && serviceData.establishmentStatus === 'confirmed')
+            // Remove mensagens anteriores
+            const existingMessages = serviceActionButtons.parentNode.querySelectorAll('.feedback-message:not(#confirmation-message)');
+            existingMessages.forEach(msg => msg.remove());
+
+            // Verifica se o usuário é artista ou estabelecimento
+            const isArtist = {{{json isArtist}}};
+            const isEstablishment = {{{json isEstablishment}}};
+
+            // Se ambos confirmaram - serviço confirmado
+            if (serviceData.artistStatus === 'confirmed' && serviceData.establishmentStatus === 'confirmed')
             {
                 serviceActionButtons.style.display = 'none';
-                const feedbackMessage = document.createElement('p');
+                const feedbackMessage = document.createElement('div');
                 feedbackMessage.className = 'feedback-message success';
-                feedbackMessage.textContent = 'Serviço confirmado por ambas as partes.\nRecarregue a página para avalia-lo!';
+                feedbackMessage.innerHTML = `
+                    <strong style="font-size: 16px; color: #28a745;">🎉 Serviço confirmado por ambas as partes!</strong><br>
+                    <span style="font-weight: 600; color: #dc3545; margin-top: 8px; display: inline-block;">
+                        ⚠️ Avalie o serviço abaixo, essa é a sua única chance de avaliar!
+                    </span>
+                `;
                 serviceActionButtons.parentNode.appendChild(feedbackMessage);
-            } else if (serviceData.artistStatus === 'confirmed' && serviceData.establishmentStatus === 'pending')
-            {
-                serviceActionButtons.style.display = 'none';
-                const feedbackMessage = document.createElement('p');
-                feedbackMessage.className = 'feedback-message warning';
-                feedbackMessage.textContent = 'Aguardando resposta do estabelecimento.';
-                serviceActionButtons.parentNode.appendChild(feedbackMessage);
-            } else if (serviceData.artistStatus === 'pending' && serviceData.establishmentStatus === 'confirmed')
-            {
-                serviceActionButtons.style.display = 'none';
-                const feedbackMessage = document.createElement('p');
-                feedbackMessage.className = 'feedback-message warning';
-                feedbackMessage.textContent = 'Aguardando resposta do artista.';
-                serviceActionButtons.parentNode.appendChild(feedbackMessage);
-            } else if (serviceData.artistStatus === 'cancelled' || serviceData.establishmentStatus === 'cancelled')
+                return;
+            }
+
+            // Se foi cancelado por alguém
+            if (serviceData.artistStatus === 'cancelled' || serviceData.establishmentStatus === 'cancelled')
             {
                 serviceActionButtons.style.display = 'none';
                 const feedbackMessage = document.createElement('p');
                 feedbackMessage.className = 'feedback-message error';
                 feedbackMessage.textContent = 'Este serviço foi cancelado.';
                 serviceActionButtons.parentNode.appendChild(feedbackMessage);
-            } else
-            {
-                serviceActionButtons.style.display = 'none';
-                const feedbackMessage = document.createElement('p');
-                feedbackMessage.className = 'feedback-message warning';
-                feedbackMessage.textContent = 'Status pendente.';
-                serviceActionButtons.parentNode.appendChild(feedbackMessage);
+                return;
+            }
+
+            // Lógica para ARTISTA
+            if (isArtist) {
+                if (serviceData.artistStatus === 'pending') {
+                    // Artista ainda não respondeu - mostra botões
+                    serviceActionButtons.style.display = 'flex';
+                    if (confirmServiceBtn) confirmServiceBtn.disabled = false;
+                    if (cancelServiceBtn) cancelServiceBtn.disabled = false;
+                } else if (serviceData.artistStatus === 'confirmed') {
+                    // Artista já confirmou - aguarda estabelecimento
+                    serviceActionButtons.style.display = 'none';
+                    const feedbackMessage = document.createElement('p');
+                    feedbackMessage.className = 'feedback-message success';
+                    feedbackMessage.textContent = 'Você confirmou o serviço. Aguardando resposta do estabelecimento...';
+                    serviceActionButtons.parentNode.appendChild(feedbackMessage);
+                }
+            }
+
+            // Lógica para ESTABELECIMENTO
+            if (isEstablishment) {
+                if (serviceData.establishmentStatus === 'pending') {
+                    // Estabelecimento ainda não respondeu - mostra botões
+                    serviceActionButtons.style.display = 'flex';
+                    if (confirmServiceBtn) confirmServiceBtn.disabled = false;
+                    if (cancelServiceBtn) cancelServiceBtn.disabled = false;
+                } else if (serviceData.establishmentStatus === 'confirmed') {
+                    // Estabelecimento já confirmou - aguarda artista
+                    serviceActionButtons.style.display = 'none';
+                    const feedbackMessage = document.createElement('p');
+                    feedbackMessage.className = 'feedback-message success';
+                    feedbackMessage.textContent = 'Você confirmou o serviço. Aguardando resposta do artista...';
+                    serviceActionButtons.parentNode.appendChild(feedbackMessage);
+                }
             }
         }
 
@@ -231,7 +374,16 @@
         {
             if (serviceData.artistStatus === 'confirmed' && serviceData.establishmentStatus === 'confirmed')
             {
-                reviewSection?.classList.add('active');
+                if (!serviceData.hasBeenReviewed) {
+                    reviewSection.style.display = 'block';
+                    alreadyReviewedMessage.style.display = 'none';
+                } else {
+                    reviewSection.style.display = 'none';
+                    alreadyReviewedMessage.style.display = 'block';
+                }
+            } else {
+                reviewSection.style.display = 'none';
+                alreadyReviewedMessage.style.display = 'none';
             }
         }
 
@@ -241,6 +393,11 @@
             {
                 if (confirm('Tem certeza que deseja CONFIRMAR este serviço?'))
                 {
+                    // Adiciona indicador de carregamento
+                    serviceCurrentStatusElem.classList.add('status-loading');
+                    confirmServiceBtn.disabled = true;
+                    cancelServiceBtn.disabled = true;
+                    
                     try
                     {
                         const response = await fetch(`/responder-servico/${ serviceData.id }`, {
@@ -255,12 +412,18 @@
                         serviceData.artistStatus = result.service.artistStatus;
                         serviceData.establishmentStatus = result.service.establishmentStatus;
 
+                        updateStatusDisplay();
                         updateActionButtons();
                         updateReviewSectionVisibility();
                     } catch (error)
                     {
                         console.error('Erro:', error);
                         alert('Erro ao confirmar serviço. Tente novamente.');
+                    } finally {
+                        // Remove indicador de carregamento
+                        serviceCurrentStatusElem.classList.remove('status-loading');
+                        confirmServiceBtn.disabled = false;
+                        cancelServiceBtn.disabled = false;
                     }
                 }
             });
@@ -272,6 +435,11 @@
             {
                 if (confirm('Tem certeza que deseja CANCELAR este serviço?'))
                 {
+                    // Adiciona indicador de carregamento
+                    serviceCurrentStatusElem.classList.add('status-loading');
+                    confirmServiceBtn.disabled = true;
+                    cancelServiceBtn.disabled = true;
+                    
                     try
                     {
                         const response = await fetch(`/responder-servico/${ serviceData.id }`, {
@@ -286,11 +454,17 @@
                         serviceData.artistStatus = result.service.artistStatus;
                         serviceData.establishmentStatus = result.service.establishmentStatus;
 
+                        updateStatusDisplay();
                         updateActionButtons();
                     } catch (error)
                     {
                         console.error('Erro:', error);
                         alert('Erro ao cancelar serviço. Tente novamente.');
+                    } finally {
+                        // Remove indicador de carregamento
+                        serviceCurrentStatusElem.classList.remove('status-loading');
+                        confirmServiceBtn.disabled = false;
+                        cancelServiceBtn.disabled = false;
                     }
                 }
             });
@@ -410,7 +584,11 @@
             }, 5000);
         }
 
+        // Inicialização
+        updateStatusDisplay();
         updateActionButtons();
         updateReviewSectionVisibility();
+        
+        console.log('Sistema de atualizações em tempo real do serviço inicializado:', serviceData.id);
     });
 </script>
