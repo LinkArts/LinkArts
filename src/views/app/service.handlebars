@@ -2,10 +2,11 @@
     <main class="service-container">
         <section class="service-details-grid">
             <div class="card profile-info-card">
+                <h2 class="profile-title">Artista</h2>
                 <div class="profile-img">
                     <img id="requester-profile-img"
-                        src="/img/default.jpg"
-                        alt="Foto do Solicitante">
+                        src="{{#if service.artist.imageUrl}}{{service.artist.imageUrl}}{{else}}/img/default.jpg{{/if}}"
+                        alt="Foto do Artista">
                 </div>
                 <div>
                     <h3 id="requester-name">{{service.artist.name}}</h3>
@@ -75,10 +76,11 @@
             </div>
 
             <div class="card profile-info-card">
+                <h2 class="profile-title">Estabelecimento</h2>
                 <div class="profile-img">
                     <img id="provider-profile-img"
-                        src="/img/default.jpg"
-                        alt="Foto do Solicitante">
+                        src="{{#if service.establishment.imageUrl}}{{service.establishment.imageUrl}}{{else}}/img/default.jpg{{/if}}"
+                        alt="Foto do Estabelecimento">
                 </div>
                 <div>
                     <h3 id="provider-name">{{service.establishment.name}}</h3>

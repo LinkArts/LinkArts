@@ -1,7 +1,7 @@
 const { Op, Model, fn, col, where } = require('sequelize');
 const sequelize = require('../db/conn');
 
-const { User, Artist, Establishment, Album, Music, Tag, Event, ServiceRequest, Favorite } = require('../models/index');
+const { User, Artist, Establishment, Album, Music, Tag, Event, ServiceRequest, Favorite, Rating } = require('../models/index');
 
 module.exports = class ProfileController
 {
@@ -75,15 +75,66 @@ module.exports = class ProfileController
                 isFavorite = !!favorite;
             }
 
+            // Calcular métricas de avaliação
+            const totalRatings = await Rating.count({ where: { receiverUserid: id } });
+            const averageRating = await Rating.findOne({
+                where: { receiverUserid: id },
+                attributes: [[fn('AVG', col('rate')), 'averageRating']]
+            });
+            const averageRatingValue = averageRating && averageRating.dataValues.averageRating
+                ? parseFloat(averageRating.dataValues.averageRating).toFixed(1)
+                : '0.0';
+
+            // Buscar as últimas 4 reviews
+            const recentReviews = await Rating.findAll({
+                where: { receiverUserid: id },
+                include: [
+                    {
+                        model: User,
+                        as: 'Sender',
+                        attributes: ['id', 'name', 'imageUrl']
+                    }
+                ],
+                order: [['createdAt', 'DESC']],
+                limit: 4
+            });
+
+            const reviewsData = recentReviews.map(review => ({
+                id: review.id,
+                rating: review.rate,
+                description: review.description,
+                senderName: review.Sender.name,
+                senderId: review.Sender.id,
+                senderImageUrl: review.Sender.imageUrl,
+                createdAt: review.createdAt
+            }));
+
             if (user.Establishment)
             {
+                // Se for o próprio estabelecimento (isOwner), buscar todos os eventos
+                // Se for visitante, buscar apenas eventos futuros/públicos
+                let eventsToShow = [];
+                if (isOwner) {
+                    // Para o proprietário: mostrar todos os seus eventos
+                    eventsToShow = user.toJSON().Establishment.Events;
+                } else {
+                    // Para visitantes: mostrar apenas eventos futuros (públicos)
+                    const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+                    eventsToShow = user.toJSON().Establishment.Events.filter(event => 
+                        event.date >= currentDate
+                    );
+                }
+
                 const values = {
                     ...user.dataValues,
                     ...user.Establishment.dataValues,
-                    events: user.toJSON().Establishment.Events,
+                    events: eventsToShow,
                     serviceRequests: user.toJSON().Establishment.ServiceRequests,
                     imageUrl: user.imageUrl, // Incluir imageUrl do usuário
-                    tags: user.Tags?.map(tag => tag.dataValues) || [] // Incluir tags do usuário
+                    tags: user.Tags?.map(tag => tag.dataValues) || [], // Incluir tags do usuário
+                    totalRatings: totalRatings,
+                    averageRating: averageRatingValue,
+                    reviews: reviewsData
                 }
                 return res.render('app/profileEstablishment', { values, isOwner, isFavorite, css: 'perfilEstabelecimento.css' })
             }
@@ -95,10 +146,13 @@ module.exports = class ProfileController
                     musics: musicsTags,
                     albums: user.Artist?.Albums?.map(album => ({
                         ...album.dataValues,
-                        imageUrl: album.imageUrl || '/img/default.jpg'
+                        imageUrl: album.imageUrl || '/img/default-album.png'
                     })) || [],
                     imageUrl: user.imageUrl, // Incluir imageUrl do usuário
-                    tags: user.Tags?.map(tag => tag.dataValues) || [] // Incluir tags do usuário
+                    tags: user.Tags?.map(tag => tag.dataValues) || [], // Incluir tags do usuário
+                    totalRatings: totalRatings,
+                    averageRating: averageRatingValue,
+                    reviews: reviewsData
                 }
 
                 return res.render('app/profileArtist', { values, isOwner, isFavorite, css: 'perfilArtista.css' })
@@ -896,8 +950,9 @@ module.exports = class ProfileController
                 include: { model: Establishment } 
             })
             
+            // Se o usuário não for um estabelecimento, retorna array vazio
             if (!user || !user.Establishment) {
-                return res.status(404).json({ message: "Estabelecimento não encontrado." })
+                return res.status(200).json([])
             }
             
             const establishmentid = user.Establishment.dataValues.cnpj
@@ -923,13 +978,18 @@ module.exports = class ProfileController
 
         console.log('🖼️ [CONTROLLER DEBUG] imageUrl recebida:', imageUrl);
 
-        const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
-        const establishmentid = user.Establishment.dataValues.cnpj
-
-        if (!title || !date || !establishmentid)
+        if (!title || !date)
         {
-            return res.status(400).json({ message: "Título, data e ID do estabelecimento são obrigatórios." })
+            return res.status(400).json({ message: "Título e data são obrigatórios." })
         }
+
+        const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
+        
+        if (!user || !user.Establishment) {
+            return res.status(400).json({ message: "Usuário não é um estabelecimento." })
+        }
+        
+        const establishmentid = user.Establishment.dataValues.cnpj
 
         try
         {
@@ -966,13 +1026,18 @@ module.exports = class ProfileController
         const id = req.params.id
         const { title, date, description, imageUrl } = req.body
 
-        const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
-        const establishmentid = user.Establishment.dataValues.cnpj
-
-        if (!title || !date || !establishmentid)
+        if (!title || !date)
         {
-            return res.status(400).json({ message: "Título, data e ID do estabelecimento são obrigatórios." })
+            return res.status(400).json({ message: "Título e data são obrigatórios." })
         }
+
+        const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
+        
+        if (!user || !user.Establishment) {
+            return res.status(400).json({ message: "Usuário não é um estabelecimento." })
+        }
+        
+        const establishmentid = user.Establishment.dataValues.cnpj
 
         try
         {
@@ -1027,7 +1092,22 @@ module.exports = class ProfileController
     {
         try
         {
+            // Buscar o estabelecimento do usuário logado
+            const user = await User.findOne({ 
+                where: { id: req.session.userid }, 
+                include: { model: Establishment } 
+            })
+            
+            // Se o usuário não for um estabelecimento, retorna array vazio
+            if (!user || !user.Establishment) {
+                return res.status(200).json([])
+            }
+            
+            const establishmentid = user.Establishment.dataValues.cnpj
+            
+            // Buscar apenas pedidos de serviço do estabelecimento
             const requests = await ServiceRequest.findAll({
+                where: { establishmentid: establishmentid },
                 include: {
                     model: Tag,
                     as: 'Tags',
@@ -1048,14 +1128,18 @@ module.exports = class ProfileController
     {
         const { name, description, date, startTime, endTime, tags } = req.body
 
+        if (!name || !date || !startTime)
+        {
+            return res.status(400).json({ message: "Nome, data e hora de início são obrigatórios." })
+        }
+
         const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
 
-        const establishmentid = user.Establishment.dataValues.cnpj
-
-        if (!name || !date || !startTime || !establishmentid)
-        {
-            return res.status(400).json({ message: "Nome, data, hora de início e ID do estabelecimento são obrigatórios." })
+        if (!user || !user.Establishment) {
+            return res.status(400).json({ message: "Usuário não é um estabelecimento." })
         }
+
+        const establishmentid = user.Establishment.dataValues.cnpj
 
         try
         {
@@ -1106,13 +1190,18 @@ module.exports = class ProfileController
         const id = req.params.id
         const { name, description, date, startTime, endTime, tags } = req.body
 
-        const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
-        const establishmentid = user.Establishment.dataValues.cnpj
-
-        if (!name || !date || !startTime || !establishmentid)
+        if (!name || !date || !startTime)
         {
-            return res.status(400).json({ message: "Nome, data, hora de início e ID do estabelecimento são obrigatórios." })
+            return res.status(400).json({ message: "Nome, data e hora de início são obrigatórios." })
         }
+
+        const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
+        
+        if (!user || !user.Establishment) {
+            return res.status(400).json({ message: "Usuário não é um estabelecimento." })
+        }
+        
+        const establishmentid = user.Establishment.dataValues.cnpj
 
         try
         {
@@ -1332,6 +1421,42 @@ module.exports = class ProfileController
                 message: "Erro interno do servidor!", 
                 error: error.message 
             });
+        }
+    }
+
+    static async getAllReviews(req, res)
+    {
+        const { id } = req.params;
+
+        try
+        {
+            const allReviews = await Rating.findAll({
+                where: { receiverUserid: id },
+                include: [
+                    {
+                        model: User,
+                        as: 'Sender',
+                        attributes: ['id', 'name', 'imageUrl']
+                    }
+                ],
+                order: [['createdAt', 'DESC']]
+            });
+
+            const reviewsData = allReviews.map(review => ({
+                id: review.id,
+                rating: review.rate,
+                description: review.description,
+                senderName: review.Sender.name,
+                senderId: review.Sender.id,
+                senderImageUrl: review.Sender.imageUrl,
+                createdAt: review.createdAt
+            }));
+
+            return res.json({ reviews: reviewsData });
+        } catch (error)
+        {
+            console.error('Erro ao buscar todas as reviews:', error);
+            return res.status(500).json({ error: 'Erro interno do servidor' });
         }
     }
 }

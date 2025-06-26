@@ -34,6 +34,7 @@ router.delete('/deletar-pedido-servico/:id', ProfileController.deleteServiceRequ
 router.get('/procurar-favoritos', ProfileController.searchFavorites)
 router.post('/adicionar-favorito/:id', ProfileController.addFavorite)
 
+router.get('/reviews/:id', ProfileController.getAllReviews)
 
 router.get('/:id', checkAuth, ProfileController.showProfile)
 

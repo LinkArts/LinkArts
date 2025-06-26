@@ -108,7 +108,7 @@ module.exports = class ServiceController
                     email: artist.email,
                     city: artist.city,
                     description: artist.description,
-                    profileImg: artist.profileImg || `https://via.placeholder.com/100/9b87f5/ffffff?text=${ artist.name.charAt(0) }`,
+                    imageUrl: artist.imageUrl,
                     totalRatings: totalRatingsArtist,
                     averageRating: averageRatingArtistValue
                 },
@@ -118,7 +118,7 @@ module.exports = class ServiceController
                     email: establishment.email,
                     city: establishment.city,
                     description: establishment.description,
-                    profileImg: establishment.profileImg || `https://via.placeholder.com/100/6D28D9/ffffff?text=${ establishment.name.charAt(0) }`,
+                    imageUrl: establishment.imageUrl,
                     totalRatings: totalRatingsEstablishment,
                     averageRating: averageRatingEstablishmentValue
                 },
@@ -360,6 +360,47 @@ module.exports = class ServiceController
         {
             console.error('Erro ao remover interesse do artista no pedido de serviço:', error);
             return res.json({ message: 'Erro ao remover interesse no pedido de serviço!' });
+        }
+    }
+
+    static async checkArtistInterest(req, res)
+    {
+        try
+        {
+            const serviceRequestId = req.params.id;
+            const userId = req.session.userid;
+
+            if (!userId)
+            {
+                return res.status(401).json({ isInterested: false, message: 'Usuário não autenticado.' });
+            }
+
+            // Verificar se o usuário é um artista
+            const artist = await Artist.findOne({
+                where: { userid: userId }
+            });
+
+            if (!artist)
+            {
+                return res.status(200).json({ isInterested: false, message: 'Usuário não é um artista.' });
+            }
+
+            // Buscar o pedido de serviço
+            const serviceRequest = await ServiceRequest.findByPk(serviceRequestId);
+
+            if (!serviceRequest)
+            {
+                return res.status(404).json({ isInterested: false, message: 'Pedido de serviço não encontrado.' });
+            }
+
+            // Verificar se o artista está interessado
+            const isInterested = await serviceRequest.hasArtist(artist);
+
+            return res.status(200).json({ isInterested: isInterested });
+        } catch (error)
+        {
+            console.error('Erro ao verificar interesse:', error);
+            return res.status(500).json({ isInterested: false, message: 'Erro interno do servidor.' });
         }
     }
 

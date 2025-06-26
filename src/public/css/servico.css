@@ -100,6 +100,18 @@
     text-align: center;
 }
 
+.profile-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-dark-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    width: 100%;
+    text-align: center;
+}
+
 .profile-info-card .profile-img {
     width: 100px;
     height: 100px;
@@ -345,6 +357,12 @@ textarea:focus {
         margin-right: 1.5rem;
         margin-bottom: 0;
     }
+
+    .profile-title {
+        font-size: 1rem;
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.4rem;
+    }
 }
 
 @media (max-width: 768px) {
@@ -392,5 +410,11 @@ textarea:focus {
 
     .profile-info-card p {
         font-size: 0.8rem;
+    }
+
+    .profile-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.6rem;
+        padding-bottom: 0.3rem;
     }
 }

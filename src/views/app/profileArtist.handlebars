@@ -10,12 +10,12 @@
             <p id="profile-location" class="profile-location">{{#if values.city}}{{values.city}}{{else}}Cidade não
               informada{{/if}}</p>
             <div class="profile-rating"
-              aria-label="Avaliação: {{artist.profile.rating}} de 5 estrelas (baseado em {{artist.profile.reviewCount}} avaliações)">
+              aria-label="Avaliação: {{values.averageRating}} de 5 estrelas (baseado em {{values.totalRatings}} avaliações)">
               <div class="stars" aria-hidden="true">
               </div class="rating-content">
               <span style="margin-bottom: 5px;">★</span>
-              <span class="rating">4.5</span>
-              <span class="reviews">(8 reviews)</span>
+              <span class="rating">{{values.averageRating}}</span>
+              <span class="reviews">({{values.totalRatings}} {{#if (eq values.totalRatings 1)}}avaliação{{else}}avaliações{{/if}})</span>
             </div>
           </div>
       </div>
@@ -132,7 +132,7 @@
         {{#each values.albums}}
         <div class="album-card" data-id="{{id}}">
           <div class="album-img">
-            <img src="{{#if imageUrl}}{{imageUrl}}{{else}}/img/default.jpg{{/if}}" alt="{{ name }}">
+            <img src="{{#if imageUrl}}{{imageUrl}}{{else}}/img/default-album.png{{/if}}" alt="{{ name }}">
           </div>
           <h3 class="album-name">{{ name }}</h3>
         </div>
@@ -161,7 +161,7 @@
             <div class="song-placeholder">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 3v18m-4-6 4 4 4-4"/>
+                <path d="M9 18V5l12-2v13M9 18c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM21 16c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
               </svg>
             </div>
             {{/if}}
@@ -188,21 +188,34 @@
 
     <section class="reviews-section">
       <div class="section-header">
-        <h2>Reviews</h2>
-        <a href="{{artist.allReviewsUrl}}" class="btn-link">Ver Todas</a>
+        <h2>Avaliações</h2>
+        {{#if (gt values.totalRatings 4)}}
+        <button id="view-all-reviews-btn" class="btn-link" data-user-id="{{values.id}}">Ver Todas</button>
+        {{/if}}
       </div>
-      {{#each artist.reviews}}
-      <div class="review-card">
-        <div class="review-header">
-          <h3>{{this.reviewerName}}</h3>
-          <div class="review-stars" aria-label="Avaliação: {{this.rating}} de 5 estrelas">
+      <ul id="reviews-container">
+        {{#each values.reviews}}
+        <li class="review-card">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <a href="/profile/{{this.senderId}}" class="reviewer-link">
+                <img src="{{#if this.senderImageUrl}}{{this.senderImageUrl}}{{else}}/img/default.jpg{{/if}}" 
+                     alt="{{this.senderName}}" class="reviewer-avatar">
+                <h3>{{this.senderName}}</h3>
+              </a>
+            </div>
+            <div class="review-stars">
+              {{#each (range 1 6)}}
+              <span class="star {{#if (lte this ../rating)}}filled{{/if}}">★</span>
+              {{/each}}
+            </div>
           </div>
-        </div>
-        <p class="review-text">"{{{this.text}}}"</p>''
-      </div>
-      {{else}}
-      <p>Ainda não há reviews.</p>
-      {{/each}}
+          <p class="review-text">{{this.description}}</p>
+        </li>
+        {{else}}
+        <li><p>Ainda não há avaliações.</p></li>
+        {{/each}}
+      </ul>
     </section>
   </div>
 </div>
@@ -627,7 +640,7 @@
           <div class="song-placeholder">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 3v18m-4-6 4 4 4-4"/>
+              <path d="M9 18V5l12-2v13M9 18c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM21 16c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
             </svg>
           </div>`}
         </div>
@@ -946,7 +959,7 @@
               let albumCoverUploader = null;
               
               if (isOwner) {
-                const currentCoverUrl = albumData?.imageUrl || '/img/default.jpg';
+                const currentCoverUrl = albumData?.imageUrl || '/img/default-album.png';
                 albumCoverUploader = createImageUploader({
                   containerId: 'album-edit-cover-uploader',
                   uploadEndpoint: '/upload/album/cover',
@@ -1320,7 +1333,7 @@
               `<img src="${finalImageUrl}" alt="${title}" class="song-image">` : 
               `<div class="song-placeholder">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 3v18m-4-6 4 4 4-4"/>
+                  <path d="M9 18V5l12-2v13M9 18c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM21 16c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
                 </svg>
               </div>`;
               
@@ -1526,7 +1539,7 @@
               songIcon.innerHTML = `
                 <div class="song-placeholder">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3v18m-4-6 4 4 4-4"/>
+                    <path d="M9 18V5l12-2v13M9 18c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM21 16c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
                   </svg>
                 </div>`;
             }
@@ -1562,7 +1575,7 @@
               songIcon.innerHTML = `
                 <div class="song-placeholder">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3v18m-4-6 4 4 4-4"/>
+                    <path d="M9 18V5l12-2v13M9 18c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM21 16c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
                   </svg>
                 </div>`;
             }
@@ -1673,7 +1686,7 @@
           noAlbumsMessage.remove();
         }
 
-        const albumImageSrc = imageUrl || '/img/default.jpg';
+        const albumImageSrc = imageUrl || '/img/default-album.png';
         const displayName = albumName.length > 20 ? albumName.substring(0, 20) + '...' : albumName;
         const newAlbumCard = document.createElement('div');
         newAlbumCard.className = 'album-card';
@@ -2139,6 +2152,26 @@
       }
     });
 
+    // Função para configurar scroll horizontal com roda do mouse
+    function setupHorizontalScroll() {
+      const scrollContainers = document.querySelectorAll('.scroll-container');
+      
+      scrollContainers.forEach(container => {
+        container.addEventListener('wheel', (e) => {
+          // Prevenir o scroll vertical padrão
+          e.preventDefault();
+          
+          // Calcular a quantidade de scroll horizontal
+          // deltaY positivo = scroll para baixo = mover para direita
+          // deltaY negativo = scroll para cima = mover para esquerda
+          const scrollAmount = e.deltaY;
+          
+          // Aplicar scroll horizontal
+          container.scrollLeft += scrollAmount;
+        }, { passive: false });
+      });
+    }
+
     async function initialize()
     {
       console.log("Initializing page script...");
@@ -2162,6 +2195,9 @@
       setupAddAlbumModal();
       setupEditProfileModal();
       setupReportModal();
+      
+      // Configurar scroll horizontal
+      setupHorizontalScroll();
 
       console.log("Initialization complete.");
     }
@@ -2199,6 +2235,60 @@
         showToast('Erro ao criar chat', 'error');
       }
     });
+
+    // Funcionalidade para lidar com reviews
+    const viewAllReviewsBtn = document.getElementById('view-all-reviews-btn');
+    if (viewAllReviewsBtn) {
+      viewAllReviewsBtn.addEventListener('click', async function() {
+        const userId = this.dataset.userId;
+        try {
+          const response = await fetch(`/profile/reviews/${userId}`);
+          const data = await response.json();
+          
+          if (response.ok) {
+            displayAllReviews(data.reviews);
+          } else {
+            showToast('Erro ao carregar todas as avaliações', 'error');
+          }
+        } catch (error) {
+          console.error('Erro ao buscar reviews:', error);
+          showToast('Erro ao carregar todas as avaliações', 'error');
+        }
+      });
+    }
+
+    function displayAllReviews(reviews) {
+      const container = document.getElementById('reviews-container');
+      container.innerHTML = '';
+      
+      reviews.forEach(review => {
+        const li = document.createElement('li');
+        li.className = 'review-card';
+        
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+          starsHtml += `<span class="star ${i <= review.rating ? 'filled' : ''}">★</span>`;
+        }
+        
+        li.innerHTML = `
+          <div class="review-header">
+            <div class="reviewer-info">
+              <a href="/profile/${review.senderId}" class="reviewer-link">
+                <img src="${review.senderImageUrl || '/img/default.jpg'}" 
+                     alt="${review.senderName}" class="reviewer-avatar">
+                <h3>${review.senderName}</h3>
+              </a>
+            </div>
+            <div class="review-stars">
+              ${starsHtml}
+            </div>
+          </div>
+          <p class="review-text">${review.description}</p>
+        `;
+        
+        container.appendChild(li);
+      });
+    }
 
     initialize();
   });

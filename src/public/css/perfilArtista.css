@@ -1032,43 +1032,109 @@ section h2 {
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+#reviews-container {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .review-card {
   background-color: var(--white);
-  padding: 20px;
+  border: 1px solid var(--gray-200);
   border-radius: 8px;
-  box-shadow: var(--card-shadow);
-  border: 1px solid var(--border-color);
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  transition: box-shadow 0.2s ease;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+}
+
+.review-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .review-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  gap: 5px;
+  margin-bottom: 16px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
-.review-header h3 {
+.reviewer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.reviewer-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s ease;
+}
+
+.reviewer-link:hover {
+  opacity: 0.8;
+}
+
+.reviewer-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--gray-200);
+}
+
+.reviewer-link h3 {
+  font-size: 14px;
   font-weight: 600;
-  color: var(--heading-color);
   margin: 0;
-  font-size: 1rem;
+  color: var(--heading-color);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .review-stars {
   display: flex;
+  gap: 1px;
   flex-shrink: 0;
 }
 
+.review-stars .star {
+  font-size: 16px;
+  color: var(--gray-300);
+}
+
+.review-stars .star.filled {
+  color: #333;
+}
+
 .review-text {
-  font-size: 14px;
   color: var(--secondary-text-color);
-  line-height: 1.6;
   margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 54px;
 }
 
 .modal-overlay {
@@ -1455,34 +1521,34 @@ section h2 {
 
 @media (max-width: 640px) {
   .main-content {
-    padding-top: 80px;
+    padding: 20px;
   }
-  
+
   .profile-info {
+    display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 16px;
   }
 
   .profile-left {
+    display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
-    gap: 12px;
+    gap: 15px;
   }
-  
+
   .profile-img {
     width: 100px;
     height: 100px;
   }
 
   .profile-details {
-    padding-top: 8px;
+    text-align: center;
   }
-  
+
   .profile-details h1 {
-    font-size: 20px;
+    font-size: 1.5rem;
   }
 
   .profile-rating {
@@ -1491,63 +1557,58 @@ section h2 {
 
   .profile-actions {
     width: 100%;
+    max-width: 300px;
     justify-content: center;
-    margin-top: 20px;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
   }
 
   .profile-actions .btn {
-    flex-grow: 1;
-    max-width: 200px;
-    min-width: 120px;
-    font-size: 0.85rem;
-    padding: 6px 12px;
+    flex: 1;
+    min-width: auto;
+    padding: 12px 20px;
+    font-size: 14px;
   }
 
   .section-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 10px;
   }
 
   section h2 {
-    font-size: 18px;
+    font-size: 1.2rem;
   }
-  
+
   .album-card {
-    min-width: 120px;
+    width: 140px;
   }
-  
+
   .album-img {
-    width: 120px;
-    height: 120px;
+    height: 140px;
   }
 
   .add-music-modal,
   .create-album-modal,
   .edit-profile-modal {
-    padding: 25px;
-    width: 95%;
-    max-height: 90vh;
+    margin: 0;
+    max-width: 100%;
+    padding: 20px;
   }
 
   .add-music-modal h2,
   .create-album-modal h2,
   .edit-profile-modal h2 {
-    font-size: 1.4rem;
-    margin-bottom: 20px;
+    font-size: 1.3rem;
   }
 
   .form-group {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
   }
 
   .button-group {
-    margin-top: 25px;
-    padding-top: 20px;
+    flex-direction: column;
     gap: 10px;
-    flex-direction: column-reverse;
   }
 
   .add-music-modal .btn,
@@ -1562,17 +1623,18 @@ section h2 {
   }
 
   #create-album-inline-btn {
-    justify-content: center;
+    margin-top: 0;
   }
-  
+
   .song-card {
     padding: 12px;
   }
-  
-  .reviews-list {
-    gap: 12px;
+
+  .reviews-list,
+  #reviews-container {
+    grid-template-columns: 1fr;
   }
-  
+
   .review-card {
     padding: 12px;
   }

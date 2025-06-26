@@ -10,12 +10,12 @@
             <h1 id="profile-name">{{values.name}}</h1>
             <p class="profile-location" id="profile-location"><span class="visually-hidden"></span> {{values.city}}</p>
             <div class="profile-rating"
-              aria-label="Avaliação: {{artist.profile.rating}} de 5 estrelas (baseado em {{artist.profile.reviewCount}} avaliações)">
+              aria-label="Avaliação: {{values.averageRating}} de 5 estrelas (baseado em {{values.totalRatings}} avaliações)">
               <div class="stars" aria-hidden="true">
               </div class="rating-content">
               <span style="margin-bottom: 5px;">★</span>
-              <span class="rating">4.5</span>
-              <span class="reviews">(8 reviews)</span>
+              <span class="rating">{{values.averageRating}}</span>
+              <span class="reviews">({{values.totalRatings}} {{#if (eq values.totalRatings 1)}}avaliação{{else}}avaliações{{/if}})</span>
             </div>
           </div>
         </div>
@@ -140,7 +140,7 @@
         <ul class="service-requests-container">
           {{#if values.serviceRequests}}
           {{#each values.serviceRequests}}
-          <li class="service-request-card">
+          <li class="service-request-card" data-id="{{id}}">
             <div class="request-content">
               <h3>{{name}}</h3>
               <p class="request-description">
@@ -159,7 +159,11 @@
           </li>
           {{/each}}
           {{else}}
+          {{#if isOwner}}
           <p>Nenhum pedido de serviço programado. Clique em "Adicionar Pedido" para começar!</p>
+          {{else}}
+          <p>Ainda não há nenhum pedido de serviço aqui.</p>
+          {{/if}}
           {{/if}}
         </ul>
       </div>
@@ -167,7 +171,7 @@
 
     <section class="events-section">
       <div class="section-header">
-        <h2>Próximos Eventos</h2>
+        <h2>{{#if isOwner}}Meus Eventos{{else}}Próximos Eventos{{/if}}</h2>
         {{#if isOwner}}
         <button class="btn btn-primary" id="add-event-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -193,7 +197,11 @@
           </li>
           {{/each}}
           {{else}}
+          {{#if isOwner}}
           <p>Nenhum evento programado. Clique em "Adicionar Evento" para começar!</p>
+          {{else}}
+          <p>Ainda não há nenhum evento aqui.</p>
+          {{/if}}
           {{/if}}
         </ul>
       </div>
@@ -202,46 +210,37 @@
     <section class="reviews-section">
       <div class="section-header">
         <h2>Avaliações Recentes</h2>
-        <a href="#" class="btn btn-link">Ver Todas Avaliações
+        {{#if (gt values.totalRatings 4)}}
+        <button id="view-all-reviews-btn" class="btn btn-link" data-user-id="{{values.id}}">Ver Todas Avaliações
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7"></path>
           </svg>
-        </a>
+        </button>
+        {{/if}}
       </div>
-      <ul class="reviews-list">
+      <ul class="reviews-list" id="reviews-container">
+        {{#each values.reviews}}
         <li class="review-card">
           <div class="review-header">
-            <h3>Excelente trabalho!</h3>
+            <div class="reviewer-info">
+              <a href="/profile/{{this.senderId}}" class="reviewer-link">
+                <img src="{{#if this.senderImageUrl}}{{this.senderImageUrl}}{{else}}/img/default.jpg{{/if}}" 
+                     alt="{{this.senderName}}" class="reviewer-avatar">
+                <h3>{{this.senderName}}</h3>
+              </a>
+            </div>
             <div class="review-stars">
-              <span class="star filled">★</span>
-              <span class="star filled">★</span>
-              <span class="star filled">★</span>
-              <span class="star filled">★</span>
-              <span class="star filled">★</span>
+              {{#each (range 1 6)}}
+              <span class="star {{#if (lte this ../rating)}}filled{{/if}}">★</span>
+              {{/each}}
             </div>
           </div>
-          <p class="review-text">
-            A equipe superou nossas expectativas. O evento corporativo foi impecável e muito bem organizado.
-            Com certeza os contrataremos novamente para futuros projetos.
-          </p>
+          <p class="review-text">{{this.description}}</p>
         </li>
-        <li class="review-card">
-          <div class="review-header">
-            <h3>Muito profissionais</h3>
-            <div class="review-stars">
-              <span class="star filled">★</span>
-              <span class="star filled">★</span>
-              <span class="star filled">★</span>
-              <span class="star filled">★</span>
-              <span class="star">★</span>
-            </div>
-          </div>
-          <p class="review-text">
-            Pontuais e atenciosos. A festa de aniversário da minha filha foi um sucesso. Recomendo muito!
-            Pequenos detalhes fizeram toda a diferença.
-          </p>
-        </li>
+        {{else}}
+        <li><p>Ainda não há avaliações.</p></li>
+        {{/each}}
       </ul>
     </section>
   </div>
@@ -271,8 +270,15 @@
     availableTags = [];
     let lastFocusedElement = null;
 
-    loadEvents();
-    loadServiceRequests();
+    // Só carrega via AJAX se for o próprio usuário (isOwner), 
+    // caso contrário usa os dados que já vieram do servidor
+    if (isProfileOwner) {
+        loadEvents();
+        loadServiceRequests();
+    } else {
+        // Para visitantes, adicionar event listeners aos cards já existentes
+        setupExistingServiceRequestCards();
+    }
 
     document.getElementById('add-favorite-btn')?.addEventListener('click', async function ()
     {
@@ -439,16 +445,13 @@
 
     function openModal(overlaySelector, modalClass, modalHTMLContent, triggerButton)
     {
-      console.log(`Tentando abrir modal com seletor ${ overlaySelector }.`);
       lastFocusedElement = triggerButton || document.activeElement;
       const existingOverlay = document.querySelector(overlaySelector);
       if (existingOverlay)
       {
-        console.warn(`Overlay ${ overlaySelector } já existe. Removendo antes de criar novo.`);
         closeModal(existingOverlay);
       }
 
-      console.log(`Criando novo modal ${ modalClass }.`);
       const modalOverlay = document.createElement('div');
       modalOverlay.className = `modal-overlay ${ overlaySelector.substring(1) }`;
       modalOverlay.setAttribute('role', 'dialog');
@@ -473,7 +476,6 @@
       document.body.classList.add('modal-open');
       modalOverlay.getBoundingClientRect();
       modalOverlay.classList.add('is-visible');
-      console.log(`Modal ${ modalClass } adicionado ao DOM e classe 'is-visible' aplicada.`);
 
       const closeButton = modal.querySelector('.modal-close-btn');
       const cancelButton = modal.querySelector('.btn-cancel');
@@ -553,7 +555,7 @@
 
     function renderServiceRequestCard(requestData)
     {
-      const requestItem = document.createElement('li');
+              const requestItem = document.createElement('li');
       requestItem.className = 'service-request-card';
       requestItem.dataset.id = requestData.id;
 
@@ -584,15 +586,13 @@
         tagsDiv.appendChild(tagSpan);
       });
 
-      requestItem.addEventListener('click', () =>
+      requestItem.addEventListener('click', (e) =>
       {
-        if (isProfileOwner)
-        {
-          setupEditServiceRequestModal(requestItem, requestData);
-        } else
-        {
-          setupViewServiceRequestModal(requestItem, requestData);
-        }
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Sempre mostrar modal de visualização para todos os usuários
+        setupViewServiceRequestModal(requestItem, requestData);
       });
       return requestItem;
     }
@@ -616,6 +616,43 @@
       const modalElement = openModal('.view-event-overlay', 'view-event-modal', modalHTML, eventCard);
     }
 
+    function setupExistingServiceRequestCards()
+    {
+      const existingCards = document.querySelectorAll('.service-request-card');
+      
+      existingCards.forEach((card, index) => {
+        // Extrair dados do card HTML
+        const name = card.querySelector('h3')?.textContent || 'Sem nome';
+        const description = card.querySelector('.request-description')?.textContent || '';
+        const dateText = card.querySelector('.date')?.textContent?.replace('Data: ', '') || '';
+        const timeText = card.querySelector('.time')?.textContent?.replace('Horário: ', '') || '';
+        const tags = Array.from(card.querySelectorAll('.tag')).map(tag => ({ name: tag.textContent }));
+        
+        // Separar horário de início e fim
+        const timeParts = timeText.split(' - ');
+        const startTime = timeParts[0] || '';
+        const endTime = timeParts[1] || '';
+        
+        const requestData = {
+          id: card.dataset.id,
+          name: name,
+          description: description,
+          date: dateText,
+          startTime: startTime,
+          endTime: endTime,
+          Tags: tags
+        };
+        
+        // Adicionar event listener
+        card.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          setupViewServiceRequestModal(card, requestData);
+        });
+      });
+    }
+
     function setupViewServiceRequestModal(requestCard, requestData)
     {
       let timeRange = requestData.startTime;
@@ -625,6 +662,21 @@
       }
 
       const tagsHtml = requestData.Tags.map(tag => `<span class="tag">${ tag.name }</span>`).join('');
+
+      // Botões diferentes para owner e visitante
+      let actionButtons = '';
+      if (isProfileOwner) {
+        // Para o owner: botão Excluir + Ver Interessados
+        actionButtons = `
+          <button type="button" class="btn btn-delete" id="delete-service-request-btn">Excluir</button>
+          <button type="button" class="btn btn-primary" id="view-interested-btn">Ver Interessados</button>
+        `;
+      } else {
+        // Para visitantes: botão Cadastrar/Esquecer
+        actionButtons = `
+          <button type="button" class="btn btn-primary" id="register-interest-btn">Cadastrar</button>
+        `;
+      }
 
       const modalHTML = `
         <button type="button" class="modal-close-btn" aria-label="Fechar modal">
@@ -638,10 +690,140 @@
             <p><strong>Tags:</strong> ${ tagsHtml || 'Nenhuma' }</p>
         </div>
         <div class="button-group">
-            <button type="button" class="btn btn-primary btn-cancel">Fechar</button>
+            ${ actionButtons }
+            <button type="button" class="btn btn-cancel">Fechar</button>
         </div>`;
 
       const modalElement = openModal('.view-service-request-overlay', 'view-service-request-modal', modalHTML, requestCard);
+      
+      // Configurar event listeners para os botões
+      if (isProfileOwner) {
+        setupOwnerButtons(modalElement, requestData);
+      } else {
+        setupVisitorButtons(modalElement, requestData);
+      }
+      
+      return modalElement;
+    }
+
+    function setupOwnerButtons(modalElement, requestData)
+    {
+      const deleteBtn = modalElement.querySelector('#delete-service-request-btn');
+      const viewInterestedBtn = modalElement.querySelector('#view-interested-btn');
+      
+      // Botão Excluir
+      deleteBtn?.addEventListener('click', async () => {
+        if (confirm(`Tem certeza que deseja excluir o pedido "${requestData.name}"?`)) {
+          try {
+            const response = await fetch(`/profile/deletar-pedido-servico/${requestData.id}`, {
+              method: 'DELETE',
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+            }
+
+            showToast(`Pedido "${requestData.name}" excluído com sucesso!`, 'success');
+            closeModal(modalElement.closest('.modal-overlay'));
+            
+            // Recarregar a lista de pedidos
+            if (isProfileOwner) {
+              loadServiceRequests();
+            } else {
+              // Remover o card do DOM se não for owner
+              const cardElement = document.querySelector(`[data-id="${requestData.id}"]`);
+              if (cardElement) {
+                cardElement.remove();
+              }
+            }
+          } catch (error) {
+            console.error("Erro ao excluir pedido de serviço:", error);
+            showToast('Erro ao excluir pedido de serviço. Tente novamente.', 'error');
+          }
+        }
+      });
+      
+      // Botão Ver Interessados
+      viewInterestedBtn?.addEventListener('click', () => {
+        window.location.href = `/pedido-servico/${requestData.id}`;
+      });
+    }
+
+    function setupVisitorButtons(modalElement, requestData)
+    {
+      const registerBtn = modalElement.querySelector('#register-interest-btn');
+      
+      // Verificar se o usuário já está cadastrado
+      checkUserInterest(requestData.id).then(isInterested => {
+        updateRegisterButton(registerBtn, isInterested, requestData.id);
+      });
+      
+      registerBtn?.addEventListener('click', async () => {
+        const isCurrentlyInterested = registerBtn.textContent.trim() === 'Esquecer';
+        
+        try {
+          const endpoint = isCurrentlyInterested 
+            ? `/pedido-servico/esquecer/${requestData.id}`
+            : `/pedido-servico/inscrever/${requestData.id}`;
+            
+          const method = isCurrentlyInterested ? 'DELETE' : 'POST';
+            
+          const response = await fetch(endpoint, {
+            method: method,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro na operação');
+          }
+
+          const data = await response.json();
+          showToast(data.message || (isCurrentlyInterested ? 'Interesse removido!' : 'Interesse cadastrado!'), 'success');
+          
+          // Atualizar o botão
+          updateRegisterButton(registerBtn, !isCurrentlyInterested, requestData.id);
+          
+        } catch (error) {
+          console.error('Erro ao gerenciar interesse:', error);
+          showToast(error.message || 'Erro ao processar solicitação', 'error');
+        }
+      });
+    }
+
+    async function checkUserInterest(serviceRequestId)
+    {
+      try {
+        const response = await fetch(`/pedido-servico/verificar-interesse/${serviceRequestId}`, {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return data.isInterested || false;
+        }
+        return false;
+      } catch (error) {
+        console.error('Erro ao verificar interesse:', error);
+        return false;
+      }
+    }
+
+    function updateRegisterButton(button, isInterested, serviceRequestId)
+    {
+      if (isInterested) {
+        button.textContent = 'Esquecer';
+        button.className = 'btn btn-outline';
+        button.setAttribute('onclick', `removeInterest('${serviceRequestId}')`);
+      } else {
+        button.textContent = 'Cadastrar';
+        button.className = 'btn btn-primary';
+        button.setAttribute('onclick', `registerInterest('${serviceRequestId}')`);
+      }
     }
 
     async function loadEvents()
@@ -656,7 +838,11 @@
         if (events.length === 0)
         {
           const placeholderItem = document.createElement('p');
-          placeholderItem.innerHTML = 'Nenhum evento programado. Clique em "Adicionar Evento" para começar!';
+          if (isProfileOwner) {
+            placeholderItem.innerHTML = 'Nenhum evento programado. Clique em "Adicionar Evento" para começar!';
+          } else {
+            placeholderItem.innerHTML = 'Ainda não há nenhum evento aqui.';
+          }
           eventsContainer.appendChild(placeholderItem);
         } else
         {
@@ -685,7 +871,11 @@
         if (requests.length === 0)
         {
           const placeholderItem = document.createElement('p');
-          placeholderItem.innerHTML = 'Nenhum pedido de serviço programado. Clique em "Adicionar Pedido" para começar!';
+          if (isProfileOwner) {
+            placeholderItem.innerHTML = 'Nenhum pedido de serviço programado. Clique em "Adicionar Pedido" para começar!';
+          } else {
+            placeholderItem.innerHTML = 'Ainda não há nenhum pedido de serviço aqui.';
+          }
           serviceRequestsContainer.appendChild(placeholderItem);
         } else
         {
@@ -738,10 +928,7 @@
         currentImageUrl: null,
         label: 'Escolher Imagem',
         onSuccess: (result) => {
-          console.log('🎉 [EVENT DEBUG] Upload de evento bem-sucedido:', result);
-          console.log('🔗 [EVENT DEBUG] URL recebida:', result.imageUrl);
           // Não armazenar URL aqui - será feito no upload pendente
-          console.log('💾 [EVENT DEBUG] Upload pendente configurado');
         },
         onError: (error) => {
           console.error('💥 [EVENT DEBUG] Erro no upload de evento:', error);
@@ -779,21 +966,17 @@
           title: eventTitle,
           date: eventDate,
           description: eventDescription,
-          imageUrl: eventImageUrl,
-          establishmentid: 1
+          imageUrl: eventImageUrl
         };
 
-        console.log('📋 [EVENT DEBUG] Dados do evento a serem enviados:', newEventData);
-        console.log('🖼️ [EVENT DEBUG] URL da imagem no momento do envio:', eventImageUrl);
+
 
         // Fazer upload da imagem se houver uma pendente
         let finalImageUrl = null;
         if (eventUploader && eventUploader.hasPendingUpload()) {
-          console.log('🚀 [EVENT DEBUG] Fazendo upload da imagem de evento...');
           const uploadResult = await eventUploader.uploadPendingImage();
           if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
             finalImageUrl = uploadResult.imageUrl;
-            console.log('✅ [EVENT DEBUG] Upload da imagem concluído, nova URL:', finalImageUrl);
           } else {
             throw new Error('Erro ao fazer upload da imagem: ' + (uploadResult.message || 'Erro desconhecido'));
           }
@@ -803,11 +986,10 @@
           title: eventTitle,
           date: eventDate,
           description: eventDescription,
-          imageUrl: finalImageUrl,
-          establishmentid: 1
+          imageUrl: finalImageUrl
         };
 
-        console.log('📋 [EVENT DEBUG] Dados finais do evento a serem enviados:', eventDataToSend);
+
 
         try
         {
@@ -828,7 +1010,9 @@
 
           showToast(`Evento "${ addedEvent.title }" adicionado com sucesso!`);
           closeModal(modalOverlay);
-          await loadEvents();
+          if (isProfileOwner) {
+            await loadEvents();
+          }
         } catch (error)
         {
           console.error("Erro ao adicionar evento:", error);
@@ -1148,9 +1332,7 @@
         currentImageUrl: eventData.imageUrl,
         label: 'Escolher Imagem',
         onSuccess: (result) => {
-          console.log('🎉 [EVENT DEBUG] Upload de evento bem-sucedido:', result);
           // Não atualizar currentImageUrl aqui - será feito no upload pendente
-          console.log('💾 [EVENT DEBUG] Upload pendente configurado para edição');
         },
         onError: (error) => {
           console.error('💥 [EVENT DEBUG] Erro no upload de evento:', error);
@@ -1225,11 +1407,9 @@
         // Fazer upload da imagem se houver uma pendente
         let finalImageUrl = currentImageUrl;
         if (editEventUploader && editEventUploader.hasPendingUpload()) {
-          console.log('🚀 [EVENT DEBUG] Fazendo upload da nova imagem de evento...');
           const uploadResult = await editEventUploader.uploadPendingImage();
           if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
             finalImageUrl = uploadResult.imageUrl;
-            console.log('✅ [EVENT DEBUG] Upload da nova imagem concluído, nova URL:', finalImageUrl);
           } else {
             throw new Error('Erro ao fazer upload da imagem: ' + (uploadResult.message || 'Erro desconhecido'));
           }
@@ -1243,7 +1423,7 @@
           establishmentid: eventData.establishmentid
         };
 
-        console.log('📋 [EVENT DEBUG] Dados finais do evento para atualização:', eventDataToUpdate);
+
 
         try
         {
@@ -1264,7 +1444,9 @@
 
           showToast(`Evento "${ updatedEvent.title }" atualizado com sucesso!`);
           closeModal(modalOverlay);
-          await loadEvents();
+          if (isProfileOwner) {
+            await loadEvents();
+          }
         } catch (error)
         {
           console.error("Erro ao atualizar evento:", error);
@@ -1378,8 +1560,7 @@
           date: requestDate,
           startTime: requestStartTime,
           endTime: requestEndTime,
-          tags: selectedTags,
-          establishmentid: 1
+          tags: selectedTags
         };
 
         try
@@ -1649,6 +1830,26 @@
       });
     }
 
+    // Função para configurar scroll horizontal com roda do mouse
+    function setupHorizontalScroll() {
+      const scrollContainers = document.querySelectorAll('.scroll-container');
+      
+      scrollContainers.forEach(container => {
+        container.addEventListener('wheel', (e) => {
+          // Prevenir o scroll vertical padrão
+          e.preventDefault();
+          
+          // Calcular a quantidade de scroll horizontal
+          // deltaY positivo = scroll para baixo = mover para direita
+          // deltaY negativo = scroll para cima = mover para esquerda
+          const scrollAmount = e.deltaY;
+          
+          // Aplicar scroll horizontal
+          container.scrollLeft += scrollAmount;
+        }, { passive: false });
+      });
+    }
+
     document.getElementById('create-chat-btn')?.addEventListener('click', async function ()
     {
       const userId = this.dataset.userId;
@@ -1683,6 +1884,64 @@
       }
     });
 
+    // Configurar scroll horizontal
+    setupHorizontalScroll();
 
+    // Funcionalidade para lidar com reviews
+    const viewAllReviewsBtn = document.getElementById('view-all-reviews-btn');
+    if (viewAllReviewsBtn) {
+      viewAllReviewsBtn.addEventListener('click', async function() {
+        const userId = this.dataset.userId;
+        try {
+          const response = await fetch(`/profile/reviews/${userId}`);
+          const data = await response.json();
+          
+          if (response.ok) {
+            displayAllReviews(data.reviews);
+          } else {
+            showToast('Erro ao carregar todas as avaliações', 'error');
+          }
+        } catch (error) {
+          console.error('Erro ao buscar reviews:', error);
+          showToast('Erro ao carregar todas as avaliações', 'error');
+        }
+      });
+    }
+
+    function displayAllReviews(reviews) {
+      const container = document.getElementById('reviews-container');
+      container.innerHTML = '';
+      
+      reviews.forEach(review => {
+        const li = document.createElement('li');
+        li.className = 'review-card';
+        
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+          starsHtml += `<span class="star ${i <= review.rating ? 'filled' : ''}">★</span>`;
+        }
+        
+        li.innerHTML = `
+          <div class="review-header">
+            <div class="reviewer-info">
+              <a href="/profile/${review.senderId}" class="reviewer-link">
+                <img src="${review.senderImageUrl || '/img/default.jpg'}" 
+                     alt="${review.senderName}" class="reviewer-avatar">
+                <h3>${review.senderName}</h3>
+              </a>
+            </div>
+            <div class="review-stars">
+              ${starsHtml}
+            </div>
+          </div>
+          <p class="review-text">${review.description}</p>
+        `;
+        
+        container.appendChild(li);
+      });
+    }
+
+    // Configurar scroll horizontal
+    setupHorizontalScroll();
   });
 </script>

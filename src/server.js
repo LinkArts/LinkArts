@@ -154,6 +154,19 @@ app.engine(
       },
       not: function (value) {
         return !value;
+      },
+      range: function(start, end) {
+        const result = [];
+        for (let i = start; i < end; i++) {
+          result.push(i);
+        }
+        return result;
+      },
+      gt: function(a, b) {
+        return a > b;
+      },
+      lte: function(a, b) {
+        return a <= b;
       }
     },
     partialsDir: path.join(__dirname, "views", "partials"),
