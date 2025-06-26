@@ -45,8 +45,9 @@
             <div class="event-list">
                 {{#if userInfo.agendados}}
                 {{#each userInfo.agendados}}
+                <a href="/servico/{{id}}" style="text-decoration: none; color: inherit;">
                 <div class="event">
-                    <a href="/servico/{{id}}"><div class="event-name">{{this.name}}</div></a>
+                    <div class="event-name">{{this.name}}</div>
                     <div class="event-date">
                         <svg class="clock-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -69,6 +70,7 @@
                         {{/if}}
                     </div>
                 </div>
+                </a>
                 {{/each}}
                 {{else}}
                 <div class="event">

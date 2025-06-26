@@ -1,11 +1,11 @@
-<div class="card">
+<a href="/profile/{{id}}" class="card card-link" style="text-decoration: none; color: inherit;">
     <!--<span class="status-indicator status-available" title="Contratando"></span>-->
     <div class="card-image-container">
         <div class="card-image">
             <img src="{{#if imageUrl}}{{imageUrl}}{{else}}/img/default.jpg{{/if}}" alt="{{name}}">
         </div>
     </div>
-    <a href="/profile/{{id}}"><h3 class="card-title">{{name}}</h3></a>
+    <h3 class="card-title">{{name}}</h3>
     <p class="card-location">{{#if city}}{{city}}{{else}}Cidade não
         informada{{/if}}</p>
     <div class="card-rating">
@@ -25,8 +25,6 @@
         {{/if}}
     </div>
     <div class="card-action">
-        <a href="/profile/{{id}}" class="profile-button">
-            Ver perfil
-        </a>
+        <span class="profile-button">Ver perfil</span>
     </div>
-</div>
+</a>
