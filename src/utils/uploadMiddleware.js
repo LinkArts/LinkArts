@@ -81,6 +81,9 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
                     case 'music':
                         filePath = `music/${fileName}`;
                         break;
+                    case 'albums':
+                        filePath = `albums/${fileName}`;
+                        break;
                     default:
                         filePath = fileName;
                 }

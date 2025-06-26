@@ -172,7 +172,7 @@
 
     <section class="events-section">
       <div class="section-header">
-        <h2>{{#if isOwner}}Meus Eventos{{else}}Próximos Eventos{{/if}}</h2>
+        <h2>{{#if isOwner}}Meus Eventos{{else}}Eventos Marcantes{{/if}}</h2>
         {{#if isOwner}}
         <button class="btn btn-primary" id="add-event-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -279,6 +279,7 @@
     } else {
         // Para visitantes, adicionar event listeners aos cards já existentes
         setupExistingServiceRequestCards();
+        setupExistingEventCards();
     }
 
     document.getElementById('add-favorite-btn')?.addEventListener('click', async function ()
@@ -674,6 +675,35 @@
           e.stopPropagation();
           
           setupViewServiceRequestModal(card, requestData);
+        });
+      });
+    }
+
+    function setupExistingEventCards()
+    {
+      const existingCards = document.querySelectorAll('.event-card');
+      
+      existingCards.forEach((card, index) => {
+        // Extrair dados do card HTML
+        const title = card.querySelector('h3')?.textContent || 'Evento sem título';
+        const description = card.querySelector('.event-description')?.textContent || '';
+        const dateText = card.querySelector('.event-date')?.textContent?.replace('Data: ', '') || '';
+        const imageUrl = card.querySelector('.event-img img')?.src || '';
+        
+        const eventData = {
+          id: index + 1, // ID temporário para cards estáticos
+          title: title,
+          description: description,
+          date: dateText,
+          imageUrl: imageUrl !== '/img/placeholder.svg' ? imageUrl : null
+        };
+        
+        // Adicionar event listener
+        card.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          setupViewEventModal(card, eventData);
         });
       });
     }
@@ -1264,8 +1294,27 @@
           const res = await response.json();
 
           if (profileNameElement) profileNameElement.textContent = newName;
-          if (profileLocationElement) profileLocationElement.innerHTML = newLocation;
+          if (profileLocationElement) profileLocationElement.textContent = newLocation;
           if (profileAboutElement) profileAboutElement.textContent = newAbout;
+
+          // Atualizar as tags do perfil na tela
+          const tagsContainer = document.querySelector('.tags');
+          if (tagsContainer) {
+            tagsContainer.innerHTML = '';
+            if (selectedTags.length > 0) {
+              selectedTags.forEach(tagId => {
+                const tagObj = availableTags.find(t => t.id.toString() === tagId.toString());
+                if (tagObj) {
+                  const span = document.createElement('span');
+                  span.className = 'tag';
+                  span.textContent = tagObj.name;
+                  tagsContainer.appendChild(span);
+                }
+              });
+            } else {
+              tagsContainer.innerHTML = '<span class="tag">Sem Tags</span>';
+            }
+          }
 
           const socialIcons = document.querySelector('.social-icons');
           if (socialIcons)
@@ -1978,3 +2027,36 @@
     setupHorizontalScroll();
   });
 </script>
+
+<!-- Modal Overlays -->
+<div class="modal-overlay add-event-overlay">
+  <div class="add-event-modal modal"></div>
+</div>
+
+<div class="modal-overlay edit-event-overlay">
+  <div class="edit-event-modal modal"></div>
+</div>
+
+<div class="modal-overlay view-event-overlay">
+  <div class="view-event-modal modal"></div>
+</div>
+
+<div class="modal-overlay edit-profile-overlay">
+  <div class="edit-profile-modal modal"></div>
+</div>
+
+<div class="modal-overlay add-service-request-overlay">
+  <div class="add-service-request-modal modal"></div>
+</div>
+
+<div class="modal-overlay edit-service-request-overlay">
+  <div class="edit-service-request-modal modal"></div>
+</div>
+
+<div class="modal-overlay view-service-request-overlay">
+  <div class="view-service-request-modal modal"></div>
+</div>
+
+<div class="modal-overlay report-profile-overlay">
+  <div class="report-profile-modal modal"></div>
+</div>

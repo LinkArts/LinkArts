@@ -21,6 +21,10 @@ const Music = db.define('Music',
             type: DataTypes.TEXT,
             require: false
         },
+        link: {
+            type: DataTypes.TEXT,
+            require: false
+        },
     })
 
 module.exports = Music

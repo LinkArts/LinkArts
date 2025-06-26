@@ -112,21 +112,8 @@ module.exports = class ProfileController
 
             if (user.Establishment)
             {
-                // Se for o próprio estabelecimento (isOwner), buscar todos os eventos
-                // Se for visitante, buscar apenas eventos futuros/públicos
-                let eventsToShow = [];
-                if (isOwner)
-                {
-                    // Para o proprietário: mostrar todos os seus eventos
-                    eventsToShow = user.toJSON().Establishment.Events;
-                } else
-                {
-                    // Para visitantes: mostrar apenas eventos futuros (públicos)
-                    const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-                    eventsToShow = user.toJSON().Establishment.Events.filter(event =>
-                        event.date >= currentDate
-                    );
-                }
+                // Mostrar todos os eventos independente da data
+                const eventsToShow = user.toJSON().Establishment.Events;
 
                 const values = {
                     ...user.dataValues,
@@ -461,39 +448,19 @@ module.exports = class ProfileController
             // Buscar músicas relacionadas para informação
             const albumWithMusics = await Album.findOne({
                 where: { id: id },
-                include: [{ model: Music, required: false }]
+                include: [{ 
+                    model: Music, 
+                    as: 'Musics',
+                    required: false 
+                }]
             })
 
-            const musicCount = albumWithMusics && albumWithMusics.Music ? albumWithMusics.Music.length : 0
+            const musicCount = albumWithMusics && albumWithMusics.Musics ? albumWithMusics.Musics.length : 0
 
-            // Remover relacionamentos se houver músicas
-            if (musicCount > 0)
-            {
-                try
-                {
-                    await sequelize.query(
-                        'DELETE FROM "AlbumMusic" WHERE "albumid" = :albumId',
-                        {
-                            replacements: { albumId: id },
-                            type: sequelize.QueryTypes.DELETE
-                        }
-                    )
-                } catch (error)
-                {
-                    try
-                    {
-                        await sequelize.query(
-                            'DELETE FROM album_music WHERE albumid = :albumId',
-                            {
-                                replacements: { albumId: id },
-                                type: sequelize.QueryTypes.DELETE
-                            }
-                        )
-                    } catch (error2)
-                    {
-                        // Se as tabelas não existem, pular essa etapa
-                    }
-                }
+            // O Sequelize cuida automaticamente dos relacionamentos com CASCADE
+            // Remover todas as associações antes de deletar o álbum
+            if (musicCount > 0) {
+                await albumWithMusics.setMusics([]);
             }
 
             // Excluir o álbum
@@ -669,7 +636,7 @@ module.exports = class ProfileController
     static async updateMusic(req, res)
     {
         const { id } = req.params
-        const { title, tags, albums, imageUrl } = req.body
+        const { title, tags, albums, imageUrl, link } = req.body
 
         console.log("UPDATE MUSIC!!!")
 
@@ -714,6 +681,7 @@ module.exports = class ProfileController
             const updatedMusic = await music.update({
                 name: title,
                 image: imageUrl !== undefined ? imageUrl : music.image,
+                link: link !== undefined ? link : music.link,
             })
 
             // Atualizar álbuns da música
@@ -773,7 +741,7 @@ module.exports = class ProfileController
 
     static async createMusic(req, res)
     {
-        const { title, tag, albums, imageUrl } = req.body
+        const { title, tag, albums, imageUrl, link } = req.body
 
         // Validar o título da música
         if (!title || title.trim().length === 0)
@@ -813,6 +781,7 @@ module.exports = class ProfileController
                 name: title,
                 description: null,
                 image: imageUrl || null,
+                link: link || null,
                 genreid: null,
                 userid: user.Artist.cpf
             })
@@ -1011,10 +980,10 @@ module.exports = class ProfileController
 
             const establishmentid = user.Establishment.dataValues.cnpj
 
-            // Buscar apenas eventos do estabelecimento
+            // Buscar todos os eventos do estabelecimento, independente da data
             const events = await Event.findAll({
                 where: { establishmentid: establishmentid },
-                order: [['date', 'ASC'], ['id', 'ASC']]
+                order: [['date', 'DESC'], ['id', 'DESC']]
             })
             return res.status(200).json(events)
         } catch (error)
@@ -1339,10 +1308,10 @@ module.exports = class ProfileController
         {
             const user = await User.findOne({
                 where: { id: id },
-                include: [{
-                    model: Artist,
-                    required: false
-                }],
+                include: [
+                    { model: Artist, required: false },
+                    { model: Tag, as: 'Tags', required: false }
+                ],
                 attributes: { exclude: ['password'] }
             });
 
@@ -1358,7 +1327,8 @@ module.exports = class ProfileController
                 linkedin: user.linkedin,
                 instagram: user.instagram,
                 facebook: user.facebook,
-                imageUrl: user.imageUrl
+                imageUrl: user.imageUrl,
+                tags: user.Tags ? user.Tags.map(tag => ({ id: tag.id, name: tag.name })) : []
             };
 
             return res.json({ userData });

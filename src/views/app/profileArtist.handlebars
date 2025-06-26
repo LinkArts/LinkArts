@@ -158,12 +158,7 @@
             {{#if image}}
             <img src="{{image}}" alt="{{this.name}}" class="song-image">
             {{else}}
-            <div class="song-placeholder">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 18V5l12-2v13M9 18c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM21 16c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
-              </svg>
-            </div>
+            <img src="/img/default-music.png" alt="Imagem padrão da música" class="song-image">
             {{/if}}
           </div>
           <div class="song-info">
@@ -245,6 +240,33 @@
       musicContainer: document.querySelector('.music-container'),
       albumContainer: document.querySelector('.albums-container'),
     };
+
+    // Função para converter URL do YouTube para embed
+    function getYouTubeEmbedUrl(url) {
+      if (!url) return null;
+      
+      // Diferentes formatos de URL do YouTube
+      const patterns = [
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/,
+        /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([a-zA-Z0-9_-]+)/,
+        /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]+)/
+      ];
+      
+      for (let pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) {
+          return `https://www.youtube.com/embed/${match[1]}?autoplay=0&controls=1&rel=0`;
+        }
+      }
+      
+      return null;
+    }
+
+    // Função para verificar se é URL do YouTube
+    function isYouTubeUrl(url) {
+      if (!url) return false;
+      return url.includes('youtube.com') || url.includes('youtu.be');
+    }
 
     document.getElementById('add-favorite-btn')?.addEventListener('click', async function ()
     {
@@ -602,6 +624,7 @@
           <h2 id="add-music-heading">Adicionar Nova Música</h2>
           <form id="add-music-form" novalidate>
             <div class="form-group"><label for="song-title">Título</label><input type="text" id="song-title" maxlength="40" required></div>
+            <div class="form-group"><label for="song-link">Link da Música</label><input type="url" id="song-link" placeholder="https://www.youtube.com/watch?v=..."></div>
             <div class="form-group">
               <label>Imagem da Música</label>
               <div id="music-image-uploader"></div>
@@ -717,13 +740,34 @@
       }
 
       return `
-    <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
-    <h2 id="edit-music-heading">${readOnly ? 'Visualizando Música' : 'Editar Música'}: ${ song.title }</h2>
-    <form id="edit-music-form" novalidate>
+    <div class="modal-header">
+      <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
+      <h2 id="edit-music-heading">${readOnly ? 'Visualizando Música' : 'Editar Música'}: ${ song.title }</h2>
+    </div>
+    <div class="modal-content">
+      <form id="edit-music-form" novalidate>
       <input type="hidden" id="edit-music-original-title" value="${ song.title }">
       <input type="hidden" id="edit-music-original-albums" value="${ Array.isArray(song.albums) ? song.albums.join(',') : '' }">
 
-      <div class="form-group"><label for="edit-song-title">Título</label><input type="text" id="edit-song-title" value="${ song.title }" maxlength="40" required ${readOnly ? 'readonly' : ''}></div>
+      ${readOnly ? 
+        `<div class="form-group"><label>Título</label><div class="readonly-title">${ song.title }</div></div>` : 
+        `<div class="form-group"><label for="edit-song-title">Título</label><input type="text" id="edit-song-title" value="${ song.title }" maxlength="40" required></div>`
+      }
+      ${readOnly ? 
+        `<div class="form-group"><label>Link da Música</label><div class="readonly-link">${ song.link ? `<a href="${song.link}" target="_blank">${song.link}</a>` : 'Nenhum link fornecido' }</div></div>` : 
+        `<div class="form-group"><label for="edit-song-link">Link da Música</label><input type="url" id="edit-song-link" value="${ song.link || '' }" placeholder="https://www.youtube.com/watch?v=..."></div>`
+      }
+      ${song.link ? `
+      <div class="form-group">
+        <label>Player da Música</label>
+        <div class="music-player-container">
+          ${isYouTubeUrl(song.link) ? 
+            `<iframe width="100%" height="280" src="${getYouTubeEmbedUrl(song.link)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>` :
+            `<div class="external-link"><a href="${song.link}" target="_blank" rel="noopener noreferrer">🎵 Abrir link externo</a></div>`
+          }
+        </div>
+      </div>
+      ` : ''}
       <div class="form-group">
         <label>Imagem da Música</label>
         <div id="edit-music-image-uploader"></div>
@@ -742,6 +786,7 @@
         ${!readOnly ? `<button type="submit" class="btn btn-primary">Salvar Alterações</button>` : ''}
       </div>
     </form>
+    </div>
   `;
     }
 
@@ -1253,10 +1298,11 @@
           if (!modalElement) return;
           const form = modalElement.querySelector('#add-music-form');
           const titleInput = modalElement.querySelector('#song-title');
+          const linkInput = modalElement.querySelector('#song-link');
           const tagInput = modalElement.querySelector('#song-tag');
           const albumSelect = modalElement.querySelector('#song-album');
           const createAlbumBtn = modalElement.querySelector('#create-album-inline-btn');
-          const allInputs = [titleInput, tagInput, albumSelect];
+          const allInputs = [titleInput, linkInput, tagInput, albumSelect];
           await populateAlbumDropdown('song-album');
           createAlbumBtn?.addEventListener('click', async () => openCreateAlbumModal(createAlbumBtn));
           form?.addEventListener('submit', async (e) =>
@@ -1266,6 +1312,7 @@
             let isValid = true;
             let firstInvalid = null;
             const title = titleInput.value.trim();
+            const link = linkInput.value.trim();
             const tag = $('#song-tag').val();
             console.log(tag);
             const albums = $('#song-album').val() || [];
@@ -1317,7 +1364,7 @@
                 headers: {
                   'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ title, tag, albums, imageUrl: finalImageUrl })
+                body: JSON.stringify({ title, tag, albums, imageUrl: finalImageUrl, link })
               });
               
               if (!response.ok) {
@@ -1446,6 +1493,7 @@
       const originalTitleInput = modalElement.querySelector('#edit-music-original-title');
       const originalAlbumsInput = modalElement.querySelector('#edit-music-original-albums');
       const titleInput = modalElement.querySelector('#edit-song-title');
+      const linkInput = modalElement.querySelector('#edit-song-link');
       const tagInput = modalElement.querySelector('#edit-song-tag');
       const albumSelect = modalElement.querySelector('#edit-song-album');
       const deleteBtn = modalElement.querySelector('#delete-music-btn');
@@ -1454,9 +1502,12 @@
       await populateAlbumDropdown('edit-song-album', songData.albums);
       const id = songData.id;
 
-      setTimeout(() => titleInput?.focus(), 100);
+      // Só focar no input se não for readonly
+      if (!isReadOnly) {
+        setTimeout(() => titleInput?.focus(), 100);
+      }
 
-      const allInputs = [titleInput, tagInput, albumSelect];
+      const allInputs = [titleInput, linkInput, tagInput, albumSelect].filter(input => input !== null);
 
       // NOVO: Se não for dono, tornar campos readonly/disabled e esconder botões de salvar/excluir
       if (isReadOnly) {
@@ -1486,18 +1537,19 @@
         let isValid = true;
         let firstInvalid = null;
 
-        const newTitle = titleInput.value.trim();
+        const newTitle = titleInput ? titleInput.value.trim() : songData.title;
+        const newLink = linkInput ? linkInput.value.trim() : songData.link;
         const newTags = $('#edit-song-tag').val();
         const newAlbums = $('#edit-song-album').val() || [];
 
-        if (!newTitle)
+        if (titleInput && !newTitle)
         {
           isValid = false;
           titleInput.classList.add('input-error');
           if (!firstInvalid) firstInvalid = titleInput;
         }
         
-        if (newTitle.length > 40)
+        if (titleInput && newTitle.length > 40)
         {
           showToast('Título da música deve ter no máximo 40 caracteres.', 'error');
           titleInput.classList.add('input-error');
@@ -1555,7 +1607,8 @@
               title: newTitle,
               tags: newTags,
               albums: newAlbums,
-              imageUrl: finalImageUrl
+              imageUrl: finalImageUrl,
+              link: newLink
             })
           })
 
@@ -1808,7 +1861,8 @@
           albums: albumNames,
           tags: tagIds,
           id: songCard.dataset.id,
-          image: values.image // Adicionar a imagem da música
+          image: values.image, // Adicionar a imagem da música
+          link: values.link // Adicionar o link da música
         }, songCard);
       }
       catch (error)
@@ -2171,6 +2225,25 @@
 
                 showToast('Perfil atualizado com sucesso!', 'success');
                 closeModal(modalElement.closest('.modal-overlay'));
+
+                // Atualizar as tags do perfil na tela
+                const tagsContainer = document.querySelector('.tags');
+                if (tagsContainer) {
+                  tagsContainer.innerHTML = '';
+                  if (selectedTags.length > 0) {
+                    selectedTags.forEach(tagId => {
+                      const tagObj = availableTags.find(t => t.id.toString() === tagId.toString());
+                      if (tagObj) {
+                        const span = document.createElement('span');
+                        span.className = 'tag';
+                        span.textContent = tagObj.name;
+                        tagsContainer.appendChild(span);
+                      }
+                    });
+                  } else {
+                    tagsContainer.innerHTML = '<span class="tag">Sem Tags</span>';
+                  }
+                }
               }
               catch (error)
               {
