@@ -629,33 +629,38 @@
 
     function getAlbumContentModalHTML(albumName, songsInAlbum, albumData = null)
     {
+      console.log(songsInAlbum)
       let songsHTML = '';
       if (songsInAlbum && songsInAlbum.length > 0)
       {
         songsHTML = songsInAlbum.map(song => `
-      <div class="song-card" data-id="${ song.id }">
-        ${isOwner ? `<button class="remove-from-album-btn" data-song-id="${song.id}" aria-label="Remover música do álbum">×</button>` : ''}
-        <div class="song-icon">
-          ${song.image ? `<img src="${song.image}" alt="${song.name}" class="song-image">` : `
-          <div class="song-placeholder">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 18V5l12-2v13M9 18c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM21 16c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
-            </svg>
-          </div>`}
-        </div>
-        <div class="song-info">
-          <h3>${ song.name }</h3>
-          <p>Tag: ${ song.genre }</p>
-        </div>
-      </div>
-    `).join('');
+          <div class="song-card" data-id="${ song.id }">
+            ${isOwner ? `<button class="remove-from-album-btn" data-song-id="${song.id}" aria-label="Remover música do álbum">×</button>` : ''}
+
+            <div class="song-icon">
+              ${song.image ? `<img src="${song.image}" alt="${song.name}" class="song-image">` : `
+              <div class="song-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 18V5l12-2v13M9 18c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM21 16c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
+                </svg>
+              </div>`}
+            </div>
+            <div class="song-info">
+              <h3>${ song.name }</h3>
+              <p>Tags:
+                ${song.Tags && song.Tags.length > 0 
+                  ? song.Tags.map(tag => tag.name).join(', ') 
+                  : 'Nenhuma tag associada'}
+              </p>
+            </div>
+          </div>
+        `).join('');
       } else
       {
         songsHTML = '<p class="modal-empty-state">Nenhuma música encontrada neste álbum.</p>';
       }
 
-      // Seção de edição só aparece para o dono do perfil
       const albumEditSection = isOwner ? `
         <div class="album-edit-section">
           <div class="form-group"><label for="edit-album-name">Nome do Álbum</label><input type="text" id="edit-album-name" value="${albumName}" maxlength="50" required></div>
@@ -666,57 +671,78 @@
         </div>
       ` : '';
 
-      // Botões de ação só aparecem para o dono do perfil
       const actionButtons = isOwner ? `
         <button type="button" class="btn btn-danger" id="delete-album-btn">Excluir Álbum</button>
         <button type="button" class="btn btn-primary" id="save-album-changes">Salvar Alterações</button>
       ` : '';
 
       return `
-          <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
-          <h2 id="album-content-heading">Músicas do Álbum: "${ albumName }"</h2>
-          ${ albumEditSection }
-          <div class="modal-body-scrollable">
-            ${ songsHTML }
-          </div>
-          <div class="button-group">
-            ${ actionButtons }
-            <button type="button" class="btn btn-cancel">Fechar</button>
-          </div>
-        `;
+        <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
+        <h2 id="album-content-heading">Músicas do Álbum: "${ albumName }"</h2>
+        ${ albumEditSection }
+        <div class="modal-body-scrollable">
+          ${ songsHTML }
+        </div>
+        <div class="button-group">
+          ${ actionButtons }
+          <button type="button" class="btn btn-cancel">Fechar</button>
+        </div>
+      `;
     }
 
-    function getEditMusicModalHTML(song)
+    function getEditMusicModalHTML(song, readOnly = false)
     {
-      return `
-        <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
-        <h2 id="edit-music-heading">Editar Música: ${ song.title }</h2>
-        <form id="edit-music-form" novalidate>
-          <input type="hidden" id="edit-music-original-title" value="${ song.title }">
-          <input type="hidden" id="edit-music-original-albums" value="${ Array.isArray(song.albums) ? song.albums.join(',') : '' }">
+      // Se for readonly, mostrar os álbuns como texto, senão mostrar o select normalmente
+      let albumFieldHtml;
+      if (readOnly) {
+        let albumsText = '';
+        if (song.albums && song.albums.length > 0) {
+          albumsText = song.albums.join(', ');
+        } else {
+          albumsText = 'Nenhum álbum associado';
+        }
+        albumFieldHtml = `
+      <div class="form-group">
+        <label>Álbuns</label>
+        <div class="readonly-albums-list">${albumsText}</div>
+      </div>
+    `;
+      } else {
+        albumFieldHtml = `
+      <div class="form-group">
+        <label for="edit-song-album">Álbuns</label>
+        <select id="edit-song-album" multiple><option value="">Carregando...</option></select>
+      </div>
+    `;
+      }
 
-          <div class="form-group"><label for="edit-song-title">Título</label><input type="text" id="edit-song-title" value="${ song.title }" maxlength="40" required></div>
-          <div class="form-group">
-            <label>Imagem da Música</label>
-            <div id="edit-music-image-uploader"></div>
-          </div>
-          <div class="form-group">
-              <label for="edit-song-tag">Tags</label>
-              <div class="tag-select-group">
-                <select id="edit-song-tag" class="js-example-basic-multiple" name="tags[]" multiple="multiple" required><option value="">Carregando...</option></select>
-              </div>
-            </div>
-          <div class="form-group">
-            <label for="edit-song-album">Álbuns</label>
-            <select id="edit-song-album" multiple><option value="">Carregando...</option></select>
-          </div>
-          <div class="button-group">
-            <button type="button" class="btn btn-danger" id="delete-music-btn">Excluir Música</button>
-            <button type="button" class="btn btn-cancel">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-          </div>
-        </form>
-      `;
+      return `
+    <button type="button" class="modal-close-btn" aria-label="Fechar modal">×</button>
+    <h2 id="edit-music-heading">${readOnly ? 'Visualizando Música' : 'Editar Música'}: ${ song.title }</h2>
+    <form id="edit-music-form" novalidate>
+      <input type="hidden" id="edit-music-original-title" value="${ song.title }">
+      <input type="hidden" id="edit-music-original-albums" value="${ Array.isArray(song.albums) ? song.albums.join(',') : '' }">
+
+      <div class="form-group"><label for="edit-song-title">Título</label><input type="text" id="edit-song-title" value="${ song.title }" maxlength="40" required ${readOnly ? 'readonly' : ''}></div>
+      <div class="form-group">
+        <label>Imagem da Música</label>
+        <div id="edit-music-image-uploader"></div>
+        ${readOnly && song.image ? `<div class="readonly-music-image"><img src="${song.image}" alt="${song.title}" class="song-image"></div>` : ''}
+      </div>
+      <div class="form-group">
+        <label for="edit-song-tag">Tags</label>
+        <div class="tag-select-group">
+          <select id="edit-song-tag" class="js-example-basic-multiple" name="tags[]" multiple="multiple" required ${readOnly ? 'disabled' : ''}><option value="">Carregando...</option></select>
+        </div>
+      </div>
+      ${albumFieldHtml}
+      <div class="button-group">
+        ${!readOnly ? `<button type="button" class="btn btn-danger" id="delete-music-btn">Excluir Música</button>` : ''}
+        <button type="button" class="btn btn-cancel">Cancelar</button>
+        ${!readOnly ? `<button type="submit" class="btn btn-primary">Salvar Alterações</button>` : ''}
+      </div>
+    </form>
+  `;
     }
 
     async function openCreateAlbumModal(triggerButton = null)
@@ -945,7 +971,8 @@
               .map(song => ({
                 title: song.name || 'Título Desconhecido',
                 genre: song.genre || 'Gênero Desconhecido',
-                album: 'TESTE'
+                album: 'TESTE',
+                Tags: song.Tags
               }));
           }
 
@@ -1366,33 +1393,36 @@
 
     async function openEditMusicModal(songData, triggerElement = null)
     {
-      const modalElement = openModal('.edit-music-overlay', 'edit-music-modal', getEditMusicModalHTML(songData), triggerElement)
+      const isReadOnly = !isOwner; // NOVO: Só pode editar se for dono
+      const modalElement = openModal('.edit-music-overlay', 'edit-music-modal', getEditMusicModalHTML(songData, isReadOnly), triggerElement)
       setTimeout(() =>
       {
         $('.js-example-basic-multiple').select2();
-        
+
         // Definir tags selecionadas após inicialização do Select2
         if (songData.tags && songData.tags.length > 0) {
           $('#edit-song-tag').val(songData.tags).trigger('change');
         }
-        
-        // Inicializar upload de imagem da música
-        const currentImageUrl = songData.image || '/img/placeholder.svg';
-        const editMusicImageUploader = createImageUploader({
-          containerId: 'edit-music-image-uploader',
-          uploadEndpoint: '/upload/music/cover',
-          currentImageUrl: currentImageUrl,
-          onImageSelect: (imageUrl) => {
-            // NÃO atualizar cards até salvar - apenas preview interno do uploader
-          },
-          onSuccess: (result) => {
-            // Upload concluído com sucesso
-          },
-          onError: (error) => {
-            console.error('Erro no upload de imagem da música:', error);
-          }
-        });
-        modalElement.editMusicImageUploader = editMusicImageUploader;
+
+        // Inicializar upload de imagem da música SOMENTE SE NÃO FOR READONLY
+        if (!isReadOnly) {
+          const currentImageUrl = songData.image || '/img/placeholder.svg';
+          const editMusicImageUploader = createImageUploader({
+            containerId: 'edit-music-image-uploader',
+            uploadEndpoint: '/upload/music/cover',
+            currentImageUrl: currentImageUrl,
+            onImageSelect: (imageUrl) => {
+              // NÃO atualizar cards até salvar - apenas preview interno do uploader
+            },
+            onSuccess: (result) => {
+              // Upload concluído com sucesso
+            },
+            onError: (error) => {
+              console.error('Erro no upload de imagem da música:', error);
+            }
+          });
+          modalElement.editMusicImageUploader = editMusicImageUploader;
+        }
       }, 0);
 
       const tagSelect = document.getElementById('edit-song-tag');
@@ -1419,6 +1449,7 @@
       const tagInput = modalElement.querySelector('#edit-song-tag');
       const albumSelect = modalElement.querySelector('#edit-song-album');
       const deleteBtn = modalElement.querySelector('#delete-music-btn');
+      const saveBtn = modalElement.querySelector('.btn.btn-primary[type="submit"]');
 
       await populateAlbumDropdown('edit-song-album', songData.albums);
       const id = songData.id;
@@ -1427,8 +1458,28 @@
 
       const allInputs = [titleInput, tagInput, albumSelect];
 
+      // NOVO: Se não for dono, tornar campos readonly/disabled e esconder botões de salvar/excluir
+      if (isReadOnly) {
+        titleInput.readOnly = true;
+        tagInput.disabled = true;
+        //albumSelect.disabled = true;
+        if (deleteBtn) deleteBtn.style.display = 'none';
+        if (saveBtn) saveBtn.style.display = 'none';
+        // Desabilitar uploader de imagem
+        if (modalElement.editMusicImageUploader) {
+          modalElement.editMusicImageUploader.disable?.();
+        }
+        // Desabilitar Select2
+        $('#edit-song-tag').prop('disabled', true).trigger('change');
+        $('#edit-song-album').prop('disabled', true).trigger('change');
+      }
+
       form?.addEventListener('submit', async (e) =>
       {
+        if (isReadOnly) {
+          e.preventDefault();
+          return;
+        }
         e.preventDefault();
         allInputs.forEach(inp => inp.classList.remove('input-error'));
 
@@ -1638,11 +1689,11 @@
         closeModal(modalElement.closest('.modal-overlay'));
       });
 
-      allInputs.forEach(input =>
+      /*allInputs.forEach(input =>
       {
         const eventType = input.tagName === 'SELECT' ? 'change' : 'input';
         input?.addEventListener(eventType, () => input.classList.remove('input-error'));
-      });
+      });*/
     }
 
     async function renderAlbumCard(albumName, imageUrl = null)

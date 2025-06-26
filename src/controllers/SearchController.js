@@ -229,6 +229,82 @@ module.exports = class SearchController {
                         })
                     );
                     return res.json({ results2, search: search });
+                } else if (type === 'artista') {
+                    // Busca usuários que são artistas
+                    const userResults = await Promise.all(
+                        (await User.findAll({
+                            where: {
+                                [Op.or]: [
+                                    where(fn('LOWER', col('User.name')), {
+                                        [Op.like]: `%${search.toLowerCase()}%`
+                                    })
+                                ]
+                            },
+                            attributes: { exclude: ['password'] },
+                            include: [
+                                { model: Artist, required: true },
+                                { model: Tag, as: 'Tags', required: tagsid.length > 0, where: tagsid.length > 0 ? { id: tagsid } : undefined }
+                            ]
+                        })).map(async (user) => {
+                            const allTags = await user.getTags();
+                            const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
+                            const averageRating = await Rating.findOne({
+                                where: { receiverUserid: user.id },
+                                attributes: [[fn('AVG', col('rate')), 'averageRating']]
+                            });
+                            return {
+                                ...user.dataValues,
+                                Tags: allTags.map(tag => tag.dataValues),
+                                TotalRatings: totalRatings,
+                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
+                                _type: 'user'
+                            };
+                        })
+                    );
+                    const results2 = userResults.sort((a, b) => {
+                        if (!a.name) return 1;
+                        if (!b.name) return -1;
+                        return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
+                    });
+                    return res.json({ results2, search: search });
+                } else if (type === 'estabelecimento') {
+                    // Busca usuários que são estabelecimentos
+                    const userResults = await Promise.all(
+                        (await User.findAll({
+                            where: {
+                                [Op.or]: [
+                                    where(fn('LOWER', col('User.name')), {
+                                        [Op.like]: `%${search.toLowerCase()}%`
+                                    })
+                                ]
+                            },
+                            attributes: { exclude: ['password'] },
+                            include: [
+                                { model: Establishment, required: true },
+                                { model: Tag, as: 'Tags', required: tagsid.length > 0, where: tagsid.length > 0 ? { id: tagsid } : undefined }
+                            ]
+                        })).map(async (user) => {
+                            const allTags = await user.getTags();
+                            const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
+                            const averageRating = await Rating.findOne({
+                                where: { receiverUserid: user.id },
+                                attributes: [[fn('AVG', col('rate')), 'averageRating']]
+                            });
+                            return {
+                                ...user.dataValues,
+                                Tags: allTags.map(tag => tag.dataValues),
+                                TotalRatings: totalRatings,
+                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
+                                _type: 'user'
+                            };
+                        })
+                    );
+                    const results2 = userResults.sort((a, b) => {
+                        if (!a.name) return 1;
+                        if (!b.name) return -1;
+                        return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
+                    });
+                    return res.json({ results2, search: search });
                 } else if (type === 'todos') {
                     const userResults = await Promise.all(
                         (await User.findAll({

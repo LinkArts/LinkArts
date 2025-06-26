@@ -62,14 +62,15 @@ module.exports = class ProfileController
             }));
 
             const isOwner = user.dataValues.id === req.session.userid
-            
+
             // Verificar se o perfil está nos favoritos do usuário logado
             let isFavorite = false;
-            if (req.session.userid && !isOwner) {
+            if (req.session.userid && !isOwner)
+            {
                 const favorite = await Favorite.findOne({
-                    where: { 
-                        userid: req.session.userid, 
-                        favoriteid: id 
+                    where: {
+                        userid: req.session.userid,
+                        favoriteid: id
                     }
                 });
                 isFavorite = !!favorite;
@@ -114,13 +115,15 @@ module.exports = class ProfileController
                 // Se for o próprio estabelecimento (isOwner), buscar todos os eventos
                 // Se for visitante, buscar apenas eventos futuros/públicos
                 let eventsToShow = [];
-                if (isOwner) {
+                if (isOwner)
+                {
                     // Para o proprietário: mostrar todos os seus eventos
                     eventsToShow = user.toJSON().Establishment.Events;
-                } else {
+                } else
+                {
                     // Para visitantes: mostrar apenas eventos futuros (públicos)
                     const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-                    eventsToShow = user.toJSON().Establishment.Events.filter(event => 
+                    eventsToShow = user.toJSON().Establishment.Events.filter(event =>
                         event.date >= currentDate
                     );
                 }
@@ -189,13 +192,15 @@ module.exports = class ProfileController
         const { albumName, imageUrl } = req.body
 
         // Validar o nome do álbum
-        if (!albumName || albumName.trim().length === 0) {
+        if (!albumName || albumName.trim().length === 0)
+        {
             return res.status(400).json({ message: "Nome do álbum é obrigatório!" })
         }
-        
-        if (albumName.length > 50) {
-            return res.status(400).json({ 
-                message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres." 
+
+        if (albumName.length > 50)
+        {
+            return res.status(400).json({
+                message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres."
             })
         }
 
@@ -204,12 +209,14 @@ module.exports = class ProfileController
             const album = await Album.findOne({ where: { name: albumName } })
             const user = await User.findOne({ where: { id: req.session.userid }, include: [{ model: Artist }] })
 
-            if (!user) {
+            if (!user)
+            {
                 console.log("Usuário não encontrado:", req.session.userid)
                 return res.status(404).json({ message: "Usuário não encontrado!" })
             }
 
-            if (!user.Artist) {
+            if (!user.Artist)
+            {
                 console.log("Usuário não é um artista:", req.session.userid)
                 return res.status(400).json({ message: "Usuário não é um artista!" })
             }
@@ -221,33 +228,35 @@ module.exports = class ProfileController
             }
 
             console.log("Criando álbum:", { name: albumName, userid: user.Artist.cpf, imageUrl })
-            const result = await Album.create({ 
-                name: albumName, 
+            const result = await Album.create({
+                name: albumName,
                 userid: user.Artist.cpf,
                 imageUrl: imageUrl || null
             })
-            
+
             console.log("Álbum criado com sucesso:", result.dataValues)
             return res.json({ id: result.dataValues.id, message: `O album ${ albumName } foi criado com sucesso!!!` })
         }
         catch (err)
         {
             console.error("Erro ao criar álbum:", err)
-            
+
             // Verificar se é erro de limite de caracteres
-            if (err.name === 'SequelizeDatabaseError' && err.original && err.original.code === '22001') {
-                return res.status(400).json({ 
-                    message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres." 
+            if (err.name === 'SequelizeDatabaseError' && err.original && err.original.code === '22001')
+            {
+                return res.status(400).json({
+                    message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres."
                 })
             }
-            
+
             // Verificar se é erro de validação do Sequelize
-            if (err.name === 'SequelizeValidationError') {
-                return res.status(400).json({ 
-                    message: "Dados inválidos para criar o álbum!" 
+            if (err.name === 'SequelizeValidationError')
+            {
+                return res.status(400).json({
+                    message: "Dados inválidos para criar o álbum!"
                 })
             }
-            
+
             return res.status(500).json({ message: "Erro ao criar álbum!", error: err.message })
         }
     }
@@ -259,14 +268,14 @@ module.exports = class ProfileController
         try
         {
             const album = await Album.findByPk(albumId)
-            
+
             if (!album)
             {
                 return res.status(404).json({ message: "Álbum não encontrado!" })
             }
 
             await album.update({ imageUrl })
-            
+
             return res.json({ message: "Capa do álbum atualizada com sucesso!" })
         }
         catch (err)
@@ -282,13 +291,15 @@ module.exports = class ProfileController
         const { albumId, name } = req.body
 
         // Validar o nome do álbum
-        if (!name || name.trim().length === 0) {
+        if (!name || name.trim().length === 0)
+        {
             return res.status(400).json({ message: "Nome do álbum é obrigatório!" })
         }
-        
-        if (name.length > 50) {
-            return res.status(400).json({ 
-                message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres." 
+
+        if (name.length > 50)
+        {
+            return res.status(400).json({
+                message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres."
             })
         }
 
@@ -302,7 +313,7 @@ module.exports = class ProfileController
 
             // Buscar o álbum
             const album = await Album.findByPk(albumId)
-            
+
             if (!album)
             {
                 return res.status(404).json({ message: "Álbum não encontrado!" })
@@ -341,27 +352,29 @@ module.exports = class ProfileController
 
             // Atualizar o nome do álbum
             await album.update({ name })
-            
+
             return res.json({ message: "Nome do álbum atualizado com sucesso!" })
         }
         catch (err)
         {
             console.error("Erro ao atualizar nome do álbum:", err)
-            
+
             // Verificar se é erro de limite de caracteres
-            if (err.name === 'SequelizeDatabaseError' && err.original && err.original.code === '22001') {
-                return res.status(400).json({ 
-                    message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres." 
+            if (err.name === 'SequelizeDatabaseError' && err.original && err.original.code === '22001')
+            {
+                return res.status(400).json({
+                    message: "Nome do álbum muito longo! Máximo permitido: 50 caracteres."
                 })
             }
-            
+
             // Verificar se é erro de validação do Sequelize
-            if (err.name === 'SequelizeValidationError') {
-                return res.status(400).json({ 
-                    message: "Dados inválidos para atualizar o álbum!" 
+            if (err.name === 'SequelizeValidationError')
+            {
+                return res.status(400).json({
+                    message: "Dados inválidos para atualizar o álbum!"
                 })
             }
-            
+
             return res.status(500).json({ message: "Erro ao atualizar nome do álbum!", error: err.message })
         }
     }
@@ -374,7 +387,7 @@ module.exports = class ProfileController
         try
         {
             const music = await Music.findByPk(musicId)
-            
+
             if (!music)
             {
                 return res.status(404).json({ message: "Música não encontrada!" })
@@ -386,7 +399,8 @@ module.exports = class ProfileController
                 include: [{ model: Artist }]
             })
 
-            if (!user || !user.Artist) {
+            if (!user || !user.Artist)
+            {
                 return res.status(403).json({ message: "Usuário não é um artista!" })
             }
 
@@ -394,7 +408,7 @@ module.exports = class ProfileController
             // dependendo de como está estruturado o relacionamento
 
             await music.update({ image: imageUrl })
-            
+
             return res.json({ message: "Capa da música atualizada com sucesso!" })
         }
         catch (err)
@@ -412,11 +426,12 @@ module.exports = class ProfileController
         {
             // Buscar o álbum
             const album = await Album.findByPk(id)
-            
-            if (!album) {
-                return res.status(404).json({ 
-                    success: false, 
-                    message: "Álbum não encontrado!" 
+
+            if (!album)
+            {
+                return res.status(404).json({
+                    success: false,
+                    message: "Álbum não encontrado!"
                 })
             }
 
@@ -426,18 +441,20 @@ module.exports = class ProfileController
                 include: [{ model: Artist }]
             })
 
-            if (!userFromSession || !userFromSession.Artist) {
-                return res.status(403).json({ 
-                    success: false, 
-                    message: "Usuário não é um artista!" 
+            if (!userFromSession || !userFromSession.Artist)
+            {
+                return res.status(403).json({
+                    success: false,
+                    message: "Usuário não é um artista!"
                 })
             }
 
             // Verificar se o álbum pertence ao artista logado
-            if (album.userid !== userFromSession.Artist.cpf) {
-                return res.status(403).json({ 
-                    success: false, 
-                    message: "Você não tem permissão para excluir este álbum!" 
+            if (album.userid !== userFromSession.Artist.cpf)
+            {
+                return res.status(403).json({
+                    success: false,
+                    message: "Você não tem permissão para excluir este álbum!"
                 })
             }
 
@@ -450,8 +467,10 @@ module.exports = class ProfileController
             const musicCount = albumWithMusics && albumWithMusics.Music ? albumWithMusics.Music.length : 0
 
             // Remover relacionamentos se houver músicas
-            if (musicCount > 0) {
-                try {
+            if (musicCount > 0)
+            {
+                try
+                {
                     await sequelize.query(
                         'DELETE FROM "AlbumMusic" WHERE "albumid" = :albumId',
                         {
@@ -459,8 +478,10 @@ module.exports = class ProfileController
                             type: sequelize.QueryTypes.DELETE
                         }
                     )
-                } catch (error) {
-                    try {
+                } catch (error)
+                {
+                    try
+                    {
                         await sequelize.query(
                             'DELETE FROM album_music WHERE albumid = :albumId',
                             {
@@ -468,7 +489,8 @@ module.exports = class ProfileController
                                 type: sequelize.QueryTypes.DELETE
                             }
                         )
-                    } catch (error2) {
+                    } catch (error2)
+                    {
                         // Se as tabelas não existem, pular essa etapa
                     }
                 }
@@ -477,18 +499,18 @@ module.exports = class ProfileController
             // Excluir o álbum
             await album.destroy()
 
-            return res.json({ 
-                success: true, 
-                message: "Album deletado com sucesso!!" 
+            return res.json({
+                success: true,
+                message: "Album deletado com sucesso!!"
             })
         }
         catch (err)
         {
             console.error("Erro ao excluir álbum:", err)
-            return res.status(500).json({ 
-                success: false, 
-                message: "Erro interno do servidor ao excluir álbum!", 
-                error: err.message 
+            return res.status(500).json({
+                success: false,
+                message: "Erro interno do servidor ao excluir álbum!",
+                error: err.message
             })
         }
     }
@@ -520,7 +542,8 @@ module.exports = class ProfileController
                 }]
             })
 
-            if (!user || !user.Artist) {
+            if (!user || !user.Artist)
+            {
                 return res.json({ albumExists: false })
             }
 
@@ -544,16 +567,17 @@ module.exports = class ProfileController
 
         try
         {
-            const user = await User.findOne({ 
-                where: { id: req.session.userid }, 
-                include: [{ 
-                    model: Artist, 
-                    include: [{ model: Album }], 
-                    required: false 
-                }] 
+            const user = await User.findOne({
+                where: { id: req.session.userid },
+                include: [{
+                    model: Artist,
+                    include: [{ model: Album }],
+                    required: false
+                }]
             })
 
-            if (!user || !user.Artist) {
+            if (!user || !user.Artist)
+            {
                 return res.json({ albums: [] })
             }
 
@@ -570,8 +594,8 @@ module.exports = class ProfileController
 
     static async searchAlbumMusics(req, res)
     {
-        console.log("SEARCH ALBUM MUSICS!!!")
-        const { id } = req.params
+        console.log("SEARCH ALBUM MUSICS!!!");
+        const { id } = req.params;
 
         try
         {
@@ -583,22 +607,27 @@ module.exports = class ProfileController
                     model: Music,
                     as: 'Musics',
                     required: false,
+                    include: [{
+                        model: Tag,
+                        as: 'Tags',
+                        required: false
+                    }]
                 }]
-            })
+            });
 
             if (!album)
             {
-                return res.json({ message: "Album não encontrado!" })
+                return res.json({ message: "Album não encontrado!" });
             }
 
-            const data = album.get({ plain: true })
+            const data = album.get({ plain: true });
 
-            return res.json({ data })
+            return res.json({ data });
         }
         catch (error)
         {
-            console.log(error)
-            return res.json({ message: "ERRO!!!" })
+            console.log(error);
+            return res.json({ message: "ERRO!!!" });
         }
     }
 
@@ -645,13 +674,15 @@ module.exports = class ProfileController
         console.log("UPDATE MUSIC!!!")
 
         // Validar o título da música
-        if (!title || title.trim().length === 0) {
+        if (!title || title.trim().length === 0)
+        {
             return res.status(400).json({ message: "Título da música é obrigatório!" })
         }
-        
-        if (title.length > 40) {
-            return res.status(400).json({ 
-                message: "Título da música muito longo! Máximo permitido: 40 caracteres." 
+
+        if (title.length > 40)
+        {
+            return res.status(400).json({
+                message: "Título da música muito longo! Máximo permitido: 40 caracteres."
             })
         }
 
@@ -686,26 +717,30 @@ module.exports = class ProfileController
             })
 
             // Atualizar álbuns da música
-            if (albums && albums.length > 0) {
+            if (albums && albums.length > 0)
+            {
                 // Buscar álbuns válidos
                 const validAlbums = await Album.findAll({
                     where: {
                         name: albums
                     }
                 });
-                
+
                 // Associar música aos novos álbuns
                 await updatedMusic.setAlbums(validAlbums.map(album => album.id));
-            } else {
+            } else
+            {
                 // Remover música de todos os álbuns
                 await updatedMusic.setAlbums([]);
             }
 
             // Atualizar tags
-            if (tags && tags.length > 0) {
+            if (tags && tags.length > 0)
+            {
                 await updatedMusic.setTags([]);
                 await updatedMusic.setTags(tags.map(Number));
-            } else {
+            } else
+            {
                 await updatedMusic.setTags([]);
             }
 
@@ -714,21 +749,23 @@ module.exports = class ProfileController
         catch (error)
         {
             console.error("Erro ao atualizar música:", error)
-            
+
             // Verificar se é erro de limite de caracteres
-            if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001') {
-                return res.status(400).json({ 
-                    message: "Título da música muito longo! Máximo permitido: 40 caracteres." 
+            if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001')
+            {
+                return res.status(400).json({
+                    message: "Título da música muito longo! Máximo permitido: 40 caracteres."
                 })
             }
-            
+
             // Verificar se é erro de validação do Sequelize
-            if (error.name === 'SequelizeValidationError') {
-                return res.status(400).json({ 
-                    message: "Dados inválidos para atualizar a música!" 
+            if (error.name === 'SequelizeValidationError')
+            {
+                return res.status(400).json({
+                    message: "Dados inválidos para atualizar a música!"
                 })
             }
-            
+
             return res.status(500).json({ message: "Erro ao atualizar música!", error: error.message })
         }
 
@@ -739,13 +776,15 @@ module.exports = class ProfileController
         const { title, tag, albums, imageUrl } = req.body
 
         // Validar o título da música
-        if (!title || title.trim().length === 0) {
+        if (!title || title.trim().length === 0)
+        {
             return res.status(400).json({ message: "Título da música é obrigatório!" })
         }
-        
-        if (title.length > 40) {
-            return res.status(400).json({ 
-                message: "Título da música muito longo! Máximo permitido: 40 caracteres." 
+
+        if (title.length > 40)
+        {
+            return res.status(400).json({
+                message: "Título da música muito longo! Máximo permitido: 40 caracteres."
             })
         }
 
@@ -779,20 +818,23 @@ module.exports = class ProfileController
             })
 
             // Adicionar tags à música
-            if (tag && tag.length > 0) {
+            if (tag && tag.length > 0)
+            {
                 await savedMusic.addTags(tag.map(Number))
             }
 
             // Adicionar música aos álbuns selecionados
-            if (albums && albums.length > 0) {
+            if (albums && albums.length > 0)
+            {
                 const selectedAlbums = await Album.findAll({
                     where: {
                         name: albums,
                         userid: user.Artist.cpf // Garantir que os álbuns pertencem ao artista
                     }
                 });
-                
-                if (selectedAlbums.length > 0) {
+
+                if (selectedAlbums.length > 0)
+                {
                     await savedMusic.setAlbums(selectedAlbums.map(album => album.id));
                 }
             }
@@ -802,21 +844,23 @@ module.exports = class ProfileController
         catch (error)
         {
             console.error("Erro ao criar música:", error)
-            
+
             // Verificar se é erro de limite de caracteres
-            if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001') {
-                return res.status(400).json({ 
-                    message: "Título da música muito longo! Máximo permitido: 40 caracteres." 
+            if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001')
+            {
+                return res.status(400).json({
+                    message: "Título da música muito longo! Máximo permitido: 40 caracteres."
                 })
             }
-            
+
             // Verificar se é erro de validação do Sequelize
-            if (error.name === 'SequelizeValidationError') {
-                return res.status(400).json({ 
-                    message: "Dados inválidos para criar a música!" 
+            if (error.name === 'SequelizeValidationError')
+            {
+                return res.status(400).json({
+                    message: "Dados inválidos para criar a música!"
                 })
             }
-            
+
             return res.status(500).json({ message: "Erro ao criar música!", error: error.message })
         }
     }
@@ -865,27 +909,31 @@ module.exports = class ProfileController
         const { name, city, description, linkedin, instagram, facebook, tags } = req.body
 
         // Validar o nome do perfil
-        if (!name || name.trim().length === 0) {
+        if (!name || name.trim().length === 0)
+        {
             return res.status(400).json({ message: "Nome do perfil é obrigatório!" })
         }
-        
-        if (name.length > 100) {
-            return res.status(400).json({ 
-                message: "Nome do perfil muito longo! Máximo permitido: 100 caracteres." 
+
+        if (name.length > 100)
+        {
+            return res.status(400).json({
+                message: "Nome do perfil muito longo! Máximo permitido: 100 caracteres."
             })
         }
 
         // Validar cidade se fornecida
-        if (city && city.length > 30) {
-            return res.status(400).json({ 
-                message: "Nome da cidade muito longo! Máximo permitido: 30 caracteres." 
+        if (city && city.length > 30)
+        {
+            return res.status(400).json({
+                message: "Nome da cidade muito longo! Máximo permitido: 30 caracteres."
             })
         }
 
         // Validar descrição se fornecida
-        if (description && description.length > 500) {
-            return res.status(400).json({ 
-                message: "Descrição muito longa! Máximo permitido: 500 caracteres." 
+        if (description && description.length > 500)
+        {
+            return res.status(400).json({
+                message: "Descrição muito longa! Máximo permitido: 500 caracteres."
             })
         }
 
@@ -908,10 +956,13 @@ module.exports = class ProfileController
             })
 
             // Atualizar tags do perfil
-            if (tags !== undefined) {
-                if (tags && tags.length > 0) {
+            if (tags !== undefined)
+            {
+                if (tags && tags.length > 0)
+                {
                     await user.setTags(tags.map(Number));
-                } else {
+                } else
+                {
                     await user.setTags([]);
                 }
             }
@@ -921,21 +972,23 @@ module.exports = class ProfileController
         catch (error)
         {
             console.error("Erro ao atualizar perfil:", error)
-            
+
             // Verificar se é erro de limite de caracteres
-            if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001') {
-                return res.status(400).json({ 
-                    message: "Dados muito longos! Verifique os limites de caracteres dos campos." 
+            if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001')
+            {
+                return res.status(400).json({
+                    message: "Dados muito longos! Verifique os limites de caracteres dos campos."
                 })
             }
-            
+
             // Verificar se é erro de validação do Sequelize
-            if (error.name === 'SequelizeValidationError') {
-                return res.status(400).json({ 
-                    message: "Dados inválidos para atualizar o perfil!" 
+            if (error.name === 'SequelizeValidationError')
+            {
+                return res.status(400).json({
+                    message: "Dados inválidos para atualizar o perfil!"
                 })
             }
-            
+
             return res.status(500).json({ message: "Erro ao atualizar perfil!", error: error.message })
         }
     }
@@ -945,18 +998,19 @@ module.exports = class ProfileController
         try
         {
             // Buscar o estabelecimento do usuário logado
-            const user = await User.findOne({ 
-                where: { id: req.session.userid }, 
-                include: { model: Establishment } 
+            const user = await User.findOne({
+                where: { id: req.session.userid },
+                include: { model: Establishment }
             })
-            
+
             // Se o usuário não for um estabelecimento, retorna array vazio
-            if (!user || !user.Establishment) {
+            if (!user || !user.Establishment)
+            {
                 return res.status(200).json([])
             }
-            
+
             const establishmentid = user.Establishment.dataValues.cnpj
-            
+
             // Buscar apenas eventos do estabelecimento
             const events = await Event.findAll({
                 where: { establishmentid: establishmentid },
@@ -973,7 +1027,7 @@ module.exports = class ProfileController
     static async createEvent(req, res)
     {
         console.log('🏢 [CONTROLLER DEBUG] createEvent - dados recebidos:', req.body);
-        
+
         const { title, date, description, imageUrl } = req.body
 
         console.log('🖼️ [CONTROLLER DEBUG] imageUrl recebida:', imageUrl);
@@ -984,11 +1038,12 @@ module.exports = class ProfileController
         }
 
         const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
-        
-        if (!user || !user.Establishment) {
+
+        if (!user || !user.Establishment)
+        {
             return res.status(400).json({ message: "Usuário não é um estabelecimento." })
         }
-        
+
         const establishmentid = user.Establishment.dataValues.cnpj
 
         try
@@ -1010,9 +1065,9 @@ module.exports = class ProfileController
             console.log('💾 [CONTROLLER DEBUG] Dados a serem salvos no banco:', eventData);
 
             const newEvent = await Event.create(eventData)
-            
+
             console.log('✅ [CONTROLLER DEBUG] Evento criado com sucesso:', newEvent.toJSON());
-            
+
             return res.status(201).json(newEvent)
         } catch (error)
         {
@@ -1032,11 +1087,12 @@ module.exports = class ProfileController
         }
 
         const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
-        
-        if (!user || !user.Establishment) {
+
+        if (!user || !user.Establishment)
+        {
             return res.status(400).json({ message: "Usuário não é um estabelecimento." })
         }
-        
+
         const establishmentid = user.Establishment.dataValues.cnpj
 
         try
@@ -1093,18 +1149,19 @@ module.exports = class ProfileController
         try
         {
             // Buscar o estabelecimento do usuário logado
-            const user = await User.findOne({ 
-                where: { id: req.session.userid }, 
-                include: { model: Establishment } 
+            const user = await User.findOne({
+                where: { id: req.session.userid },
+                include: { model: Establishment }
             })
-            
+
             // Se o usuário não for um estabelecimento, retorna array vazio
-            if (!user || !user.Establishment) {
+            if (!user || !user.Establishment)
+            {
                 return res.status(200).json([])
             }
-            
+
             const establishmentid = user.Establishment.dataValues.cnpj
-            
+
             // Buscar apenas pedidos de serviço do estabelecimento
             const requests = await ServiceRequest.findAll({
                 where: { establishmentid: establishmentid },
@@ -1135,7 +1192,8 @@ module.exports = class ProfileController
 
         const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
 
-        if (!user || !user.Establishment) {
+        if (!user || !user.Establishment)
+        {
             return res.status(400).json({ message: "Usuário não é um estabelecimento." })
         }
 
@@ -1197,11 +1255,12 @@ module.exports = class ProfileController
         }
 
         const user = await User.findOne({ where: { id: req.session.userid }, include: { model: Establishment } })
-        
-        if (!user || !user.Establishment) {
+
+        if (!user || !user.Establishment)
+        {
             return res.status(400).json({ message: "Usuário não é um estabelecimento." })
         }
-        
+
         const establishmentid = user.Establishment.dataValues.cnpj
 
         try
@@ -1310,10 +1369,12 @@ module.exports = class ProfileController
         }
     }
 
-    static async searchFavorites(req, res) {
+    static async searchFavorites(req, res)
+    {
         const userid = req.session.userid;
-    
-        try {
+
+        try
+        {
             const user = await User.findByPk(userid, {
                 include: {
                     model: User, // Inclui os dados completos dos usuários favoritados
@@ -1321,106 +1382,120 @@ module.exports = class ProfileController
                     attributes: ['id', 'name', 'description', 'city', 'state', 'imageUrl'] // Incluindo explicitamente imageUrl
                 }
             });
-    
-            if (!user) {
+
+            if (!user)
+            {
                 return res.status(404).json({ message: "Usuário não encontrado!" });
             }
-    
+
             const favorites = user.FavoritedUsers.map(favorite => favorite.get({ plain: true }));
-    
+
             return res.status(200).json({ favorites });
-        } catch (error) {
+        } catch (error)
+        {
             console.error("Erro ao buscar favoritos:", error);
             return res.status(500).json({ message: "Erro ao buscar favoritos." });
         }
     }
 
-    static async addFavorite(req, res) {
+    static async addFavorite(req, res)
+    {
         const userid = req.session.userid;
         const favoriteid = req.params.id;
-    
-        try {
+
+        try
+        {
             const user = await User.findByPk(userid);
             const favoriteUser = await User.findByPk(favoriteid);
-    
-            if (!user || !favoriteUser) {
+
+            if (!user || !favoriteUser)
+            {
                 return res.status(404).json({ message: "Usuário ou favorito não encontrado!" });
             }
-    
+
             const favorite = await Favorite.findOne({
                 where: { userid: userid, favoriteid: favoriteid }
             });
-    
-            if (favorite) {
+
+            if (favorite)
+            {
                 // Remove o favorito
                 await favorite.destroy();
                 return res.status(200).json({ message: "Favorito removido com sucesso!", removed: true });
-            } else {
+            } else
+            {
                 // Adiciona o favorito
                 await Favorite.create({ userid: userid, favoriteid: favoriteid });
-                return res.status(200).json({ message: "Favorito adicionado com sucesso!", removed: false  });
+                return res.status(200).json({ message: "Favorito adicionado com sucesso!", removed: false });
             }
-        } catch (error) {
+        } catch (error)
+        {
             console.error("Erro ao alternar favorito:", error);
             return res.status(500).json({ message: "Erro ao alternar favorito." });
         }
     }
 
-    static async removeMusicFromAlbum(req, res) {
+    static async removeMusicFromAlbum(req, res)
+    {
         const { albumId, musicId } = req.params;
-        
-        try {
+
+        try
+        {
             // Verificar se o usuário é dono do álbum
             const user = await User.findOne({
                 where: { id: req.session.userid },
                 include: [{ model: Artist }]
             });
 
-            if (!user || !user.Artist) {
-                return res.status(403).json({ 
-                    success: false, 
-                    message: "Usuário não é um artista!" 
+            if (!user || !user.Artist)
+            {
+                return res.status(403).json({
+                    success: false,
+                    message: "Usuário não é um artista!"
                 });
             }
 
             // Verificar se o álbum pertence ao artista
             const album = await Album.findOne({
-                where: { 
+                where: {
                     id: albumId,
-                    userid: user.Artist.cpf 
+                    userid: user.Artist.cpf
                 }
             });
 
-            if (!album) {
-                return res.status(404).json({ 
-                    success: false, 
-                    message: "Álbum não encontrado ou você não tem permissão!" 
+            if (!album)
+            {
+                return res.status(404).json({
+                    success: false,
+                    message: "Álbum não encontrado ou você não tem permissão!"
                 });
             }
 
             // Verificar se a música existe
             const music = await Music.findByPk(musicId);
-            if (!music) {
-                return res.status(404).json({ 
-                    success: false, 
-                    message: "Música não encontrada!" 
+            if (!music)
+            {
+                return res.status(404).json({
+                    success: false,
+                    message: "Música não encontrada!"
                 });
             }
 
             // Remover a música do álbum (apenas o relacionamento)
             await album.removeMusic(music);
 
-            return res.json({ 
-                success: true, 
-                message: "Música removida do álbum com sucesso!" 
+            return res.json({
+                success: true,
+                message: "Música removida do álbum com sucesso!"
             });
 
-        } catch (error) {
+        } catch (error)
+        {
             console.error("Erro ao remover música do álbum:", error);
-            return res.status(500).json({ 
-                success: false, 
-                message: "Erro interno do servidor!", 
-                error: error.message 
+            return res.status(500).json({
+                success: false,
+                message: "Erro interno do servidor!",
+                error: error.message
             });
         }
     }

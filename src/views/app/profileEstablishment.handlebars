@@ -140,7 +140,7 @@
         <ul class="service-requests-container">
           {{#if values.serviceRequests}}
           {{#each values.serviceRequests}}
-          <li class="service-request-card" data-id="{{id}}">
+          <li class="service-request-card" data-id="{{id}}" data-price="{{price}}">
             <div class="request-content">
               <h3>{{name}}</h3>
               <p class="request-description">
@@ -527,6 +527,7 @@
       try
       {
         const numericPrice = parseFloat(price);
+        console.log(numericPrice)
         if (isNaN(numericPrice)) return "0,00";
         
         return numericPrice.toLocaleString('pt-BR', {
@@ -648,7 +649,7 @@
         const description = card.querySelector('.request-description')?.textContent || '';
         const dateText = card.querySelector('.date')?.textContent?.replace('Data: ', '') || '';
         const timeText = card.querySelector('.time')?.textContent?.replace('Horário: ', '') || '';
-        const priceText = card.querySelector('.price')?.textContent?.replace('Preço: R$ ', '') || null;
+        const price = card.getAttribute('data-price');
         const tags = Array.from(card.querySelectorAll('.tag')).map(tag => ({ name: tag.textContent }));
         
         // Separar horário de início e fim
@@ -663,7 +664,7 @@
           date: dateText,
           startTime: startTime,
           endTime: endTime,
-          price: priceText,
+          price: price,
           Tags: tags
         };
         
@@ -679,6 +680,8 @@
 
     function setupViewServiceRequestModal(requestCard, requestData)
     {
+      console.log(requestData)
+      console.log(formatPrice(requestData.price))
       let timeRange = requestData.startTime;
       if (requestData.endTime)
       {

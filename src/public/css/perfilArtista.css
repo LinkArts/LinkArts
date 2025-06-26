@@ -874,6 +874,21 @@ section h2 {
   border-color: #c0392b;
 }
 
+.readonly-music-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.readonly-music-image .song-image {
+  max-width: 50%;
+  display: block;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
 .song-card {
   min-width: 280px;
   width: 280px;
