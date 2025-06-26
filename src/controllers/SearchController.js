@@ -198,8 +198,11 @@ module.exports = class SearchController {
                         where: serviceWhere,
                         include: serviceInclude
                     });
+                    // Para cada serviço, buscar todas as tags relacionadas
                     const results2 = await Promise.all(
                         results.map(async (result) => {
+                            // Buscar todas as tags relacionadas a este serviço
+                            const allTags = await result.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
                             const averageRating = await Rating.findOne({
                                 where: { receiverUserid: result.Establishment.User.id },
@@ -208,7 +211,7 @@ module.exports = class SearchController {
 
                             return {
                                 ...result.dataValues,
-                                Tags: result.Tags.map(tag => tag.dataValues),
+                                Tags: allTags.map(tag => tag.dataValues),
                                 Establishment: result.Establishment
                                     ? {
                                         ...result.Establishment.dataValues,
@@ -225,7 +228,6 @@ module.exports = class SearchController {
                             };
                         })
                     );
-                    console.log(results2)
                     return res.json({ results2, search: search });
                 } else if (type === 'todos') {
                     const userResults = await Promise.all(
@@ -240,6 +242,8 @@ module.exports = class SearchController {
                             attributes: { exclude: ['password'] },
                             include: include
                         })).map(async (user) => {
+                            // Buscar todas as tags relacionadas a este usuário
+                            const allTags = await user.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
                             const averageRating = await Rating.findOne({
                                 where: { receiverUserid: user.id },
@@ -248,7 +252,7 @@ module.exports = class SearchController {
 
                             return {
                                 ...user.dataValues,
-                                Tags: user.Tags.map(tag => tag.dataValues),
+                                Tags: allTags.map(tag => tag.dataValues),
                                 TotalRatings: totalRatings,
                                 AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
                             };
@@ -278,31 +282,34 @@ module.exports = class SearchController {
                                 _type: 'user'
                             })),
                             ...serviceResults.map(async (result) => {
+                                // Buscar todas as tags relacionadas a este serviço
+                                const allTags = await result.getTags();
                                 const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
                                 const averageRating = await Rating.findOne({
                                     where: { receiverUserid: result.Establishment.User.id },
                                     attributes: [[fn('AVG', col('rate')), 'averageRating']]
-                            });
+                                });
 
-                            return {
-                                ...result.dataValues,
-                                Tags: result.Tags.map(tag => tag.dataValues),
-                                Establishment: result.Establishment
-                                    ? {
-                                        ...result.Establishment.dataValues,
-                                        User: result.Establishment.User
-                                            ? {
-                                                ...result.Establishment.User.dataValues,
-                                                TotalRatings: totalRatings,
-                                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
-                                            }
-                                            : null
-                                    }
-                                    : null,
-                                _type: 'service'
-                            };
-                        })
-                ]);
+                                return {
+                                    ...result.dataValues,
+                                    Tags: allTags.map(tag => tag.dataValues),
+                                    Establishment: result.Establishment
+                                        ? {
+                                            ...result.Establishment.dataValues,
+                                            User: result.Establishment.User
+                                                ? {
+                                                    ...result.Establishment.User.dataValues,
+                                                    TotalRatings: totalRatings,
+                                                    AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
+                                                }
+                                                : null
+                                        }
+                                        : null,
+                                    _type: 'service'
+                                };
+                            })
+                        ]
+                    );
                     results2 = results2.sort((a, b) => {
                         if (!a.name) return 1;
                         if (!b.name) return -1;
@@ -321,6 +328,8 @@ module.exports = class SearchController {
                     });
                     const results2 = await Promise.all(
                         results.map(async (result) => {
+                            // Buscar todas as tags relacionadas a este serviço
+                            const allTags = await result.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
                             const averageRating = await Rating.findOne({
                                 where: { receiverUserid: result.Establishment.User.id },
@@ -329,7 +338,7 @@ module.exports = class SearchController {
 
                             return {
                                 ...result.dataValues,
-                                Tags: result.Tags.map(tag => tag.dataValues),
+                                Tags: allTags.map(tag => tag.dataValues),
                                 Establishment: result.Establishment
                                     ? {
                                         ...result.Establishment.dataValues,
@@ -346,7 +355,6 @@ module.exports = class SearchController {
                             };
                         })
                     );
-                    console.log(results2)
                     return res.json({ results2, search: search });
                 } else if (type === 'todos') {
                     const userResults = await Promise.all(
@@ -354,6 +362,8 @@ module.exports = class SearchController {
                             attributes: { exclude: ['password'] },
                             include: include
                         })).map(async (user) => {
+                            // Buscar todas as tags relacionadas a este usuário
+                            const allTags = await user.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
                             const averageRating = await Rating.findOne({
                                 where: { receiverUserid: user.id },
@@ -362,7 +372,7 @@ module.exports = class SearchController {
                 
                             return {
                                 ...user.dataValues,
-                                Tags: user.Tags.map(tag => tag.dataValues),
+                                Tags: allTags.map(tag => tag.dataValues),
                                 TotalRatings: totalRatings,
                                 AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
                             };
@@ -384,6 +394,8 @@ module.exports = class SearchController {
                                 _type: 'user'
                             })),
                             ...serviceResults.map(async (result) => {
+                                // Buscar todas as tags relacionadas a este serviço
+                                const allTags = await result.getTags();
                                 const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
                                 const averageRating = await Rating.findOne({
                                     where: { receiverUserid: result.Establishment.User.id },
@@ -392,7 +404,7 @@ module.exports = class SearchController {
                 
                                 return {
                                     ...result.dataValues,
-                                    Tags: result.Tags.map(tag => tag.dataValues),
+                                    Tags: allTags.map(tag => tag.dataValues),
                                     Establishment: result.Establishment
                                         ? {
                                             ...result.Establishment.dataValues,
@@ -416,7 +428,6 @@ module.exports = class SearchController {
                         if (!b.name) return -1;
                         return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
                     });
-                
                     return res.json({ results2, search: search });
                 } else {
                     const results = await Promise.all(
@@ -424,6 +435,8 @@ module.exports = class SearchController {
                             attributes: { exclude: ['password'] },
                             include: include
                         })).map(async (user) => {
+                            // Buscar todas as tags relacionadas a este usuário
+                            const allTags = await user.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
                             const averageRating = await Rating.findOne({
                                 where: { receiverUserid: user.id },
@@ -432,7 +445,7 @@ module.exports = class SearchController {
 
                             return {
                                 ...user.dataValues,
-                                Tags: user.Tags.map(tag => tag.dataValues),
+                                Tags: allTags.map(tag => tag.dataValues),
                                 TotalRatings: totalRatings,
                                 AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
                             };
