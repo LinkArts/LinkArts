@@ -221,7 +221,7 @@ module.exports = class AuthController
 
             const confirmationTemplate = getTemplate('confirmation')({
                 name: user.name,
-                confirmationUrl: `http://localhost:3000/confirm/${ user.id }/${ token }`
+                confirmationUrl: `${req.protocol}://${req.get('host')}/confirm/${user.id}/${token}`
             })
 
             sendEmail(email, 'Confirmação de Conta: LinkArts', confirmationTemplate)
