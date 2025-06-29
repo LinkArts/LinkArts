@@ -1172,6 +1172,12 @@
             $(tagsSelect).select2({
               placeholder: 'Selecione as tags do perfil',
               allowClear: true,
+              maximumSelectionLength: 7,
+  language: {
+    maximumSelected: function (args) {
+      return 'Você só pode selecionar até 7 tags.';
+    }
+  }
             });
           }
           // Pré-selecionar as tags do usuário, se houver
