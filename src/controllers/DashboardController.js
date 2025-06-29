@@ -112,7 +112,6 @@ module.exports = class DashboardController
                 services: servicesPlain,
                 agendados: agendadosPlain
             };
-            console.log(userInfo.establishments)
 
             //console.log(userInfo);
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' });

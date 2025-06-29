@@ -198,30 +198,25 @@ module.exports = class ProfileController
 
             if (!user)
             {
-                console.log("Usuário não encontrado:", req.session.userid)
                 return res.status(404).json({ message: "Usuário não encontrado!" })
             }
 
             if (!user.Artist)
             {
-                console.log("Usuário não é um artista:", req.session.userid)
                 return res.status(400).json({ message: "Usuário não é um artista!" })
             }
 
             if (album)
             {
-                console.log("Álbum já existe:", albumName)
                 return res.json({ message: "Album ja existente!!" })
             }
 
-            console.log("Criando álbum:", { name: albumName, userid: user.Artist.cpf, imageUrl })
             const result = await Album.create({
                 name: albumName,
                 userid: user.Artist.cpf,
                 imageUrl: imageUrl || null
             })
 
-            console.log("Álbum criado com sucesso:", result.dataValues)
             return res.json({ id: result.dataValues.id, message: `O album ${ albumName } foi criado com sucesso!!!` })
         }
         catch (err)
@@ -995,11 +990,7 @@ module.exports = class ProfileController
 
     static async createEvent(req, res)
     {
-        console.log('🏢 [CONTROLLER DEBUG] createEvent - dados recebidos:', req.body);
-
         const { title, date, description, imageUrl } = req.body
-
-        console.log('🖼️ [CONTROLLER DEBUG] imageUrl recebida:', imageUrl);
 
         if (!title || !date)
         {
@@ -1031,11 +1022,7 @@ module.exports = class ProfileController
                 establishmentid
             };
 
-            console.log('💾 [CONTROLLER DEBUG] Dados a serem salvos no banco:', eventData);
-
             const newEvent = await Event.create(eventData)
-
-            console.log('✅ [CONTROLLER DEBUG] Evento criado com sucesso:', newEvent.toJSON());
 
             return res.status(201).json(newEvent)
         } catch (error)

@@ -245,20 +245,15 @@ module.exports = class ChatController {
             });
 
             if (!chat) {
-                console.log(`sendMessageApi: Chat ${chatId} não encontrado para user ${userId}`);
                 return res.status(404).json({ message: "Chat não encontrado ou você não tem permissão para enviar mensagens." });
             }
 
-            console.log(`sendMessageApi: Criando mensagem para chat ${chatId} user ${userId}: "${message}"`);
-            
             const newMessage = await Message.create({
                 message: message,
                 chatid: chatId,
                 userid: userId,
                 date: new Date(),
             });
-
-            console.log(`sendMessageApi: Mensagem criada com ID ${newMessage.id}`);
 
             const sender = await User.findByPk(userId, { attributes: ["id", "name", "imageUrl"] });
 
@@ -273,13 +268,10 @@ module.exports = class ChatController {
                 }
             };
 
-            console.log(`sendMessageApi: Emitindo evento new_message para chat ${chatId}:`, socketData);
-
             try {
                 const io = getIo();
                 if (io) {
                     io.to(chatId.toString()).emit("new_message", socketData);
-                    console.log(`sendMessageApi: Evento new_message emitido para sala ${chatId}`);
                 } else {
                     console.warn(`sendMessageApi: Socket.IO não disponível para chat ${chatId}`);
                 }
@@ -631,13 +623,11 @@ module.exports = class ChatController {
                     chatId: chatId,
                     timestamp: new Date()
                 });
-                console.log(`setTypingStatus: Evento '${eventName}' emitido para chat ${chatId} por user ${userId}.`);
             } else {
                 console.warn("setTypingStatus: Socket.IO não inicializado (io é undefined).");
             }
 
             res.status(200).json({ success: true });
-            console.log("setTypingStatus: Resposta de sucesso enviada.");
 
         } catch (error) {
             console.error("setTypingStatus: Erro interno do servidor:", error);
