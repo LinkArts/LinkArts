@@ -53,7 +53,7 @@
             <ul class="card-list" id="scheduled-services-list">
                 {{#each services}}
                 <li class="card scheduled-service-card " data-id="{{id}}">
-                    <a href="/servico/{{id}}"><h4>{{name}}</h4></a>
+                    {{#if ../isOwner}} <a href="/servico/{{id}}"><h4>{{name}}</h4></a>{{else}} <h4>{{name}}</h4> {{/if}}
                     <p>{{establishment}}</p>
                     <p>{{local}}</p>
                     <p class="card-price">Preço: R$&nbsp;{{price}}</p>
@@ -242,7 +242,7 @@
                     li.className = `card scheduled-service-card ${ service.id === currentSelectedServiceId ? 'active' : '' }`;
                     li.dataset.id = service.id;
                     li.innerHTML = `
-                    <a href="/servico/${service.id}"><h4>${ service.title }</h4></a>
+                    ${ isOwner ? `<a href="/servico/${service.id}"><h4>${ service.title }</h4></a>` : `<h4>${ service.title }</h4>`}
                     <p>Cliente: ${ service.otherUserName }</p>
                     <p>Cidade: ${ service.otherUserCity ? service.otherUserCity : 'Cidade não informada.' } </p>
                     <p class="card-price">Preço: ${ formatPrice(service.price) }</p>

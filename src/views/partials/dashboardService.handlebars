@@ -6,7 +6,7 @@
             <img src="{{#if Establishment.User.imageUrl}}{{Establishment.User.imageUrl}}{{else}}/img/default.jpg{{/if}}" alt="{{Establishment.User.name}}">
         </div>
     </div>
-    <a href="/profile/{{id}}"><h3 class="card-title">{{Establishment.User.name}}</h3></a>
+    <a href="/profile/{{Establishment.User.id}}"><h3 class="card-title">{{Establishment.User.name}}</h3></a>
     <p class="card-location">{{Establishment.User.city}}</p>
     <div class="card-rating">
         <span class="star">★</span>
@@ -23,6 +23,9 @@
             <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
         {{formatDatePtBr date}} | {{formatTime startTime}} - {{formatTime endTime}}
+    </p>
+    <p class="service-date price">
+        R$ {{formatPrice price}}
     </p>
     <p class="card-description">{{description}}</p>
     <div class="card-tags">

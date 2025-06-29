@@ -182,9 +182,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     color: #673AB7;
     font-weight: bold;
+}
+.price {
+    margin-bottom: 0.75rem;
 }
 
 .service-actions {

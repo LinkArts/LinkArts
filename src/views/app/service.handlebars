@@ -9,7 +9,7 @@
                         alt="Foto do Artista">
                 </div>
                 <div>
-                    <h3 id="requester-name">{{service.artist.name}}</h3>
+                    <a href="/profile/{{service.artist.id}}"><h3 id="requester-name">{{service.artist.name}}</h3></a>
                     <div class="artist-rating" aria-label="Avaliação: 4.8 de 5 estrelas (baseado em 32 avaliações)"
                         style="margin-bottom: 10px;">
                         <span class="star" aria-hidden="true">★</span>
@@ -83,7 +83,7 @@
                         alt="Foto do Estabelecimento">
                 </div>
                 <div>
-                    <h3 id="provider-name">{{service.establishment.name}}</h3>
+                    <a href="/profile/{{service.establishment.id}}"><h3 id="provider-name">{{service.establishment.name}}</h3></a>
                     <div class="establishment-rating"
                         aria-label="Avaliação: 4.8 de 5 estrelas (baseado em 32 avaliações)"
                         style="margin-bottom: 10px;">
