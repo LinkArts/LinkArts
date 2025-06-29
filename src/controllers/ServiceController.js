@@ -66,6 +66,10 @@ module.exports = class ServiceController
             const isArtist = !!artist && artist.id === loggedUserId;
             const isEstablishment = !!establishment && establishment.id === loggedUserId;
 
+            if (!isArtist && !isEstablishment)
+            {
+                return res.redirect('/dashboard');
+            }
 
             // Calcula média e total de avaliações para o artista
             const totalRatingsArtist = await Rating.count({ where: { receiverUserid: artist.id } }) || 0;
@@ -417,14 +421,17 @@ module.exports = class ServiceController
         }
     }
 
-    static async renderServiceRequest(req, res) {
-        try {
+    static async renderServiceRequest(req, res)
+    {
+        try
+        {
             const { id } = req.params;
 
             // Busca simples sem includes complexos primeiro
             const serviceRequest = await ServiceRequest.findByPk(id);
 
-            if (!serviceRequest) {
+            if (!serviceRequest)
+            {
                 return res.status(404).render('app/dashboard', {
                     css: 'dashboard.css',
                 });
@@ -435,7 +442,8 @@ module.exports = class ServiceController
                 include: [{ model: User }]
             });
 
-            if (!establishment || !establishment.User) {
+            if (!establishment || !establishment.User)
+            {
                 return res.status(404).render('app/dashboard', {
                     css: 'dashboard.css',
                 });
@@ -443,7 +451,8 @@ module.exports = class ServiceController
 
             // Buscar artistas interessados separadamente
             let artists = [];
-            try {
+            try
+            {
                 const serviceRequestWithArtists = await ServiceRequest.findByPk(id, {
                     include: [{
                         model: Artist,
@@ -454,13 +463,16 @@ module.exports = class ServiceController
                     }]
                 });
 
-                if (serviceRequestWithArtists && serviceRequestWithArtists.Artists) {
-                    
-                    artists = await Promise.all(serviceRequestWithArtists.Artists.map(async (artist) => {
+                if (serviceRequestWithArtists && serviceRequestWithArtists.Artists)
+                {
+
+                    artists = await Promise.all(serviceRequestWithArtists.Artists.map(async (artist) =>
+                    {
                         let totalRatings = 0;
                         let averageRating = 0;
-                        
-                        try {
+
+                        try
+                        {
                             totalRatings = await Rating.count({ where: { receiverUserid: artist.User.id } }) || 0;
                             const avgRating = await Rating.findOne({
                                 where: { receiverUserid: artist.User.id },
@@ -469,7 +481,8 @@ module.exports = class ServiceController
                             averageRating = avgRating && avgRating.dataValues.averageRating
                                 ? parseFloat(avgRating.dataValues.averageRating).toFixed(1)
                                 : 0;
-                        } catch (ratingError) {
+                        } catch (ratingError)
+                        {
                             // Erro silencioso ao buscar ratings
                         }
 
@@ -483,14 +496,16 @@ module.exports = class ServiceController
                         };
                     }));
                 }
-            } catch (artistError) {
+            } catch (artistError)
+            {
                 artists = [];
             }
 
             // Buscar ratings do estabelecimento
             let totalRatingsEstablishment = 0;
             let averageRatingEstablishment = 0;
-            try {
+            try
+            {
                 totalRatingsEstablishment = await Rating.count({ where: { receiverUserid: establishment.User.id } }) || 0;
                 const avgRatingEst = await Rating.findOne({
                     where: { receiverUserid: establishment.User.id },
@@ -499,18 +514,21 @@ module.exports = class ServiceController
                 averageRatingEstablishment = avgRatingEst && avgRatingEst.dataValues.averageRating
                     ? parseFloat(avgRatingEst.dataValues.averageRating).toFixed(1)
                     : 0;
-            } catch (ratingError) {
+            } catch (ratingError)
+            {
                 // Erro silencioso ao buscar ratings do estabelecimento
             }
 
             // Formatação de data e hora
-            const formatTime = (timeString) => {
+            const formatTime = (timeString) =>
+            {
                 if (!timeString) return '';
                 const time = timeString.split(':');
-                return `${time[0]}:${time[1]}`;
+                return `${ time[0] }:${ time[1] }`;
             };
 
-            const formatDate = (dateString) => {
+            const formatDate = (dateString) =>
+            {
                 if (!dateString) return '';
                 const date = new Date(dateString);
                 return date.toLocaleDateString('pt-BR');
@@ -541,7 +559,8 @@ module.exports = class ServiceController
                 serviceRequest: serviceData
             });
 
-        } catch (error) {
+        } catch (error)
+        {
             console.error('Erro no renderServiceRequest:', error);
             return res.status(500).render('app/dashboard', {
                 css: 'dashboard.css',
@@ -573,23 +592,27 @@ module.exports = class ServiceController
         }
     }
 
-    static async createService(req, res) {
-        try {
+    static async createService(req, res)
+    {
+        try
+        {
             const { id } = req.params; // ID do ServiceRequest
             const { artistId } = req.body; // ID do artista escolhido
-    
+
             const serviceRequest = await ServiceRequest.findOne({
                 where: { id: id },
                 include: [{ model: Establishment }]
             });
-    
-            if (!serviceRequest) {
+
+            if (!serviceRequest)
+            {
                 return res.status(404).json({ message: 'Pedido de serviço não encontrado!' });
             }
-    
+
             const artist = await Artist.findOne({ where: { userid: artistId } });
-    
-            if (!artist) {
+
+            if (!artist)
+            {
                 return res.status(404).json({ message: 'Artista não encontrado!' });
             }
 
@@ -604,12 +627,13 @@ module.exports = class ServiceController
                 senderid: serviceRequest.Establishment.userid,
                 userid: artist.userid
             });
-    
+
             // Remove o pedido de serviço
             await serviceRequest.destroy();
-    
+
             return res.json({ message: 'Serviço criado com sucesso!' });
-        } catch (error) {
+        } catch (error)
+        {
             console.error('Erro ao criar serviço:', error);
             return res.status(500).json({ message: 'Erro ao criar serviço!' });
         }

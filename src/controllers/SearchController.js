@@ -2,39 +2,57 @@ const { Op, where, col, fn } = require('sequelize');
 
 const { User, Artist, Establishment, ServiceRequest, Tag, Rating } = require('../models/index');
 
-module.exports = class SearchController {
-    static async renderSearch(req, res) {
+module.exports = class SearchController
+{
+    static async renderSearch(req, res)
+    {
         const { search } = req.query;
+        const loggedUserId = req.session.userid;
 
-        try {
+        // Descobre se é artista logado
+        let isArtist = null;
+        if (loggedUserId)
+        {
+            isArtist = await Artist.findOne({ where: { userid: loggedUserId } });
+        }
+
+        try
+        {
             let userResults = [];
             let serviceResults = [];
 
-            if (search) {
+            if (search)
+            {
                 // Busca usuários com base no campo search
                 userResults = await Promise.all(
                     (await User.findAll({
                         where: {
                             [Op.or]: [
                                 where(fn('LOWER', col('User.name')), {
-                                    [Op.like]: `%${search.toLowerCase()}%`
+                                    [Op.like]: `%${ search.toLowerCase() }%`
                                 })
                             ]
                         },
                         attributes: { exclude: ['password'] },
-                        include: [{ model: Tag, as: 'Tags' }] // Inclui Tags relacionadas ao usuário
-                    })).map(async (user) => {
+                        include: [{ model: Tag, as: 'Tags' }, { model: Artist, required: false }]
+                    })).map(async (user) =>
+                    {
                         const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
                         const averageRating = await Rating.findOne({
                             where: { receiverUserid: user.id },
                             attributes: [[fn('AVG', col('rate')), 'averageRating']]
                         });
 
+                        // Detecta se é artista ou estabelecimento
+                        let isArtistUser = user.dataValues.Artist ? true : false;
+
                         return {
                             ...user.dataValues,
-                            Tags: user.Tags.map(tag => tag.dataValues), // Inclui os dados das Tags
-                            TotalRatings: totalRatings, // Total de análises recebidas
-                            AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0 // Média das análises
+                            Tags: user.Tags ? user.Tags.map(tag => tag.dataValues) : [],
+                            TotalRatings: totalRatings,
+                            AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
+                            isArtist: isArtistUser,
+                            _type: 'user'
                         };
                     })
                 );
@@ -45,57 +63,71 @@ module.exports = class SearchController {
                         where: {
                             [Op.or]: [
                                 where(fn('LOWER', col('ServiceRequest.name')), {
-                                    [Op.like]: `%${search.toLowerCase()}%`
+                                    [Op.like]: `%${ search.toLowerCase() }%`
                                 })
                             ]
                         },
                         include: [
-                            { model: Tag, as: 'Tags' }, // Inclui Tags com todos os atributos
-                            { model: Establishment, include: [{ model: User }] } // Inclui Establishment e User
+                            { model: Tag, as: 'Tags' },
+                            { model: Establishment, include: [{ model: User }] }
                         ]
-                    })).map(async (service) => {
+                    })).map(async (service) =>
+                    {
                         const totalRatings = await Rating.count({ where: { receiverUserid: service.Establishment.User.id } });
                         const averageRating = await Rating.findOne({
                             where: { receiverUserid: service.Establishment.User.id },
                             attributes: [[fn('AVG', col('rate')), 'averageRating']]
                         });
 
+                        // Checa se o artista logado está interessado
+                        let isInterested = false;
+                        if (isArtist && typeof service.hasArtist === 'function')
+                        {
+                            isInterested = await service.hasArtist(isArtist);
+                        }
+
                         return {
                             ...service.dataValues,
-                            Tags: service.Tags.map(tag => tag.dataValues), // Inclui os dados das Tags
+                            Tags: service.Tags.map(tag => tag.dataValues),
                             Establishment: service.Establishment
                                 ? {
                                     ...service.Establishment.dataValues,
                                     User: service.Establishment.User
                                         ? {
                                             ...service.Establishment.User.dataValues,
-                                            TotalRatings: totalRatings, // Total de análises recebidas
-                                            AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0 // Média das análises
+                                            TotalRatings: totalRatings,
+                                            AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
                                         }
                                         : null
                                 }
-                                : null
+                                : null,
+                            isInterested
                         };
                     })
                 );
-            } else {
+            } else
+            {
                 // Caso o campo search esteja vazio, retorna todos os usuários
                 userResults = await Promise.all(
                     (await User.findAll({
                         attributes: { exclude: ['password'] },
-                        include: [{ model: Tag, as: 'Tags' }] // Inclui Tags relacionadas ao usuário
-                    })).map(async (user) => {
+                        include: [{ model: Tag, as: 'Tags' }, { model: Artist, required: false }]
+                    })).map(async (user) =>
+                    {
                         const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
                         const averageRating = await Rating.findOne({
                             where: { receiverUserid: user.id },
                             attributes: [[fn('AVG', col('rate')), 'averageRating']]
                         });
 
+                        let isArtistUser = user.dataValues.Artist ? true : false;
+
                         return {
                             ...user.dataValues,
-                            Tags: user.Tags.map(tag => tag.dataValues), // Inclui os dados das Tags
-                            TotalRatings: totalRatings, // Total de análises recebidas
-                            AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0 // Média das análises
+                            Tags: user.Tags.map(tag => tag.dataValues),
+                            TotalRatings: totalRatings,
+                            AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
+                            isArtist: isArtistUser
                         };
                     })
                 );
@@ -104,31 +136,39 @@ module.exports = class SearchController {
                 serviceResults = await Promise.all(
                     (await ServiceRequest.findAll({
                         include: [
-                            { model: Tag, as: 'Tags' }, // Inclui Tags com todos os atributos
-                            { model: Establishment, include: [{ model: User }] } // Inclui Establishment e User
+                            { model: Tag, as: 'Tags' },
+                            { model: Establishment, include: [{ model: User }] }
                         ]
-                    })).map(async (service) => {
+                    })).map(async (service) =>
+                    {
                         const totalRatings = await Rating.count({ where: { receiverUserid: service.Establishment.User.id } });
                         const averageRating = await Rating.findOne({
                             where: { receiverUserid: service.Establishment.User.id },
                             attributes: [[fn('AVG', col('rate')), 'averageRating']]
                         });
 
+                        let isInterested = false;
+                        if (isArtist && typeof service.hasArtist === 'function')
+                        {
+                            isInterested = await service.hasArtist(isArtist);
+                        }
+
                         return {
                             ...service.dataValues,
-                            Tags: service.Tags.map(tag => tag.dataValues), // Inclui os dados das Tags
+                            Tags: service.Tags.map(tag => tag.dataValues),
                             Establishment: service.Establishment
                                 ? {
                                     ...service.Establishment.dataValues,
                                     User: service.Establishment.User
                                         ? {
                                             ...service.Establishment.User.dataValues,
-                                            TotalRatings: totalRatings, // Total de análises recebidas
-                                            AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0 // Média das análises
+                                            TotalRatings: totalRatings,
+                                            AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
                                         }
                                         : null
                                 }
-                                : null
+                                : null,
+                            isInterested
                         };
                     })
                 );
@@ -138,6 +178,7 @@ module.exports = class SearchController {
             let results = [
                 ...userResults.map(result => ({
                     ...result,
+                    isArtist: typeof result.isArtist !== 'undefined' ? result.isArtist : false, // já vem do map acima
                     _type: 'user'
                 })),
                 ...serviceResults.map(result => ({
@@ -147,7 +188,8 @@ module.exports = class SearchController {
             ];
 
             // Ordena alfabeticamente pelo campo 'name'
-            results = results.sort((a, b) => {
+            results = results.sort((a, b) =>
+            {
                 if (!a.name) return 1;
                 if (!b.name) return -1;
                 return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
@@ -155,38 +197,54 @@ module.exports = class SearchController {
 
             //console.log(results);
             return res.render('app/search', { search: search, results: results, css: 'pesquisar.css' });
-        } catch (err) {
+        } catch (err)
+        {
             console.error(err);
             return res.status(500).json({ message: 'Erro ao realizar a busca.' });
         }
     }
 
-    static async getFilter(req, res) {
+    static async getFilter(req, res)
+    {
         console.log("GET FILTER");
 
         const { search, type, tags } = req.query;
         const tagsid = tags ? tags.split(',').filter(Boolean).map(id => parseInt(id)) : [];
+        const loggedUserId = req.session.userid;
+
+        // Descobre se é artista logado
+        let isArtist = null;
+        if (loggedUserId)
+        {
+            isArtist = await Artist.findOne({ where: { userid: loggedUserId } });
+        }
 
         const include = [];
-        if (type === 'artista') {
+        if (type === 'artista')
+        {
             include.push({ model: Artist, required: true });
             include.push({ model: Tag, as: 'Tags', required: tagsid.length > 0, where: tagsid.length > 0 ? { id: tagsid } : undefined });
-        } else if (type === 'estabelecimento') {
+        } else if (type === 'estabelecimento')
+        {
             include.push({ model: Establishment, required: true });
             include.push({ model: Tag, as: 'Tags', required: tagsid.length > 0, where: tagsid.length > 0 ? { id: tagsid } : undefined });
-        } else if (type === 'todos') {
+        } else if (type === 'todos')
+        {
             include.push({ model: Artist, required: false });
             include.push({ model: Establishment, required: false });
             include.push({ model: Tag, as: 'Tags', required: tagsid.length > 0, where: tagsid.length > 0 ? { id: tagsid } : undefined });
         }
 
-        try {
-            if (search) {
-                if (type === 'servico') {
+        try
+        {
+            if (search)
+            {
+                if (type === 'servico')
+                {
                     let serviceWhere = {
                         [Op.or]: [
                             where(fn('LOWER', col('ServiceRequest.name')), {
-                                [Op.like]: `%${search.toLowerCase()}%`
+                                [Op.like]: `%${ search.toLowerCase() }%`
                             })
                         ]
                     };
@@ -200,7 +258,8 @@ module.exports = class SearchController {
                     });
                     // Para cada serviço, buscar todas as tags relacionadas
                     const results2 = await Promise.all(
-                        results.map(async (result) => {
+                        results.map(async (result) =>
+                        {
                             // Buscar todas as tags relacionadas a este serviço
                             const allTags = await result.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
@@ -208,6 +267,13 @@ module.exports = class SearchController {
                                 where: { receiverUserid: result.Establishment.User.id },
                                 attributes: [[fn('AVG', col('rate')), 'averageRating']]
                             });
+
+                            // Checa se o artista logado está interessado
+                            let isInterested = false;
+                            if (isArtist && typeof result.hasArtist === 'function')
+                            {
+                                isInterested = await result.hasArtist(isArtist);
+                            }
 
                             return {
                                 ...result.dataValues,
@@ -224,19 +290,21 @@ module.exports = class SearchController {
                                             : null
                                     }
                                     : null,
+                                isInterested,
                                 _type: 'service'
                             };
                         })
                     );
                     return res.json({ results2, search: search });
-                } else if (type === 'artista') {
+                } else if (type === 'artista')
+                {
                     // Busca usuários que são artistas
                     const userResults = await Promise.all(
                         (await User.findAll({
                             where: {
                                 [Op.or]: [
                                     where(fn('LOWER', col('User.name')), {
-                                        [Op.like]: `%${search.toLowerCase()}%`
+                                        [Op.like]: `%${ search.toLowerCase() }%`
                                     })
                                 ]
                             },
@@ -245,7 +313,8 @@ module.exports = class SearchController {
                                 { model: Artist, required: true },
                                 { model: Tag, as: 'Tags', required: tagsid.length > 0, where: tagsid.length > 0 ? { id: tagsid } : undefined }
                             ]
-                        })).map(async (user) => {
+                        })).map(async (user) =>
+                        {
                             const allTags = await user.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
                             const averageRating = await Rating.findOne({
@@ -257,24 +326,27 @@ module.exports = class SearchController {
                                 Tags: allTags.map(tag => tag.dataValues),
                                 TotalRatings: totalRatings,
                                 AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
-                                _type: 'user'
+                                _type: 'user',
+                                isArtist: true
                             };
                         })
                     );
-                    const results2 = userResults.sort((a, b) => {
+                    const results2 = userResults.sort((a, b) =>
+                    {
                         if (!a.name) return 1;
                         if (!b.name) return -1;
                         return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
                     });
                     return res.json({ results2, search: search });
-                } else if (type === 'estabelecimento') {
+                } else if (type === 'estabelecimento')
+                {
                     // Busca usuários que são estabelecimentos
                     const userResults = await Promise.all(
                         (await User.findAll({
                             where: {
                                 [Op.or]: [
                                     where(fn('LOWER', col('User.name')), {
-                                        [Op.like]: `%${search.toLowerCase()}%`
+                                        [Op.like]: `%${ search.toLowerCase() }%`
                                     })
                                 ]
                             },
@@ -283,7 +355,8 @@ module.exports = class SearchController {
                                 { model: Establishment, required: true },
                                 { model: Tag, as: 'Tags', required: tagsid.length > 0, where: tagsid.length > 0 ? { id: tagsid } : undefined }
                             ]
-                        })).map(async (user) => {
+                        })).map(async (user) =>
+                        {
                             const allTags = await user.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
                             const averageRating = await Rating.findOne({
@@ -295,29 +368,33 @@ module.exports = class SearchController {
                                 Tags: allTags.map(tag => tag.dataValues),
                                 TotalRatings: totalRatings,
                                 AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
-                                _type: 'user'
+                                _type: 'user',
+                                isArtist: false
                             };
                         })
                     );
-                    const results2 = userResults.sort((a, b) => {
+                    const results2 = userResults.sort((a, b) =>
+                    {
                         if (!a.name) return 1;
                         if (!b.name) return -1;
                         return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
                     });
                     return res.json({ results2, search: search });
-                } else if (type === 'todos') {
+                } else if (type === 'todos')
+                {
                     const userResults = await Promise.all(
                         (await User.findAll({
                             where: {
                                 [Op.or]: [
                                     where(fn('LOWER', col('User.name')), {
-                                        [Op.like]: `%${search.toLowerCase()}%`
+                                        [Op.like]: `%${ search.toLowerCase() }%`
                                     })
                                 ]
                             },
                             attributes: { exclude: ['password'] },
                             include: include
-                        })).map(async (user) => {
+                        })).map(async (user) =>
+                        {
                             // Buscar todas as tags relacionadas a este usuário
                             const allTags = await user.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
@@ -330,7 +407,9 @@ module.exports = class SearchController {
                                 ...user.dataValues,
                                 Tags: allTags.map(tag => tag.dataValues),
                                 TotalRatings: totalRatings,
-                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
+                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
+                                _type: 'user',
+                                isArtist: user.dataValues.Artist ? true : false
                             };
                         })
                     );
@@ -338,7 +417,7 @@ module.exports = class SearchController {
                     let serviceWhere = {
                         [Op.or]: [
                             where(fn('LOWER', col('ServiceRequest.name')), {
-                                [Op.like]: `%${search.toLowerCase()}%`
+                                [Op.like]: `%${ search.toLowerCase() }%`
                             })
                         ]
                     };
@@ -355,9 +434,11 @@ module.exports = class SearchController {
                         [
                             ...userResults.map(result => ({
                                 ...result,
+                                isArtist: typeof result.isArtist !== 'undefined' ? result.isArtist : false,
                                 _type: 'user'
                             })),
-                            ...serviceResults.map(async (result) => {
+                            ...serviceResults.map(async (result) =>
+                            {
                                 // Buscar todas as tags relacionadas a este serviço
                                 const allTags = await result.getTags();
                                 const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
@@ -365,6 +446,13 @@ module.exports = class SearchController {
                                     where: { receiverUserid: result.Establishment.User.id },
                                     attributes: [[fn('AVG', col('rate')), 'averageRating']]
                                 });
+
+                                // Checa se o artista logado está interessado
+                                let isInterested = false;
+                                if (isArtist && typeof result.hasArtist === 'function')
+                                {
+                                    isInterested = await result.hasArtist(isArtist);
+                                }
 
                                 return {
                                     ...result.dataValues,
@@ -381,20 +469,24 @@ module.exports = class SearchController {
                                                 : null
                                         }
                                         : null,
+                                    isInterested,
                                     _type: 'service'
                                 };
                             })
                         ]
                     );
-                    results2 = results2.sort((a, b) => {
+                    results2 = results2.sort((a, b) =>
+                    {
                         if (!a.name) return 1;
                         if (!b.name) return -1;
                         return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
                     });
                     return res.json({ results2, search: search });
                 }
-            } else {
-                if (type === 'servico') {
+            } else
+            {
+                if (type === 'servico')
+                {
                     let serviceInclude = [
                         { model: Tag, as: 'Tags', required: tagsid.length > 0, where: tagsid.length > 0 ? { id: tagsid } : undefined },
                         { model: Establishment, include: [{ model: User }] }
@@ -403,7 +495,8 @@ module.exports = class SearchController {
                         include: serviceInclude
                     });
                     const results2 = await Promise.all(
-                        results.map(async (result) => {
+                        results.map(async (result) =>
+                        {
                             // Buscar todas as tags relacionadas a este serviço
                             const allTags = await result.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
@@ -411,6 +504,13 @@ module.exports = class SearchController {
                                 where: { receiverUserid: result.Establishment.User.id },
                                 attributes: [[fn('AVG', col('rate')), 'averageRating']]
                             });
+
+                            // Checa se o artista logado está interessado
+                            let isInterested = false;
+                            if (isArtist && typeof result.hasArtist === 'function')
+                            {
+                                isInterested = await result.hasArtist(isArtist);
+                            }
 
                             return {
                                 ...result.dataValues,
@@ -427,17 +527,20 @@ module.exports = class SearchController {
                                             : null
                                     }
                                     : null,
+                                isInterested,
                                 _type: 'service'
                             };
                         })
                     );
                     return res.json({ results2, search: search });
-                } else if (type === 'todos') {
+                } else if (type === 'todos')
+                {
                     const userResults = await Promise.all(
                         (await User.findAll({
                             attributes: { exclude: ['password'] },
                             include: include
-                        })).map(async (user) => {
+                        })).map(async (user) =>
+                        {
                             // Buscar todas as tags relacionadas a este usuário
                             const allTags = await user.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
@@ -445,16 +548,17 @@ module.exports = class SearchController {
                                 where: { receiverUserid: user.id },
                                 attributes: [[fn('AVG', col('rate')), 'averageRating']]
                             });
-                
+
                             return {
                                 ...user.dataValues,
                                 Tags: allTags.map(tag => tag.dataValues),
                                 TotalRatings: totalRatings,
-                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
+                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
+                                isArtist: user.dataValues.Artist ? true : false
                             };
                         })
                     );
-                
+
                     let serviceInclude = [
                         { model: Tag, as: 'Tags', required: tagsid.length > 0, where: tagsid.length > 0 ? { id: tagsid } : undefined },
                         { model: Establishment, include: [{ model: User }] }
@@ -462,14 +566,16 @@ module.exports = class SearchController {
                     const serviceResults = await ServiceRequest.findAll({
                         include: serviceInclude
                     });
-                
+
                     let results2 = await Promise.all(
                         [
                             ...userResults.map(result => ({
                                 ...result,
+                                isArtist: typeof result.isArtist !== 'undefined' ? result.isArtist : false,
                                 _type: 'user'
                             })),
-                            ...serviceResults.map(async (result) => {
+                            ...serviceResults.map(async (result) =>
+                            {
                                 // Buscar todas as tags relacionadas a este serviço
                                 const allTags = await result.getTags();
                                 const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
@@ -477,7 +583,14 @@ module.exports = class SearchController {
                                     where: { receiverUserid: result.Establishment.User.id },
                                     attributes: [[fn('AVG', col('rate')), 'averageRating']]
                                 });
-                
+
+                                // Checa se o artista logado está interessado
+                                let isInterested = false;
+                                if (isArtist && typeof result.hasArtist === 'function')
+                                {
+                                    isInterested = await result.hasArtist(isArtist);
+                                }
+
                                 return {
                                     ...result.dataValues,
                                     Tags: allTags.map(tag => tag.dataValues),
@@ -493,24 +606,27 @@ module.exports = class SearchController {
                                                 : null
                                         }
                                         : null,
-                                    _type: 'service'
+                                    isInterested,
+                                    _type: 'service',
                                 };
                             })
-                        ]
-                    );
-                
-                    results2 = results2.sort((a, b) => {
+                        ]);
+
+                    results2 = results2.sort((a, b) =>
+                    {
                         if (!a.name) return 1;
                         if (!b.name) return -1;
                         return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
                     });
                     return res.json({ results2, search: search });
-                } else {
+                } else
+                {
                     const results = await Promise.all(
                         (await User.findAll({
                             attributes: { exclude: ['password'] },
                             include: include
-                        })).map(async (user) => {
+                        })).map(async (user) =>
+                        {
                             // Buscar todas as tags relacionadas a este usuário
                             const allTags = await user.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
@@ -530,12 +646,14 @@ module.exports = class SearchController {
 
                     const results2 = results.map(result => ({
                         ...result,
-                        _type: 'user'
+                        _type: 'user',
+                        isArtist: result.Artist ? true : false
                     }));
                     return res.json({ results2, search: search });
                 }
             }
-        } catch (err) {
+        } catch (err)
+        {
             console.log(err);
             return res.status(500).json({ message: 'Erro ao realizar a busca.' });
         }

@@ -1,5 +1,6 @@
 <a href="/profile/{{id}}" class="card card-link" style="text-decoration: none; color: inherit;">
     <!--<span class="status-indicator status-available" title="Contratando"></span>-->
+    <p class="card-location">{{#if isArtist}}Artista{{else}}Estabelecimento{{/if}}</p>
     <div class="card-image-container">
         <div class="card-image">
             <img src="{{#if imageUrl}}{{imageUrl}}{{else}}/img/default.jpg{{/if}}" alt="{{name}}">

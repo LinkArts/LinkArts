@@ -1,5 +1,5 @@
 :root {
-  --purple: #9b87f5;
+  --purple: #673AB7;
   --purple-light: #DDD6FE;
   --purple-dark: #6D28D9;
   --purple-vivid: #8B5CF6;
@@ -361,7 +361,7 @@ section h2 {
 
 .tag {
   padding: 6px 14px;
-  background-color: #9b87f5;
+  background-color: #673AB7;
   color: white;
   border-radius: 20px;
   font-size: 13px;

@@ -65,9 +65,10 @@ module.exports = class DashboardController
 
                     return {
                         ...x.User.toJSON(),
-                        Tags: x.User.Tags.map(tag => tag.toJSON()), // Inclui as Tags no retorno
-                        TotalRatings: totalRatings, // Total de análises recebidas
-                        AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0 // Média das análises
+                        Tags: x.User.Tags.map(tag => tag.toJSON()),
+                        TotalRatings: totalRatings,
+                        AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
+                        isArtist: false // <-- Adicionado
                     };
                 })
             );
@@ -85,16 +86,16 @@ module.exports = class DashboardController
 
                     return {
                         ...x.toJSON(),
-                        Tags: x.Tags.map(tag => tag.toJSON()), // Inclui as Tags no retorno
+                        Tags: x.Tags.map(tag => tag.toJSON()),
                         Establishment: x.Establishment
                             ? {
                                 ...x.Establishment.toJSON(),
                                 User: x.Establishment.User
                                     ? {
                                         ...x.Establishment.User.toJSON(),
-                                        Tags: x.Establishment.User.Tags.map(tag => tag.toJSON()), // Inclui as Tags no User do Establishment
-                                        TotalRatings: totalRatings, // Total de análises recebidas
-                                        AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0 // Média das análises
+                                        Tags: x.Establishment.User.Tags.map(tag => tag.toJSON()),
+                                        TotalRatings: totalRatings,
+                                        AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
                                     }
                                     : null
                             }
@@ -111,6 +112,7 @@ module.exports = class DashboardController
                 services: servicesPlain,
                 agendados: agendadosPlain
             };
+            console.log(userInfo.establishments)
 
             //console.log(userInfo);
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' });
@@ -157,9 +159,10 @@ module.exports = class DashboardController
 
                     return {
                         ...x.User.toJSON(),
-                        Tags: x.User.Tags.map(tag => tag.toJSON()), // Inclui as Tags no retorno
-                        TotalRatings: totalRatings, // Total de análises recebidas
-                        AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0 // Média das análises
+                        Tags: x.User.Tags.map(tag => tag.toJSON()),
+                        TotalRatings: totalRatings,
+                        AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
+                        isArtist: true // <-- Adicionado
                     };
                 })
             );
@@ -173,5 +176,5 @@ module.exports = class DashboardController
 
             return res.render('app/dashboard', { userInfo, css: 'dashboard.css' });
         }
-    }
-};
+    };
+}

@@ -76,7 +76,6 @@
         <div class="card-action">
             <a href="/profile/{{id}}" class="profile-button">
                 Ver perfil
-                <span class="arrow-icon">→</span>
             </a>
         </div>
     </div>
@@ -143,6 +142,7 @@
                     {
                         const html = `
                     <div class="card">
+                    <p class="card-location">${ result.isArtist ? 'Artista' : 'Estabelecimento' }</p>
                         <div class="card-image-container">
                             <div class="card-image">
                                 <img src="${ result.imageUrl || '/img/default.jpg' }" alt="${ result.name }">
@@ -164,7 +164,6 @@
                         <div class="card-action">
                             <a href="/profile/${ result.id }" class="profile-button">
                                 Ver perfil
-                                <span class="arrow-icon">→</span>
                             </a>
                         </div>
                     </div>
@@ -175,6 +174,7 @@
                     {
                         const html = `
     <div class="card">
+    <p class="card-location">Pedido de Serviço</p>
         <div class="card-image-container">
             <div class="card-image">
                 <img src="${ result.Establishment.User.imageUrl || '/img/default.jpg' }" alt="${ result.Establishment.User.name }">
@@ -206,8 +206,8 @@
             <a href="/profile/${ result.Establishment.User.id }">
                 <button class="profile-button">Ver perfil</button>
             </a>
-            <button class="service-button" onclick="registerInterest('${ result.id }')">
-                Cadastrar
+            <button class="service-button" onclick="${result.isInterested ? `removeInterest('${result.id}')` : `registerInterest('${result.id}')`}">
+                ${result.isInterested ? 'Esquecer' : 'Cadastrar'}
             </button>
         </div>
     </div>
