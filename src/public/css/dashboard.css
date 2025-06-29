@@ -22,7 +22,8 @@
     gap: 1rem;
     overflow-x: auto;
     padding-bottom: 1rem;
-    max-height: 900px;
+    height: calc(100vh - 13rem); /* Ajuste 3rem para a altura do header/topo se houver */
+    max-height: none;           /* Remove o max-height fixo */
     overflow-y: auto;
 }
 
@@ -185,7 +186,8 @@
     border-radius: 15px;
     padding: 1.5rem;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    height: fit-content;
+    max-height: calc(100vh - 8.5rem);
+    overflow-y: auto;
 }
 
 .agenda-title {

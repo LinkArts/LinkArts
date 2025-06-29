@@ -585,7 +585,7 @@
               <div id="album-cover-uploader"></div>
             </div>
             <div class="button-group">
-              <button type="button" class="btn btn-cancel">Cancelar</button>
+              <button type="button" class="btn btn-cancel">Fechar</button>
               <button type="submit" class="btn btn-primary">Criar Álbum</button>
             </div>
           </form>
@@ -610,8 +610,8 @@
             <div class="form-group"> <label for="edit-profile-facebook">Facebook</label> <input type="url" id="edit-profile-facebook" placeholder="https://facebook.com/empresa"> </div>
             <div class="form-group"><label for="edit-profile-tags">Tags do Perfil</label><select id="edit-profile-tags" name="tags" multiple style="width: 100%"></select></div>
             <div class="button-group">
-              <button type="button" class="btn btn-cancel">Cancelar</button>
-              <button type="submit" class="btn btn-primary">Salvar</button>
+              <button type="button" class="btn btn-cancel">Fechar</button>
+              <button type="submit" class="btn btn-primary">Salvar Alterações</button>
             </div>
           </form>
         `;
@@ -643,7 +643,7 @@
               </div>
             </div>
             <div class="button-group">
-              <button type="button" class="btn btn-cancel">Cancelar</button>
+              <button type="button" class="btn btn-cancel">Fechar</button>
               <button type="submit" class="btn btn-primary">Adicionar Música</button>
             </div>
           </form>
@@ -707,8 +707,8 @@
           ${ songsHTML }
         </div>
         <div class="button-group">
-          ${ actionButtons }
           <button type="button" class="btn btn-cancel">Fechar</button>
+          ${ actionButtons }
         </div>
       `;
     }
@@ -781,8 +781,8 @@
       </div>
       ${albumFieldHtml}
       <div class="button-group">
+        <button type="button" class="btn btn-cancel">Fechar</button>
         ${!readOnly ? `<button type="button" class="btn btn-danger" id="delete-music-btn">Excluir Música</button>` : ''}
-        <button type="button" class="btn btn-cancel">Cancelar</button>
         ${!readOnly ? `<button type="submit" class="btn btn-primary">Salvar Alterações</button>` : ''}
       </div>
     </form>
@@ -1935,7 +1935,7 @@
             <textarea id="report-description" name="description" rows="4" placeholder="Descreva o problema em detalhes (opcional)"></textarea>
           </div>
           <div class="button-group">
-            <button type="button" class="btn btn-cancel">Cancelar</button>
+            <button type="button" class="btn btn-cancel">Fechar</button>
             <button type="submit" class="btn btn-primary">Enviar Denúncia</button>
           </div>
         </form>
@@ -2099,6 +2099,12 @@
                 $(tagsSelect).select2({
                   placeholder: 'Selecione as tags do perfil',
                   allowClear: true,
+                  maximumSelectionLength: 7,
+  language: {
+    maximumSelected: function (args) {
+      return 'Você só pode selecionar até 7 tags.';
+    }
+  }
                 });
               }
               // Pré-selecionar as tags do usuário, se houver

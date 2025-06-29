@@ -147,8 +147,8 @@
                 {{description}}
               </p>
               <p class="request-date-time">
-                <span class="date">Data: {{date}}</span>
-                <span class="time">Horário: {{startTime}} - {{endTime}}</span>
+                <span class="date">Data: {{formatDatePtBr date}}</span>
+                <span class="time">Horário: {{formatTime startTime}} - {{formatTime endTime}}</span>
                 {{#if price}}<span class="price">Preço: R$ {{formatPrice price}}</span>{{/if}}
               </p>
               <div class="request-tags">
@@ -192,7 +192,7 @@
             <div class="event-img"><img src="{{#if imageUrl}}{{imageUrl}}{{else}}/img/placeholder.svg{{/if}}" alt="{{title}}" onerror="this.src='/img/placeholder.svg'"></div>
             <div class="event-content">
               <h3>{{title}}</h3>
-              <p class="event-date">Data: {{date}}</p>
+              <p class="event-date">Data: {{formatDatePtBr date}}</p>
               <p class="event-description">{{description}}</p>
             </div>
           </li>
@@ -731,7 +731,7 @@
       } else {
         // Para visitantes: botão Cadastrar/Esquecer
         actionButtons = `
-          <button type="button" class="btn btn-primary" id="register-interest-btn">Cadastrar</button>
+          <button type="button" class="btn btn-primary" id="register-interest-btn">Increver-se</button>
         `;
       }
 
@@ -748,8 +748,8 @@
             <p><strong>Tags:</strong> ${ tagsHtml || 'Nenhuma' }</p>
         </div>
         <div class="button-group">
-            ${ actionButtons }
             <button type="button" class="btn btn-cancel">Fechar</button>
+            ${ actionButtons }
         </div>`;
 
       const modalElement = openModal('.view-service-request-overlay', 'view-service-request-modal', modalHTML, requestCard);
@@ -818,7 +818,7 @@
       });
       
       registerBtn?.addEventListener('click', async () => {
-        const isCurrentlyInterested = registerBtn.textContent.trim() === 'Esquecer';
+        const isCurrentlyInterested = registerBtn.textContent.trim() === 'Desinscrever-se';
         
         try {
           const endpoint = isCurrentlyInterested 
@@ -874,11 +874,11 @@
     function updateRegisterButton(button, isInterested, serviceRequestId)
     {
       if (isInterested) {
-        button.textContent = 'Esquecer';
+        button.textContent = 'Desinscrever-se';
         button.className = 'btn btn-outline';
         button.setAttribute('onclick', `removeInterest('${serviceRequestId}')`);
       } else {
-        button.textContent = 'Cadastrar';
+        button.textContent = 'Inscrever-se';
         button.className = 'btn btn-primary';
         button.setAttribute('onclick', `registerInterest('${serviceRequestId}')`);
       }
@@ -972,7 +972,7 @@
                       <label>Imagem do Evento (Opcional)</label> 
                       <div id="event-image-uploader"></div> 
                     </div>
-                    <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Adicionar Evento</button> </div>
+                    <div class="button-group"> <button type="button" class="btn btn-cancel">Fechar</button> <button type="submit" class="btn btn-primary">Adicionar Evento</button> </div>
                 </form>`;
 
       const modalElement = openModal('.add-event-overlay', 'add-event-modal', modalHTML, addEventButton);
@@ -1101,7 +1101,7 @@
           <div class="form-group"> <label for="edit-profile-instagram">Instagram</label> <input type="url" id="edit-profile-instagram" placeholder="https://instagram.com/empresa"> </div>
           <div class="form-group"> <label for="edit-profile-facebook">Facebook</label> <input type="url" id="edit-profile-facebook" placeholder="https://facebook.com/empresa"> </div>
           <div class="form-group"><label for="edit-profile-tags">Tags do Perfil</label><select id="edit-profile-tags" name="tags" multiple style="width: 100%"></select></div>
-          <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Salvar Alterações</button> </div>
+          <div class="button-group"> <button type="button" class="btn btn-cancel">Fechar</button> <button type="submit" class="btn btn-primary">Salvar Alterações</button> </div>
         </form>`;
 
       const modalElement = openModal('.edit-profile-overlay', 'edit-profile-modal', modalHTML, editProfileButton);
@@ -1390,9 +1390,9 @@
                       <div id="edit-event-image-uploader"></div> 
                     </div>
                     <div class="button-group">
-                        <button type="button" class="btn btn-delete" id="delete-event-btn">Excluir</button>
                         <div>
-                            <button type="button" class="btn btn-cancel">Cancelar</button>
+                            <button type="button" class="btn btn-cancel">Fechar</button>
+                            <button type="button" class="btn btn-delete" id="delete-event-btn">Excluir</button>
                             <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                         </div>
                     </div>
@@ -1575,7 +1575,7 @@
                         <select id="request-tags" class="select2-hidden-accessible" multiple="multiple" style="width: 100%;">
                             </select>
                     </div>
-                    <div class="button-group"> <button type="button" class="btn btn-cancel">Cancelar</button> <button type="submit" class="btn btn-primary">Adicionar Pedido</button> </div>
+                    <div class="button-group"> <button type="button" class="btn btn-cancel">Fechar</button> <button type="submit" class="btn btn-primary">Adicionar Pedido</button> </div>
                 </form>`;
 
       const modalElement = openModal('.add-service-request-overlay', 'add-service-request-modal', modalHTML, addServiceRequestButton);
@@ -1696,7 +1696,7 @@
             <textarea id="report-description" name="description" rows="4" placeholder="Descreva o problema em detalhes (opcional)"></textarea>
           </div>
           <div class="button-group">
-            <button type="button" class="btn btn-cancel">Cancelar</button>
+            <button type="button" class="btn btn-cancel">Fechar</button>
             <button type="submit" class="btn btn-primary">Enviar Denúncia</button>
           </div>
         </form>
@@ -1781,9 +1781,9 @@
                             </select>
                     </div>
                     <div class="button-group">
-                        <button type="button" class="btn btn-delete" id="delete-service-request-btn">Excluir</button>
                         <div>
-                            <button type="button" class="btn btn-cancel">Cancelar</button>
+                            <button type="button" class="btn btn-cancel">Fechar</button>
+                            <button type="button" class="btn btn-delete" id="delete-service-request-btn">Excluir</button>
                             <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                         </div>
                     </div>

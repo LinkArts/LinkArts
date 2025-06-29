@@ -207,7 +207,7 @@
                 <button class="profile-button">Ver perfil</button>
             </a>
             <button class="service-button" onclick="${result.isInterested ? `removeInterest('${result.id}')` : `registerInterest('${result.id}')`}">
-                ${result.isInterested ? 'Esquecer' : 'Cadastrar'}
+                ${result.isInterested ? 'Desinscrever-se' : 'Inscrever-se'}
             </button>
         </div>
     </div>
@@ -295,11 +295,11 @@
         {
             if (isInterested)
             {
-                button.textContent = 'Esquecer';
+                button.textContent = 'Desinscrever-se';
                 button.setAttribute('onclick', `removeInterest('${ serviceRequestId }')`);
             } else
             {
-                button.textContent = 'Cadastrar';
+                button.textContent = 'Inscrever-se';
                 button.setAttribute('onclick', `registerInterest('${ serviceRequestId }')`);
             }
         }

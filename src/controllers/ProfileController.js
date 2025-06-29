@@ -56,6 +56,17 @@ module.exports = class ProfileController
                 })
             }
 
+            if (user.Artist) {
+                // Ordenar músicas por updatedAt DESC
+                user.Artist.Musics = (user.Artist.Musics || []).sort(
+                    (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+                );
+                // Ordenar álbuns por updatedAt DESC
+                user.Artist.Albums = (user.Artist.Albums || []).sort(
+                    (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+                );
+            }
+
             const musicsTags = user.Artist?.Musics?.map(music => ({
                 ...music.dataValues,
                 tags: music.Tags?.map(tag => tag.dataValues) || []

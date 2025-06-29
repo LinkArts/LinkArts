@@ -654,6 +654,15 @@ section h2 {
   margin-top: auto;
 }
 
+.album-content-modal .btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
 .album-content-modal .btn-cancel {
   background-color: #555;
   color: #fff;
@@ -865,7 +874,7 @@ section h2 {
 
 .edit-music-modal .button-group {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 15px;
   padding-top: 20px;
   border-top: 1px solid #444;
@@ -903,14 +912,13 @@ section h2 {
   border-color: #666;
 }
 
-.edit-music-modal .btn-danger {
+.btn-danger {
   background-color: #e74c3c;
   color: #fff;
   border: 1px solid #e74c3c;
-  margin-right: auto;
 }
 
-.edit-music-modal .btn-danger:hover {
+.btn-danger:hover {
   background-color: #c0392b;
   border-color: #c0392b;
 }

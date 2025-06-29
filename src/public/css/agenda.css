@@ -358,10 +358,6 @@
     gap: 10px;
 }
 
-/*#send-proposal-modal-overlay {
-
-}*/
-
 .modal-send-proposal {
     background-color: var(--modal-bg);
     border-radius: 10px;
@@ -375,6 +371,15 @@
     transition: transform 0.3s ease, opacity 0.3s ease;
     position: relative;
 }
+
+.modal-send-proposal .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
 
 .modal-send-proposal.active {
     transform: translateY(0);
