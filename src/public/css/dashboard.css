@@ -25,6 +25,8 @@
     height: calc(100vh - 13rem); /* Ajuste 3rem para a altura do header/topo se houver */
     max-height: none;           /* Remove o max-height fixo */
     overflow-y: auto;
+    padding-right: 0.5rem;
+    scrollbar-width: thin;
 }
 
 .card {
