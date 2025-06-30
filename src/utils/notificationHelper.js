@@ -5,7 +5,7 @@ class NotificationHelper {
     /**
      * Cria uma nova notificação no banco de dados
      * @param {number} userId - ID do usuário que receberá a notificação
-     * @param {string} type - Tipo da notificação (new_proposal, new_service_request, status_update, password_change)
+     * @param {string} type - Tipo da notificação (new_proposal, status_update, password_change)
      * @param {string} title - Título da notificação
      * @param {string} content - Conteúdo da notificação
      * @param {number} referenceId - ID de referência (opcional)
@@ -76,27 +76,6 @@ class NotificationHelper {
             proposal.id, 
             'service_proposal',
             senderUser?.id || null
-        );
-    }
-
-    /**
-     * Notifica sobre novo pedido de serviço baseado nas tags do usuário
-     * @param {number} userId - ID do usuário que receberá a notificação
-     * @param {Object} serviceRequest - Dados do pedido de serviço
-     * @param {Array} matchingTags - Tags que coincidem
-     */
-    static async notifyNewServiceRequest(userId, serviceRequest, matchingTags) {
-        const title = 'Novo Pedido de Serviço Disponível';
-        const content = `Novo pedido "${serviceRequest.name}" disponível com as tags: ${matchingTags.join(', ')}.`;
-        
-        return this.createNotification(
-            userId, 
-            'new_service_request', 
-            title, 
-            content, 
-            serviceRequest.id, 
-            'service_request',
-            null
         );
     }
 

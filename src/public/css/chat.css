@@ -1289,16 +1289,19 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
   }
 
   .report-modal-overlay.is-visible {
@@ -1308,18 +1311,24 @@
 
   .report-modal {
     background-color: white;
-    padding: 30px;
+    padding: 25px;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     max-width: 500px;
-    width: 90%;
-    max-height: 90vh;
+    width: 100%;
+    max-height: calc(100vh - 40px);
     display: flex;
     flex-direction: column;
     position: relative;
-    transform: translateY(-20px);
+    transform: translateY(0px);
     opacity: 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
+    margin: auto;
+    align-self: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
   }
 
   .report-modal-overlay.is-visible .report-modal {
@@ -1334,6 +1343,7 @@
     text-align: center;
     border-bottom: 2px solid #6d51b0;
     padding-bottom: 15px;
+    flex-shrink: 0;
   }
 
   .report-modal .modal-close-btn {
@@ -1364,6 +1374,7 @@
 
   .report-modal .form-group {
     margin-bottom: 20px;
+    flex: 1 1 auto;
   }
 
   .report-modal .form-group label {
@@ -1409,9 +1420,11 @@
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 30px;
+    margin-top: auto;
     padding-top: 20px;
     border-top: 1px solid #eee;
+    flex-shrink: 0;
+    align-self: flex-end;
   }
 
   .report-modal .btn {
@@ -1449,10 +1462,16 @@
   }
 
   @media screen and (max-width: 768px) {
+    .report-modal-overlay {
+      padding: 8px;
+    }
+    
     .report-modal {
-      margin: 20px;
-      width: calc(100% - 40px);
+      margin: 0;
+      width: 100%;
+      max-width: 95%;
       padding: 20px;
+      max-height: calc(100vh - 20px);
     }
     
     .report-modal .button-group {
@@ -1471,13 +1490,16 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(0, 0, 0, 0.5);
     display: none;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     z-index: 1000;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
   }
 
   #send-proposal-modal-overlay.active {
@@ -1485,22 +1507,22 @@
   }
 
   .modal-send-proposal {
-    background-color: white;
-    border-radius: 10px;
-    padding: 30px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    width: 90%;
-    max-width: 600px;
-    box-sizing: border-box;
-    transform: translateY(-20px);
-    opacity: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
   }
 
-  .modal-send-proposal.active {
-    transform: translateY(0);
-    opacity: 1;
+  .modal-send-proposal .modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .modal-send-proposal .modal-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+    width: 100%;
   }
 
   .modal-send-proposal .modal-header {
@@ -1510,6 +1532,7 @@
     margin-bottom: 20px;
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
+    flex-shrink: 0;
   }
 
   .modal-send-proposal h2 {
@@ -1529,10 +1552,6 @@
 
   .modal-send-proposal .modal-close-btn:hover {
     color: #333;
-  }
-
-  .modal-send-proposal .modal-body {
-    margin-bottom: 20px;
   }
 
   .modal-send-proposal .form-group {
@@ -1570,6 +1589,9 @@
     gap: 10px;
     padding-top: 15px;
     border-top: 1px solid #eee;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    margin-top: auto;
   }
 
   .modal-send-proposal .modal-footer .btn {
@@ -1601,10 +1623,15 @@
   }
 
   @media (max-width: 768px) {
+    #send-proposal-modal-overlay {
+      padding: 8px;
+    }
+    
     .modal-send-proposal {
-      padding: 20px;
-      width: 95%;
-      max-width: 450px;
+      padding: 15px;
+      width: 100%;
+      max-width: 95%;
+      max-height: calc(100vh - 20px);
     }
     
     .modal-send-proposal h2 {
@@ -1614,13 +1641,35 @@
     .modal-send-proposal .form-group label {
       font-size: 0.9rem;
     }
+    
+    .modal-send-proposal .modal-body {
+      max-height: calc(100vh - 180px);
+    }
+  }
+
+  /* Garantia de scroll em telas pequenas */
+  @media (max-width: 480px) {
+    .modal-send-proposal,
+    .report-modal {
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+
+    .modal-send-proposal .modal-body {
+      overflow-y: auto !important;
+      max-height: calc(100vh - 140px) !important;
+    }
   }
 
   @media (max-width: 640px) {
+    #send-proposal-modal-overlay {
+      padding: 5px;
+    }
+    
     .modal-send-proposal {
-      padding: 15px;
-      width: 95%;
-      max-height: 85vh;
+      padding: 12px;
+      width: 100%;
+      max-height: calc(100vh - 10px);
     }
     
     .modal-send-proposal h2 {
@@ -1646,4 +1695,213 @@
       width: 100%;
       padding: 10px 15px;
     }
+    
+    .modal-send-proposal .modal-body {
+      max-height: calc(100vh - 160px);
+    }
+  }
+
+  /* Regras especiais para zoom alto ou altura muito pequena */
+  @media (max-height: 500px), (max-height: 600px) and (min-width: 640px) {
+    #send-proposal-modal-overlay {
+      align-items: flex-start !important;
+      padding: 5px !important;
+    }
+
+    .modal-send-proposal {
+      max-height: calc(100vh - 10px) !important;
+      padding: 10px !important;
+      margin: 0 !important;
+      transform: translateY(0) !important;
+    }
+
+    .modal-send-proposal h2 {
+      font-size: 1.1rem !important;
+      margin-bottom: 8px !important;
+    }
+
+    .modal-send-proposal .modal-body {
+      max-height: calc(100vh - 120px) !important;
+    }
+
+    .modal-send-proposal .form-group {
+      margin-bottom: 8px !important;
+    }
+
+    .modal-send-proposal .modal-footer {
+      padding-top: 8px !important;
+      margin-top: 8px !important;
+    }
+  }
+
+  /* Regras para casos extremos - zoom muito alto ou resoluções muito baixas */
+  @media (max-height: 400px) {
+    #send-proposal-modal-overlay {
+      align-items: flex-start !important;
+      padding: 2px !important;
+    }
+
+    .modal-send-proposal {
+      max-height: calc(100vh - 4px) !important;
+      min-height: auto !important;
+      padding: 6px !important;
+      margin: 0 !important;
+      transform: translateY(0) !important;
+      border-radius: 4px !important;
+    }
+
+    .modal-send-proposal h2 {
+      font-size: 0.9rem !important;
+      margin-bottom: 4px !important;
+    }
+
+    .modal-send-proposal .modal-body {
+      max-height: calc(100vh - 90px) !important;
+    }
+
+    .modal-send-proposal .form-group {
+      margin-bottom: 4px !important;
+    }
+
+    .modal-send-proposal .form-group input,
+    .modal-send-proposal .form-group textarea {
+      padding: 4px !important;
+      font-size: 0.8rem !important;
+    }
+
+    .modal-send-proposal .modal-footer {
+      padding-top: 4px !important;
+      margin-top: 4px !important;
+    }
+
+    .modal-send-proposal .modal-footer .btn {
+      padding: 4px 8px !important;
+      font-size: 0.8rem !important;
+    }
+  }
+
+  /* Regras para landscape em dispositivos móveis */
+  @media (max-height: 500px) and (orientation: landscape) {
+    #send-proposal-modal-overlay,
+    .report-modal-overlay {
+      align-items: flex-start !important;
+      padding: 3px !important;
+    }
+
+    .modal-send-proposal,
+    .report-modal {
+      max-height: calc(100vh - 6px) !important;
+      padding: 8px !important;
+      margin: 0 !important;
+      max-width: 90% !important;
+    }
+
+    .modal-send-proposal .modal-body,
+    .report-modal .form-group:first-of-type {
+      max-height: calc(100vh - 100px) !important;
+    }
+
+    .modal-send-proposal h2,
+    .report-modal h2 {
+      font-size: 1rem !important;
+      margin-bottom: 6px !important;
+    }
+
+    .modal-send-proposal .form-group,
+    .report-modal .form-group {
+      margin-bottom: 6px !important;
+    }
+
+    .modal-send-proposal .form-group input,
+    .modal-send-proposal .form-group textarea,
+    .report-modal .form-group select,
+    .report-modal .form-group textarea {
+      padding: 4px !important;
+      font-size: 0.85rem !important;
+    }
+  }
+
+  /* Força o scroll nos modais quando necessário */
+  .modal-send-proposal,
+  .report-modal {
+    contain: layout style;
+  }
+
+  .modal-send-proposal .modal-body {
+    contain: layout style;
+    will-change: scroll-position;
+  }
+
+  /* Garante que o conteúdo seja scrollável mesmo com pouco conteúdo */
+  .modal-send-proposal .modal-body {
+    min-height: 150px;
+  }
+
+  /* Reset de altura para forçar recálculo */
+  .modal-send-proposal.active .modal-body {
+    height: auto;
+    max-height: calc(100vh - 200px);
+  }
+
+  /* Força scroll sempre que conteúdo ultrapasse a altura */
+  .modal-send-proposal {
+    position: relative;
+  }
+
+  .modal-send-proposal.active {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .report-modal.is-visible {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Garantia de scroll touch em dispositivos móveis */
+  @supports (-webkit-overflow-scrolling: touch) {
+    .modal-send-proposal,
+    .report-modal,
+    .modal-send-proposal .modal-body {
+      -webkit-overflow-scrolling: touch !important;
+    }
+  }
+
+  /* Força altura mínima para ativar scroll */
+  .modal-send-proposal.active {
+    min-height: 400px;
+  }
+
+  /* Garante que o modal body tenha scroll interno quando necessário */
+  .modal-send-proposal .modal-body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
+  }
+
+  /* Garante que os botões fiquem sempre na parte inferior */
+  .modal-send-proposal .modal-header {
+    flex-shrink: 0;
+  }
+
+  .modal-send-proposal .modal-body {
+    flex: 1 1 auto;
+  }
+
+  .modal-send-proposal .modal-footer {
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+
+  .report-modal h2 {
+    flex-shrink: 0;
+  }
+
+  .report-modal .form-group {
+    flex: 1 1 auto;
+  }
+
+  .report-modal .button-group {
+    flex-shrink: 0;
+    align-self: flex-end;
   }

@@ -1204,45 +1204,6 @@ module.exports = class ProfileController
                 }
             });
 
-            // Notificar artistas com tags correspondentes
-            if (tags && tags.length > 0) {
-                try {
-                    // Buscar artistas que têm tags correspondentes
-                    const artistsWithMatchingTags = await User.findAll({
-                        include: [
-                            {
-                                model: Artist,
-                                required: true
-                            },
-                            {
-                                model: Tag,
-                                as: 'Tags',
-                                where: {
-                                    id: {
-                                        [Op.in]: tags
-                                    }
-                                },
-                                required: true,
-                                through: { attributes: [] }
-                            }
-                        ]
-                    });
-
-                    // Notificar cada artista encontrado
-                    for (const artist of artistsWithMatchingTags) {
-                        const matchingTags = artist.Tags.map(tag => tag.name);
-                        await NotificationHelper.notifyNewServiceRequest(
-                            artist.id,
-                            createdServiceRequestWithTags,
-                            matchingTags
-                        );
-                    }
-                } catch (notificationError) {
-                    console.error('Erro ao enviar notificações:', notificationError);
-                    // Não interrompe o fluxo principal se houver erro nas notificações
-                }
-            }
-
             return res.status(201).json(createdServiceRequestWithTags)
         } catch (error)
         {

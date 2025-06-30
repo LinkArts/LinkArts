@@ -26,7 +26,7 @@ const Notification = db.define('Notification', {
         comment: 'ID do usuário remetente da notificação'
     },
     type: {
-        type: DataTypes.ENUM('new_proposal', 'new_service_request', 'status_update', 'password_change', 'new_rating'),
+        type: DataTypes.ENUM('new_proposal', 'status_update', 'password_change', 'new_rating'),
         allowNull: false
     },
     title: {

@@ -268,16 +268,19 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background-color: var(--modal-overlay-bg);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .modal-overlay.active {
@@ -285,18 +288,51 @@
     visibility: visible;
 }
 
+.modal-view,
+.modal-send-proposal {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.modal-view .modal-body,
+.modal-send-proposal .modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.modal-view .modal-footer,
+.modal-send-proposal .modal-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+    width: 100%;
+}
+
 .modal-view {
     background-color: var(--modal-bg);
     border-radius: 10px;
-    padding: 30px;
+    padding: 25px;
     box-shadow: 0 5px 20px var(--modal-shadow);
-    width: 90%;
-    max-width: 500px;
+    width: 100%;
+    max-width: 480px;
+    max-height: calc(100vh - 40px);
     box-sizing: border-box;
-    transform: translateY(-20px);
+    transform: translateY(0px);
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease;
     position: relative;
+    margin: auto;
+    align-self: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    contain: layout style;
+    will-change: scroll-position;
 }
 
 .modal-view.active {
@@ -311,6 +347,7 @@
     margin-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 10px;
+    flex-shrink: 0;
 }
 
 .modal-view h2 {
@@ -349,27 +386,29 @@
     text-align: right;
 }
 
-.modal-view .modal-footer {
-    margin-top: 25px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
 .modal-send-proposal {
     background-color: var(--modal-bg);
     border-radius: 10px;
-    padding: 30px;
+    padding: 25px;
     box-shadow: 0 5px 20px var(--modal-shadow);
-    width: 90%;
-    max-width: 600px;
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 40px);
     box-sizing: border-box;
-    transform: translateY(-20px);
+    transform: translateY(0px);
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease;
     position: relative;
+    margin: auto;
+    align-self: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    contain: layout style;
+    will-change: scroll-position;
 }
 
 .modal-send-proposal .btn {
@@ -393,6 +432,7 @@
     margin-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 10px;
+    flex-shrink: 0;
 }
 
 .modal-send-proposal h2 {
@@ -416,6 +456,8 @@
 
 .modal-send-proposal .modal-body {
     margin-bottom: 20px;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .modal-send-proposal .form-group {
@@ -453,6 +495,31 @@
     gap: 10px;
     padding-top: 15px;
     border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+/* Estilização da barra de scroll para modais da agenda */
+.modal-view::-webkit-scrollbar,
+.modal-send-proposal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-view::-webkit-scrollbar-track,
+.modal-send-proposal::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.modal-view::-webkit-scrollbar-thumb,
+.modal-send-proposal::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.modal-view::-webkit-scrollbar-thumb:hover,
+.modal-send-proposal::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 @media (max-width: 1200px) {
@@ -809,4 +876,146 @@
     .notes-area .btn-container .btn {
         width: 100%;
     }
+}
+
+/* Regras especiais para zoom alto ou altura muito pequena */
+@media (max-height: 500px), (max-height: 600px) and (min-width: 640px) {
+  .modal-overlay {
+    align-items: flex-start !important;
+    padding: 5px !important;
+  }
+
+  .modal-view,
+  .modal-send-proposal {
+    max-height: calc(100vh - 10px) !important;
+    padding: 15px !important;
+    margin: 0 !important;
+    transform: translateY(0) !important;
+  }
+
+  .modal-view h2,
+  .modal-send-proposal h2 {
+    font-size: 1.3rem !important;
+    margin-bottom: 10px !important;
+  }
+
+  .modal-view .modal-body,
+  .modal-send-proposal .modal-body {
+    margin-bottom: 10px !important;
+  }
+
+  .modal-send-proposal .form-group {
+    margin-bottom: 8px !important;
+  }
+}
+
+/* Regras para casos extremos - zoom muito alto ou resoluções muito baixas */
+@media (max-height: 400px) {
+  .modal-overlay {
+    align-items: flex-start !important;
+    padding: 2px !important;
+  }
+
+  .modal-view,
+  .modal-send-proposal {
+    max-height: calc(100vh - 4px) !important;
+    min-height: auto !important;
+    padding: 8px !important;
+    margin: 0 !important;
+    transform: translateY(0) !important;
+    border-radius: 6px !important;
+  }
+
+  .modal-view h2,
+  .modal-send-proposal h2 {
+    font-size: 1rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .modal-view .modal-body,
+  .modal-send-proposal .modal-body {
+    margin-bottom: 6px !important;
+  }
+
+  .modal-view .modal-body p {
+    font-size: 0.85rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .modal-send-proposal .form-group {
+    margin-bottom: 4px !important;
+  }
+
+  .modal-send-proposal .form-group input,
+  .modal-send-proposal .form-group textarea {
+    padding: 4px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .modal-view .modal-footer,
+  .modal-send-proposal .modal-footer {
+    margin-top: 6px !important;
+    padding-top: 6px !important;
+  }
+
+  .modal-view .btn,
+  .modal-send-proposal .btn {
+    padding: 4px 8px !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+/* Garantia de scroll em telas pequenas */
+@media (max-width: 480px) {
+  .modal-view,
+  .modal-send-proposal {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-height: calc(100vh - 20px) !important;
+  }
+}
+
+/* Garante flexibilidade nos elementos */
+.modal-view .modal-header,
+.modal-send-proposal .modal-header {
+  flex-shrink: 0;
+}
+
+/* Força scroll sempre que conteúdo ultrapasse a altura */
+.modal-view.active,
+.modal-send-proposal.active {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain;
+}
+
+/* Garantia de scroll touch em dispositivos móveis */
+@supports (-webkit-overflow-scrolling: touch) {
+  .modal-view,
+  .modal-send-proposal {
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* Força altura mínima para ativar scroll quando necessário */
+.modal-view.active,
+.modal-send-proposal.active {
+  min-height: 300px;
+}
+
+/* Garante que os footers fiquem sempre na parte inferior */
+.modal-view .modal-header,
+.modal-send-proposal .modal-header {
+  flex-shrink: 0;
+}
+
+.modal-view .modal-body,
+.modal-send-proposal .modal-body {
+  flex: 1 1 auto;
+}
+
+.modal-view .modal-footer,
+.modal-send-proposal .modal-footer {
+  flex-shrink: 0;
+  align-self: flex-end;
 }
