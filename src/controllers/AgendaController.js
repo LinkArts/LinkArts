@@ -1,6 +1,7 @@
 const { Op, Model, fn, col, where } = require('sequelize');
 
 const { User, Artist, Establishment, Service, ServiceNote, ServiceProposal, Tag } = require('../models/index');
+const NotificationHelper = require('../utils/notificationHelper');
 
 module.exports = class AgendaController
 {
@@ -196,6 +197,16 @@ module.exports = class AgendaController
                 status: 'pending' // pending, accepted, rejected
             });
 
+            // Notificar o usuário que recebeu a proposta
+            try {
+                await NotificationHelper.notifyNewProposal(parseInt(userid), {
+                    id: proposal.id,
+                    name: proposal.name
+                }, senderUser);
+            } catch (notificationError) {
+                console.error('Erro ao enviar notificação de nova proposta:', notificationError);
+            }
+
             return res.status(201).json({
                 message: "Proposta enviada com sucesso!",
                 proposal: proposal
@@ -321,7 +332,7 @@ module.exports = class AgendaController
             {
                 await proposal.update({ status: 'accepted' });
 
-                await Service.create({
+                const service = await Service.create({
                     userid: userid,
                     senderid: proposal.senderUserid,
                     name: proposal.name,
@@ -332,10 +343,35 @@ module.exports = class AgendaController
                     endTime: proposal.endTime
                 });
 
+                // Notificar o remetente da proposta que ela foi aceita
+                try {
+                    // Buscar usuário completo do remetente
+                    const senderUser = await User.findByPk(proposal.senderUserid);
+                    await NotificationHelper.notifyStatusUpdate(proposal.senderUserid, {
+                        id: service.id,
+                        name: service.name
+                    }, 'aceita', senderUser);
+                } catch (notificationError) {
+                    console.error('Erro ao enviar notificação de status:', notificationError);
+                }
+
                 return res.json({ message: "Proposta aceita e serviço criado com sucesso!" });
             } else
             {
                 await proposal.update({ status: 'rejected' });
+                
+                // Notificar o remetente da proposta que ela foi rejeitada
+                try {
+                    // Buscar usuário completo do remetente
+                    const senderUser = await User.findByPk(proposal.senderUserid);
+                    await NotificationHelper.notifyStatusUpdate(proposal.senderUserid, {
+                        id: proposal.id,
+                        name: proposal.name
+                    }, 'rejeitada', senderUser);
+                } catch (notificationError) {
+                    console.error('Erro ao enviar notificação de status:', notificationError);
+                }
+                
                 return res.json({ message: "Proposta rejeitada com sucesso!" });
             }
         } catch (err)

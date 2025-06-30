@@ -52,7 +52,7 @@
                 <div class="service-actions" id="service-action-buttons">
                     {{#if isArtist}}
                     {{#if (eq service.artistStatus 'pending')}}
-                    <button class="btn btn-success" id="confirm-service-btn">Confirmar Serviço</button>
+                    <button class="btn btn-success" id="confirm-service-btn">Serviço Realizado</button>
                     <button class="btn btn-danger" id="cancel-service-btn">Cancelar Serviço</button>
                     {{else if (eq service.artistStatus 'confirmed')}}
                     <p class="feedback-message success">Você já confirmou este serviço.</p>
@@ -63,7 +63,7 @@
 
                     {{#if isEstablishment}}
                     {{#if (eq service.establishmentStatus 'pending')}}
-                    <button class="btn btn-success" id="confirm-service-btn">Confirmar Serviço</button>
+                    <button class="btn btn-success" id="confirm-service-btn">Serviço Realizado</button>
                     <button class="btn btn-danger" id="cancel-service-btn">Cancelar Serviço</button>
                     {{else if (eq service.establishmentStatus 'confirmed')}}
                     <p class="feedback-message success">Você já confirmou este serviço.</p>
@@ -187,9 +187,6 @@
                 updateStatusDisplay();
                 updateActionButtons();
                 updateReviewSectionVisibility();
-                
-                // Mostra notificação de mudança
-                showStatusNotification(data.serviceData.isConfirmed, data.serviceData.isCancelled);
             }
         });
         
@@ -235,67 +232,6 @@
             
             serviceCurrentStatusElem.textContent = statusText;
             serviceCurrentStatusElem.className = statusClass;
-        }
-
-        function showStatusNotification(isConfirmed, isCancelled) {
-            const isArtist = {{{json isArtist}}};
-            const isEstablishment = {{{json isEstablishment}}};
-            
-            let message = '';
-            let color = '#17a2b8'; // azul padrão
-            
-            if (isConfirmed) {
-                message = '🎉 Serviço confirmado por ambas as partes! ⚠️ AVALIE AGORA - Esta é sua única chance!';
-                color = '#28a745'; // verde
-            } else if (isCancelled) {
-                message = '❌ Serviço foi cancelado.';
-                color = '#dc3545'; // vermelho
-            } else {
-                // Determina quem fez a ação baseado no status
-                if (serviceData.artistStatus === 'confirmed' && serviceData.establishmentStatus === 'pending') {
-                    if (isArtist) {
-                        message = '✅ Você confirmou o serviço. Aguardando resposta do estabelecimento...';
-                    } else {
-                        message = '🔔 O artista confirmou o serviço. Sua resposta é necessária!';
-                    }
-                } else if (serviceData.establishmentStatus === 'confirmed' && serviceData.artistStatus === 'pending') {
-                    if (isEstablishment) {
-                        message = '✅ Você confirmou o serviço. Aguardando resposta do artista...';
-                    } else {
-                        message = '🔔 O estabelecimento confirmou o serviço. Sua resposta é necessária!';
-                    }
-                } else {
-                    message = '🔄 Status do serviço foi atualizado.';
-                }
-                color = '#17a2b8'; // azul
-            }
-            
-            // Cria notificação temporária
-            const notification = document.createElement('div');
-            notification.className = 'status-notification' + (isConfirmed ? ' confirmed-service' : '');
-            notification.textContent = message;
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${color};
-                color: white;
-                padding: 15px 20px;
-                border-radius: 5px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                z-index: 9999;
-                max-width: 300px;
-                animation: slideIn 0.3s ease-out;
-                ${isConfirmed ? 'border: 2px solid #ffd700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);' : ''}
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // Aumenta o tempo da notificação se for confirmação (mais importante)
-            const notificationTime = isConfirmed ? 8000 : 5000;
-            setTimeout(() => {
-                notification.remove();
-            }, notificationTime);
         }
 
         function updateActionButtons()

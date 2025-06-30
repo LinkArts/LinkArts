@@ -3,6 +3,7 @@ const validator = require('cpf-cnpj-validator')
 const jwt = require('jsonwebtoken')
 const { sendEmail, getTemplate } = require('../utils/mailer')
 const { generateCode } = require('../utils/utils')
+const NotificationHelper = require('../utils/notificationHelper')
 
 const codes = new Map()
 
@@ -524,6 +525,13 @@ module.exports = class AuthController
             const hashedPassword = bcrypt.hashSync(password, salt)
 
             user.update({ password: hashedPassword })
+
+            // Notificar sobre alteração de senha
+            try {
+                await NotificationHelper.notifyPasswordChange(user.id);
+            } catch (notificationError) {
+                console.error('Erro ao enviar notificação de alteração de senha:', notificationError);
+            }
 
             req.flash('message', 'Senha alterada com sucesso!')
             req.flash('messageType', 'success')

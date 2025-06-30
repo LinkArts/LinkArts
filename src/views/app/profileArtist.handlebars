@@ -181,7 +181,7 @@
       </div>
     </section>
 
-    <section class="reviews-section">
+    <section class="reviews-section" id="avaliacoes">
       <div class="section-header">
         <h2>Avaliações</h2>
         {{#if (gt values.totalRatings 4)}}
@@ -2421,5 +2421,15 @@
     }
 
     initialize();
+
+    // Scroll automático para avaliações se hash for #avaliacoes
+    if (window.location.hash === '#avaliacoes') {
+      const avaliacoesSection = document.getElementById('avaliacoes');
+      if (avaliacoesSection) {
+        avaliacoesSection.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      } else {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }
+    }
   });
 </script>

@@ -462,6 +462,10 @@
       const modal = document.createElement('div');
       modal.className = modalClass;
       modal.innerHTML = modalHTMLContent;
+      // Impede que cliques dentro do modal fechem o overlay
+      modal.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
 
       const titleElement = modal.querySelector('h2');
       if (titleElement && !titleElement.id)
@@ -2063,6 +2067,3 @@
   <div class="view-service-request-modal modal"></div>
 </div>
 
-<div class="modal-overlay report-profile-overlay">
-  <div class="report-profile-modal modal"></div>
-</div>

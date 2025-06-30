@@ -2,6 +2,7 @@ const { Op, where, col, fn, Sequelize } = require('sequelize');
 const { emitServiceUpdate } = require('../websocket_setup');
 
 const { User, Artist, Establishment, Service, Tag, Rating, ServiceRequest } = require('../models/index');
+const NotificationHelper = require('../utils/notificationHelper');
 
 module.exports = class ServiceController
 {
@@ -227,6 +228,38 @@ module.exports = class ServiceController
                 timestamp: new Date()
             });
 
+            // Notificar sobre mudança de status
+            try {
+                const statusMessage = isConfirmed 
+                    ? 'confirmado por ambas as partes' 
+                    : isCancelled 
+                        ? 'cancelado' 
+                        : action === 'confirm' 
+                            ? 'confirmado' 
+                            : 'cancelado';
+
+                // Notificar o artista se o estabelecimento fez a ação
+                if (establishment.id === loggedUserId) {
+                    // Buscar usuário completo do estabelecimento
+                    const establishmentUser = await User.findByPk(establishment.id);
+                    await NotificationHelper.notifyStatusUpdate(artist.id, {
+                        id: service.id,
+                        name: service.name
+                    }, statusMessage, establishmentUser);
+                }
+                // Notificar o estabelecimento se o artista fez a ação
+                else if (artist.id === loggedUserId) {
+                    // Buscar usuário completo do artista
+                    const artistUser = await User.findByPk(artist.id);
+                    await NotificationHelper.notifyStatusUpdate(establishment.id, {
+                        id: service.id,
+                        name: service.name
+                    }, statusMessage, artistUser);
+                }
+            } catch (notificationError) {
+                console.error('Erro ao enviar notificação de status:', notificationError);
+            }
+
             return res.json({
                 message: isConfirmed
                     ? 'Serviço confirmado por ambas as partes!'
@@ -279,6 +312,17 @@ module.exports = class ServiceController
                 senderUserid: userid,
                 serviceid: id, // Preenche o campo serviceid com o ID do serviço
             });
+
+            const receiverUser = await User.findByPk(service.userid === userid ? service.senderid : service.userid);
+            const senderUser = await User.findByPk(userid);
+            if (receiverUser && senderUser) {
+                await NotificationHelper.notifyNewRating(receiverUser.id, {
+                    id: null, // rating ainda não tem id
+                    serviceid: id,
+                    rate: rating,
+                    description: comment
+                }, senderUser);
+            }
 
             return res.json({ message: 'Avaliação enviada com sucesso!' });
         } catch (error)
@@ -617,7 +661,7 @@ module.exports = class ServiceController
             }
 
             // Cria o serviço
-            await Service.create({
+            const newService = await Service.create({
                 name: serviceRequest.name,
                 description: serviceRequest.description,
                 date: serviceRequest.date,
@@ -627,6 +671,17 @@ module.exports = class ServiceController
                 senderid: serviceRequest.Establishment.userid,
                 userid: artist.userid
             });
+
+            // Notificar o artista sobre a nova proposta
+            try {
+                await NotificationHelper.notifyNewProposal(
+                    artist.userid, // quem vai receber a notificação
+                    { id: newService.id, name: newService.name },
+                    { id: serviceRequest.Establishment.userid } // quem está enviando a proposta
+                );
+            } catch (notificationError) {
+                console.error('Erro ao enviar notificação de nova proposta:', notificationError);
+            }
 
             // Remove o pedido de serviço
             await serviceRequest.destroy();

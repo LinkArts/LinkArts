@@ -44,6 +44,7 @@ const AgendaController = require("./controllers/AgendaController");
 const serviceRoutes = require('./routes/serviceRoutes')
 const adminRoutes = require('./routes/adminRoutes')
 const reportRoutes = require('./routes/reportRoutes')
+const notificationRoutes = require('./routes/notificationRoutes')
 
 const { User, Artist, Establishment, Music, Genre, Album, Chat, Tag, Event, ServiceRequest, Service, ServiceNote, ServiceProposal, Rating, Report } = require('./models/index')
 
@@ -280,6 +281,7 @@ app.use('/', agendaRoutes)
 app.use('/', serviceRoutes)
 app.use('/', adminRoutes)
 app.use('/', reportRoutes)
+app.use('/', notificationRoutes)
 app.use('/upload', require('./routes/uploadRoutes'))
 app.get('/', AuthController.renderLogin)
 

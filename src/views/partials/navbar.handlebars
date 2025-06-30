@@ -59,23 +59,22 @@
           </div>
         </div>
       </div>
-      <div class="nav-icon" id="bell-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-        </svg>
+      <div class="nav-icon" id="bell-icon" data-user-id="{{session.userid}}">
+        <div class="notification-bell-container">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          <span id="notification-counter" class="notification-badge hidden"></span>
+        </div>
         <div class="popup" id="bell-popup">
           <div class="popup-header">
             <h3 class="popup-title">Notificações</h3>
+            <span id="mark-all-read-container"></span>
           </div>
-          <div class="popup-content">
-            <div class="popup-notification">
-              <h4 class="popup-notification-title">Nova mensagem</h4>
-              <p class="popup-notification-description">Você recebeu uma nova mensagem de João.</p>
-            </div>
-            <div class="popup-notification">
-              <h4 class="popup-notification-title">Evento próximo</h4>
-              <p class="popup-notification-description">Festival Eletrônico acontecerá amanhã!</p>
+          <div class="popup-content scrollable-notifications" id="notifications-list">
+            <div class="loading-notifications">
+              <p style="text-align: center; color: #666; padding: 1rem;">Carregando notificações...</p>
             </div>
           </div>
         </div>
@@ -144,6 +143,12 @@
         
         if (icon === 'message' && popupElement.classList.contains('active')) {
           loadNavbarMessages();
+        }
+        
+        if (icon === 'bell' && popupElement.classList.contains('active')) {
+          loadNavbarNotifications();
+          // Remover indicador de novas notificações quando o popup é aberto
+          removeNewNotificationIndicator();
         }
       });
     });
@@ -244,6 +249,102 @@
     window.location.href = `/chat/{{session.userid}}#chat-${chatId}`;
   }
 
+  // Funções para gerenciar notificações
+  async function loadNavbarNotifications() {
+    const notificationsList = document.getElementById('notifications-list');
+    const markAllReadContainer = document.getElementById('mark-all-read-container');
+    try {
+      notificationsList.innerHTML = `
+        <div class="loading-notifications">
+          <p style="text-align: center; color: #666; padding: 1rem;">Carregando notificações...</p>
+        </div>
+      `;
+      markAllReadContainer.innerHTML = '';
+      const response = await fetch('/notifications');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar notificações');
+      }
+      const data = await response.json();
+      const notifications = data.notifications || [];
+      // Exibir botão só se houver notificações não-lidas
+      const hasUnread = notifications.some(n => !n.is_read);
+      if (hasUnread) {
+        markAllReadContainer.innerHTML = `<button class='mark-all-read-btn' onclick='event.stopPropagation(); markAllNotificationsAsRead()'>Marcar todas como lidas</button>`;
+      }
+      
+      if (notifications.length === 0) {
+        notificationsList.innerHTML = `
+          <div class="no-notifications">
+            <p style="text-align: center; color: #666; padding: 1rem;">Nenhuma notificação encontrada</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      notifications.forEach(notification => {
+        const timeAgo = formatTimeAgo(new Date(notification.created_at));
+        let profileImg = notification.sender_image_url;
+        if (!profileImg || profileImg === 'null' || profileImg === 'undefined') profileImg = '/img/default.jpg';
+        let senderName = notification.sender_name || 'Usuário';
+        let notifTitle = notification.title;
+        let notifDescription = notification.content;
+        if (senderName.length > 22) senderName = senderName.substring(0, 19) + '...';
+        if (notification.type === 'new_proposal') {
+          notifTitle = `Nova proposta de ${senderName}`;
+          notifDescription = notification.proposal_title || notification.title;
+          if (notifDescription.length > 32) notifDescription = notifDescription.substring(0, 29) + '...';
+        }
+        html += `
+          <div class="popup-notification ${!notification.is_read ? 'unread' : ''}" 
+               data-notification-id="${notification.id}">
+            <div class="notification-close" onclick="deleteNotification(${notification.id}, event)" title="Excluir notificação">&times;</div>
+            <div class="notification-content" onclick="handleNotificationClick(${notification.id})">
+              <div class="notification-icon notification-profile-img"><img src="${profileImg}" alt="Perfil" onerror="this.onerror=null;this.src='/img/default.jpg';" /></div>
+              <div class="notification-text">
+                <h4 class="popup-notification-title">${notifTitle}</h4>
+                <p class="popup-notification-description">${notifDescription}</p>
+                <p class="notification-time">${timeAgo}</p>
+              </div>
+              ${!notification.is_read ? '<div class="notification-dot"></div>' : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      notificationsList.innerHTML = html;
+
+    } catch (error) {
+      console.error('Erro ao carregar notificações da navbar:', error);
+      notificationsList.innerHTML = `
+        <div class="error-notifications">
+          <p style="text-align: center; color: #e53e3e; padding: 1rem;">Erro ao carregar notificações</p>
+        </div>
+      `;
+    }
+  }
+
+  function getNotificationIcon(type) {
+    // Remover emojis, pode retornar uma string vazia ou um SVG simples
+    return '';
+  }
+
+  async function handleNotificationClick(notificationId) {
+    try {
+      const response = await fetch(`/notifications/${notificationId}/redirect`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.redirectUrl) {
+          document.getElementById('bell-popup').classList.remove('active');
+          updateNotificationCount(); // Atualiza o contador após clicar
+          window.location.href = data.redirectUrl;
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao processar clique na notificação:', error);
+    }
+  }
+
   async function loadNavbarFavorites() {
     const favoritesContent = document.getElementById('navbar-favorites-content');
     
@@ -307,6 +408,12 @@
   document.addEventListener('DOMContentLoaded', () =>
   {
     setupPopups();
+    
+    // Inicializar contador de notificações
+    updateNotificationCount();
+    
+    // Configurar WebSocket para notificações
+    setupNotificationWebSocket();
   });
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -347,6 +454,54 @@
   // Tornar a função global para uso em outras partes da aplicação
   window.updateNavbarProfilePhoto = updateNavbarProfilePhoto;
 
+  // Configurar WebSocket para notificações em tempo real
+  function setupNotificationWebSocket() {
+    if (typeof io !== 'undefined') {
+      const socket = io();
+      const userId = document.querySelector('[data-user-id]')?.dataset.userId;
+      
+      if (userId) {
+        socket.on('connect', () => {
+          socket.emit('join_user_room', userId);
+        });
+
+        socket.on('new_notification', (notification) => {
+          // Atualizar contador
+          updateNotificationCount();
+
+          // Mostrar badge imediatamente
+          const counter = document.getElementById('notification-counter');
+          if (counter) {
+            counter.classList.remove('hidden');
+          }
+          showNewNotificationIndicator();
+
+          // Se o popup estiver aberto, recarregar lista
+          const bellPopup = document.getElementById('bell-popup');
+          if (bellPopup && bellPopup.classList.contains('active')) {
+            loadNavbarNotifications();
+            // Se estiver aberto, não mostrar o indicador
+            removeNewNotificationIndicator();
+          }
+        });
+      }
+    }
+  }
+
+  function showNewNotificationIndicator() {
+    const bellIcon = document.getElementById('bell-icon');
+    if (bellIcon) {
+      bellIcon.classList.add('has-new-notifications');
+    }
+  }
+
+  function removeNewNotificationIndicator() {
+    const bellIcon = document.getElementById('bell-icon');
+    if (bellIcon) {
+      bellIcon.classList.remove('has-new-notifications');
+    }
+  }
+
   // Forçar cursor default na área do email
   document.addEventListener('DOMContentLoaded', () => {
     const userInfo = document.querySelector('.popup-user-info[data-no-click]');
@@ -366,4 +521,60 @@
       });
     }
   });
+
+  // Adicionar função deleteNotification
+  function deleteNotification(notificationId, event) {
+    event.stopPropagation();
+    if (!confirm('Tem certeza que deseja excluir esta notificação?')) return;
+    fetch(`/notifications/${notificationId}`, {
+      method: 'DELETE'
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          loadNavbarNotifications();
+          updateNotificationCount();
+        } else {
+          alert('Erro ao excluir notificação');
+        }
+      })
+      .catch(() => alert('Erro ao excluir notificação'));
+  }
+
+  // Adicionar função updateNotificationCount para atualizar o contador de notificações
+  async function updateNotificationCount() {
+    try {
+      const response = await fetch('/notifications/unread/count');
+      const data = await response.json();
+      const count = data.count || 0;
+      const counter = document.getElementById('notification-counter');
+      if (counter) {
+        if (count > 0) {
+          counter.textContent = count > 99 ? '99+' : count;
+          counter.classList.remove('hidden');
+          // Mostrar indicador de novas notificações se houver notificações não lidas
+          showNewNotificationIndicator();
+        } else {
+          counter.classList.add('hidden');
+          // Remover indicador se não houver notificações
+          removeNewNotificationIndicator();
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar contador de notificações:', error);
+    }
+  }
+
+  function markAllNotificationsAsRead() {
+    fetch('/notifications/read-all', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(response => response.json())
+      .then(data => {
+        loadNavbarNotifications();
+        updateNotificationCount(); // Atualiza o contador após marcar todas como lidas
+      })
+      .catch(() => alert('Erro ao marcar todas como lidas'));
+  }
 </script>

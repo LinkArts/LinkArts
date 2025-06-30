@@ -12,6 +12,18 @@ function initWebSocket(httpServer) {
 
     // Configuração básica de eventos - os específicos do chat serão configurados depois
     io.on("connection", (socket) => {
+        // Evento para usuário se conectar à sua sala de notificações
+        socket.on("join_user_room", (userId) => {
+            socket.join(`user_${userId}`);
+            console.log(`Usuário ${userId} conectado à sala de notificações`);
+        });
+
+        // Evento para usuário sair da sua sala de notificações
+        socket.on("leave_user_room", (userId) => {
+            socket.leave(`user_${userId}`);
+            console.log(`Usuário ${userId} desconectado da sala de notificações`);
+        });
+
         socket.on("disconnect", () => {
             // Usuário desconectado
         });
