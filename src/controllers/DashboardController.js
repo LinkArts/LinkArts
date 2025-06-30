@@ -7,174 +7,317 @@ module.exports = class DashboardController
 {
     static async showDashboard(req, res)
     {
-        // SE O USUARIO ATUAL É ARTISTA
-        const isArtist = await Artist.findOne({ where: { userid: req.session.userid } });
-        if (isArtist)
-        {
-            const establishments = await Establishment.findAll({
-                include: [
-                    {
-                        model: User,
-                        where: { isAdmin: false },
-                        attributes: { exclude: 'password' },
-                        include: [
-                            { model: Tag, as: 'Tags' } // Inclui as Tags relacionadas ao usuário
-                        ]
-                    }
-                ]
+        try {
+            // SE O USUARIO ATUAL É ARTISTA
+            const isArtist = await Artist.findOne({ 
+                where: { userid: req.session.userid },
+                include: [{
+                    model: User,
+                    include: [{ model: Tag, as: 'Tags' }]
+                }]
             });
 
-            const agendados = await Service.findAll({
-                where: {
-                    [Op.and]: [
-                        { artistStatus: 'pending' }, // Filtra serviços com status "pending" para artistas
+            if (isArtist)
+            {
+                // Obtém as tags do artista atual
+                const userTags = isArtist.User.Tags.map(tag => tag.id);
+
+                const establishments = await Establishment.findAll({
+                    include: [
                         {
-                            [Op.or]: [
-                                { userid: isArtist.userid },
-                                { senderid: isArtist.userid }
+                            model: User,
+                            where: { 
+                                isAdmin: false,
+                                id: {
+                                    [Op.ne]: req.session.userid
+                                }
+                            },
+                            attributes: { exclude: 'password' },
+                            include: [
+                                { 
+                                    model: Tag, 
+                                    as: 'Tags',
+                                    where: userTags.length > 0 ? {
+                                        id: {
+                                            [Op.in]: userTags
+                                        }
+                                    } : undefined
+                                }
                             ]
                         }
-                    ]
-                }
-            });
+                    ],
+                    attributes: [
+                        'cnpj',
+                        'userid',
+                        'createdAt',
+                        'updatedAt'
+                    ],
+                    group: [
+                        'Establishment.cnpj',
+                        'Establishment.userid',
+                        'Establishment.createdAt',
+                        'Establishment.updatedAt',
+                        'User.id',
+                        'User.Tags.id',
+                        'User.Tags->UserTag.userid',
+                        'User.Tags->UserTag.tagid'
+                    ],
+                    having: userTags.length > 0 ? Sequelize.literal('COUNT(DISTINCT "User->Tags"."id") > 0') : undefined
+                });
 
-            const services = await ServiceRequest.findAll({
-                include: [
-                    {
-                        model: Establishment,
-                        include: [
+                const agendados = await Service.findAll({
+                    where: {
+                        [Op.and]: [
+                            { artistStatus: 'pending' },
                             {
-                                model: User,
-                                include: [
-                                    { model: Tag, as: 'Tags' } // Inclui as Tags relacionadas ao usuário
+                                [Op.or]: [
+                                    { userid: isArtist.userid },
+                                    { senderid: isArtist.userid }
                                 ]
                             }
                         ]
-                    },
-                    { model: Tag, as: 'Tags' } // Inclui Tags relacionadas ao serviço
-                ]
-            });
-
-            const establishmentPlain = await Promise.all(
-                establishments.map(async (x) =>
-                {
-                    const totalRatings = await Rating.count({ where: { receiverUserid: x.User.id } });
-                    const averageRating = await Rating.findOne({
-                        where: { receiverUserid: x.User.id },
-                        attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
-                    });
-
-                    return {
-                        ...x.User.toJSON(),
-                        Tags: x.User.Tags.map(tag => tag.toJSON()),
-                        TotalRatings: totalRatings,
-                        AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
-                        isArtist: false // <-- Adicionado
-                    };
-                })
-            );
-
-            const servicesPlain = await Promise.all(
-                services.map(async (x) =>
-                {
-                    const totalRatings = await Rating.count({ where: { receiverUserid: x.Establishment.User.id } });
-                    const averageRating = await Rating.findOne({
-                        where: { receiverUserid: x.Establishment.User.id },
-                        attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
-                    });
-
-                    const isInterested = await x.hasArtist(isArtist);
-
-                    return {
-                        ...x.toJSON(),
-                        Tags: x.Tags.map(tag => tag.toJSON()),
-                        Establishment: x.Establishment
-                            ? {
-                                ...x.Establishment.toJSON(),
-                                User: x.Establishment.User
-                                    ? {
-                                        ...x.Establishment.User.toJSON(),
-                                        Tags: x.Establishment.User.Tags.map(tag => tag.toJSON()),
-                                        TotalRatings: totalRatings,
-                                        AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
-                                    }
-                                    : null
-                            }
-                            : null,
-                        isInterested
-                    };
-                })
-            );
-
-            const agendadosPlain = agendados.map(x => x.toJSON());
-
-            const userInfo = {
-                establishments: establishmentPlain,
-                services: servicesPlain,
-                agendados: agendadosPlain
-            };
-
-            //console.log(userInfo);
-            return res.render('app/dashboard', { userInfo, css: 'dashboard.css' });
-        }
-
-        // SE O USUARIO ATUAL É ESTABELECIMENTO
-        const isEstablishment = await Establishment.findOne({ where: { userid: req.session.userid } });
-        if (isEstablishment)
-        {
-            const artists = await Artist.findAll({
-                include: [
-                    {
-                        model: User,
-                        attributes: { exclude: 'password' },
-                        include: [
-                            { model: Tag, as: 'Tags' } // Inclui as Tags relacionadas ao usuário
-                        ]
                     }
-                ]
-            });
+                });
 
-            const agendados = await Service.findAll({
-                where: {
-                    [Op.and]: [
-                        { establishmentStatus: 'pending' }, // Filtra serviços com status "pending" para estabelecimentos
+                // Busca pedidos de serviço que tenham tags em comum com o artista
+                const services = await ServiceRequest.findAll({
+                    attributes: [
+                        'id',
+                        'name',
+                        'description',
+                        'date',
+                        'startTime',
+                        'endTime',
+                        'price',
+                        'establishmentid',
+                        'createdAt',
+                        'updatedAt'
+                    ],
+                    include: [
                         {
-                            [Op.or]: [
-                                { userid: isEstablishment.userid },
-                                { senderid: isEstablishment.userid }
+                            model: Establishment,
+                            attributes: ['cnpj', 'userid'],
+                            include: [
+                                {
+                                    model: User,
+                                    attributes: [
+                                        'id',
+                                        'name',
+                                        'email',
+                                        'city',
+                                        'description',
+                                        'imageUrl',
+                                        'isAdmin'
+                                    ],
+                                    include: [
+                                        { 
+                                            model: Tag, 
+                                            as: 'Tags',
+                                            attributes: ['id', 'name']
+                                        }
+                                    ]
+                                }
                             ]
+                        },
+                        { 
+                            model: Tag, 
+                            as: 'Tags',
+                            required: true,
+                            attributes: ['id', 'name'],
+                            where: {
+                                id: {
+                                    [Op.in]: userTags
+                                }
+                            }
                         }
                     ]
-                }
+                });
+
+                const establishmentPlain = await Promise.all(
+                    establishments.map(async (x) =>
+                    {
+                        const totalRatings = await Rating.count({ where: { receiverUserid: x.User.id } });
+                        const averageRating = await Rating.findOne({
+                            where: { receiverUserid: x.User.id },
+                            attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
+                        });
+
+                        // Calcula quantas tags em comum tem com o usuário
+                        const commonTags = x.User.Tags.filter(tag => userTags.includes(tag.id)).length;
+
+                        return {
+                            ...x.User.toJSON(),
+                            Tags: x.User.Tags.map(tag => tag.toJSON()),
+                            TotalRatings: totalRatings,
+                            AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
+                            isArtist: false,
+                            commonTags
+                        };
+                    })
+                );
+
+                // Ordena por número de tags em comum
+                const sortedEstablishments = establishmentPlain.sort((a, b) => b.commonTags - a.commonTags);
+
+                const servicesPlain = await Promise.all(
+                    services.map(async (x) => {
+                        const totalRatings = await Rating.count({ where: { receiverUserid: x.Establishment.User.id } });
+                        const averageRating = await Rating.findOne({
+                            where: { receiverUserid: x.Establishment.User.id },
+                            attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
+                        });
+
+                        const isInterested = await x.hasArtist(isArtist);
+
+                        // Calcula quantas tags em comum tem com o usuário
+                        const commonTags = x.Tags.filter(tag => userTags.includes(tag.id)).length;
+
+                        return {
+                            ...x.toJSON(),
+                            Tags: x.Tags.map(tag => tag.toJSON()),
+                            Establishment: x.Establishment
+                                ? {
+                                    ...x.Establishment.toJSON(),
+                                    User: x.Establishment.User
+                                        ? {
+                                            ...x.Establishment.User.toJSON(),
+                                            Tags: x.Establishment.User.Tags.map(tag => tag.toJSON()),
+                                            TotalRatings: totalRatings,
+                                            AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
+                                        }
+                                        : null
+                                }
+                                : null,
+                            isInterested,
+                            commonTags
+                        };
+                    })
+                );
+
+                // Ordena os serviços por número de tags em comum
+                const sortedServices = servicesPlain.sort((a, b) => b.commonTags - a.commonTags);
+
+                const agendadosPlain = agendados.map(x => x.toJSON());
+
+                const userInfo = {
+                    establishments: sortedEstablishments,
+                    services: sortedServices,
+                    agendados: agendadosPlain
+                };
+
+                return res.render('app/dashboard', { userInfo, css: 'dashboard.css' });
+            }
+
+            // SE O USUARIO ATUAL É ESTABELECIMENTO
+            const isEstablishment = await Establishment.findOne({ 
+                where: { userid: req.session.userid },
+                include: [{
+                    model: User,
+                    include: [{ model: Tag, as: 'Tags' }]
+                }]
             });
 
-            const artistsPlain = await Promise.all(
-                artists.map(async (x) =>
-                {
-                    const totalRatings = await Rating.count({ where: { receiverUserid: x.User.id } });
-                    const averageRating = await Rating.findOne({
-                        where: { receiverUserid: x.User.id },
-                        attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
-                    });
+            if (isEstablishment)
+            {
+                // Obtém as tags do estabelecimento atual
+                const userTags = isEstablishment.User.Tags.map(tag => tag.id);
 
-                    return {
-                        ...x.User.toJSON(),
-                        Tags: x.User.Tags.map(tag => tag.toJSON()),
-                        TotalRatings: totalRatings,
-                        AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
-                        isArtist: true // <-- Adicionado
-                    };
-                })
-            );
+                const artists = await Artist.findAll({
+                    include: [
+                        {
+                            model: User,
+                            where: {
+                                id: {
+                                    [Op.ne]: req.session.userid
+                                }
+                            },
+                            attributes: { exclude: 'password' },
+                            include: [
+                                { 
+                                    model: Tag, 
+                                    as: 'Tags',
+                                    where: userTags.length > 0 ? {
+                                        id: {
+                                            [Op.in]: userTags
+                                        }
+                                    } : undefined
+                                }
+                            ]
+                        }
+                    ],
+                    attributes: [
+                        'cpf',
+                        'userid',
+                        'createdAt',
+                        'updatedAt'
+                    ],
+                    group: [
+                        'Artist.cpf',
+                        'Artist.userid',
+                        'Artist.createdAt',
+                        'Artist.updatedAt',
+                        'User.id',
+                        'User.Tags.id',
+                        'User.Tags->UserTag.userid',
+                        'User.Tags->UserTag.tagid'
+                    ],
+                    having: userTags.length > 0 ? Sequelize.literal('COUNT(DISTINCT "User->Tags"."id") > 0') : undefined
+                });
 
-            const agendadosPlain = agendados.map(x => x.toJSON());
+                const agendados = await Service.findAll({
+                    where: {
+                        [Op.and]: [
+                            { establishmentStatus: 'pending' }, // Filtra serviços com status "pending" para estabelecimentos
+                            {
+                                [Op.or]: [
+                                    { userid: isEstablishment.userid },
+                                    { senderid: isEstablishment.userid }
+                                ]
+                            }
+                        ]
+                    }
+                });
 
-            const userInfo = {
-                artists: artistsPlain,
-                agendados: agendadosPlain
-            };
+                const artistsPlain = await Promise.all(
+                    artists.map(async (x) =>
+                    {
+                        const totalRatings = await Rating.count({ where: { receiverUserid: x.User.id } });
+                        const averageRating = await Rating.findOne({
+                            where: { receiverUserid: x.User.id },
+                            attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
+                        });
 
-            return res.render('app/dashboard', { userInfo, css: 'dashboard.css' });
+                        // Calcula quantas tags em comum tem com o usuário
+                        const commonTags = x.User.Tags.filter(tag => userTags.includes(tag.id)).length;
+
+                        return {
+                            ...x.User.toJSON(),
+                            Tags: x.User.Tags.map(tag => tag.toJSON()),
+                            TotalRatings: totalRatings,
+                            AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0,
+                            isArtist: true,
+                            commonTags
+                        };
+                    })
+                );
+
+                // Ordena por número de tags em comum
+                const sortedArtists = artistsPlain.sort((a, b) => b.commonTags - a.commonTags);
+
+                const agendadosPlain = agendados.map(x => x.toJSON());
+
+                const userInfo = {
+                    artists: sortedArtists,
+                    agendados: agendadosPlain
+                };
+
+                return res.render('app/dashboard', { userInfo, css: 'dashboard.css' });
+            }
+        } catch (error) {
+            console.error('Erro no dashboard:', error);
+            return res.status(500).render('layouts/404', {
+                message: 'Erro ao carregar o dashboard. Por favor, tente novamente mais tarde.'
+            });
         }
     };
 }
