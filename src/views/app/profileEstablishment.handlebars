@@ -78,7 +78,7 @@
         <h2>Sobre</h2>
         <div class="social-icons">
           {{#if values.linkedin}}
-          <a href="{{values.linkedin}}" target="_blank" rel="noopener noreferrer" class="social-icon linkedin"
+          <a href="{{montarLinkSocial 'linkedin' values.linkedin}}" target="_blank" rel="noopener noreferrer" class="social-icon linkedin"
             aria-label="LinkedIn">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -89,7 +89,7 @@
           </a>
           {{/if}}
           {{#if values.instagram}}
-          <a href="{{values.instagram}}" target="_blank" rel="noopener noreferrer" class="social-icon instagram"
+          <a href="{{montarLinkSocial 'instagram' values.instagram}}" target="_blank" rel="noopener noreferrer" class="social-icon instagram"
             aria-label="Instagram">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -100,7 +100,7 @@
           </a>
           {{/if}}
           {{#if values.facebook}}
-          <a href="{{values.facebook}}" target="_blank" rel="noopener noreferrer" class="social-icon facebook"
+          <a href="{{montarLinkSocial 'facebook' values.facebook}}" target="_blank" rel="noopener noreferrer" class="social-icon facebook"
             aria-label="Facebook">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

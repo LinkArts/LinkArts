@@ -41,7 +41,7 @@
     <div class="social-title">Redes Sociais</div>
     <div class="social-links" style="display: flex; gap: 15px; justify-content: flex-start;">
         {{#if otherUser.instagram}}
-            <a href="{{#if (startsWith otherUser.instagram 'http')}}{{otherUser.instagram}}{{else}}https://instagram.com/{{otherUser.instagram}}{{/if}}" target="_blank" class="social-icon" style="background: #E4405F;">
+            <a href="{{montarLinkSocial 'instagram' otherUser.instagram}}" target="_blank" class="social-icon" style="background: #E4405F;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
                     <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
@@ -50,14 +50,14 @@
             </a>
         {{/if}}
         {{#if otherUser.facebook}}
-            <a href="{{#if (startsWith otherUser.facebook 'http')}}{{otherUser.facebook}}{{else}}https://facebook.com/{{otherUser.facebook}}{{/if}}" target="_blank" class="social-icon" style="background: #1877F2;">
+            <a href="{{montarLinkSocial 'facebook' otherUser.facebook}}" target="_blank" class="social-icon" style="background: #1877F2;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
                 </svg>
             </a>
         {{/if}}
         {{#if otherUser.linkedin}}
-            <a href="{{#if (startsWith otherUser.linkedin 'http')}}{{otherUser.linkedin}}{{else}}https://linkedin.com/in/{{otherUser.linkedin}}{{/if}}" target="_blank" class="social-icon" style="background: #0A66C2;">
+            <a href="{{montarLinkSocial 'linkedin' otherUser.linkedin}}" target="_blank" class="social-icon" style="background: #0A66C2;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
                     <rect width="4" height="12" x="2" y="9"/>

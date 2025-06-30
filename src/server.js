@@ -186,6 +186,36 @@ app.engine(
           console.error("Erro ao formatar preço:", e);
           return "0,00";
         }
+      },
+      montarLinkSocial: function(tipo, valor) {
+        if (!valor) return '';
+        if (typeof valor !== 'string') return '';
+        let v = valor.trim();
+        if (v.startsWith('@')) v = v.slice(1);
+        if (v.startsWith('http')) return v;
+        // Se já começa com www. ou contém o domínio, adiciona https:// se não tiver
+        if (tipo === 'linkedin') {
+          if (v.includes('linkedin.com')) {
+            if (!v.startsWith('http')) return 'https://' + v.replace(/^@/, '').replace(/^https?:\/\//, '');
+            return v;
+          }
+          return `https://linkedin.com/in/${v}`;
+        }
+        if (tipo === 'instagram') {
+          if (v.includes('instagram.com')) {
+            if (!v.startsWith('http')) return 'https://' + v.replace(/^@/, '').replace(/^https?:\/\//, '');
+            return v;
+          }
+          return `https://instagram.com/${v.replace('@', '')}`;
+        }
+        if (tipo === 'facebook') {
+          if (v.includes('facebook.com')) {
+            if (!v.startsWith('http')) return 'https://' + v.replace(/^@/, '').replace(/^https?:\/\//, '');
+            return v;
+          }
+          return `https://facebook.com/${v}`;
+        }
+        return v;
       }
     },
     partialsDir: path.join(__dirname, "views", "partials"),
