@@ -1,7 +1,7 @@
 const { Op, where, col, fn } = require('sequelize');
 const bcrypt = require('bcryptjs')
 
-const { User, Artist, Establishment, Album, Music, Event, ServiceRequest, Service, ServiceProposal } = require('../models/index');
+const { User, Artist, Establishment, Album, Music, Event, ServiceRequest, Service, ServiceProposal, Report } = require('../models/index');
 
 module.exports = class AdminController
 {
@@ -96,7 +96,6 @@ module.exports = class AdminController
                 ]
             });
 
-            // Monta o array de resposta
             const result = users.map(user =>
             {
                 const createdAt = new Date(user.createdAt);
@@ -226,7 +225,7 @@ module.exports = class AdminController
                 id: request.id,
                 title: request.name,
                 establishment: request.Establishment ? request.Establishment.User.name : null,
-                date: request.date,
+                date: request.createdAt.toLocaleDateString('pt-BR')
             }));
             return res.json(result);
         } catch (error)
@@ -241,15 +240,28 @@ module.exports = class AdminController
         try
         {
             const proposals = await ServiceProposal.findAll({
+                include: [
+                    {
+                        model: User,
+                        as: 'Sender',
+                        include: [{ model: Artist, required: false }, { model: Establishment, required: false }]
+                    },
+                    {
+                        model: User,
+                        as: 'Receiver',
+                        include: [{ model: Artist, required: false }, { model: Establishment, required: false }]
+                    }
+                ],
                 order: [['id', 'DESC']]
             });
+
             const result = proposals.map(proposal => ({
                 id: proposal.id,
                 title: proposal.name,
-                proponent: proposal.senderUserid,
-                price: proposal.price,
-                status: proposal.status,
-                description: proposal.description
+                artist: proposal.Sender.Artist ? proposal.Sender.name : (proposal.Receiver.Artist ? proposal.Receiver.name : null),
+                establishment: proposal.Sender.Establishment ? proposal.Sender.name : (proposal.Receiver.Establishment ? proposal.Receiver.name : null),
+                status: proposal.status === 'accepted' ? 'Aceita' : (proposal.status === 'pending' ? 'Pendente' : 'Recusada'),
+                date: proposal.createdAt.toLocaleDateString('pt-BR')
             }));
             return res.json(result);
         } catch (error)
@@ -259,19 +271,57 @@ module.exports = class AdminController
         }
     }
 
+    static async getAllServices(req, res)
+    {
+        try
+        {
+            const services = await Service.findAll({
+                include: [
+                    {
+                        model: User,
+                        as: 'Sender',
+                        include: [{ model: Artist, required: false }, { model: Establishment, required: false }]
+                    },
+                    {
+                        model: User,
+                        as: 'Receiver',
+                        include: [{ model: Artist, required: false }, { model: Establishment, required: false }]
+                    }
+                ],
+                order: [['id', 'DESC']]
+            });
+
+            const result = services.map(service => ({
+                id: service.id,
+                title: service.name,
+                artist: service.Sender.Artist ? service.Sender.name : (service.Receiver.Artist ? service.Receiver.name : null),
+                establishment: service.Sender.Establishment ? service.Sender.name : (service.Receiver.Establishment ? service.Receiver.name : null),
+                status: (service.artistStatus === 'confirmed' && service.establishmentStatus === 'confirmed') ? 'Confirmado' : (service.artistStatus === 'cancelled' || service.establishmentStatus === 'cancelled' ? 'Cancelado' : 'Pendente'),
+                date: service.createdAt.toLocaleDateString('pt-BR')
+            }));
+
+            return res.json(result);
+        }
+        catch (error)
+        {
+            console.error('Erro ao buscar serviços:', error);
+            return res.status(500).json({ error: 'Erro ao buscar serviços' });
+        }
+    }
+
     static async getAllReports(req, res)
     {
         try
         {
-            const Report = require('../models/Report');
             const reports = await Report.findAll({
+                include: {model: User, as: 'ReportedUser'},
                 order: [['id', 'DESC']]
             });
             const result = reports.map(report => ({
                 id: report.id,
-                type: report.type,
-                reported: report.reportedUserId,
-                status: report.status,
+                type: report.type === 'chat' ? 'Chat' : 'Perfil',
+                reported: report.ReportedUser.name,
+                status: report.status === 'resolved' ? 'Resolvido' : 'Pendente',
                 date: report.createdAt,
                 reason: report.reason,
                 description: report.description
@@ -281,6 +331,141 @@ module.exports = class AdminController
         {
             console.error('Erro ao buscar denúncias:', error);
             return res.status(500).json({ error: 'Erro ao buscar denúncias' });
+        }
+    }
+
+    static async suspendUser(req, res)
+    {
+        try
+        {
+            const { id } = req.params;
+            const user = await User.findByPk(id);
+            if (!user)
+            {
+                return res.status(404).json({ error: 'Usuário não encontrado' });
+            }
+            user.isSuspended = !user.isSuspended;
+            await user.save();
+            return res.json({ success: true, isSuspended: user.isSuspended });
+        } catch (error)
+        {
+            console.error('Erro ao suspender usuário:', error);
+            return res.status(500).json({ error: 'Erro ao suspender usuário' });
+        }
+    }
+
+    static async deleteMusic(req, res)
+    {
+        try
+        {
+            const { id } = req.params;
+            const music = await Music.findByPk(id);
+            if (!music)
+            {
+                return res.status(404).json({ error: 'Música não encontrada' });
+            }
+            await music.destroy();
+            return res.json({ success: true });
+        } catch (error)
+        {
+            console.error('Erro ao deletar música:', error);
+            return res.status(500).json({ error: 'Erro ao deletar música' });
+        }
+    }
+
+    static async deleteAlbum(req, res)
+    {
+        try
+        {
+            const { id } = req.params;
+            const album = await Album.findByPk(id);
+            if (!album)
+            {
+                return res.status(404).json({ error: 'Álbum não encontrado' });
+            }
+            await album.destroy();
+            return res.json({ success: true });
+        } catch (error)
+        {
+            console.error('Erro ao deletar álbum:', error);
+            return res.status(500).json({ error: 'Erro ao deletar álbum' });
+        }
+    }
+
+    static async deleteEvent(req, res)
+    {
+        try
+        {
+            const { id } = req.params;
+            const event = await Event.findByPk(id);
+            if (!event)
+            {
+                return res.status(404).json({ error: 'Evento não encontrado' });
+            }
+            await event.destroy();
+            return res.json({ success: true });
+        } catch (error)
+        {
+            console.error('Erro ao deletar evento:', error);
+            return res.status(500).json({ error: 'Erro ao deletar evento' });
+        }
+    }
+
+    static async deleteService(req, res)
+    {
+        try
+        {
+            const { id } = req.params;
+            const proposal = await ServiceProposal.findByPk(id);
+            if (!proposal)
+            {
+                return res.status(404).json({ error: 'Proposta não encontrada' });
+            }
+            await proposal.destroy();
+            return res.json({ success: true });
+        } catch (error)
+        {
+            console.error('Erro ao deletar proposta de serviço:', error);
+            return res.status(500).json({ error: 'Erro ao deletar proposta de serviço' });
+        }
+    }
+
+    static async deleteServiceRequest(req, res)
+    {
+        try
+        {
+            const { id } = req.params;
+            const request = await ServiceRequest.findByPk(id);
+            if (!request)
+            {
+                return res.status(404).json({ error: 'Pedido de serviço não encontrado' });
+            }
+            await request.destroy();
+            return res.json({ success: true });
+        } catch (error)
+        {
+            console.error('Erro ao deletar pedido de serviço:', error);
+            return res.status(500).json({ error: 'Erro ao deletar pedido de serviço' });
+        }
+    }
+
+    static async resolveReport(req, res)
+    {
+        try
+        {
+            const { id } = req.params;
+            const report = await Report.findByPk(id);
+            if (!report)
+            {
+                return res.status(404).json({ error: 'Denúncia não encontrada' });
+            }
+            report.status = 'resolved';
+            await report.save();
+            return res.json({ success: true });
+        } catch (error)
+        {
+            console.error('Erro ao resolver denúncia:', error);
+            return res.status(500).json({ error: 'Erro ao resolver denúncia' });
         }
     }
 }

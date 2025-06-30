@@ -32,8 +32,8 @@
                                     <tr>
                                         <th>Nome</th>
                                         <th>Tipo</th>
-                                        <th>Data</th>
-                                        <th>Hora</th>
+                                        <th>Data de Criação</th>
+                                        <th>Hora de Criação</th>
                                     </tr>
                                 </thead>
                                 <tbody id="last-registered-users"></tbody>
@@ -83,9 +83,9 @@
                     <table class="styled-table">
                         <thead>
                             <tr>
-                                <th>Título</th>
+                                <th>Nome</th>
                                 <th>Artista</th>
-                                <th>Data</th>
+                                <th>Data de Criação</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -96,9 +96,9 @@
                     <table class="styled-table">
                         <thead>
                             <tr>
-                                <th>Título</th>
+                                <th>Nome</th>
                                 <th>Artista</th>
-                                <th>Data</th>
+                                <th>Data de Criação</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -109,9 +109,9 @@
                     <table class="styled-table" style="margin-top: 2rem;">
                         <thead>
                             <tr>
-                                <th>Titulos</th>
+                                <th>Nome</th>
                                 <th>Estabelecimento</th>
-                                <th>Data</th>
+                                <th>Data de Criação</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -119,33 +119,33 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!--<div class="list-container" style="margin-top: 3rem;">
-                    <h3>Tags</h3>
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="value" id="total-tags-count">0</div>
-                            <div class="label">Total de Tags</div>
-                        </div>
-                    </div>
-                    <h3 style="margin-top: 2rem;">Lista de Tags</h3>
-                    <ul class="recent-activities-list" id="tags-list">
-                    </ul>
-                </div>-->
             </section>
 
             <section id="service-management-section" class="content-section">
                 <h2>Gerenciamento de Serviços</h2>
                 <div class="list-container">
+                    <h3>Pedidos, Propostas e Serviços Agendados</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="value" id="total-requests-count">0</div>
+                            <div class="label">Total de Pedidos de Serviço</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="value" id="total-proposals-count">0</div>
+                            <div class="label">Total de Propostas de Serviço</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="value" id="total-services-count">0</div>
+                            <div class="label">Total de Serviços Agendados</div>
+                        </div>
+                    </div>
                     <h3>Pedidos de Serviço</h3>
                     <table class="styled-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Título</th>
-                                <th>Cliente</th>
-                                <th>Data</th>
-                                <th>Status</th>
+                                <th>Nome</th>
+                                <th>Estabelecimento</th>
+                                <th>Data de Criação</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -159,15 +159,33 @@
                     <table class="styled-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Título</th>
-                                <th>Proponente</th>
-                                <th>Preço</th>
+                                <th>Nome</th>
+                                <th>Artista</th>
+                                <th>Estabelecimento</th>
                                 <th>Status</th>
+                                <th>Data de Criação</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody id="service-proposals-tbody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="list-container" style="margin-top: 3rem;">
+                    <h3>Serviços Agendados</h3>
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Artista</th>
+                                <th>Estabelecimento</th>
+                                <th>Status</th>
+                                <th>Data de Criação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="service-agenda-tbody">
                         </tbody>
                     </table>
                 </div>
@@ -178,11 +196,12 @@
                 <table class="styled-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Tipo</th>
                             <th>Denunciado</th>
+                            <th>Tipo</th>
+                            <th>Motivo</th>
+                            <th>Descrição</th>
                             <th>Status</th>
-                            <th>Data</th>
+                            <th>Data de Criação</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -211,7 +230,6 @@
 <script>
     document.addEventListener('DOMContentLoaded', async () =>
     {
-        // Dados do backend
         const totalUsers = await fetch('/admin/usuarios').then(data => data.json())
         const detailedStats = await fetch('/admin/stats').then(data => data.json())
         const recentUsers = await fetch('/admin/usuarios-recentes').then(data => data.json())
@@ -221,6 +239,7 @@
         const allEvents = await fetch('/admin/eventos').then(data => data.json());
         const allServiceRequests = await fetch('/admin/pedidos-servico').then(data => data.json());
         const allServiceProposals = await fetch('/admin/propostas-servico').then(data => data.json());
+        const allServices = await fetch('/admin/servicos').then(data => data.json());
         const allComplaints = await fetch('/admin/denuncias').then(data => data.json());
 
         const navLinks = document.querySelectorAll('.nav-link');
@@ -352,16 +371,22 @@
 
             userListBody.querySelectorAll('[data-action="toggle-status"]').forEach(button =>
             {
-                button.addEventListener('click', (e) =>
+                button.addEventListener('click', async (e) =>
                 {
                     const userId = e.target.dataset.id;
-                    const user = allUsers.find(u => u.id === userId);
+                    const user = allUsers.find(u => u.id == userId);
                     if (user)
                     {
-                        // Fetch de suspender
-                        user.isActive = !user.isActive;
-                        alert(`Usuário "${ user.name }" ${ user.isActive ? 'ativado' : 'desativado' } (simulado).`);
-                        renderUserManagement();
+                        const response = await fetch(`/admin/suspender-usuario/${userId}`, {
+                            method: 'PUT'
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            user.isSuspended = data.isSuspended;
+                            renderUserManagement();
+                        } else {
+                            alert('Erro ao atualizar status do usuário.');
+                        }
                     }
                 });
             });
@@ -449,20 +474,22 @@
 
         function renderServiceManagement()
         {
+            document.getElementById('total-requests-count').textContent = allServiceRequests.length;
+            document.getElementById('total-proposals-count').textContent = allServiceProposals.length;
+            document.getElementById('total-services-count').textContent = allServices.length;
+
             const serviceRequestsBody = document.getElementById('service-requests-tbody');
             serviceRequestsBody.innerHTML = '';
             allServiceRequests.forEach(item =>
             {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                        <td>${ item.id }</td>
                         <td>${ item.title }</td>
-                        <td>-</td>
+                        <td>${ item.establishment }</td>
                         <td>${ item.date ?? '-' }</td>
-                        <td>-</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="serviceRequest">Ver Perfil</button>
+                                <button class="btn btn-danger" data-action="delete" data-id="${ item.id }" data-type="album">Excluir</button>
                             </div>
                         </td>
                     `;
@@ -476,16 +503,37 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                         <td>${ item.title }</td>
+                        <td>${ item.artist ?? '-' }</td>
                         <td>${ item.establishment ?? '-' }</td>
-                        <td>R$ ${ item.price ? Number(item.price).toFixed(2).replace('.', ',') : '-' }</td>
                         <td>${ item.status ?? '-' }</td>
+                        <td>${ item.date ?? '-' }</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="serviceProposal">Ver Perfil</button>
+                                <button class="btn btn-danger" data-action="delete" data-id="${ item.id }" data-type="album">Excluir</button>
                             </div>
                         </td>
                     `;
                 serviceProposalsBody.appendChild(tr);
+            });
+
+            const serviceAgendaBody = document.getElementById('service-agenda-tbody');
+            serviceAgendaBody.innerHTML = '';
+            allServices.forEach(item =>
+            {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                        <td>${ item.title }</td>
+                        <td>${ item.artist ?? '-' }</td>
+                        <td>${ item.establishment ?? '-' }</td>
+                        <td>${ item.status ?? '-' }</td>
+                        <td>${ item.date ?? '-' }</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-danger" data-action="delete" data-id="${ item.id }" data-type="album">Excluir</button>
+                            </div>
+                        </td>
+                    `;
+                serviceAgendaBody.appendChild(tr);
             });
         }
 
@@ -497,14 +545,15 @@
             {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                        <td>${ item.id }</td>
-                        <td>${ item.type ?? '-' }</td>
                         <td>${ item.reported ?? '-' }</td>
+                        <td>${ item.type ?? '-' }</td>
+                        <td>${ item.reason ?? '-' }</td>
+                        <td>${ item.description ?? '-' }</td>
                         <td>${ item.status ?? '-' }</td>
                         <td>${ item.date ? new Date(item.date).toLocaleDateString('pt-BR') : '-' }</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="complaint">Ver Perfil</button>
+                                <button class="btn btn-info" data-action="resolve" data-id="${ item.id }" data-type="complaint">Resolver</button>
                             </div>
                         </td>
                     `;
@@ -530,7 +579,110 @@
                     }
                 });
             });
+            complaintsListBody.querySelectorAll('[data-action="resolve"]').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const id = button.dataset.id;
+                    if (confirm('Deseja marcar esta denúncia como resolvida?')) {
+                        const response = await fetch(`/admin/resolver-denuncia/${id}`, { method: 'PUT' });
+                        if (response.ok) {
+                            const idx = allComplaints.findIndex(item => item.id == id);
+                            if (idx > -1) {
+                                allComplaints[idx].status = 'Resolvido';
+                                renderComplaints();
+                            }
+                        } else {
+                            alert('Erro ao resolver denúncia.');
+                        }
+                    }
+                });
+            });
         }
+
+        function addDeleteListeners() {
+            document.querySelectorAll('[data-action="delete"]').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const id = button.dataset.id;
+                    const type = button.dataset.type;
+
+                    let url = '';
+                    switch (type) {
+                        case 'music':
+                            url = `/admin/deletar-musica/${id}`;
+                            break;
+                        case 'album':
+                            url = `/admin/deletar-album/${id}`;
+                            break;
+                        case 'event':
+                            url = `/admin/deletar-evento/${id}`;
+                            break;
+                        case 'service-request':
+                            url = `/admin/deletar-pedido-servico/${id}`;
+                            break;
+                        case 'service-proposal':
+                            url = `/admin/deletar-proposta-servico/${id}`;
+                            break;
+                        case 'service':
+                            url = `/admin/deletar-servico/${id}`;
+                            break;
+                        default:
+                            return;
+                    }
+
+                    if (confirm('Tem certeza que deseja excluir este item?')) {
+                        const response = await fetch(url, { method: 'DELETE' });
+                        if (response.ok) {
+                            switch (type) {
+                                case 'music':
+                                    const musicIdx = allMusics.findIndex(item => item.id == id);
+                                    if (musicIdx > -1) allMusics.splice(musicIdx, 1);
+                                    renderContentManagement();
+                                    break;
+                                case 'album':
+                                    const albumIdx = allAlbums.findIndex(item => item.id == id);
+                                    if (albumIdx > -1) allAlbums.splice(albumIdx, 1);
+                                    renderContentManagement();
+                                    break;
+                                case 'event':
+                                    const eventIdx = allEvents.findIndex(item => item.id == id);
+                                    if (eventIdx > -1) allEvents.splice(eventIdx, 1);
+                                    renderContentManagement();
+                                    break;
+                                case 'service-request':
+                                    const reqIdx = allServiceRequests.findIndex(item => item.id == id);
+                                    if (reqIdx > -1) allServiceRequests.splice(reqIdx, 1);
+                                    renderServiceManagement();
+                                    break;
+                                case 'service-proposal':
+                                    const propIdx = allServiceProposals.findIndex(item => item.id == id);
+                                    if (propIdx > -1) allServiceProposals.splice(propIdx, 1);
+                                    renderServiceManagement();
+                                    break;
+                                case 'service':
+                                    const servIdx = allServices.findIndex(item => item.id == id);
+                                    if (servIdx > -1) allServices.splice(servIdx, 1);
+                                    renderServiceManagement();
+                                    break;
+                            }
+                        } else {
+                            alert('Erro ao excluir item.');
+                        }
+                    }
+                });
+            });
+        }
+
+        const _renderContentManagement = renderContentManagement;
+        const _renderServiceManagement = renderServiceManagement;
+
+        renderContentManagement = function() {
+            _renderContentManagement();
+            addDeleteListeners();
+        };
+
+        renderServiceManagement = function() {
+            _renderServiceManagement();
+            addDeleteListeners();
+        };
 
         const sectionRenderFunctions = {
             'dashboard-section': renderDashboardOverview,
