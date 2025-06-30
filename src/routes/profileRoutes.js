@@ -26,15 +26,15 @@ router.post('/criar-evento', checkAuth, ProfileController.createEvent)
 router.put('/atualizar-evento/:id', checkAuth, ProfileController.updateEvent)
 router.delete('/deletar-evento/:id', checkAuth, ProfileController.deleteEvent)
 
-router.get('/pedidos-servico', ProfileController.getAllServiceRequests)
-router.post('/criar-pedido-servico', ProfileController.createServiceRequest)
-router.put('/atualizar-pedido-servico/:id', ProfileController.updateServiceRequest)
-router.delete('/deletar-pedido-servico/:id', ProfileController.deleteServiceRequest)
+router.get('/pedidos-servico', checkAuth, ProfileController.getAllServiceRequests)
+router.post('/criar-pedido-servico', checkAuth, ProfileController.createServiceRequest)
+router.put('/atualizar-pedido-servico/:id', checkAuth, ProfileController.updateServiceRequest)
+router.delete('/deletar-pedido-servico/:id', checkAuth, ProfileController.deleteServiceRequest)
 
-router.get('/procurar-favoritos', ProfileController.searchFavorites)
-router.post('/adicionar-favorito/:id', ProfileController.addFavorite)
+router.get('/procurar-favoritos', checkAuth, ProfileController.searchFavorites)
+router.post('/adicionar-favorito/:id', checkAuth, ProfileController.addFavorite)
 
-router.get('/reviews/:id', ProfileController.getAllReviews)
+router.get('/reviews/:id', checkAuth, ProfileController.getAllReviews)
 
 router.get('/:id', checkAuth, ProfileController.showProfile)
 

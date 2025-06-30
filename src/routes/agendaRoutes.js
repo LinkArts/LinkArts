@@ -4,9 +4,9 @@ const { checkAuth } = require('../middlewares/checkAuth')
 
 const AgendaController = require('../controllers/AgendaController');
 
-router.get('/agenda/:id', AgendaController.showAgenda);
-router.get('/agenda/servicos/:id', AgendaController.getServices);
-router.get('/agenda/propostas/:id', AgendaController.getProposals);
+router.get('/agenda/:id', checkAuth, AgendaController.showAgenda);
+router.get('/agenda/servicos/:id', checkAuth, AgendaController.getServices);
+router.get('/agenda/propostas/:id', checkAuth, AgendaController.getProposals);
 
 router.put('/agenda/salvar-anotacao/:id', checkAuth, AgendaController.saveNotes);
 router.post('/agenda/enviar-proposta', checkAuth, AgendaController.sendProposal);

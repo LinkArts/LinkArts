@@ -191,10 +191,6 @@
     width: 100%;
 }
 
-.styled-table td:last-child {
-    text-align: center;
-}
-
 .styled-table .action-buttons {
     justify-content: center;
 }

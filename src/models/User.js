@@ -58,6 +58,14 @@ const User = db.define('User',
             type: DataTypes.STRING(50),
             allowNull: true
         },
+        isSuspended: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        isAdmin: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        }
     })
 
 module.exports = User

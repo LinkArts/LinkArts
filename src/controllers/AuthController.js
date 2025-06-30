@@ -117,10 +117,10 @@ module.exports = class AuthController
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' })
 
-                const confirmationTemplate = getTemplate('confirmation')({
-                    name: user.name,
-                    confirmationUrl: `${req.protocol}://${req.get('host')}/confirm/${user.id}/${token}` // URL dinâmica
-                });
+            const confirmationTemplate = getTemplate('confirmation')({
+                name: user.name,
+                confirmationUrl: `${ req.protocol }://${ req.get('host') }/confirm/${ user.id }/${ token }` // URL dinâmica
+            });
 
             sendEmail(email, 'Confirmação de Conta: LinkArts', confirmationTemplate)
 
@@ -222,7 +222,7 @@ module.exports = class AuthController
 
             const confirmationTemplate = getTemplate('confirmation')({
                 name: user.name,
-                confirmationUrl: `${req.protocol}://${req.get('host')}/confirm/${user.id}/${token}`
+                confirmationUrl: `${ req.protocol }://${ req.get('host') }/confirm/${ user.id }/${ token }`
             })
 
             sendEmail(email, 'Confirmação de Conta: LinkArts', confirmationTemplate)
@@ -266,6 +266,16 @@ module.exports = class AuthController
                 })
             }
 
+            if (user.dataValues.isSuspended)
+                {
+                    req.flash('message', "Sua conta está suspensa!")
+                    req.flash('messageType', 'error')
+                    return req.session.save(() =>
+                    {
+                        res.redirect('/login')
+                    })
+                }
+
             const passwordMatch = bcrypt.compareSync(password, user.password)
 
             if (!passwordMatch)
@@ -280,12 +290,14 @@ module.exports = class AuthController
 
             req.session.userid = user.id
             req.session.username = user.name
+            req.session.isAdmin = user.dataValues.isAdmin
             req.flash('message', 'Login realizado com sucesso!')
             req.flash('messageType', 'success')
 
             return req.session.save(() =>
             {
-                res.redirect('/dashboard')
+                if (req.session.isAdmin) res.redirect('/admin')
+                else res.redirect('/dashboard')
             })
         }
         catch (err)

@@ -29,9 +29,13 @@
     </p>
     <p class="card-description">{{description}}</p>
     <div class="card-tags">
+        {{#if Tags}}
         {{#each Tags}}
         <span class="tag">{{name}}</span>
         {{/each}}
+        {{else}}
+        <span class="tag">Sem Tags</span>
+        {{/if}}
     </div>
     <div class="service-actions">
     <a href="/profile/{{Establishment.User.id}}">

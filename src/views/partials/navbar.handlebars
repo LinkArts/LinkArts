@@ -107,6 +107,7 @@
             {{/if}}
             <a href="/profile/{{session.userid}}"><button class="popup-menu-item">Perfil</button></a>
             <a href="/agenda/{{session.userid}}"><button class="popup-menu-item">Agenda</button></a>
+            {{#if session.isAdmin}} <a href="/admin"><button class="popup-menu-item">Administração</button></a> {{/if}}
             <div class="popup-divider"></div>
             <a href="/logout"><button class="popup-menu-item danger">Logout</button></a>
           </div>

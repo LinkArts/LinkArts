@@ -5,7 +5,6 @@
             <a href="#" data-section="user-management-section" class="nav-link">Usuários</a>
             <a href="#" data-section="content-management-section" class="nav-link">Conteúdo</a>
             <a href="#" data-section="service-management-section" class="nav-link">Serviços</a>
-            <a href="#" data-section="event-management-section" class="nav-link">Eventos</a>
             <a href="#" data-section="complaints-section" class="nav-link">Denúncias</a>
         </aside>
 
@@ -19,18 +18,27 @@
                 </div>
 
                 <div class="list-container">
-                    <div class="recent-section-content">
-                        <div class="column-list">
-                            <h3>Últimos Usuários Cadastrados</h3>
-                            <ul class="recent-activities-list" id="last-registered-users">
-                            </ul>
-                        </div>
+                    <h3>Estatísticas Gerais da Plataforma</h3>
+                    <div class="metrics-grid" id="general-statistics-metrics">
                     </div>
                 </div>
 
                 <div class="list-container">
-                    <h3>Estatísticas Gerais da Plataforma</h3>
-                    <div class="metrics-grid" id="general-statistics-metrics">
+                    <div class="recent-section-content">
+                        <div class="column-list">
+                            <h3>Últimos Usuários Cadastrados</h3>
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Tipo</th>
+                                        <th>Data</th>
+                                        <th>Hora</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="last-registered-users"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -56,7 +64,7 @@
                 <h2>Gerenciamento de Conteúdo</h2>
 
                 <div class="list-container">
-                    <h3>Músicas e Álbuns</h3>
+                    <h3>Músicas, Álbuns e Eventos</h3>
                     <div class="metrics-grid">
                         <div class="metric-card">
                             <div class="value" id="total-music-count">0</div>
@@ -66,6 +74,10 @@
                             <div class="value" id="total-albums-count">0</div>
                             <div class="label">Total de Álbuns</div>
                         </div>
+                        <div class="metric-card">
+                            <div class="value" id="total-events-count">0</div>
+                            <div class="label">Total de Eventos</div>
+                        </div>
                     </div>
                     <h3 style="margin-top: 2rem;">Lista de Músicas</h3>
                     <table class="styled-table">
@@ -73,7 +85,7 @@
                             <tr>
                                 <th>Título</th>
                                 <th>Artista</th>
-                                <th>Álbum</th>
+                                <th>Data</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -86,11 +98,24 @@
                             <tr>
                                 <th>Título</th>
                                 <th>Artista</th>
-                                <th>Ano</th>
+                                <th>Data</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody id="album-list-tbody">
+                        </tbody>
+                    </table>
+                    <h3 style="margin-top: 2rem;">Lista de Eventos</h3>
+                    <table class="styled-table" style="margin-top: 2rem;">
+                        <thead>
+                            <tr>
+                                <th>Titulos</th>
+                                <th>Estabelecimento</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-list-tbody">
                         </tbody>
                     </table>
                 </div>
@@ -148,32 +173,6 @@
                 </div>
             </section>
 
-            <section id="event-management-section" class="content-section">
-                <h2>Gerenciamento de Eventos</h2>
-                <div class="list-container">
-                    <h3>Eventos Cadastrados</h3>
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="value" id="total-events-count">0</div>
-                            <div class="label">Total de Eventos</div>
-                        </div>
-                    </div>
-                    <table class="styled-table" style="margin-top: 2rem;">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nome do Evento</th>
-                                <th>Estabelecimento</th>
-                                <th>Data</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="events-list-tbody">
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
             <section id="complaints-section" class="content-section">
                 <h2>Gerenciamento de Denúncias</h2>
                 <table class="styled-table">
@@ -210,129 +209,19 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () =>
+    document.addEventListener('DOMContentLoaded', async () =>
     {
-        // Mudar pra dados do backend
-        const simulatedData = {
-            totalUsers: {
-                artists: 125,
-                establishments: 48,
-                general: 750,
-            },
-            recentUsers: [
-                { id: '1', name: 'Gustavo', type: 'Artista', date: '2024-06-07' },
-                { id: '2', name: 'Pedro', type: 'Estabelecimento', date: '2024-06-06' },
-                { id: '3', name: 'Kevin', type: 'Artista', date: '2024-06-05' },
-                { id: '4', name: 'Ana', type: 'Artista', date: '2024-06-07' },
-            ],
-            generalStats: {
-                totalMusic: 2500,
-                totalAlbums: 320,
-                totalGenres: 55,
-                totalTags: 180,
-                servicesRequested: 850,
-                servicesCompleted: 620,
-            },
-
-            // User Management
-            users: [
-                { id: 'u001', name: 'João Silva', email: 'joao.s@email.com', type: 'Artista', isActive: true },
-                { id: 'u002', name: 'Bar do Zé', email: 'contato@bardoz.com', type: 'Estabelecimento', isActive: true },
-                { id: 'u003', name: 'Maria Oliveira', email: 'maria.o@email.com', type: 'Geral', isActive: false },
-                { id: 'u004', name: 'Estúdio Som Perfeito', email: 'som.perfeito@email.com', type: 'Estabelecimento', isActive: true },
-                { id: 'u005', name: 'Pedro Souza', email: 'pedro.s@email.com', type: 'Artista', isActive: true },
-                { id: 'u006', name: 'Ana Paula', email: 'ana.p@email.com', type: 'Geral', isActive: false },
-                { id: 'u001', name: 'João Silva', email: 'joao.s@email.com', type: 'Artista', isActive: true },
-                { id: 'u002', name: 'Bar do Zé', email: 'contato@bardoz.com', type: 'Estabelecimento', isActive: true },
-                { id: 'u003', name: 'Maria Oliveira', email: 'maria.o@email.com', type: 'Geral', isActive: false },
-                { id: 'u004', name: 'Estúdio Som Perfeito', email: 'som.perfeito@email.com', type: 'Estabelecimento', isActive: true },
-                { id: 'u005', name: 'Pedro Souza', email: 'pedro.s@email.com', type: 'Artista', isActive: true },
-                { id: 'u006', name: 'Ana Paula', email: 'ana.p@email.com', type: 'Geral', isActive: false }, { id: 'u001', name: 'João Silva', email: 'joao.s@email.com', type: 'Artista', isActive: true },
-                { id: 'u002', name: 'Bar do Zé', email: 'contato@bardoz.com', type: 'Estabelecimento', isActive: true },
-                { id: 'u003', name: 'Maria Oliveira', email: 'maria.o@email.com', type: 'Geral', isActive: false },
-                { id: 'u004', name: 'Estúdio Som Perfeito', email: 'som.perfeito@email.com', type: 'Estabelecimento', isActive: true },
-                { id: 'u005', name: 'Pedro Souza', email: 'pedro.s@email.com', type: 'Artista', isActive: true },
-                { id: 'u006', name: 'Ana Paula', email: 'ana.p@email.com', type: 'Geral', isActive: false }, { id: 'u001', name: 'João Silva', email: 'joao.s@email.com', type: 'Artista', isActive: true },
-                { id: 'u002', name: 'Bar do Zé', email: 'contato@bardoz.com', type: 'Estabelecimento', isActive: true },
-                { id: 'u003', name: 'Maria Oliveira', email: 'maria.o@email.com', type: 'Geral', isActive: false },
-                { id: 'u004', name: 'Estúdio Som Perfeito', email: 'som.perfeito@email.com', type: 'Estabelecimento', isActive: true },
-                { id: 'u005', name: 'Pedro Souza', email: 'pedro.s@email.com', type: 'Artista', isActive: true },
-                { id: 'u006', name: 'Ana Paula', email: 'ana.p@email.com', type: 'Geral', isActive: false }, { id: 'u001', name: 'João Silva', email: 'joao.s@email.com', type: 'Artista', isActive: true },
-                { id: 'u002', name: 'Bar do Zé', email: 'contato@bardoz.com', type: 'Estabelecimento', isActive: true },
-                { id: 'u003', name: 'Maria Oliveira', email: 'maria.o@email.com', type: 'Geral', isActive: false },
-                { id: 'u004', name: 'Estúdio Som Perfeito', email: 'som.perfeito@email.com', type: 'Estabelecimento', isActive: true },
-                { id: 'u005', name: 'Pedro Souza', email: 'pedro.s@email.com', type: 'Artista', isActive: true },
-                { id: 'u006', name: 'Ana Paula', email: 'ana.p@email.com', type: 'Geral', isActive: false },
-            ],
-
-            music: [
-                { id: 'm01', title: 'Minha Melodia', artist: 'João Silva', album: 'Primeiro Acorde' },
-                { id: 'm02', title: 'Ritmo Urbano', artist: 'Banda da Esquina', album: 'Grandes Sucessos' },
-                { id: 'm03', title: 'Caminhos do Coração', artist: 'Maria Oliveira', album: 'Alma Livre' },
-            ],
-            albums: [
-                { id: 'a01', title: 'Primeiro Acorde', artist: 'João Silva', year: 2023 },
-                { id: 'a02', title: 'Grandes Sucessos', artist: 'Banda da Esquina', year: 2022 },
-            ],
-            genres: [
-                { id: 'g01', name: 'Rock' },
-                { id: 'g02', name: 'Pop' },
-                { id: 'g03', name: 'Jazz' },
-                { id: 'g04', name: 'Samba' },
-            ],
-            /*tags: [
-                { id: 't01', name: 'Ao Vivo' },
-                { id: 't02', name: 'Acústico' },
-                { id: 't03', name: 'Instrumental' },
-                { id: 't04', name: 'Festa' },
-            ],*/
-
-            serviceRequests: [
-                { id: 'sr001', title: 'Show para Casamento', client: 'Família Santos', date: '2024-07-20', status: 'Pendente', description: 'Show acústico para cerimônia de casamento. Repertório de músicas românticas.' },
-                { id: 'sr002', title: 'DJ para Festa de 15 Anos', client: 'Isabela Costa', date: '2024-08-10', status: 'Aceito', description: 'DJ para festa de 15 anos com mix de pop e eletrônica.' },
-                { id: 'sr003', title: 'Banda para Evento Corporativo', client: 'Tech Solutions', date: '2024-06-01', status: 'Concluído', description: 'Banda de pop-rock para evento de confraternização da empresa.' },
-                { id: 'sr004', title: 'Sessão de Fotos Profissional', client: 'Estúdio Criativo', date: '2024-09-05', status: 'Pendente', description: 'Sessão de fotos para portfólio de modelo.' },
-            ],
-            serviceProposals: [
-                { id: 'sp001', title: 'Apresentação Acústica - Café Aroma', proponent: 'Pedro Souza', price: 800.00, status: 'Pendente', description: 'Proposta para show acústico semanal no café. Repertório variado.' },
-                { id: 'sp002', title: 'Gravação de Podcast - Estúdio Voz', proponent: 'Estúdio Voz Perfeita', price: 500.00, status: 'Aprovado', description: 'Proposta de locação de estúdio para gravação de podcast por 4 horas.' },
-                { id: 'sp003', title: 'Show de Forró - Clube da Alegria', proponent: 'Forrozeiros do Sul', price: 1500.00, status: 'Rejeitado', description: 'Proposta para show de forró em festa junina.' },
-            ],
-
-            events: [
-                { id: 'ev001', name: 'Noite de Talentos Locais', establishment: 'Centro Cultural', date: '2024-07-15', views: 1200, highlighted: true, description: 'Evento para apresentação de novos talentos musicais da cidade.' },
-                { id: 'ev002', name: 'Happy Hour com Música ao Vivo', establishment: 'Bar do Zé', date: '2024-06-20', views: 850, highlighted: false, description: 'Música ao vivo e promoções de bebidas no happy hour.' },
-                { id: 'ev003', name: 'Feira de Artesanato e Cultura', establishment: 'Praça Principal', date: '2024-08-01', views: 2500, highlighted: false, description: 'Feira com artistas locais, comidas típicas e apresentações culturais.' },
-            ],
-
-            userGrowth: [
-                { month: 'Jan', total: 100 },
-                { month: 'Fev', total: 120 },
-                { month: 'Mar', total: 150 },
-                { month: 'Abr', total: 180 },
-                { month: 'Mai', total: 220 },
-                { month: 'Jun', total: 250 },
-            ],
-            mostRequestedServices: [
-                { name: 'Show para Casamento', count: 50 },
-                { name: 'DJ para Festas', count: 45 },
-                { name: 'Gravação em Estúdio', count: 30 },
-                { name: 'Aulas de Instrumento', count: 25 },
-            ],
-            mostPopularGenres: [
-                { name: 'Pop', count: 180 },
-                { name: 'Rock', count: 150 },
-                { name: 'Samba', count: 120 },
-                { name: 'Eletrônica', count: 90 },
-            ],
-
-            complaints: [
-                { id: 'den001', type: 'Comportamento Inapropriado', reported: 'João Silva (Artista)', status: 'Pendente', date: '2024-06-01', details: 'Comentários ofensivos em chat de serviço.' },
-                { id: 'den002', type: 'Conteúdo Irregular', reported: 'Música "Livre Mente"', status: 'Revisado', date: '2024-05-28', details: 'Música com letra de ódio.' },
-                { id: 'den003', type: 'Não Cumprimento de Serviço', reported: 'Bar do Zé (Estabelecimento)', status: 'Resolvido', date: '2024-05-20', details: 'Cancelamento de show sem aviso prévio.' },
-                { id: 'den004', type: 'Spam/Abuso', reported: 'Maria Oliveira (Geral)', status: 'Pendente', date: '2024-06-05', details: 'Envio excessivo de mensagens promocionais.' },
-            ]
-        };
+        // Dados do backend
+        const totalUsers = await fetch('/admin/usuarios').then(data => data.json())
+        const detailedStats = await fetch('/admin/stats').then(data => data.json())
+        const recentUsers = await fetch('/admin/usuarios-recentes').then(data => data.json())
+        const allUsers = await fetch('/admin/todos-usuarios').then(data => data.json());
+        const allMusics = await fetch('/admin/musicas').then(data => data.json());
+        const allAlbums = await fetch('/admin/albuns').then(data => data.json());
+        const allEvents = await fetch('/admin/eventos').then(data => data.json());
+        const allServiceRequests = await fetch('/admin/pedidos-servico').then(data => data.json());
+        const allServiceProposals = await fetch('/admin/propostas-servico').then(data => data.json());
+        const allComplaints = await fetch('/admin/denuncias').then(data => data.json());
 
         const navLinks = document.querySelectorAll('.nav-link');
         const contentSections = document.querySelectorAll('.content-section');
@@ -372,7 +261,7 @@
         function renderDashboardOverview()
         {
             const totalUsersContainer = document.getElementById('total-users-metrics');
-            const { artists, establishments, general } = simulatedData.totalUsers;
+            const { artists, establishments, total } = totalUsers;
             totalUsersContainer.innerHTML = `
                     <div class="metric-card">
                         <div class="value">${ artists }</div>
@@ -383,46 +272,56 @@
                         <div class="label">Estabelecimentos</div>
                     </div>
                     <div class="metric-card">
-                        <div class="value">${ artists + establishments + general }</div>
+                        <div class="value">${ total }</div>
                         <div class="label">Total de Usuários</div>
                     </div>
                 `;
 
             const lastRegisteredUsersList = document.getElementById('last-registered-users');
             lastRegisteredUsersList.innerHTML = '';
-            simulatedData.recentUsers.forEach(user =>
+            recentUsers.forEach(user =>
             {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${ user.name } (${user.type})</strong> <span>${ user.date }</span>`;
-                lastRegisteredUsersList.appendChild(li);
+                const lastRegisteredUsersTable = document.getElementById('last-registered-users');
+                lastRegisteredUsersTable.innerHTML = '';
+                recentUsers.forEach(user =>
+                {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${ user.name }</td>
+                        <td>${ user.type }</td>
+                        <td>${ user.date }</td>
+                        <td>${ user.time }</td>
+                    `;
+                    lastRegisteredUsersTable.appendChild(tr);
+                });
             });
 
             const generalStatsContainer = document.getElementById('general-statistics-metrics');
-            const { totalMusic, totalAlbums, totalGenres, totalTags, servicesRequested, servicesCompleted } = simulatedData.generalStats;
+            const { musics, albums, events, serviceRequests, services, concludedServices, cancelledServices } = detailedStats;
             generalStatsContainer.innerHTML = `
                     <div class="metric-card">
-                        <div class="value">${ totalMusic }</div>
+                        <div class="value">${ musics }</div>
                         <div class="label">Músicas</div>
                     </div>
                     <div class="metric-card">
-                        <div class="value">${ totalAlbums }</div>
+                        <div class="value">${ albums }</div>
                         <div class="label">Álbuns</div>
                     </div>
                     <div class="metric-card">
-                        <div class="value">${ totalGenres }</div>
-                        <div class="label">Gêneros</div>
+                        <div class="value">${ events }</div>
+                        <div class="label">Eventos</div>
                     </div>
                     <div class="metric-card">
-                        <div class="value">${ totalTags }</div>
-                        <div class="label">Tags</div>
+                        <div class="value">${ services }</div>
+                        <div class="label">Serviços</div>
                     </div>
                     <div class="metric-card">
-                        <div class="value">${ servicesRequested }</div>
-                        <div class="label">Serviços Solicitados</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="value">${ servicesCompleted }</div>
+                        <div class="value">${ concludedServices }</div>
                         <div class="label">Serviços Concluídos</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="value">${ cancelledServices }</div>
+                        <div class="label">Serviços Cancelados</div>
                     </div>
                 `;
         }
@@ -431,20 +330,20 @@
         {
             const userListBody = document.getElementById('user-list-tbody');
             userListBody.innerHTML = '';
-            simulatedData.users.forEach(user =>
+            allUsers.forEach(user =>
             {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                         <td>${ user.name }</td>
                         <td>${ user.email }</td>
                         <td>${ user.type }</td>
-                        <td><span style="color:${ user.isActive ? '#28a745' : '#dc3545' };">${ user.isActive ? 'Ativo' : 'Inativo' }</span></td>
+                        <td><span style="color:${ user.isSuspended ? '#dc3545' : '#28a745' };">${ user.isSuspended ? 'Suspenso' : 'Ativo' }</span></td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn ${ user.isActive ? 'btn-danger' : 'btn-success' }" data-action="toggle-status" data-id="${ user.id }">
-                                    ${ user.isActive ? 'Desativar' : 'Ativar' }
+                                <button class="btn ${ !user.isSuspended ? 'btn-danger' : 'btn-success' }" data-action="toggle-status" data-id="${ user.id }">
+                                    ${ !user.isSuspended ? 'Suspender' : 'Liberar' }
                                 </button>
-                                <button class="btn btn-info" data-action="view-details" data-id="${ user.id }" data-type="user">Ver Detalhes</button>
+                                <a href="/profile/${ user.id }" class="btn btn-info" data-action="view-details" data-id="${ user.id }" data-type="user">Ver Perfil</a>
                             </div>
                         </td>
                     `;
@@ -456,7 +355,7 @@
                 button.addEventListener('click', (e) =>
                 {
                     const userId = e.target.dataset.id;
-                    const user = simulatedData.users.find(u => u.id === userId);
+                    const user = allUsers.find(u => u.id === userId);
                     if (user)
                     {
                         // Fetch de suspender
@@ -471,7 +370,7 @@
                 button.addEventListener('click', (e) =>
                 {
                     const id = e.target.dataset.id;
-                    const user = simulatedData.users.find(item => item.id === id);
+                    const user = allUsers.find(item => item.id === id);
                     if (user)
                     {
                         const content = `
@@ -489,19 +388,19 @@
 
         function renderContentManagement()
         {
-            document.getElementById('total-music-count').textContent = simulatedData.music.length;
-            document.getElementById('total-albums-count').textContent = simulatedData.albums.length;
-            //document.getElementById('total-tags-count').textContent = simulatedData.tags.length;
+            document.getElementById('total-music-count').textContent = allMusics.length;
+            document.getElementById('total-albums-count').textContent = allAlbums.length;
+            document.getElementById('total-events-count').textContent = allEvents.length;
 
             const musicListBody = document.getElementById('music-list-tbody');
             musicListBody.innerHTML = '';
-            simulatedData.music.forEach(item =>
+            allMusics.forEach(item =>
             {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                         <td>${ item.title }</td>
-                        <td>${ item.artist }</td>
-                        <td>${ item.album }</td>
+                        <td>${ item.artist ?? '-' }</td>
+                        <td>${ item.date ?? '-' }</td>
                         <td>
                             <div class="action-buttons">
                                 <button class="btn btn-danger" data-action="delete" data-id="${ item.id }" data-type="music">Excluir</button>
@@ -513,13 +412,13 @@
 
             const albumListBody = document.getElementById('album-list-tbody');
             albumListBody.innerHTML = '';
-            simulatedData.albums.forEach(item =>
+            allAlbums.forEach(item =>
             {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                         <td>${ item.title }</td>
-                        <td>${ item.artist }</td>
-                        <td>${ item.year }</td>
+                        <td>${ item.artist ?? '-' }</td>
+                        <td>${ item.date ?? '-' }</td>
                         <td>
                             <div class="action-buttons">
                                 <button class="btn btn-danger" data-action="delete" data-id="${ item.id }" data-type="album">Excluir</button>
@@ -529,46 +428,41 @@
                 albumListBody.appendChild(tr);
             });
 
-            const tagsList = document.getElementById('tags-list');
-            tagsList.innerHTML = '';
-            /*simulatedData.tags.forEach(item =>
+            const eventsListBody = document.getElementById('events-list-tbody');
+            eventsListBody.innerHTML = '';
+            allEvents.forEach(item =>
             {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                        <strong>${ item.name }</strong>
-                        <div class="action-buttons">
-                            <button class="btn btn-warning" data-action="edit" data-id="${ item.id }" data-type="tag">Editar</button>
-                            <button class="btn btn-danger" data-action="delete" data-id="${ item.id }" data-type="tag">Excluir</button>
-                        </div>
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                        <td>${ item.title }</td>
+                        <td>${ item.establishment ?? '-' }</td>
+                        <td>${ item.date ?? '-' }</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-danger" data-action="delete" data-id="${ item.id }" data-type="album">Excluir</button>
+                            </div>
+                        </td>
                     `;
-                tagsList.appendChild(li);
-            });*/
+                eventsListBody.appendChild(tr);
+            });
         }
 
         function renderServiceManagement()
         {
             const serviceRequestsBody = document.getElementById('service-requests-tbody');
             serviceRequestsBody.innerHTML = '';
-            simulatedData.serviceRequests.forEach(item =>
+            allServiceRequests.forEach(item =>
             {
                 const tr = document.createElement('tr');
-                let statusColor = '';
-                switch (item.status)
-                {
-                    case 'Pendente': statusColor = 'var(--star-rating-color)'; break;
-                    case 'Aceito': statusColor = '#28a745'; break;
-                    case 'Concluído': statusColor = 'var(--primary-color)'; break;
-                    default: statusColor = 'var(--secondary-text-color)';
-                }
                 tr.innerHTML = `
                         <td>${ item.id }</td>
                         <td>${ item.title }</td>
-                        <td>${ item.client }</td>
-                        <td>${ item.date }</td>
-                        <td><span style="color:${ statusColor }; font-weight: bold;">${ item.status }</span></td>
+                        <td>-</td>
+                        <td>${ item.date ?? '-' }</td>
+                        <td>-</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="serviceRequest">Ver Detalhes</button>
+                                <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="serviceRequest">Ver Perfil</button>
                             </div>
                         </td>
                     `;
@@ -577,26 +471,17 @@
 
             const serviceProposalsBody = document.getElementById('service-proposals-tbody');
             serviceProposalsBody.innerHTML = '';
-            simulatedData.serviceProposals.forEach(item =>
+            allServiceProposals.forEach(item =>
             {
                 const tr = document.createElement('tr');
-                let statusColor = '';
-                switch (item.status)
-                {
-                    case 'Pendente': statusColor = 'var(--star-rating-color)'; break;
-                    case 'Aprovado': statusColor = '#28a745'; break;
-                    case 'Rejeitado': statusColor = '#dc3545'; break;
-                    default: statusColor = 'var(--secondary-text-color)';
-                }
                 tr.innerHTML = `
-                        <td>${ item.id }</td>
                         <td>${ item.title }</td>
-                        <td>${ item.proponent }</td>
-                        <td>R$ ${ item.price.toFixed(2).replace('.', ',') }</td>
-                        <td><span style="color:${ statusColor }; font-weight: bold;">${ item.status }</span></td>
+                        <td>${ item.establishment ?? '-' }</td>
+                        <td>R$ ${ item.price ? Number(item.price).toFixed(2).replace('.', ',') : '-' }</td>
+                        <td>${ item.status ?? '-' }</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="serviceProposal">Ver Detalhes</button>
+                                <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="serviceProposal">Ver Perfil</button>
                             </div>
                         </td>
                     `;
@@ -604,55 +489,22 @@
             });
         }
 
-        function renderEventManagement()
-        {
-            document.getElementById('total-events-count').textContent = simulatedData.events.length;
-
-            const eventsListBody = document.getElementById('events-list-tbody');
-            eventsListBody.innerHTML = '';
-            simulatedData.events.forEach(item =>
-            {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                        <td>${ item.id }</td>
-                        <td>${ item.name }</td>
-                        <td>${ item.establishment }</td>
-                        <td>${ item.date }</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="event">Ver Detalhes</button>
-                            </div>
-                        </td>
-                    `;
-                eventsListBody.appendChild(tr);
-            });
-        }
-
         function renderComplaints()
         {
             const complaintsListBody = document.getElementById('complaints-list-tbody');
             complaintsListBody.innerHTML = '';
-            simulatedData.complaints.forEach(item =>
+            allComplaints.forEach(item =>
             {
                 const tr = document.createElement('tr');
-                let statusColor = '';
-                switch (item.status)
-                {
-                    case 'Pendente': statusColor = 'var(--star-rating-color)'; break;
-                    case 'Revisado': statusColor = '#17a2b8'; break;
-                    case 'Resolvido': statusColor = '#28a745'; break;
-                    default: statusColor = 'var(--secondary-text-color)';
-                }
                 tr.innerHTML = `
                         <td>${ item.id }</td>
-                        <td>${ item.type }</td>
-                        <td>${ item.reported }</td>
-                        <td><span style="color:${ statusColor }; font-weight: bold;">${ item.status }</span></td>
-                        <td>${ item.date }</td>
+                        <td>${ item.type ?? '-' }</td>
+                        <td>${ item.reported ?? '-' }</td>
+                        <td>${ item.status ?? '-' }</td>
+                        <td>${ item.date ? new Date(item.date).toLocaleDateString('pt-BR') : '-' }</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="complaint">Ver Detalhes</button>
-                                ${ item.status === 'Pendente' ? `<button class="btn btn-success" data-action="resolve-complaint" data-id="${ item.id }">Resolver</button>` : '' }
+                                <button class="btn btn-info" data-action="view-details" data-id="${ item.id }" data-type="complaint">Ver Perfil</button>
                             </div>
                         </td>
                     `;
@@ -663,7 +515,7 @@
                 button.addEventListener('click', (e) =>
                 {
                     const id = e.target.dataset.id;
-                    const complaint = simulatedData.complaints.find(item => item.id === id);
+                    const complaint = allComplaints.find(item => item.id === id);
                     if (complaint)
                     {
                         const content = `
@@ -678,21 +530,6 @@
                     }
                 });
             });
-            complaintsListBody.querySelectorAll('[data-action="resolve-complaint"]').forEach(button =>
-            {
-                button.addEventListener('click', (e) =>
-                {
-                    const id = e.target.dataset.id;
-                    const complaint = simulatedData.complaints.find(c => c.id === id);
-                    if (complaint && confirm(`Marcar denúncia ${ id } como resolvida?`))
-                    {
-                        // Fetch pra fechar denuncia
-                        complaint.status = 'Resolvido';
-                        alert(`Denúncia ${ id } marcada como resolvida (simulado).`);
-                        renderComplaints();
-                    }
-                });
-            });
         }
 
         const sectionRenderFunctions = {
@@ -700,7 +537,6 @@
             'user-management-section': renderUserManagement,
             'content-management-section': renderContentManagement,
             'service-management-section': renderServiceManagement,
-            'event-management-section': renderEventManagement,
             'complaints-section': renderComplaints
         };
 

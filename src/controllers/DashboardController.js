@@ -15,6 +15,7 @@ module.exports = class DashboardController
                 include: [
                     {
                         model: User,
+                        where: { isAdmin: false },
                         attributes: { exclude: 'password' },
                         include: [
                             { model: Tag, as: 'Tags' } // Inclui as Tags relacionadas ao usuário

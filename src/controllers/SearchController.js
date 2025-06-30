@@ -31,7 +31,8 @@ module.exports = class SearchController
                                 where(fn('LOWER', col('User.name')), {
                                     [Op.like]: `%${ search.toLowerCase() }%`
                                 })
-                            ]
+                            ],
+                            isAdmin: false
                         },
                         attributes: { exclude: ['password'] },
                         include: [{ model: Tag, as: 'Tags' }, { model: Artist, required: false }]
@@ -110,6 +111,7 @@ module.exports = class SearchController
                 // Caso o campo search esteja vazio, retorna todos os usuários
                 userResults = await Promise.all(
                     (await User.findAll({
+                        where: {isAdmin: false},
                         attributes: { exclude: ['password'] },
                         include: [{ model: Tag, as: 'Tags' }, { model: Artist, required: false }]
                     })).map(async (user) =>
@@ -306,7 +308,8 @@ module.exports = class SearchController
                                     where(fn('LOWER', col('User.name')), {
                                         [Op.like]: `%${ search.toLowerCase() }%`
                                     })
-                                ]
+                                ],
+                                isAdmin: false
                             },
                             attributes: { exclude: ['password'] },
                             include: [
@@ -348,7 +351,8 @@ module.exports = class SearchController
                                     where(fn('LOWER', col('User.name')), {
                                         [Op.like]: `%${ search.toLowerCase() }%`
                                     })
-                                ]
+                                ],
+                                isAdmin: false
                             },
                             attributes: { exclude: ['password'] },
                             include: [
@@ -389,7 +393,8 @@ module.exports = class SearchController
                                     where(fn('LOWER', col('User.name')), {
                                         [Op.like]: `%${ search.toLowerCase() }%`
                                     })
-                                ]
+                                ],
+                                isAdmin: false
                             },
                             attributes: { exclude: ['password'] },
                             include: include
@@ -537,6 +542,7 @@ module.exports = class SearchController
                 {
                     const userResults = await Promise.all(
                         (await User.findAll({
+                            where: {isAdmin: false},
                             attributes: { exclude: ['password'] },
                             include: include
                         })).map(async (user) =>
@@ -623,6 +629,7 @@ module.exports = class SearchController
                 {
                     const results = await Promise.all(
                         (await User.findAll({
+                            where: {isAdmin: false},
                             attributes: { exclude: ['password'] },
                             include: include
                         })).map(async (user) =>
