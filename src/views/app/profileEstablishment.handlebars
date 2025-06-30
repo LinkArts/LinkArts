@@ -453,13 +453,17 @@
         closeModal(existingOverlay);
       }
 
+      // Criação correta do overlay e modal
       const modalOverlay = document.createElement('div');
-      modalOverlay.className = `modal-overlay ${ overlaySelector.substring(1) }`;
+      // overlaySelector é do tipo '.edit-event-overlay', então removemos o ponto
+      const overlayClass = overlaySelector.startsWith('.') ? overlaySelector.substring(1) : overlaySelector;
+      modalOverlay.className = `modal-overlay ${overlayClass}`;
       modalOverlay.setAttribute('role', 'dialog');
       modalOverlay.setAttribute('aria-modal', 'true');
 
+      // Garante que o modal tem a classe base 'modal' além da específica
       const modal = document.createElement('div');
-      modal.className = modalClass;
+      modal.className = `${modalClass} modal`;
       modal.innerHTML = modalHTMLContent;
       // Impede que cliques dentro do modal fechem o overlay
       modal.addEventListener('click', (e) => {
@@ -480,6 +484,7 @@
       document.body.appendChild(modalOverlay);
       document.body.classList.add('modal-open');
       modalOverlay.getBoundingClientRect();
+      // Adiciona a classe is-visible após inserir no DOM
       modalOverlay.classList.add('is-visible');
 
       const closeButton = modal.querySelector('.modal-close-btn');
@@ -1946,6 +1951,8 @@
     //setupHorizontalScroll();
   });
 </script>
+
+
 
 <script type="module">
   import { setupReportProfileButton } from '/js/reportProfile.js';

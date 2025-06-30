@@ -1,9 +1,0 @@
-<div class="notification-content" onclick="handleNotificationClick(${notification.id})">
-  <div class="notification-icon notification-profile-img"><img src="${profileImg}" alt="Perfil" onerror="this.onerror=null;this.src='/img/default.jpg';" /></div>
-  <div class="notification-text">
-    <h4 class="popup-notification-title">${notifTitle}</h4>
-    <p class="popup-notification-description">${notifDescription}</p>
-    <p class="notification-time">${timeAgo}</p>
-  </div>
-  ${!notification.is_read ? '<div class="notification-dot"></div>' : ''}
-</div> 
