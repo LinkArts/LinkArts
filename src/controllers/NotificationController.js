@@ -281,13 +281,6 @@ module.exports = class NotificationController {
                 case 'new_proposal':
                     redirectUrl = `/agenda/${userId}`;
                     break;
-                case 'new_service_request':
-                    if (notification.reference_id) {
-                        redirectUrl = `/service-request/${notification.reference_id}`;
-                    } else {
-                        redirectUrl = '/dashboard';
-                    }
-                    break;
                 case 'status_update':
                     if (notification.reference_id) {
                         redirectUrl = `/servico/${notification.reference_id}`;
