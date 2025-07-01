@@ -34,7 +34,6 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-cancel" id="cancel-send-proposal-modal">Fechar</button>
                 <button class="btn btn-primary" type="submit" form="send-proposal-form">Enviar</button>
             </div>
         </div>
@@ -267,7 +266,6 @@
             {
                 const response = await fetch(`/agenda/propostas/${ id }`)
                 const data = await response.json();
-                console.log(data);
 
                 receivedProposals = data.proposals;
                 receivedProposalsList.innerHTML = '';
@@ -336,17 +334,16 @@
                 <button class="modal-close-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <p><strong>Cliente:</strong> ${ data.client }</p>
-                <p><strong>Tipo de Serviço:</strong> ${ data.type }</p>
-                <p><strong>Data:</strong> ${ data.date }</p>
-                <p><strong>Horário:</strong> ${ data.startTime } - ${ data.endTime }</p>
+                <p><strong>Cliente:</strong> ${ data.senderName }</p>
+                <p><strong>Cidade:</strong> ${ data.senderCity }</p>
+                <p><strong>Data:</strong> ${ formatDatePtBr(data.date) }</p>
+                <p><strong>Horário:</strong> ${ formatTime(data.startTime) } - ${ formatTime(data.endTime) }</p>
                 ${ data.description ? `<p><strong>Descrição:</strong> ${ data.description }</p>` : '' }
                 ${ data.notes ? `<p><strong>Anotações:</strong> ${ data.notes }</p>` : '' }
                 <p class="modal-price"><strong>Preço:</strong> ${ formatPrice(data.price) }</p>
             </div>
             <div class="modal-footer">
                 ${ actionButtonsHtml }
-                <button class="btn btn-primary modal-close-btn">Fechar</button>
             </div>
         `;
 
@@ -443,7 +440,6 @@
                 const data = await response.json();
                 alert(data.message); // Simulação de sucesso
 
-                console.log(currentSelectedServiceId);
                 const serviceIndex = scheduledServices.findIndex(s => s.id === Number(currentSelectedServiceId));
                 if (serviceIndex !== -1)
                 {
@@ -468,10 +464,7 @@
                     card.classList.add('active');
 
                     currentSelectedServiceId = card.dataset.id;
-                    console.log(currentSelectedServiceId);
-                    console.log(scheduledServices)
                     const service = scheduledServices.find(s => s.id === Number(currentSelectedServiceId));
-                    console.log(service)
 
                     if (service)
                     {

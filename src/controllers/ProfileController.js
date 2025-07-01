@@ -281,7 +281,6 @@ module.exports = class ProfileController
 
     static async updateAlbumName(req, res)
     {
-        console.log("UPDATE ALBUM NAME")
         const { albumId, name } = req.body
 
         // Validar o nome do álbum
@@ -375,7 +374,6 @@ module.exports = class ProfileController
 
     static async updateMusicCover(req, res)
     {
-        console.log("UPDATE MUSIC COVER")
         const { musicId, imageUrl } = req.body
 
         try
@@ -491,8 +489,6 @@ module.exports = class ProfileController
 
     static async searchAlbum(req, res)
     {
-        console.log("SEARCH ALBUM!!!");
-
         const { name } = req.params
         const decodedName = decodeURIComponent(name)
 
@@ -537,8 +533,6 @@ module.exports = class ProfileController
 
     static async getAlbums(req, res)
     {
-        console.log("GET ALBUMS!!!")
-
         try
         {
             const user = await User.findOne({
@@ -568,7 +562,6 @@ module.exports = class ProfileController
 
     static async searchAlbumMusics(req, res)
     {
-        console.log("SEARCH ALBUM MUSICS!!!");
         const { id } = req.params;
 
         try
@@ -607,7 +600,6 @@ module.exports = class ProfileController
 
     static async searchMusic(req, res)
     {
-        console.log('SEARCH!!!')
         const { id } = req.params
 
         try
@@ -644,8 +636,6 @@ module.exports = class ProfileController
     {
         const { id } = req.params
         const { title, tags, albums, imageUrl, link } = req.body
-
-        console.log("UPDATE MUSIC!!!")
 
         // Validar o título da música
         if (!title || title.trim().length === 0)

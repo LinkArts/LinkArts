@@ -48,8 +48,6 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
         }
 
         try {
-            console.log(`Processando upload para bucket: ${bucketName}`);
-            
             // Processar imagem com Sharp
             const processedImage = await sharp(req.file.buffer)
                 .resize(1200, 800, { 
@@ -89,8 +87,6 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
                 }
             }
 
-            console.log(`Fazendo upload para: ${bucketName}/${filePath}`);
-
             // Upload para Supabase Storage
             const { data, error } = await supabase.storage
                 .from(bucketName)
@@ -105,7 +101,6 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
                 
                 // Se o bucket não existe, tentar criar
                 if (error.message.includes('Bucket not found')) {
-                    console.log(`Tentando criar bucket: ${bucketName}`);
                     const { error: createError } = await supabase.storage.createBucket(bucketName, {
                         public: true,
                         allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
@@ -135,8 +130,6 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
             const { data: urlData } = supabase.storage
                 .from(bucketName)
                 .getPublicUrl(filePath);
-
-            console.log(`Upload concluído. URL: ${urlData.publicUrl}`);
 
             // Adicionar informações do arquivo ao req para uso posterior
             req.uploadedFile = {

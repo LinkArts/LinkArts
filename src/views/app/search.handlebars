@@ -124,13 +124,11 @@
         const formData = new FormData(formFiltro);
         const tipoUsuario = formData.get('tipoUsuario');
         const tags = $(tagSelect).val() || [];
-        console.log(tags);
 
         try
         {
             const response = await fetch(`/filtrar?search=${ searchInput.value }&type=${ tipoUsuario }&tags=${ tags }`);
             const data = await response.json();
-            console.log(data)
 
             profilesListDiv.innerHTML = '';
 
@@ -141,32 +139,30 @@
                     if (result._type === 'user')
                     {
                         const html = `
-                    <div class="card">
-                    <p class="card-location">${ result.isArtist ? 'Artista' : 'Estabelecimento' }</p>
+                    <a href="/profile/${result.id}" class="card card-link" style="text-decoration: none; color: inherit;">
+                        <p class="card-location">${ result.isArtist ? 'Artista' : 'Estabelecimento' }</p>
                         <div class="card-image-container">
                             <div class="card-image">
                                 <img src="${ result.imageUrl || '/img/default.jpg' }" alt="${ result.name }">
                             </div>
                         </div>
-                        <a href="/profile/${result.id}"><h3 class="card-title">${ result.name }</h3></a>
-                        <p class="card-location">${ result.city ? result.city : 'Cidade não informada' }</p>
+                        <h3 class="card-title">${ result.name }</h3>
+                        <p class="card-location">${ result.city ? result.city : 'Cidade não informada.' }</p>
                         <div class="card-rating">
                             <span class="star">★</span>
                             <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">${ result.AverageRating != 'NaN' ? result.AverageRating : '0.0' }
                                 ( ${ result.TotalRatings ? result.TotalRatings : '0' } )</span>
                         </div>
-                        <p class="card-description">${ result.description ? result.description : 'Descrição não informada' }</p>
+                        <p class="card-description">${ result.description ? result.description : 'Descrição não informada.' }</p>
                         <div class="card-tags">
                             ${ Array.isArray(result.Tags) && result.Tags.length > 0
                                 ? result.Tags.map(tag => `<span class="tag">${ tag.name }</span>`).join("")
                                 : `<span class="tag">Sem Tags</span>` }
                         </div>
                         <div class="card-action">
-                            <a href="/profile/${ result.id }" class="profile-button">
-                                Ver perfil
-                            </a>
+                            <span class="profile-button">Ver perfil</span>
                         </div>
-                    </div>
+                    </a>
                     `
                         profilesListDiv.innerHTML += html;
                     }

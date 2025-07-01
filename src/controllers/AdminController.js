@@ -135,7 +135,7 @@ module.exports = class AdminController
                 name: user.name,
                 email: user.email,
                 type: user.Artist ? 'Artista' : (user.Establishment ? 'Estabelecimento' : 'Usuário'),
-                status: user.isSuspended
+                isSuspended: user.isSuspended
             }));
 
             return res.json(result);

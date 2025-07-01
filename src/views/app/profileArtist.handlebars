@@ -514,8 +514,7 @@
         if (e.target === modalOverlay) { closeModal(modalOverlay); }
       });
 
-      // Foco acessível
-      setTimeout(() => { modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')?.focus(); }, 100);
+      //setTimeout(() => { modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')?.focus(); }, 100);
 
       return modal;
     }
@@ -664,7 +663,6 @@
 
     function getAlbumContentModalHTML(albumName, songsInAlbum, albumData = null)
     {
-      console.log(songsInAlbum)
       let songsHTML = '';
       if (songsInAlbum && songsInAlbum.length > 0)
       {
@@ -906,11 +904,9 @@
           
           // Fazer upload da imagem se houver alguma pendente
           if (form.albumCoverUploader?.hasPendingUpload()) {
-            console.log('Fazendo upload da capa do álbum...');
             const uploadResult = await form.albumCoverUploader.uploadPendingImage();
             if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
               finalImageUrl = uploadResult.imageUrl;
-              console.log('Upload da capa concluído, nova URL:', finalImageUrl);
             } else {
               throw new Error('Falha no upload da capa do álbum');
             }
@@ -1151,12 +1147,10 @@
                   
                   // Se há upload pendente, fazer o upload primeiro
                   if (albumCoverUploader.hasPendingUpload()) {
-                    console.log('Fazendo upload da imagem...');
                     const uploadResult = await albumCoverUploader.uploadPendingImage();
                     if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
                       finalImageUrl = uploadResult.imageUrl;
                       imageUpdated = true;
-                      console.log('Upload concluído, nova URL:', finalImageUrl);
                     } else {
                       throw new Error('Falha no upload da imagem');
                     }
@@ -1164,13 +1158,11 @@
                   
                   // Atualizar nome do álbum se foi alterado
                   if (newAlbumName !== albumName) {
-                    console.log('Atualizando nome do álbum:', newAlbumName);
                     await updateAlbumName(albumid, newAlbumName);
                   }
                   
                   // Atualizar capa se necessário
                   if (imageUpdated && !finalImageUrl.startsWith('data:') && !finalImageUrl.startsWith('blob:')) {
-                    console.log('Atualizando capa do álbum com URL:', finalImageUrl);
                     await updateAlbumCover(albumid, finalImageUrl);
                   }
                   
@@ -1326,7 +1318,6 @@
             const title = titleInput.value.trim();
             const link = linkInput.value.trim();
             const tag = $('#song-tag').val();
-            console.log(tag);
             const albums = $('#song-album').val() || [];
             if (!title)
             {
@@ -1362,11 +1353,9 @@
             // Fazer upload da imagem se houver
             let finalImageUrl = null;
             if (modalElement.musicImageUploader?.hasPendingUpload()) {
-              console.log('Fazendo upload da imagem da música...');
               const uploadResult = await modalElement.musicImageUploader.uploadPendingImage();
               if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
                 finalImageUrl = uploadResult.imageUrl;
-                console.log('Upload da imagem concluído, nova URL:', finalImageUrl);
               }
             }
 
@@ -1891,7 +1880,6 @@
       // Usar o title (nome completo) ao invés do textContent (que pode estar truncado)
       const albumName = albumNameElement?.title || albumNameElement?.textContent;
       const albumid = albumCard.dataset.id;
-      console.log(albumName);
       if (albumName)
       {
         await openAlbumContentModal(albumName, albumid, albumCard);
@@ -2100,7 +2088,6 @@
               {
                 // Fazer upload da imagem se houver uma pendente
                 if (profileUploader && profileUploader.hasPendingUpload()) {
-                  console.log('Fazendo upload da imagem de perfil...');
                   const uploadResult = await profileUploader.uploadPendingImage();
                   if (!uploadResult.success) {
                     throw new Error('Erro ao fazer upload da imagem: ' + uploadResult.message);
@@ -2220,8 +2207,6 @@
 
     async function initialize()
     {
-      console.log("Initializing page script...");
-
       const response = await fetch('/profile/tags')
       const res = await response.json()
 
@@ -2243,8 +2228,6 @@
       
       // Configurar scroll horizontal
       //setupHorizontalScroll();
-
-      console.log("Initialization complete.");
     }
 
     document.getElementById('create-chat-btn')?.addEventListener('click', async function ()

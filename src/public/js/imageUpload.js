@@ -6,7 +6,6 @@
 // Utility functions
 function showToast(message, type = 'info') {
     // Implementar ou usar o sistema de toast existente
-    console.log(`Toast [${type}]: ${message}`);
 }
 
 function formatFileSize(bytes) {
@@ -102,13 +101,6 @@ function createImageUploader(options = {}) {
         const file = event.target.files[0];
         if (!file) return;
 
-        console.log('🔍 [DEBUG] Arquivo selecionado:', {
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            endpoint: uploadEndpoint
-        });
-
         // Validar arquivo
         if (!file.type.startsWith('image/')) {
             showToast('Por favor, selecione apenas arquivos de imagem.', 'error');
@@ -138,7 +130,6 @@ function createImageUploader(options = {}) {
 
         // Upload imediato para endpoints de perfil
         if (uploadEndpoint.includes('/profile/photo')) {
-            console.log('🚀 [DEBUG] Iniciando upload imediato para:', uploadEndpoint);
             uploadFile(file);
         }
         // Eventos agora usam upload pendente como música/álbum
@@ -146,34 +137,19 @@ function createImageUploader(options = {}) {
 
     // Função de upload
     async function uploadFile(file) {
-        console.log('📤 [DEBUG] Iniciando uploadFile com:', {
-            fileName: file.name,
-            fileSize: file.size,
-            endpoint: uploadEndpoint
-        });
 
         const formData = new FormData();
         const fieldName = getFieldNameFromEndpoint(uploadEndpoint);
         formData.append(fieldName, file);
-
-        console.log('📝 [DEBUG] Campo FormData:', fieldName);
 
         try {
             // Mostrar progresso
             showProgress(true);
             updateProgress(0, 'Preparando...');
 
-            console.log('🌐 [DEBUG] Fazendo requisição para:', uploadEndpoint);
-            
             const response = await fetch(uploadEndpoint, {
                 method: 'POST',
                 body: formData
-            });
-
-            console.log('📨 [DEBUG] Resposta recebida:', {
-                status: response.status,
-                statusText: response.statusText,
-                ok: response.ok
             });
 
             if (!response.ok) {
@@ -184,8 +160,6 @@ function createImageUploader(options = {}) {
 
             const result = await response.json();
             
-            console.log('✅ [DEBUG] Resultado do upload:', result);
-
             if (result.success) {
                 updateProgress(100, 'Concluído!');
                 
@@ -196,11 +170,9 @@ function createImageUploader(options = {}) {
                     // Atualizar preview com a imagem do Supabase
                     if (result.imageUrl) {
                         imagePreview.src = result.imageUrl;
-                        console.log('🖼️ [DEBUG] Preview atualizado com URL:', result.imageUrl);
                     }
                     
                     // Callback de sucesso
-                    console.log('🎯 [DEBUG] Chamando callback onSuccess');
                     onSuccess(result);
                 }, 1000);
 

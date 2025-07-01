@@ -197,7 +197,6 @@ module.exports = class SearchController
                 return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
             });
 
-            //console.log(results);
             return res.render('app/search', { search: search, results: results, css: 'pesquisar.css' });
         } catch (err)
         {
@@ -208,8 +207,6 @@ module.exports = class SearchController
 
     static async getFilter(req, res)
     {
-        console.log("GET FILTER");
-
         const { search, type, tags } = req.query;
         const tagsid = tags ? tags.split(',').filter(Boolean).map(id => parseInt(id)) : [];
         const loggedUserId = req.session.userid;

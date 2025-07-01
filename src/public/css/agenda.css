@@ -1,5 +1,5 @@
 :root {
-    --primary-color: #6a0dad;
+    --primary-color: #673AB7;
     --primary-dark-color: #5a099d;
     --secondary-color: #ffd700;
     --background-light: #f4f7f6;
@@ -268,19 +268,16 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background-color: var(--modal-overlay-bg);
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
-    padding: 10px;
-    box-sizing: border-box;
-    overflow-y: auto;
 }
 
 .modal-overlay.active {
@@ -288,8 +285,7 @@
     visibility: visible;
 }
 
-.modal-view,
-.modal-send-proposal {
+.modal-view .modal-send-proposal {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -305,34 +301,27 @@
 
 .modal-view .modal-footer,
 .modal-send-proposal .modal-footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
     flex-shrink: 0;
-    margin-top: auto;
-    width: 100%;
+    align-self: flex-start;
+    justify-content: flex-end;
 }
 
 .modal-view {
     background-color: var(--modal-bg);
     border-radius: 10px;
-    padding: 25px;
+    padding: 30px;
     box-shadow: 0 5px 20px var(--modal-shadow);
-    width: 100%;
-    max-width: 480px;
-    max-height: calc(100vh - 40px);
+    width: 90%;
+    max-width: 500px;
+
     box-sizing: border-box;
-    transform: translateY(0px);
+    transform: translateY(-20px);
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease;
     position: relative;
-    margin: auto;
-    align-self: center;
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    contain: layout style;
-    will-change: scroll-position;
 }
 
 .modal-view.active {
@@ -418,7 +407,7 @@
     font-size: 1em;
     font-weight: 600;
     transition: all 0.2s ease;
-  }
+}
 
 .modal-send-proposal.active {
     transform: translateY(0);
@@ -502,35 +491,35 @@
 /* Estilização da barra de scroll para modais da agenda */
 .modal-view::-webkit-scrollbar,
 .modal-send-proposal::-webkit-scrollbar {
-  width: 6px;
+    width: 6px;
 }
 
 .modal-view::-webkit-scrollbar-track,
 .modal-send-proposal::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
+    background: #f1f1f1;
+    border-radius: 3px;
 }
 
 .modal-view::-webkit-scrollbar-thumb,
 .modal-send-proposal::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+    background: #c1c1c1;
+    border-radius: 3px;
 }
 
 .modal-view::-webkit-scrollbar-thumb:hover,
 .modal-send-proposal::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+    background: #a8a8a8;
 }
 
 @media (max-width: 1200px) {
     .all {
         padding: 15px;
     }
-    
+
     .container-agenda {
         gap: 15px;
     }
-    
+
     .column {
         min-width: 300px;
     }
@@ -540,41 +529,41 @@
     .all {
         padding: 10px;
     }
-    
+
     .container-agenda {
         gap: 10px;
     }
-    
+
     .column {
         max-width: 100%;
         min-width: 280px;
     }
-    
+
     .column-header-container {
         padding: 12px 15px;
     }
-    
+
     .column-header-title {
         font-size: 1.1rem;
     }
-    
+
     .card {
         padding: 12px;
         margin-bottom: 8px;
     }
-    
+
     .card h4 {
         font-size: 1rem;
     }
-    
+
     .card p {
         font-size: 0.85rem;
     }
-    
+
     .card-price {
         font-size: 1rem;
     }
-    
+
     .btn {
         padding: 6px 12px;
         font-size: 0.8rem;
@@ -586,7 +575,7 @@
         padding: 8px;
         padding-top: 85px;
     }
-    
+
     .container-agenda {
         flex-direction: column;
         align-items: center;
@@ -598,11 +587,11 @@
         max-width: 500px;
         min-height: 300px;
     }
-    
+
     .column-header-container {
         padding: 10px 12px;
     }
-    
+
     .column-header-title {
         font-size: 1rem;
     }
@@ -613,21 +602,21 @@
         width: 95%;
         max-width: 450px;
     }
-    
+
     .modal-view h2,
     .modal-send-proposal h2 {
         font-size: 1.4rem;
     }
-    
+
     .modal-view .modal-body p,
     .modal-send-proposal .form-group label {
         font-size: 0.9rem;
     }
-    
+
     .notes-area {
         padding: 12px;
     }
-    
+
     .notes-area textarea {
         font-size: 0.9rem;
         padding: 8px;
@@ -639,115 +628,115 @@
         padding: 5px;
         padding-top: 80px;
     }
-    
+
     .container-agenda {
         gap: 10px;
     }
-    
+
     .column {
         max-width: 100%;
         min-height: 250px;
     }
-    
+
     .column-header-container {
         padding: 8px 10px;
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
     }
-    
+
     .column-header-title {
         font-size: 0.95rem;
     }
-    
+
     #send-proposal-btn {
         width: 100%;
         padding: 8px 12px;
         font-size: 0.8rem;
     }
-    
+
     .card {
         padding: 10px;
         margin-bottom: 6px;
     }
-    
+
     .card h4 {
         font-size: 0.9rem;
         margin-bottom: 4px;
     }
-    
+
     .card p {
         font-size: 0.8rem;
         margin-bottom: 6px;
     }
-    
+
     .card-meta {
         font-size: 0.75rem;
         margin-bottom: 6px;
     }
-    
+
     .card-price {
         font-size: 0.9rem;
     }
-    
+
     .card-actions {
         gap: 4px;
     }
-    
+
     .btn {
         padding: 5px 8px;
         font-size: 0.75rem;
     }
-    
+
     .modal-view,
     .modal-send-proposal {
         padding: 15px;
         width: 95%;
         max-height: 85vh;
     }
-    
+
     .modal-view h2,
     .modal-send-proposal h2 {
         font-size: 1.2rem;
     }
-    
+
     .modal-view .modal-body p,
     .modal-send-proposal .form-group label {
         font-size: 0.85rem;
     }
-    
+
     .modal-send-proposal .form-group input,
     .modal-send-proposal .form-group textarea {
         padding: 8px;
         font-size: 0.9rem;
     }
-    
+
     .modal-view .modal-footer,
     .modal-send-proposal .modal-footer {
         flex-direction: column;
         gap: 8px;
     }
-    
+
     .modal-view .modal-footer .btn,
     .modal-send-proposal .modal-footer .btn {
         width: 100%;
         padding: 10px 15px;
     }
-    
+
     .notes-area {
         padding: 10px;
     }
-    
+
     .notes-area label {
         font-size: 0.9rem;
     }
-    
+
     .notes-area textarea {
         font-size: 0.85rem;
         padding: 6px;
         min-height: 80px;
     }
-    
+
     .notes-area .btn-container {
         margin-top: 8px;
     }
@@ -758,64 +747,64 @@
         padding: 3px;
         padding-top: 75px;
     }
-    
+
     .container-agenda {
         gap: 8px;
     }
-    
+
     .column {
         min-height: 200px;
     }
-    
+
     .column-header-container {
         padding: 6px 8px;
         gap: 6px;
     }
-    
+
     .column-header-title {
         font-size: 0.85rem;
     }
-    
+
     #send-proposal-btn {
         padding: 6px 10px;
         font-size: 0.75rem;
     }
-    
+
     .card {
         padding: 8px;
         margin-bottom: 4px;
     }
-    
+
     .card h4 {
         font-size: 0.85rem;
         margin-bottom: 3px;
     }
-    
+
     .card p {
         font-size: 0.75rem;
         margin-bottom: 4px;
     }
-    
+
     .card-meta {
         font-size: 0.7rem;
         margin-bottom: 4px;
     }
-    
+
     .card-price {
         font-size: 0.8rem;
     }
-    
+
     .card-actions {
         gap: 3px;
         flex-wrap: wrap;
     }
-    
+
     .btn {
         padding: 4px 6px;
         font-size: 0.7rem;
         min-width: 60px;
     }
-    
+
     .modal-view,
     .modal-send-proposal {
         padding: 12px;
@@ -823,199 +812,202 @@
         margin: 5px;
         max-height: 90vh;
     }
-    
+
     .modal-view h2,
     .modal-send-proposal h2 {
         font-size: 1.1rem;
     }
-    
+
     .modal-view .modal-close-btn,
     .modal-send-proposal .modal-close-btn {
         font-size: 1.5rem;
     }
-    
+
     .modal-view .modal-body p,
     .modal-send-proposal .form-group label {
         font-size: 0.8rem;
     }
-    
+
     .modal-send-proposal .form-group {
         margin-bottom: 10px;
     }
-    
+
     .modal-send-proposal .form-group input,
     .modal-send-proposal .form-group textarea {
         padding: 6px;
         font-size: 0.85rem;
     }
-    
+
     .modal-view .modal-footer .btn,
     .modal-send-proposal .modal-footer .btn {
         padding: 8px 12px;
         font-size: 0.8rem;
     }
-    
+
     .notes-area {
         padding: 8px;
     }
-    
+
     .notes-area label {
         font-size: 0.85rem;
     }
-    
+
     .notes-area textarea {
         font-size: 0.8rem;
         padding: 5px;
         min-height: 70px;
     }
-    
+
     .notes-area .btn-container {
         margin-top: 6px;
     }
-    
+
     .notes-area .btn-container .btn {
         width: 100%;
     }
 }
 
 /* Regras especiais para zoom alto ou altura muito pequena */
-@media (max-height: 500px), (max-height: 600px) and (min-width: 640px) {
-  .modal-overlay {
-    align-items: flex-start !important;
-    padding: 5px !important;
-  }
+@media (max-height: 500px),
+(max-height: 600px) and (min-width: 640px) {
+    .modal-overlay {
+        align-items: flex-start !important;
+        padding: 5px !important;
+    }
 
-  .modal-view,
-  .modal-send-proposal {
-    max-height: calc(100vh - 10px) !important;
-    padding: 15px !important;
-    margin: 0 !important;
-    transform: translateY(0) !important;
-  }
+    .modal-view,
+    .modal-send-proposal {
+        max-height: calc(100vh - 10px) !important;
+        padding: 15px !important;
+        margin: 0 !important;
+        transform: translateY(0) !important;
+    }
 
-  .modal-view h2,
-  .modal-send-proposal h2 {
-    font-size: 1.3rem !important;
-    margin-bottom: 10px !important;
-  }
+    .modal-view h2,
+    .modal-send-proposal h2 {
+        font-size: 1.3rem !important;
+        margin-bottom: 10px !important;
+    }
 
-  .modal-view .modal-body,
-  .modal-send-proposal .modal-body {
-    margin-bottom: 10px !important;
-  }
+    .modal-view .modal-body,
+    .modal-send-proposal .modal-body {
+        margin-bottom: 10px !important;
+    }
 
-  .modal-send-proposal .form-group {
-    margin-bottom: 8px !important;
-  }
+    .modal-send-proposal .form-group {
+        margin-bottom: 8px !important;
+    }
 }
 
 /* Regras para casos extremos - zoom muito alto ou resoluções muito baixas */
 @media (max-height: 400px) {
-  .modal-overlay {
-    align-items: flex-start !important;
-    padding: 2px !important;
-  }
+    .modal-overlay {
+        align-items: flex-start !important;
+        padding: 2px !important;
+    }
 
-  .modal-view,
-  .modal-send-proposal {
-    max-height: calc(100vh - 4px) !important;
-    min-height: auto !important;
-    padding: 8px !important;
-    margin: 0 !important;
-    transform: translateY(0) !important;
-    border-radius: 6px !important;
-  }
+    .modal-view,
+    .modal-send-proposal {
+        max-height: calc(100vh - 4px) !important;
+        min-height: auto !important;
+        padding: 8px !important;
+        margin: 0 !important;
+        transform: translateY(0) !important;
+        border-radius: 6px !important;
+    }
 
-  .modal-view h2,
-  .modal-send-proposal h2 {
-    font-size: 1rem !important;
-    margin-bottom: 6px !important;
-  }
+    .modal-view h2,
+    .modal-send-proposal h2 {
+        font-size: 1rem !important;
+        margin-bottom: 6px !important;
+    }
 
-  .modal-view .modal-body,
-  .modal-send-proposal .modal-body {
-    margin-bottom: 6px !important;
-  }
+    .modal-view .modal-body,
+    .modal-send-proposal .modal-body {
+        margin-bottom: 6px !important;
+    }
 
-  .modal-view .modal-body p {
-    font-size: 0.85rem !important;
-    margin-bottom: 6px !important;
-  }
+    .modal-view .modal-body p {
+        font-size: 0.85rem !important;
+        margin-bottom: 6px !important;
+    }
 
-  .modal-send-proposal .form-group {
-    margin-bottom: 4px !important;
-  }
+    .modal-send-proposal .form-group {
+        margin-bottom: 4px !important;
+    }
 
-  .modal-send-proposal .form-group input,
-  .modal-send-proposal .form-group textarea {
-    padding: 4px !important;
-    font-size: 0.85rem !important;
-  }
+    .modal-send-proposal .form-group input,
+    .modal-send-proposal .form-group textarea {
+        padding: 4px !important;
+        font-size: 0.85rem !important;
+    }
 
-  .modal-view .modal-footer,
-  .modal-send-proposal .modal-footer {
-    margin-top: 6px !important;
-    padding-top: 6px !important;
-  }
+    .modal-view .modal-footer,
+    .modal-send-proposal .modal-footer {
+        margin-top: 6px !important;
+        padding-top: 6px !important;
+    }
 
-  .modal-view .btn,
-  .modal-send-proposal .btn {
-    padding: 4px 8px !important;
-    font-size: 0.85rem !important;
-  }
+    .modal-view .btn,
+    .modal-send-proposal .btn {
+        padding: 4px 8px !important;
+        font-size: 0.85rem !important;
+    }
 }
 
 /* Garantia de scroll em telas pequenas */
 @media (max-width: 480px) {
-  .modal-view,
-  .modal-send-proposal {
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    max-height: calc(100vh - 20px) !important;
-  }
+
+    .modal-view,
+    .modal-send-proposal {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        max-height: calc(100vh - 20px) !important;
+    }
 }
 
 /* Garante flexibilidade nos elementos */
 .modal-view .modal-header,
 .modal-send-proposal .modal-header {
-  flex-shrink: 0;
+    flex-shrink: 0;
 }
 
 /* Força scroll sempre que conteúdo ultrapasse a altura */
 .modal-view.active,
 .modal-send-proposal.active {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  overscroll-behavior: contain;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
 }
 
 /* Garantia de scroll touch em dispositivos móveis */
 @supports (-webkit-overflow-scrolling: touch) {
-  .modal-view,
-  .modal-send-proposal {
-    -webkit-overflow-scrolling: touch !important;
-  }
+
+    .modal-view,
+    .modal-send-proposal {
+        -webkit-overflow-scrolling: touch !important;
+    }
 }
 
 /* Força altura mínima para ativar scroll quando necessário */
 .modal-view.active,
 .modal-send-proposal.active {
-  min-height: 300px;
+    min-height: 300px;
 }
 
 /* Garante que os footers fiquem sempre na parte inferior */
 .modal-view .modal-header,
 .modal-send-proposal .modal-header {
-  flex-shrink: 0;
+    flex-shrink: 0;
 }
 
 .modal-view .modal-body,
 .modal-send-proposal .modal-body {
-  flex: 1 1 auto;
+    flex: 1 1 auto;
 }
 
 .modal-view .modal-footer,
 .modal-send-proposal .modal-footer {
-  flex-shrink: 0;
-  align-self: flex-end;
+    flex-shrink: 0;
+    align-self: flex-end;
 }

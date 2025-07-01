@@ -7,7 +7,6 @@ module.exports = class AgendaController
 {
     static async getServices(req, res)
     {
-        console.log("GET SERVICES!!!");
         const { id } = req.params;
 
         try
@@ -113,7 +112,6 @@ module.exports = class AgendaController
 
     static async saveNotes(req, res)
     {
-        console.log("SAVE NOTES!!!");
         const { notes } = req.body;
         const serviceid = req.params.id;
         const userid = req.session.userid;
@@ -162,7 +160,6 @@ module.exports = class AgendaController
 
     static async sendProposal(req, res)
     {
-        console.log("SEND PROPOSAL!!!");
         const { userid, date, name, description, price, startTime, endTime } = req.body;
         const senderUserid = req.session.userid;
 
@@ -220,7 +217,6 @@ module.exports = class AgendaController
 
     static async getProposals(req, res)
     {
-        console.log("GET PROPOSALS!!!");
         const userid = req.session.userid;
 
         try
@@ -304,7 +300,6 @@ module.exports = class AgendaController
 
     static async respondToProposal(req, res)
     {
-        console.log("RESPOND TO PROPOSAL!!!");
         const { id } = req.params;
         const { action } = req.body;
         const userid = req.session.userid;
@@ -383,7 +378,6 @@ module.exports = class AgendaController
 
     static async createService(req, res)
     {
-        console.log("CREATE SERVICE!!!");
         const { name, description, price, date, time, tags } = req.body;
         const userid = req.session.userid;
 
@@ -421,7 +415,6 @@ module.exports = class AgendaController
 
     static async updateService(req, res)
     {
-        console.log("UPDATE SERVICE!!!");
         const { id } = req.params;
         const { name, description, price, date, time, tags } = req.body;
         const userid = req.session.userid;
@@ -470,7 +463,6 @@ module.exports = class AgendaController
 
     static async deleteService(req, res)
     {
-        console.log("DELETE SERVICE!!!");
         const { id } = req.params;
         const userid = req.session.userid;
 
@@ -504,7 +496,6 @@ module.exports = class AgendaController
 
     static async showAgenda(req, res)
     {
-        console.log("SHOW AGENDA!!!");
         const { id } = req.params;
 
         try
