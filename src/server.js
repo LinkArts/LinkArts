@@ -256,7 +256,7 @@ app.use(
       path: path.join(os.tmpdir(), "sessions"),
     }),
     cookie: {
-      secure: true, // Definir como true em produção com HTTPS
+      secure: false, // Definir como true em produção com HTTPS
       maxAge: 60 * 60 * 1000, // 1 hora
       httpOnly: true,
     },

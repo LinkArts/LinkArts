@@ -1444,7 +1444,7 @@ section h2 {
   width: 15px;
   height: 15px;
   background-color: currentColor;
-  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8Z"/><path d="M8 0a1 1 0 0 1 1 1v1.07a3 3 0 0 1 2.238 3.138 4 4 0 0 1-2.238 3.293V12a1 1 0 0 1-2 0v-3.5a3 3 0 0 1-2.238-3.138A4 4 0 0 1 7 2.062V1a1 1 0 0 1 1-1ZM2.5 7A1.5 1.5 0 0 0 4 8.5v3a1.5 1.5 0 0 0 1.5 1.5h5A1.5 1.5 0 0 0 12 11.5v-3A1.5 1.5 0 0 0 10.5 7h-8ZM5 9a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3A.5.5 0 0 1 5 9Zm0 2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 5 11Z"/></svg>');
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> ');
   mask-size: contain;
   mask-repeat: no-repeat;
   opacity: 0.8;
