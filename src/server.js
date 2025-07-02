@@ -11,10 +11,12 @@ const os = require("os");
 
 // Suprimir erros EPERM específicos de arquivos de sessão
 const originalConsoleError = console.error;
-console.error = function(...args) {
+console.error = function (...args)
+{
   const message = args.join(' ');
   // Filtrar apenas erros EPERM relacionados a arquivos de sessão
-  if (message.includes('EPERM') && message.includes('sessions') && message.includes('operation not permitted')) {
+  if (message.includes('EPERM') && message.includes('sessions') && message.includes('operation not permitted'))
+  {
     return; // Não exibir esses erros específicos
   }
   originalConsoleError.apply(console, args);
@@ -155,65 +157,80 @@ app.engine(
       {
         return a && b;
       },
-      not: function (value) {
+      not: function (value)
+      {
         return !value;
       },
-      range: function(start, end) {
+      range: function (start, end)
+      {
         const result = [];
-        for (let i = start; i < end; i++) {
+        for (let i = start; i < end; i++)
+        {
           result.push(i);
         }
         return result;
       },
-      gt: function(a, b) {
+      gt: function (a, b)
+      {
         return a > b;
       },
-      lte: function(a, b) {
+      lte: function (a, b)
+      {
         return a <= b;
       },
-      formatPrice: function(price) {
+      formatPrice: function (price)
+      {
         if (!price) return "0,00";
-        
-        try {
+
+        try
+        {
           const numericPrice = parseFloat(price);
           if (isNaN(numericPrice)) return "0,00";
-          
+
           return numericPrice.toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           });
-        } catch (e) {
+        } catch (e)
+        {
           console.error("Erro ao formatar preço:", e);
           return "0,00";
         }
       },
-      montarLinkSocial: function(tipo, valor) {
+      montarLinkSocial: function (tipo, valor)
+      {
         if (!valor) return '';
         if (typeof valor !== 'string') return '';
         let v = valor.trim();
         if (v.startsWith('@')) v = v.slice(1);
         if (v.startsWith('http')) return v;
         // Se já começa com www. ou contém o domínio, adiciona https:// se não tiver
-        if (tipo === 'linkedin') {
-          if (v.includes('linkedin.com')) {
+        if (tipo === 'linkedin')
+        {
+          if (v.includes('linkedin.com'))
+          {
             if (!v.startsWith('http')) return 'https://' + v.replace(/^@/, '').replace(/^https?:\/\//, '');
             return v;
           }
-          return `https://linkedin.com/in/${v}`;
+          return `https://linkedin.com/in/${ v }`;
         }
-        if (tipo === 'instagram') {
-          if (v.includes('instagram.com')) {
+        if (tipo === 'instagram')
+        {
+          if (v.includes('instagram.com'))
+          {
             if (!v.startsWith('http')) return 'https://' + v.replace(/^@/, '').replace(/^https?:\/\//, '');
             return v;
           }
-          return `https://instagram.com/${v.replace('@', '')}`;
+          return `https://instagram.com/${ v.replace('@', '') }`;
         }
-        if (tipo === 'facebook') {
-          if (v.includes('facebook.com')) {
+        if (tipo === 'facebook')
+        {
+          if (v.includes('facebook.com'))
+          {
             if (!v.startsWith('http')) return 'https://' + v.replace(/^@/, '').replace(/^https?:\/\//, '');
             return v;
           }
-          return `https://facebook.com/${v}`;
+          return `https://facebook.com/${ v }`;
         }
         return v;
       }
@@ -225,11 +242,12 @@ app.set("view engine", "handlebars");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.set('trust proxy', 1); //para o render
 
 app.use(
   session({
     name: "session",
-    secret: "nosso_secret", // Trocar para variável de ambiente em produção
+    secret: process.env.SESSION_SECRET, // Trocar para variável de ambiente em produção
     resave: false,
     saveUninitialized: false,
     rolling: true,
@@ -238,7 +256,7 @@ app.use(
       path: path.join(os.tmpdir(), "sessions"),
     }),
     cookie: {
-      secure: false, // Definir como true em produção com HTTPS
+      secure: true, // Definir como true em produção com HTTPS
       maxAge: 60 * 60 * 1000, // 1 hora
       httpOnly: true,
     },
@@ -254,6 +272,12 @@ app.use((req, res, next) =>
   if (req.session.userid)
   {
     res.locals.session = req.session;
+  }
+
+  if (req.query.message)
+  {
+    req.flash('message', req.query.message);
+    req.flash('messageType', req.query.type || 'info');
   }
 
   const message = req.flash("message")[0];
@@ -274,7 +298,7 @@ app.use(async (req, res, next) =>
     {
       const user = await User.findOne({
         where: { id: req.session.userid },
-        attributes: ['id', 'name', 'email', 'imageUrl'],
+        attributes: ['id', 'name', 'email', 'imageUrl', 'isSuspended'],
         include: [
           { model: Artist, required: false, attributes: ['cpf'] },
           { model: Establishment, required: false, attributes: ['cnpj'] }
@@ -283,13 +307,16 @@ app.use(async (req, res, next) =>
 
       if (user)
       {
+        req.session.isSuspended = user.isSuspended;
+
         res.locals.currentUser = {
           id: user.id,
           name: user.name,
           email: user.email,
           imageUrl: user.imageUrl,
           isArtist: !!user.Artist,
-          isEstablishment: !!user.Establishment
+          isEstablishment: !!user.Establishment,
+          isSuspended: user.isSuspended
         };
       }
     }

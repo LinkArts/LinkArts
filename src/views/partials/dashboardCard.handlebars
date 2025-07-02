@@ -8,14 +8,14 @@
     </div>
     <h3 class="card-title">{{name}}</h3>
     <p class="card-location">{{#if city}}{{city}}{{else}}Cidade não
-        informada{{/if}}</p>
+        informada.{{/if}}</p>
     <div class="card-rating">
         <span class="star">★</span>
         <span style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">{{#if (eq TotalRatings 0) }}
             0.0 {{else}} {{AverageRating}} {{/if}}
             {{#if (eq TotalRatings 0) }} ( 0 ) {{else}} ( {{TotalRatings}} ) {{/if}}</span>
     </div>
-    <p class="card-description">{{#if description}} {{description}} {{else}} Não há descrição! {{/if}}</p>
+    <p class="card-description">{{#if description}} {{description}} {{else}} Descrição não informada. {{/if}}</p>
     <div class="card-tags">
         {{#if Tags}}
         {{#each Tags}}

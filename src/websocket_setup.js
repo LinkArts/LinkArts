@@ -15,13 +15,11 @@ function initWebSocket(httpServer) {
         // Evento para usuário se conectar à sua sala de notificações
         socket.on("join_user_room", (userId) => {
             socket.join(`user_${userId}`);
-            console.log(`Usuário ${userId} conectado à sala de notificações`);
         });
 
         // Evento para usuário sair da sua sala de notificações
         socket.on("leave_user_room", (userId) => {
             socket.leave(`user_${userId}`);
-            console.log(`Usuário ${userId} desconectado da sala de notificações`);
         });
 
         socket.on("disconnect", () => {
@@ -93,13 +91,11 @@ function setupServiceHandlers() {
         // Entrar em uma sala de serviço
         socket.on("join_service", (serviceId) => {
             socket.join(`service_${serviceId}`);
-            console.log(`Cliente entrou na sala do serviço: service_${serviceId}`);
         });
 
         // Sair de uma sala de serviço
         socket.on("leave_service", (serviceId) => {
             socket.leave(`service_${serviceId}`);
-            console.log(`Cliente saiu da sala do serviço: service_${serviceId}`);
         });
     });
 }
@@ -111,7 +107,6 @@ function emitServiceUpdate(serviceId, serviceData) {
         return;
     }
     
-    console.log(`Emitindo atualização para o serviço ${serviceId}:`, serviceData);
     io.to(`service_${serviceId}`).emit("service_updated", {
         serviceId: serviceId,
         serviceData: serviceData

@@ -176,8 +176,6 @@
         
         // Listener para atualizações de serviço via WebSocket
         socket.on('service_updated', (data) => {
-            console.log('Atualização recebida via WebSocket:', data);
-            
             if (data.serviceId == serviceData.id) {
                 // Atualiza os dados locais
                 serviceData.artistStatus = data.serviceData.artistStatus;
@@ -524,7 +522,5 @@
         updateStatusDisplay();
         updateActionButtons();
         updateReviewSectionVisibility();
-        
-        console.log('Sistema de atualizações em tempo real do serviço inicializado:', serviceData.id);
     });
 </script>

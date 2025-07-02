@@ -182,7 +182,6 @@
             }
 
             window.toggleProfileColumn = function() {
-                console.log('toggleProfileColumn chamado, isProfileColumnVisible:', isProfileColumnVisible);
                 const profileColumn = document.getElementById("profile-column-container");
                 const chatColumn = document.getElementById("chat-column");
                 
@@ -192,32 +191,25 @@
                 }
                 
                 if (!isProfileColumnVisible) {
-                    console.log('Abrindo coluna direita');
                     profileColumn.style.display = "block";
                     chatColumn.style.width = "50%";
                     isProfileColumnVisible = true;
                 } else {
-                    console.log('Fechando coluna direita');
                     profileColumn.style.display = "none";
                     chatColumn.style.width = "75%";
                     isProfileColumnVisible = false;
                 }
-                
-                console.log('Novo estado isProfileColumnVisible:', isProfileColumnVisible);
             }
 
             document.addEventListener('click', function(e) {
                 const chatUser = e.target.closest('.chat-user');
                 if (chatUser && chatUser.closest('#chat-header-container')) {
-                    console.log('Click detectado no header do chat!');
                     e.preventDefault();
                     e.stopPropagation();
                     
                     if (currentChatId) {
-                        console.log('Chat ativo, abrindo/fechando coluna direita');
                         toggleProfileColumn();
                     } else {
-                        console.log('Nenhum chat ativo');
                         showToast('Selecione uma conversa primeiro', false);
                     }
                 }
@@ -225,19 +217,15 @@
 
             function initializeWebSocket() {
                 try {
-                    console.log('Inicializando Socket.IO...');
                     socket = io({ transports: ["websocket"] });
                     
                     socket.on("connect", () => {
-                        console.log('Socket.IO conectado com sucesso!');
                         if (currentChatId) {
-                            console.log('Entrando no chat:', currentChatId);
                             socket.emit("join_chat", currentChatId);
                         }
                     });
                     
                     socket.on("disconnect", (reason) => {
-                        console.log('Socket.IO desconectado:', reason);
                     });
                     
                     socket.on("connect_error", (err) => {
@@ -249,7 +237,6 @@
                     socket.on("user_typing", handleUserTyping);
                     socket.on("user_stopped_typing", handleUserStoppedTyping);
                     
-                    console.log('Event listeners do Socket.IO configurados');
                 } catch (e) {
                     console.error('Erro ao inicializar Socket.IO:', e);
                     showToast("Não foi possível iniciar o chat em tempo real.", true);
@@ -257,27 +244,20 @@
             }
 
             function handleUserTyping(data) {
-                console.log('Recebido evento user_typing:', data, 'currentOtherUserId:', currentOtherUserId);
                 if (data.userId !== currentOtherUserId) {
-                    console.log('Evento typing ignorado - usuário diferente');
                     return;
                 }
-                console.log('Mostrando indicador de digitação');
                 showTypingIndicatorInMessages();
             }
 
             function handleUserStoppedTyping(data) {
-                console.log('Recebido evento user_stopped_typing:', data, 'currentOtherUserId:', currentOtherUserId);
                 if (data.userId !== currentOtherUserId) {
-                    console.log('Evento stop typing ignorado - usuário diferente');
                     return;
                 }
-                console.log('Escondendo indicador de digitação');
                 hideTypingIndicatorInMessages();
             }
 
             function showTypingIndicatorInMessages() {
-                console.log('showTypingIndicatorInMessages: Iniciando');
                 hideTypingIndicatorInMessages();
                 
                 const typingMessage = document.createElement('div');
@@ -296,7 +276,6 @@
                 
                 if (messagesContainer) {
                     messagesContainer.appendChild(typingMessage);
-                    console.log('Indicador de digitação adicionado ao container');
                 } else {
                     console.error('messagesContainer não encontrado');
                 }
@@ -305,44 +284,34 @@
             }
 
             function hideTypingIndicatorInMessages() {
-                console.log('hideTypingIndicatorInMessages: Iniciando');
                 const existingIndicator = document.getElementById('typing-message-indicator');
                 if (existingIndicator) {
                     existingIndicator.remove();
-                    console.log('Indicador de digitação removido');
                 } else {
-                    console.log('Nenhum indicador de digitação encontrado para remover');
                 }
             }
 
             function sendTypingStatus(typing) {
                 if (!socket || !currentChatId) {
-                    console.log('sendTypingStatus: Socket ou chatId não disponível', { socket: !!socket, currentChatId });
                     return;
                 }
                 if (typing && !isTyping) {
-                    console.log('Emitindo evento typing para chat:', currentChatId, 'user:', loggedInUserId);
                     socket.emit("typing", { chatId: currentChatId, userId: loggedInUserId });
                     isTyping = true;
                 } else if (!typing && isTyping) {
-                    console.log('Emitindo evento stop_typing para chat:', currentChatId, 'user:', loggedInUserId);
                     socket.emit("stop_typing", { chatId: currentChatId, userId: loggedInUserId });
                     isTyping = false;
                 }
             }
 
             messageInput.addEventListener("input", function () {
-                console.log('Input detectado:', messageInput.value.trim().length);
                 if (messageInput.value.trim().length > 0) {
-                    console.log('Usuário está digitando - enviando status true');
                     sendTypingStatus(true);
                     clearTimeout(typingTimeout);
                     typingTimeout = setTimeout(() => {
-                        console.log('Timeout atingido - enviando status false');
                         sendTypingStatus(false);
                     }, 2000);
                 } else {
-                    console.log('Campo vazio - enviando status false');
                     sendTypingStatus(false);
                 }
             });
@@ -504,26 +473,17 @@
             }
 
             function handleNewMessage(newMessage) {
-                console.log('handleNewMessage recebida:', newMessage);
-                console.log('currentChatId:', currentChatId, 'newMessage.chatId:', newMessage.chatId);
                 
                 if (!newMessage || newMessage.chatId != currentChatId) {
-                    console.log('Mensagem ignorada - chat diferente ou dados inválidos');
                     updateChatList(newMessage);
                     updateMessagePopup();
                     return;
                 }
 
-                console.log('Processando nova mensagem no chat atual');
                 hideTypingIndicatorInMessages();
 
                 const isMessageFromCurrentUser = newMessage.sender?.id === loggedInUserId;
                 const messageAlreadyExists = messagesContainer.querySelector(`[data-message-id="${newMessage.id}"]`);
-                
-                console.log('isMessageFromCurrentUser:', isMessageFromCurrentUser, 
-                           'messageAlreadyExists:', !!messageAlreadyExists,
-                           'senderId:', newMessage.sender?.id,
-                           'loggedInUserId:', loggedInUserId);
                 
                 if (isMessageFromCurrentUser && !messageAlreadyExists) {
                     const optimisticMsgElement = messagesContainer.querySelector(
@@ -531,7 +491,6 @@
                     );
 
                     if (optimisticMsgElement) {
-                        console.log('Atualizando mensagem otimística existente');
                         optimisticMsgElement.dataset.messageId = newMessage.id;
                         optimisticMsgElement.removeAttribute("data-temp-id");
                         optimisticMsgElement.classList.remove("optimistic-message");
@@ -540,14 +499,11 @@
                             optimisticMsgElement.querySelector(".message-time").textContent = msgDate ? formatMessageDate(msgDate) : "";
                         }
                     } else if (!messageAlreadyExists) {
-                        console.log('Adicionando mensagem do usuário atual ao UI');
                         appendMessageToUI(newMessage, true, false);
                     }
                 } else if (!isMessageFromCurrentUser && !messageAlreadyExists) {
-                    console.log('Adicionando mensagem de outro usuário ao UI');
                     appendMessageToUI(newMessage, false, false);
                 } else if (messageAlreadyExists) {
-                    console.log('Mensagem já existe - ignorando');
                 }
 
                 scrollToBottom(messagesContainer);
@@ -595,10 +551,8 @@
             
             async function sendMessage() {
                 const messageText = messageInput.value.trim();
-                console.log('sendMessage chamada:', { messageText, currentChatId });
                 
                 if (!messageText || !currentChatId) {
-                    console.log('Mensagem ou chatId vazio - retornando');
                     return;
                 }
 
@@ -612,7 +566,6 @@
                     chatId: currentChatId
                 };
                 
-                console.log('Adicionando mensagem otimística:', optimisticMsg);
                 appendMessageToUI(optimisticMsg, true, true);
                 messageInput.value = "";
                 messageInput.focus();
@@ -620,20 +573,16 @@
                 try {
                     const url = `/api/chats/${currentChatId}/messages`;
                     const body = { message: messageText };
-                    console.log('Enviando POST para:', url, 'com body:', body);
                     
                     const result = await fetchData(url, {
                         method: "POST",
                         body: body
                     });
                     
-                    console.log('Resposta da API:', result);
                     
                     if (result && result.id) {
-                        console.log('Mensagem enviada com sucesso, ID:', result.id);
                         const optimisticElem = messagesContainer.querySelector(`.msg.optimistic-message[data-temp-id="${tempId}"]`);
                         if (optimisticElem) {
-                            console.log('Atualizando elemento otimístico');
                             optimisticElem.dataset.messageId = result.id;
                             optimisticElem.removeAttribute("data-temp-id");
                             optimisticElem.classList.remove("optimistic-message");
@@ -642,7 +591,6 @@
                                     formatMessageDate(result.date) : "";
                             }
                         } else {
-                            console.log('Elemento otimístico não encontrado, adicionando nova mensagem');
                             if (!messagesContainer.querySelector(`[data-message-id="${result.id}"]`)) {
                                 appendMessageToUI(result, true, false);
                             }
@@ -756,8 +704,6 @@
                 currentOtherUserId = otherUserId || null;
                 currentOtherUserName = otherUserName || "Usuário desconhecido";
                 
-                console.log('Chat selecionado:', { chatId, currentOtherUserId, currentOtherUserName, isFirstChatSelection });
-                
                 const chatHeader = document.querySelector('.chat-header');
                 if (chatHeader) {
                     chatHeader.style.display = 'flex';
@@ -784,7 +730,6 @@
                 // Abrir automaticamente a coluna de perfil se for a primeira seleção de chat
                 // Isso melhora a experiência do usuário mostrando informações do contato imediatamente
                 if (isFirstChatSelection && !isProfileColumnVisible) {
-                    console.log('Primeira seleção de chat - abrindo coluna de perfil automaticamente');
                     // Aguardar um pouco para que o HTML do chat seja carregado antes de abrir o perfil
                     setTimeout(() => {
                         toggleProfileColumn();
@@ -884,7 +829,6 @@
                 if (hash && hash.startsWith('#chat-')) {
                     const chatId = parseInt(hash.replace('#chat-', ''), 10);
                     if (chatId && !isNaN(chatId)) {
-                        console.log('Abrindo chat via URL hash:', chatId);
                         setTimeout(() => {
                             selectChatById(chatId);
                             window.location.hash = '';

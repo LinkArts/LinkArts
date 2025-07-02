@@ -16,7 +16,7 @@ module.exports = class AuthController
 {
     static renderLogin(req, res)
     {
-        if (req.session.userid)
+        if (req.session.userid && !req.session.isSuspended)
         {
             return res.redirect('/dashboard')
         }
@@ -266,21 +266,21 @@ module.exports = class AuthController
                 })
             }
 
-            if (user.dataValues.isSuspended)
-                {
-                    req.flash('message', "Sua conta está suspensa!")
-                    req.flash('messageType', 'error')
-                    return req.session.save(() =>
-                    {
-                        res.redirect('/login')
-                    })
-                }
-
             const passwordMatch = bcrypt.compareSync(password, user.password)
 
             if (!passwordMatch)
             {
                 req.flash('message', "Senha incorreta!")
+                req.flash('messageType', 'error')
+                return req.session.save(() =>
+                {
+                    res.redirect('/login')
+                })
+            }
+
+            if (user.dataValues.isSuspended)
+            {
+                req.flash('message', "Sua conta está suspensa!")
                 req.flash('messageType', 'error')
                 return req.session.save(() =>
                 {
@@ -320,7 +320,6 @@ module.exports = class AuthController
     static async confirmAccount(req, res)
     {
         const { id, token } = req.params
-        console.log('CONFIRM ACCOUNT');
 
         try
         {
@@ -539,9 +538,11 @@ module.exports = class AuthController
             user.update({ password: hashedPassword })
 
             // Notificar sobre alteração de senha
-            try {
+            try
+            {
                 await NotificationHelper.notifyPasswordChange(user.id);
-            } catch (notificationError) {
+            } catch (notificationError)
+            {
                 console.error('Erro ao enviar notificação de alteração de senha:', notificationError);
             }
 

@@ -19,11 +19,10 @@
 .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+    gap: 1rem;
     overflow-x: auto;
     padding-bottom: 1rem;
-    height: calc(100vh - 13rem);
-    max-height: none;
+    max-height: calc(100vh - 13rem);
     overflow-y: auto;
     padding-right: 0.5rem;
     scrollbar-width: thin;
@@ -33,6 +32,7 @@
 .card {
     display: flex;
     flex-direction: column;
+    height: 100%;
     background-color: white;
     border-radius: 15px;
     padding: 1.5rem;
@@ -41,22 +41,11 @@
     position: relative;
 }
 
-/* Estrutura interna do card com flexbox */
 .card-content {
     display: flex;
     flex-direction: column;
     flex: 1;
     min-height: 350px;
-}
-
-/* Estilo para cards quando há apenas uma linha */
-.card-grid:not(:has(.card:nth-child(4))) .card {
-    height: fit-content;
-}
-
-.card-grid:not(:has(.card:nth-child(4))) .card-content {
-    min-height: unset;
-    gap: 0.5rem;
 }
 
 .card:hover {
@@ -67,12 +56,12 @@
 .card-image-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 .card-image {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     background-color: #e0e0e0;
     overflow: hidden;
@@ -125,7 +114,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .star {
@@ -139,15 +128,10 @@
     margin-bottom: 0.75rem;
     text-align: center;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.4;
-}
-
-/* Ajuste do margin-top para cards em múltiplas linhas */
-.card-grid:has(.card:nth-child(4)) .card-description {
-    flex: 1;
 }
 
 .card-tags {
@@ -155,7 +139,8 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    margin-top: auto;
 }
 
 .tag {
@@ -169,12 +154,7 @@
 
 .card-action {
     text-align: center;
-    padding-top: 0.75rem;
-}
-
-/* Ajuste do margin-top para cards em múltiplas linhas */
-.card-grid:has(.card:nth-child(4)) .card-action {
-    margin-top: auto;
+    padding-top: 1rem;
 }
 
 .profile-button {

@@ -1,7 +1,6 @@
 export function setupReportProfileButton(buttonSelector = '#report-profile-btn') {
   const reportProfileButton = document.querySelector(buttonSelector);
   if (!reportProfileButton) {
-    console.log("Botão 'Denunciar Perfil' não encontrado (usuário é o proprietário do perfil).");
     return;
   }
 

@@ -365,27 +365,23 @@
     {
       if (modalOverlay && modalOverlay.classList.contains('is-visible'))
       {
-        console.log('Iniciando fechamento do modal:', modalOverlay.className);
         modalOverlay.classList.remove('is-visible');
         document.body.classList.remove('modal-open');
 
         const removeElementAfterTransition = () =>
         {
-          console.log('Transição de fechamento concluída. Removendo modal do DOM.');
           if (modalOverlay && document.body.contains(modalOverlay))
           {
             const selectElement = modalOverlay.querySelector('.select2-hidden-accessible');
             if (selectElement && $(selectElement).data('select2'))
             {
               $(selectElement).select2('destroy');
-              console.log('Select2 destruído no modal.');
             }
             modalOverlay.remove();
           }
           modalOverlay.removeEventListener('transitionend', removeElementAfterTransition);
           if (lastFocusedElement && typeof lastFocusedElement.focus === 'function')
           {
-            console.log("Restaurando foco para:", lastFocusedElement);
             lastFocusedElement.focus();
             lastFocusedElement = null;
           }
@@ -408,7 +404,6 @@
         lastFocusedElement = null;
       } else
       {
-        console.log("Nenhum modal ativo para fechar ou já foi removido.");
         document.body.classList.remove('modal-open');
       }
     }
@@ -539,7 +534,6 @@
       try
       {
         const numericPrice = parseFloat(price);
-        console.log(numericPrice)
         if (isNaN(numericPrice)) return "0,00";
         
         return numericPrice.toLocaleString('pt-BR', {
@@ -721,8 +715,6 @@
 
     function setupViewServiceRequestModal(requestCard, requestData)
     {
-      console.log(requestData)
-      console.log(formatPrice(requestData.price))
       let timeRange = requestData.startTime;
       if (requestData.endTime)
       {
@@ -1208,7 +1200,6 @@
       editProfileForm?.addEventListener('submit', async function (e)
       {
         e.preventDefault();
-        console.log("Salvando alterações do perfil...");
         const modalOverlay = modalElement.closest('.modal-overlay');
 
         const nameInput = modalElement.querySelector('#edit-profile-name');
@@ -1268,7 +1259,6 @@
         {
           // Fazer upload da imagem se houver uma pendente
           if (profileUploader && profileUploader.hasPendingUpload()) {
-            console.log('Fazendo upload da imagem de perfil...');
             const uploadResult = await profileUploader.uploadPendingImage();
             if (!uploadResult.success) {
               throw new Error('Erro ao fazer upload da imagem: ' + uploadResult.message);
@@ -1608,7 +1598,6 @@
           tags: true,
           tokenSeparators: [',', ' ']
         });
-        console.log('Select2 inicializado para request-tags.');
       } else
       {
         console.warn('jQuery ou Select2 não estão disponíveis. O Select2 não será inicializado.');
@@ -1737,7 +1726,6 @@
           tags: true,
           tokenSeparators: [',', ' ']
         });
-        console.log('Select2 inicializado para edit-request-tags.');
       }
 
       const editServiceRequestForm = modalElement.querySelector('#edit-service-request-form');
