@@ -122,6 +122,7 @@ module.exports = class AdminController
         try
         {
             const users = await User.findAll({
+                where: { isAdmin: false },
                 attributes: ['id', 'name', 'email', 'isSuspended'],
                 include: [
                     { model: Artist, required: false },
@@ -314,7 +315,7 @@ module.exports = class AdminController
         try
         {
             const reports = await Report.findAll({
-                include: {model: User, as: 'ReportedUser'},
+                include: { model: User, as: 'ReportedUser' },
                 order: [['id', 'DESC']]
             });
             const result = reports.map(report => ({

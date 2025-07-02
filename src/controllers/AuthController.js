@@ -16,7 +16,7 @@ module.exports = class AuthController
 {
     static renderLogin(req, res)
     {
-        if (req.session.userid)
+        if (req.session.userid && !req.session.isSuspended)
         {
             return res.redirect('/dashboard')
         }
