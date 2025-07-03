@@ -60,7 +60,7 @@ export function setupReportProfileButton(buttonSelector = '#report-profile-btn')
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            reportedUserId: userId, // Padronizado!
+            reportedUserId: userId,
             reason,
             description
           })

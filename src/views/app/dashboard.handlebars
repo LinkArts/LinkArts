@@ -125,7 +125,7 @@
                 .then(data =>
                 {
                     alert(data.message || 'Cadastro realizado com sucesso!');
-                    updateButton(serviceRequestId, true); // Atualiza o botão para "Esquecer"
+                    updateButton(serviceRequestId, true);
                 })
                 .catch(error =>
                 {
@@ -156,7 +156,7 @@
                 .then(data =>
                 {
                     alert(data.message || 'Interesse removido com sucesso!');
-                    updateButton(serviceRequestId, false); // Atualiza o botão para "Cadastrar"
+                    updateButton(serviceRequestId, false);
                 })
                 .catch(error =>
                 {

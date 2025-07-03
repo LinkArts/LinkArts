@@ -5,13 +5,12 @@ const supabase = require('../config/supabase');
 const path = require('path');
 const mime = require('mime-types');
 
-// Storage em memória para processar antes de enviar para Supabase
 const supabaseStorage = multer.memoryStorage();
 
 const upload = multer({
     storage: supabaseStorage,
     limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB máximo
+        fileSize: 10 * 1024 * 1024, // 10MB
     },
     fileFilter: (req, file, cb) => {
         const allowedTypes = /jpeg|jpg|png|webp/;
@@ -26,10 +25,8 @@ const upload = multer({
     }
 });
 
-// Middleware para processar e enviar imagem para Supabase Storage
 const uploadToSupabase = (bucketName, subfolder = '') => {
     return async (req, res, next) => {
-        // Tratamento de erros do multer
         if (req.multerError) {
             if (req.multerError.code === 'LIMIT_FILE_SIZE') {
                 return res.status(400).json({
@@ -48,7 +45,6 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
         }
 
         try {
-            // Processar imagem com Sharp
             const processedImage = await sharp(req.file.buffer)
                 .resize(1200, 800, { 
                     fit: 'inside', 
@@ -60,11 +56,9 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
                 })
                 .toBuffer();
 
-            // Gerar nome único para o arquivo
             const fileExtension = '.jpg';
             const fileName = `${Date.now()}_${uuidv4()}${fileExtension}`;
             
-            // Definir path baseado no bucket e usuário
             let filePath;
             if (subfolder) {
                 filePath = `${subfolder}/${fileName}`;
@@ -87,7 +81,6 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
                 }
             }
 
-            // Upload para Supabase Storage
             const { data, error } = await supabase.storage
                 .from(bucketName)
                 .upload(filePath, processedImage, {
@@ -99,7 +92,6 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
             if (error) {
                 console.error('Erro no upload Supabase:', error);
                 
-                // Se o bucket não existe, tentar criar
                 if (error.message.includes('Bucket not found')) {
                     const { error: createError } = await supabase.storage.createBucket(bucketName, {
                         public: true,
@@ -108,7 +100,6 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
                     });
                     
                     if (!createError) {
-                        // Tentar upload novamente
                         const { data: retryData, error: retryError } = await supabase.storage
                             .from(bucketName)
                             .upload(filePath, processedImage, {
@@ -126,12 +117,10 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
                 }
             }
 
-            // Obter URL pública
             const { data: urlData } = supabase.storage
                 .from(bucketName)
                 .getPublicUrl(filePath);
 
-            // Adicionar informações do arquivo ao req para uso posterior
             req.uploadedFile = {
                 path: filePath,
                 url: urlData.publicUrl,
@@ -153,7 +142,6 @@ const uploadToSupabase = (bucketName, subfolder = '') => {
     };
 };
 
-// Middleware para deletar imagem do Supabase
 const deleteFromSupabase = async (bucketName, filePath) => {
     try {
         const { error } = await supabase.storage

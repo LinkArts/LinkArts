@@ -90,7 +90,6 @@ module.exports = function setupAssociations(models)
         as: 'Musics'
     })
 
-    //chat
     User.belongsToMany(Chat, {
         foreignKey: 'userid',
         onDelete: 'CASCADE',
@@ -288,18 +287,18 @@ module.exports = function setupAssociations(models)
 
     User.belongsToMany(User, {
         through: Favorite,
-        as: 'FavoritedUsers', // Alias único para os usuários favoritados
-        foreignKey: 'userid', // ID do usuário que tem favoritos
-        otherKey: 'favoriteid', // ID do usuário favoritado
+        as: 'FavoritedUsers',
+        foreignKey: 'userid',
+        otherKey: 'favoriteid',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
 
     User.belongsToMany(User, {
         through: Favorite,
-        as: 'FavoritedByUsers', // Alias único para os usuários que favoritaram
-        foreignKey: 'favoriteid', // ID do usuário favoritado
-        otherKey: 'userid', // ID do usuário que favoritou
+        as: 'FavoritedByUsers',
+        foreignKey: 'favoriteid',
+        otherKey: 'userid',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
@@ -322,7 +321,6 @@ module.exports = function setupAssociations(models)
         onUpdate: 'CASCADE'
     })
 
-    // Report associations
     Report.belongsTo(User, {
         foreignKey: 'reporterUserId',
         as: 'Reporter',

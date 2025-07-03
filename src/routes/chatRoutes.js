@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { body, param, query, validationResult } = require("express-validator"); // Importar query
+const { body, param, query, validationResult } = require("express-validator");
 
 const ChatController = require("../controllers/ChatController");
 const { checkAuth } = require("../middlewares/checkAuth");

@@ -1,4 +1,3 @@
-/* Variáveis CSS */
 :root {
     --purple: #9b87f5;
     --purple-light: #DDD6FE;
@@ -26,8 +25,7 @@
     --border-color: var(--gray-200);
     --input-border-color: var(--gray-300);
     --heading-color: var(--gray-900);
-    --star-rating-color: #FBBF24;
-    /* Cor da estrela de avaliação */
+    --star-rating-color: #000000;
     --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     --card-hover-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     --modal-shadow: 0 12px 28px rgba(0, 0, 0, 0.12), 0 7px 10px rgba(0, 0, 0, 0.08);
@@ -47,7 +45,6 @@
     flex-direction: column;
 }
 
-/* Header */
 header {
     background-color: var(--white);
     color: var(--secondary-text-color);
@@ -66,7 +63,6 @@ header h1 {
     color: var(--primary-color);
 }
 
-/* Layout Principal do Serviço */
 .service-container {
     flex-grow: 1;
     padding: 2rem;
@@ -81,7 +77,6 @@ header h1 {
 }
 
 .service-details-grid {
-    /* Ajuste das larguras das colunas: Artistas (1.5fr) | Serviço (2.5fr) | Prestador (1.2fr) */
     display: grid;
     grid-template-columns: 1.5fr 2.5fr 1.2fr;
     gap: 2.5rem;
@@ -179,7 +174,6 @@ header h1 {
     border-top: 1px solid var(--border-color);
 }
 
-/* Botões */
 .btn {
     padding: 10px 20px;
     border: none;
@@ -224,7 +218,6 @@ header h1 {
     opacity: 0.7;
 }
 
-/* Mensagens de feedback */
 .feedback-message {
     margin-top: 1rem;
     padding: 1rem;
@@ -245,20 +238,14 @@ header h1 {
     border-color: #f5c6cb;
 }
 
-/* Estilos para a Lista de Artistas Interessados (do código anterior) */
 .artists-container-card {
-    /* Adaptações para o card que contém a lista de artistas */
     padding: 1rem;
-    /* Um pouco menos de padding para a lista interna */
     overflow-y: auto;
-    /* Adiciona scroll se a lista for muito longa */
     max-height: 700px;
-    /* Altura máxima para a lista rolar */
 }
 
 .artists-container-card .card-header {
     font-size: 1.2rem;
-    /* Um pouco menor para o cabeçalho dentro do card */
 }
 
 .artists-list {
@@ -266,14 +253,12 @@ header h1 {
     padding: 0;
     display: grid;
     gap: 1rem;
-    /* Espaço entre os cartões de artista */
 }
 
 .artist-card {
     display: flex;
     align-items: center;
     background-color: var(--white);
-    /* Cartões internos brancos para contraste */
     border: 1px solid var(--gray-200);
     border-radius: 8px;
     padding: 0.8rem;
@@ -288,7 +273,6 @@ header h1 {
 
 .artist-img {
     width: 60px;
-    /* Tamanho da imagem de perfil do artista na lista */
     height: 60px;
     border-radius: 50%;
     overflow: hidden;
@@ -376,8 +360,6 @@ header h1 {
     background-color: var(--green);
 }
 
-/* FLASH MESSAGE */
-
 * {
     margin: 0;
     padding: 0;
@@ -391,16 +373,13 @@ body {
     background: #eee;
     color: #333;
     position: relative;
-    /* Para garantir que os popups fiquem dentro da tela */
     overflow-x: hidden;
     padding-top: 80px;
-    /* Compensa a altura da navbar fixa */
 }
 
 @media (max-width: 768px) {
     body {
         padding-top: 70px;
-        /* Navbar menor em mobile */
     }
 }
 
@@ -632,7 +611,6 @@ html {
     }
 }
 
-/* Popup styles */
 .popup {
     position: absolute;
     right: 0;
@@ -795,11 +773,9 @@ html {
 }
 
 
-/* Responsive Design */
 @media (max-width: 992px) {
     .service-details-grid {
         grid-template-columns: 1fr;
-        /* Colunas empilhadas */
     }
 
     .profile-info-card {
@@ -815,7 +791,6 @@ html {
 
     .artists-container-card {
         max-height: none;
-        /* Remove a altura máxima para scroll em telas menores */
     }
 }
 

@@ -438,7 +438,7 @@
                     });
 
                 const data = await response.json();
-                alert(data.message); // Simulação de sucesso
+                alert(data.message);
 
                 const serviceIndex = scheduledServices.findIndex(s => s.id === Number(currentSelectedServiceId));
                 if (serviceIndex !== -1)
@@ -474,7 +474,6 @@
                         notesBtnContainer.style.display = 'block';
                         serviceNotesTextarea.value = service.notes || '';
 
-                        // Abre o modal de visualização para o serviço agendado
                         //setupViewProposalModal(service, false);
                     }
                 }

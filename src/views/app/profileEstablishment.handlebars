@@ -50,11 +50,9 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               {{#if isFavorite}}
-              <!-- Ícone X para remover -->
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
               {{else}}
-              <!-- Ícone coração para adicionar -->
               <path
                 d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
               {{/if}}
@@ -270,13 +268,10 @@
     availableTags = [];
     let lastFocusedElement = null;
 
-    // Só carrega via AJAX se for o próprio usuário (isOwner), 
-    // caso contrário usa os dados que já vieram do servidor
     if (isProfileOwner) {
         loadEvents();
         loadServiceRequests();
     } else {
-        // Para visitantes, adicionar event listeners aos cards já existentes
         setupExistingServiceRequestCards();
         setupExistingEventCards();
     }
@@ -299,7 +294,6 @@
         const data = await response.json();
         
         if (response.ok) {
-          // Atualizar o botão baseado na resposta
           updateFavoriteButton(button, !data.removed);
           
           if (data.removed) {
@@ -322,18 +316,15 @@
       const svg = button.querySelector('svg');
       const textNode = button.childNodes[button.childNodes.length - 1];
       
-      // Atualizar o data attribute
       button.dataset.isFavorite = isFavorite;
       
       if (isFavorite) {
-        // Mudar para ícone X e texto "Remover dos Favoritos"
         svg.innerHTML = `
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         `;
         textNode.textContent = 'Remover dos Favoritos';
       } else {
-        // Mudar para ícone coração e texto "Adicionar aos Favoritos"
         svg.innerHTML = `
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
         `;
@@ -448,19 +439,15 @@
         closeModal(existingOverlay);
       }
 
-      // Criação correta do overlay e modal
       const modalOverlay = document.createElement('div');
-      // overlaySelector é do tipo '.edit-event-overlay', então removemos o ponto
       const overlayClass = overlaySelector.startsWith('.') ? overlaySelector.substring(1) : overlaySelector;
       modalOverlay.className = `modal-overlay ${overlayClass}`;
       modalOverlay.setAttribute('role', 'dialog');
       modalOverlay.setAttribute('aria-modal', 'true');
 
-      // Garante que o modal tem a classe base 'modal' além da específica
       const modal = document.createElement('div');
       modal.className = `${modalClass} modal`;
       modal.innerHTML = modalHTMLContent;
-      // Impede que cliques dentro do modal fechem o overlay
       modal.addEventListener('click', (e) => {
         e.stopPropagation();
       });
@@ -479,7 +466,6 @@
       document.body.appendChild(modalOverlay);
       document.body.classList.add('modal-open');
       modalOverlay.getBoundingClientRect();
-      // Adiciona a classe is-visible após inserir no DOM
       modalOverlay.classList.add('is-visible');
 
       const closeButton = modal.querySelector('.modal-close-btn');
@@ -620,7 +606,6 @@
         e.preventDefault();
         e.stopPropagation();
         
-        // Sempre mostrar modal de visualização para todos os usuários
         setupViewServiceRequestModal(requestItem, requestData);
       });
       return requestItem;
@@ -650,7 +635,6 @@
       const existingCards = document.querySelectorAll('.service-request-card');
       
       existingCards.forEach((card, index) => {
-        // Extrair dados do card HTML
         const name = card.querySelector('h3')?.textContent || 'Sem nome';
         const description = card.querySelector('.request-description')?.textContent || '';
         const dateText = card.querySelector('.date')?.textContent?.replace('Data: ', '') || '';
@@ -658,7 +642,6 @@
         const price = card.getAttribute('data-price');
         const tags = Array.from(card.querySelectorAll('.tag')).map(tag => ({ name: tag.textContent }));
         
-        // Separar horário de início e fim
         const timeParts = timeText.split(' - ');
         const startTime = timeParts[0] || '';
         const endTime = timeParts[1] || '';
@@ -674,7 +657,6 @@
           Tags: tags
         };
         
-        // Adicionar event listener
         card.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -689,21 +671,19 @@
       const existingCards = document.querySelectorAll('.event-card');
       
       existingCards.forEach((card, index) => {
-        // Extrair dados do card HTML
         const title = card.querySelector('h3')?.textContent || 'Evento sem título';
         const description = card.querySelector('.event-description')?.textContent || '';
         const dateText = card.querySelector('.event-date')?.textContent?.replace('Data: ', '') || '';
         const imageUrl = card.querySelector('.event-img img')?.src || '';
         
         const eventData = {
-          id: index + 1, // ID temporário para cards estáticos
+          id: index + 1,
           title: title,
           description: description,
           date: dateText,
           imageUrl: imageUrl !== '/img/placeholder.svg' ? imageUrl : null
         };
         
-        // Adicionar event listener
         card.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -723,16 +703,13 @@
 
       const tagsHtml = requestData.Tags.map(tag => `<span class="tag">${ tag.name }</span>`).join('');
 
-      // Botões diferentes para owner e visitante
       let actionButtons = '';
       if (isProfileOwner) {
-        // Para o owner: botão Excluir + Ver Interessados
         actionButtons = `
           <button type="button" class="btn btn-delete" id="delete-service-request-btn">Excluir</button>
           <button type="button" class="btn btn-primary" id="view-interested-btn">Ver Interessados</button>
         `;
       } else {
-        // Para visitantes: botão Cadastrar/Esquecer
         actionButtons = `
           <button type="button" class="btn btn-primary" id="register-interest-btn">Increver-se</button>
         `;
@@ -757,7 +734,6 @@
 
       const modalElement = openModal('.view-service-request-overlay', 'view-service-request-modal', modalHTML, requestCard);
       
-      // Configurar event listeners para os botões
       if (isProfileOwner) {
         setupOwnerButtons(modalElement, requestData);
       } else {
@@ -772,7 +748,6 @@
       const deleteBtn = modalElement.querySelector('#delete-service-request-btn');
       const viewInterestedBtn = modalElement.querySelector('#view-interested-btn');
       
-      // Botão Excluir
       deleteBtn?.addEventListener('click', async () => {
         if (confirm(`Tem certeza que deseja excluir o pedido "${requestData.name}"?`)) {
           try {
@@ -788,11 +763,9 @@
             showToast(`Pedido "${requestData.name}" excluído com sucesso!`, 'success');
             closeModal(modalElement.closest('.modal-overlay'));
             
-            // Recarregar a lista de pedidos
             if (isProfileOwner) {
               loadServiceRequests();
             } else {
-              // Remover o card do DOM se não for owner
               const cardElement = document.querySelector(`[data-id="${requestData.id}"]`);
               if (cardElement) {
                 cardElement.remove();
@@ -805,7 +778,6 @@
         }
       });
       
-      // Botão Ver Interessados
       viewInterestedBtn?.addEventListener('click', () => {
         window.location.href = `/pedido-servico/${requestData.id}`;
       });
@@ -815,7 +787,6 @@
     {
       const registerBtn = modalElement.querySelector('#register-interest-btn');
       
-      // Verificar se o usuário já está cadastrado
       checkUserInterest(requestData.id).then(isInterested => {
         updateRegisterButton(registerBtn, isInterested, requestData.id);
       });
@@ -846,7 +817,6 @@
           const data = await response.json();
           showToast(data.message || (isCurrentlyInterested ? 'Interesse removido!' : 'Interesse cadastrado!'), 'success');
           
-          // Atualizar o botão
           updateRegisterButton(registerBtn, !isCurrentlyInterested, requestData.id);
           
         } catch (error) {
@@ -981,7 +951,6 @@
       const modalElement = openModal('.add-event-overlay', 'add-event-modal', modalHTML, addEventButton);
       if (!modalElement) return;
 
-      // Inicializar componente de upload de imagem de evento
       let eventImageUrl = null;
       const eventUploader = createImageUploader({
         containerId: 'event-image-uploader',
@@ -989,7 +958,6 @@
         currentImageUrl: null,
         label: 'Escolher Imagem',
         onSuccess: (result) => {
-          // Não armazenar URL aqui - será feito no upload pendente
         },
         onError: (error) => {
           console.error('💥 [EVENT DEBUG] Erro no upload de evento:', error);
@@ -1030,9 +998,6 @@
           imageUrl: eventImageUrl
         };
 
-
-
-        // Fazer upload da imagem se houver uma pendente
         let finalImageUrl = null;
         if (eventUploader && eventUploader.hasPendingUpload()) {
           const uploadResult = await eventUploader.uploadPendingImage();
@@ -1082,7 +1047,6 @@
       });
     }
 
-    // Variável para armazenar o profileUploader no escopo da função
     let profileUploader = null;
 
     async function setupEditProfileModal()
@@ -1134,20 +1098,17 @@
         if (instagramInput) instagramInput.value = userData.instagram || '';
         if (facebookInput) facebookInput.value = userData.facebook || '';
 
-        // Inicializar componente de upload de imagem de perfil
         profileUploader = createImageUploader({
           containerId: 'profile-image-uploader',
           uploadEndpoint: '/upload/profile/photo',
           currentImageUrl: userData.imageUrl,
           onSuccess: (result) => {
             console.log('Upload de perfil bem-sucedido:', result);
-            // Atualizar imagem de perfil na página imediatamente
             const profileImageElement = document.getElementById('profile-main-image');
             if (profileImageElement && result.imageUrl) {
               profileImageElement.src = result.imageUrl;
               profileImageElement.alt = `Logo de ${userData.name}`;
             }
-            // Atualizar foto na navbar também
             if (window.updateNavbarProfilePhoto) {
               window.updateNavbarProfilePhoto(result.imageUrl);
             }
@@ -1157,7 +1118,6 @@
           }
         });
 
-        // Após preencher os campos, popular o select de tags
         const tagsSelect = modalElement.querySelector('#edit-profile-tags');
         if (tagsSelect) {
           tagsSelect.innerHTML = '';
@@ -1183,7 +1143,6 @@
   }
             });
           }
-          // Pré-selecionar as tags do usuário, se houver
           if (userData.tags && Array.isArray(userData.tags)) {
             const tagIds = userData.tags.map(t => t.id.toString());
             $(tagsSelect).val(tagIds).trigger('change');
@@ -1230,7 +1189,6 @@
           return;
         }
 
-        // Validar limites de caracteres
         if (newName.length > 100)
         {
           showToast('Nome da empresa deve ter no máximo 100 caracteres.', 'error');
@@ -1257,7 +1215,6 @@
 
         try
         {
-          // Fazer upload da imagem se houver uma pendente
           if (profileUploader && profileUploader.hasPendingUpload()) {
             const uploadResult = await profileUploader.uploadPendingImage();
             if (!uploadResult.success) {
@@ -1292,7 +1249,6 @@
               const errorData = await response.json();
               errorMessage = errorData.message || errorMessage;
             } catch (e) {
-              // Se não conseguir fazer parse do JSON, usa mensagem padrão
             }
             
             throw new Error(errorMessage);
@@ -1304,7 +1260,6 @@
           if (profileLocationElement) profileLocationElement.textContent = newLocation;
           if (profileAboutElement) profileAboutElement.textContent = newAbout;
 
-          // Atualizar as tags do perfil na tela
           const tagsContainer = document.querySelector('.tags');
           if (tagsContainer) {
             tagsContainer.innerHTML = '';
@@ -1408,15 +1363,13 @@
       const modalElement = openModal('.edit-event-overlay', 'edit-event-modal', modalHTML, eventCard);
       if (!modalElement) return;
 
-      // Inicializar componente de upload de imagem de evento para edição
-      let currentImageUrl = eventData.imageUrl; // Inicializar com a imagem atual
+      let currentImageUrl = eventData.imageUrl;
       const editEventUploader = createImageUploader({
         containerId: 'edit-event-image-uploader',
         uploadEndpoint: '/upload/event/photo',
         currentImageUrl: eventData.imageUrl,
         label: 'Escolher Imagem',
         onSuccess: (result) => {
-          // Não atualizar currentImageUrl aqui - será feito no upload pendente
         },
         onError: (error) => {
           console.error('💥 [EVENT DEBUG] Erro no upload de evento:', error);
@@ -1488,7 +1441,6 @@
           establishmentid: eventData.establishmentid
         };
 
-        // Fazer upload da imagem se houver uma pendente
         let finalImageUrl = currentImageUrl;
         if (editEventUploader && editEventUploader.hasPendingUpload()) {
           const uploadResult = await editEventUploader.uploadPendingImage();
@@ -1506,8 +1458,6 @@
           imageUrl: finalImageUrl,
           establishmentid: eventData.establishmentid
         };
-
-
 
         try
         {
@@ -1827,21 +1777,15 @@
       });
     }
 
-    // Função para configurar scroll horizontal com roda do mouse
     function setupHorizontalScroll() {
       const scrollContainers = document.querySelectorAll('.scroll-container');
       
       scrollContainers.forEach(container => {
         container.addEventListener('wheel', (e) => {
-          // Prevenir o scroll vertical padrão
           e.preventDefault();
           
-          // Calcular a quantidade de scroll horizontal
-          // deltaY positivo = scroll para baixo = mover para direita
-          // deltaY negativo = scroll para cima = mover para esquerda
           const scrollAmount = e.deltaY;
           
-          // Aplicar scroll horizontal
           container.scrollLeft += scrollAmount;
         }, { passive: false });
       });
@@ -1881,7 +1825,6 @@
       }
     });
 
-    // Funcionalidade para lidar com reviews
     const viewAllReviewsBtn = document.getElementById('view-all-reviews-btn');
     if (viewAllReviewsBtn) {
       viewAllReviewsBtn.addEventListener('click', async function() {
@@ -1935,7 +1878,6 @@
       });
     }
 
-    // Configurar scroll horizontal
     //setupHorizontalScroll();
   });
 </script>

@@ -26,7 +26,6 @@ class NotificationHelper {
                 sender_user_id: senderUserId || null
             });
 
-            // Enviar notificação em tempo real via WebSocket
             this.sendRealTimeNotification(userId, notification);
 
             return notification;
@@ -36,11 +35,6 @@ class NotificationHelper {
         }
     }
 
-    /**
-     * Envia notificação em tempo real via WebSocket
-     * @param {number} userId - ID do usuário
-     * @param {Object} notification - Dados da notificação
-     */
     static sendRealTimeNotification(userId, notification) {
         try {
             const io = getIo();
@@ -59,12 +53,6 @@ class NotificationHelper {
         }
     }
 
-    /**
-     * Notifica sobre nova proposta de serviço
-     * @param {number} userId - ID do usuário que receberá a notificação
-     * @param {Object} proposal - Dados da proposta
-     * @param {Object} senderUser - Dados do perfil remetente (deve conter id)
-     */
     static async notifyNewProposal(userId, proposal, senderUser) {
         const title = 'Nova Proposta Recebida';
         const content = `Você recebeu uma nova proposta para o serviço "${proposal.name}".`;
@@ -79,13 +67,6 @@ class NotificationHelper {
         );
     }
 
-    /**
-     * Notifica sobre mudança de status de serviço
-     * @param {number} userId - ID do usuário que receberá a notificação
-     * @param {Object} service - Dados do serviço
-     * @param {string} newStatus - Novo status
-     * @param {Object} senderUser - Dados do perfil remetente (deve conter id)
-     */
     static async notifyStatusUpdate(userId, service, newStatus, senderUser) {
         const title = 'Status do Serviço Atualizado';
         const content = `O status do serviço "${service.name}" foi alterado para: ${newStatus}.`;
@@ -100,10 +81,6 @@ class NotificationHelper {
         );
     }
 
-    /**
-     * Notifica sobre alteração de senha
-     * @param {number} userId - ID do usuário que alterou a senha
-     */
     static async notifyPasswordChange(userId) {
         const title = 'Senha Alterada';
         const content = 'Sua senha foi alterada com sucesso. Se não foi você, entre em contato com o suporte imediatamente.';
@@ -119,12 +96,6 @@ class NotificationHelper {
         );
     }
 
-    /**
-     * Notifica sobre nova avaliação recebida
-     * @param {number} userId - ID do usuário que receberá a notificação
-     * @param {Object} rating - Dados da avaliação (deve conter id, serviceid, rate, description)
-     * @param {Object} senderUser - Dados do usuário que enviou a avaliação (deve conter id, name)
-     */
     static async notifyNewRating(userId, rating, senderUser) {
         const title = 'Nova Avaliação Recebida';
         const content = `Você recebeu uma nova avaliação de ${senderUser.name}: "${rating.description || 'Sem comentário'}"`;
@@ -139,13 +110,6 @@ class NotificationHelper {
         );
     }
 
-    /**
-     * Busca notificações de um usuário
-     * @param {number} userId - ID do usuário
-     * @param {boolean} unreadOnly - Se deve buscar apenas não lidas
-     * @param {number} limit - Limite de resultados
-     * @returns {Promise<Array>} - Lista de notificações
-     */
     static async getUserNotifications(userId, unreadOnly = false, limit = 50) {
         try {
             const whereClause = { user_id: userId };
@@ -166,12 +130,6 @@ class NotificationHelper {
         }
     }
 
-    /**
-     * Marca notificação como lida
-     * @param {number} notificationId - ID da notificação
-     * @param {number} userId - ID do usuário (para validação)
-     * @returns {Promise<boolean>} - Sucesso da operação
-     */
     static async markAsRead(notificationId, userId) {
         try {
             const [updatedRows] = await Notification.update(
@@ -191,11 +149,6 @@ class NotificationHelper {
         }
     }
 
-    /**
-     * Marca todas as notificações de um usuário como lidas
-     * @param {number} userId - ID do usuário
-     * @returns {Promise<number>} - Número de notificações atualizadas
-     */
     static async markAllAsRead(userId) {
         try {
             const [updatedRows] = await Notification.update(

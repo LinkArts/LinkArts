@@ -9,7 +9,6 @@ module.exports = class SearchController
         const { search } = req.query;
         const loggedUserId = req.session.userid;
 
-        // Descobre se é artista logado
         let isArtist = null;
         if (loggedUserId)
         {
@@ -23,7 +22,6 @@ module.exports = class SearchController
 
             if (search)
             {
-                // Busca usuários com base no campo search
                 userResults = await Promise.all(
                     (await User.findAll({
                         where: {
@@ -44,7 +42,6 @@ module.exports = class SearchController
                             attributes: [[fn('AVG', col('rate')), 'averageRating']]
                         });
 
-                        // Detecta se é artista ou estabelecimento
                         let isArtistUser = user.dataValues.Artist ? true : false;
 
                         return {
@@ -58,7 +55,6 @@ module.exports = class SearchController
                     })
                 );
 
-                // Busca serviços com base no campo search
                 serviceResults = await Promise.all(
                     (await ServiceRequest.findAll({
                         where: {
@@ -80,7 +76,6 @@ module.exports = class SearchController
                             attributes: [[fn('AVG', col('rate')), 'averageRating']]
                         });
 
-                        // Checa se o artista logado está interessado
                         let isInterested = false;
                         if (isArtist && typeof service.hasArtist === 'function')
                         {
@@ -108,7 +103,6 @@ module.exports = class SearchController
                 );
             } else
             {
-                // Caso o campo search esteja vazio, retorna todos os usuários
                 userResults = await Promise.all(
                     (await User.findAll({
                         where: {isAdmin: false},
@@ -134,7 +128,6 @@ module.exports = class SearchController
                     })
                 );
 
-                // Caso o campo search esteja vazio, retorna todos os serviços
                 serviceResults = await Promise.all(
                     (await ServiceRequest.findAll({
                         include: [
@@ -176,11 +169,10 @@ module.exports = class SearchController
                 );
             }
 
-            // Mescla ambos os resultados
             let results = [
                 ...userResults.map(result => ({
                     ...result,
-                    isArtist: typeof result.isArtist !== 'undefined' ? result.isArtist : false, // já vem do map acima
+                    isArtist: typeof result.isArtist !== 'undefined' ? result.isArtist : false,
                     _type: 'user'
                 })),
                 ...serviceResults.map(result => ({
@@ -189,7 +181,6 @@ module.exports = class SearchController
                 }))
             ];
 
-            // Ordena alfabeticamente pelo campo 'name'
             results = results.sort((a, b) =>
             {
                 if (!a.name) return 1;
@@ -211,7 +202,6 @@ module.exports = class SearchController
         const tagsid = tags ? tags.split(',').filter(Boolean).map(id => parseInt(id)) : [];
         const loggedUserId = req.session.userid;
 
-        // Descobre se é artista logado
         let isArtist = null;
         if (loggedUserId)
         {
@@ -255,11 +245,9 @@ module.exports = class SearchController
                         where: serviceWhere,
                         include: serviceInclude
                     });
-                    // Para cada serviço, buscar todas as tags relacionadas
                     const results2 = await Promise.all(
                         results.map(async (result) =>
                         {
-                            // Buscar todas as tags relacionadas a este serviço
                             const allTags = await result.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
                             const averageRating = await Rating.findOne({
@@ -267,7 +255,6 @@ module.exports = class SearchController
                                 attributes: [[fn('AVG', col('rate')), 'averageRating']]
                             });
 
-                            // Checa se o artista logado está interessado
                             let isInterested = false;
                             if (isArtist && typeof result.hasArtist === 'function')
                             {
@@ -283,8 +270,8 @@ module.exports = class SearchController
                                         User: result.Establishment.User
                                             ? {
                                                 ...result.Establishment.User.dataValues,
-                                                TotalRatings: totalRatings, // Total de análises recebidas
-                                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0 // Média das análises
+                                                TotalRatings: totalRatings,
+                                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
                                             }
                                             : null
                                     }
@@ -297,7 +284,6 @@ module.exports = class SearchController
                     return res.json({ results2, search: search });
                 } else if (type === 'artista')
                 {
-                    // Busca usuários que são artistas
                     const userResults = await Promise.all(
                         (await User.findAll({
                             where: {
@@ -340,7 +326,6 @@ module.exports = class SearchController
                     return res.json({ results2, search: search });
                 } else if (type === 'estabelecimento')
                 {
-                    // Busca usuários que são estabelecimentos
                     const userResults = await Promise.all(
                         (await User.findAll({
                             where: {
@@ -397,7 +382,6 @@ module.exports = class SearchController
                             include: include
                         })).map(async (user) =>
                         {
-                            // Buscar todas as tags relacionadas a este usuário
                             const allTags = await user.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
                             const averageRating = await Rating.findOne({
@@ -441,7 +425,6 @@ module.exports = class SearchController
                             })),
                             ...serviceResults.map(async (result) =>
                             {
-                                // Buscar todas as tags relacionadas a este serviço
                                 const allTags = await result.getTags();
                                 const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
                                 const averageRating = await Rating.findOne({
@@ -449,7 +432,6 @@ module.exports = class SearchController
                                     attributes: [[fn('AVG', col('rate')), 'averageRating']]
                                 });
 
-                                // Checa se o artista logado está interessado
                                 let isInterested = false;
                                 if (isArtist && typeof result.hasArtist === 'function')
                                 {
@@ -499,7 +481,6 @@ module.exports = class SearchController
                     const results2 = await Promise.all(
                         results.map(async (result) =>
                         {
-                            // Buscar todas as tags relacionadas a este serviço
                             const allTags = await result.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
                             const averageRating = await Rating.findOne({
@@ -507,7 +488,6 @@ module.exports = class SearchController
                                 attributes: [[fn('AVG', col('rate')), 'averageRating']]
                             });
 
-                            // Checa se o artista logado está interessado
                             let isInterested = false;
                             if (isArtist && typeof result.hasArtist === 'function')
                             {
@@ -523,8 +503,8 @@ module.exports = class SearchController
                                         User: result.Establishment.User
                                             ? {
                                                 ...result.Establishment.User.dataValues,
-                                                TotalRatings: totalRatings, // Total de análises recebidas
-                                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0 // Média das análises
+                                                TotalRatings: totalRatings,
+                                                AverageRating: averageRating ? parseFloat(averageRating.dataValues.averageRating).toFixed(1) : 0
                                             }
                                             : null
                                     }
@@ -544,7 +524,6 @@ module.exports = class SearchController
                             include: include
                         })).map(async (user) =>
                         {
-                            // Buscar todas as tags relacionadas a este usuário
                             const allTags = await user.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
                             const averageRating = await Rating.findOne({
@@ -579,7 +558,6 @@ module.exports = class SearchController
                             })),
                             ...serviceResults.map(async (result) =>
                             {
-                                // Buscar todas as tags relacionadas a este serviço
                                 const allTags = await result.getTags();
                                 const totalRatings = await Rating.count({ where: { receiverUserid: result.Establishment.User.id } });
                                 const averageRating = await Rating.findOne({
@@ -587,7 +565,6 @@ module.exports = class SearchController
                                     attributes: [[fn('AVG', col('rate')), 'averageRating']]
                                 });
 
-                                // Checa se o artista logado está interessado
                                 let isInterested = false;
                                 if (isArtist && typeof result.hasArtist === 'function')
                                 {
@@ -631,7 +608,6 @@ module.exports = class SearchController
                             include: include
                         })).map(async (user) =>
                         {
-                            // Buscar todas as tags relacionadas a este usuário
                             const allTags = await user.getTags();
                             const totalRatings = await Rating.count({ where: { receiverUserid: user.id } });
                             const averageRating = await Rating.findOne({

@@ -597,7 +597,6 @@ section h2 {
   font-size: 1.1em;
 }
 
-/* Estilos para a seção de edição do álbum */
 .album-content-modal .album-edit-section {
   margin-bottom: 15px;
   padding-bottom: 15px;
@@ -813,7 +812,6 @@ section h2 {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Estilos específicos para o uploader de imagem no modal de edição */
 .edit-music-modal .image-uploader {
   width: 100%;
   max-width: none;
@@ -1018,7 +1016,6 @@ section h2 {
   transform: translateY(-2px);
 }
 
-/* Botão de remoção de música do álbum */
 .album-content-modal .song-card {
   position: relative;
 }
@@ -1068,7 +1065,6 @@ section h2 {
   overflow: hidden;
 }
 
-/* Imagem da música */
 .song-image {
   width: 100%;
   height: 100%;
@@ -1076,7 +1072,6 @@ section h2 {
   border-radius: 6px;
 }
 
-/* Placeholder para música sem imagem */
 .song-placeholder {
   width: 100%;
   height: 100%;
@@ -1647,7 +1642,6 @@ section h2 {
     gap: 10px;
   }
 
-  /* Responsividade para o modal de álbuns */
   .album-content-modal {
     max-width: 95%;
     padding: 15px;
@@ -1819,7 +1813,6 @@ section h2 {
     padding: 12px;
   }
 
-  /* Responsividade para o modal de álbuns - telas pequenas */
   .album-content-modal {
     max-width: 100%;
     margin: 0;
@@ -2256,7 +2249,6 @@ section h2 {
   flex-shrink: 0;
 }
 
-/* Regras copiadas do perfilEstabelecimento.css para padronizar o Select2 do artista */
 .edit-profile-modal .select2-container {
   width: 100% !important;
   font-size: 1rem;
@@ -2275,7 +2267,6 @@ section h2 {
   padding: 0 !important;
 }
 
-/* Responsividade para o modal de edição de música */
 @media (max-width: 768px) {
   .edit-music-modal {
     max-width: 95%;
@@ -2342,7 +2333,6 @@ section h2 {
     font-size: 14px;
   }
 
-  /* Responsividade específica para o modal de álbuns - telas muito pequenas */
   .album-content-modal {
     max-width: 100%;
     width: 100%;
@@ -2428,7 +2418,6 @@ section h2 {
     font-size: 14px;
   }
 
-  /* Ajuste do botão de remoção para telas pequenas */
   .album-content-modal .remove-from-album-btn {
     width: 20px;
     height: 20px;
@@ -2438,7 +2427,6 @@ section h2 {
   }
 }
 
-/* Regras especiais para zoom alto ou altura muito pequena */
 @media (max-height: 500px), (max-height: 600px) and (min-width: 640px) {
   .album-content-overlay {
     align-items: flex-start !important;
@@ -2522,7 +2510,6 @@ section h2 {
   }
 }
 
-/* Regras para casos extremos - zoom muito alto ou resoluções muito baixas */
 @media (max-height: 400px) {
   .album-content-overlay {
     align-items: flex-start !important;
@@ -2631,7 +2618,6 @@ section h2 {
   }
 }
 
-/* Regras para landscape em dispositivos móveis */
 @media (max-height: 500px) and (orientation: landscape) {
   .album-content-overlay {
     align-items: flex-start !important;

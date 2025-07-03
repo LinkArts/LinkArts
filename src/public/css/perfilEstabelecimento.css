@@ -562,7 +562,6 @@ section h2 {
   max-height: calc(1.5 * 0.85rem * 3);
 }
 
-/* Garante que cards sem descrição mantenham a altura */
 .event-content:not(:has(.event-description)) {
   justify-content: flex-start;
 }
@@ -703,7 +702,6 @@ section h2 {
   visibility: visible;
 }
 
-/* Estilos comuns para todos os modais */
 .modal {
   background-color: white;
   border-radius: 12px;
@@ -798,7 +796,6 @@ section h2 {
   border-top: 1px solid var(--border-color);
 }
 
-/* Estilos específicos para o modal de visualização */
 .modal-content-view {
   flex: 1;
   overflow-y: auto;
@@ -856,7 +853,6 @@ section h2 {
   margin-bottom: 16px;
 }
 
-/* Responsividade */
 @media (max-width: 640px) {
   .modal {
     padding: 20px;
@@ -912,7 +908,6 @@ section h2 {
   .event-card {
     min-width: 180px;
     height: 280px;
-    /* Altura ajustada para telas menores */
   }
 
   .event-img {
@@ -963,7 +958,6 @@ section h2 {
     min-width: 160px;
     width: 160px;
     height: 260px;
-    /* Altura ajustada para 768px */
   }
 
   .event-img {
@@ -1211,7 +1205,6 @@ section h2 {
     min-width: 150px;
     width: 150px;
     height: 240px;
-    /* Altura ajustada para 480px */
     padding: 10px;
   }
 
@@ -1239,9 +1232,7 @@ section h2 {
 
   .event-description {
     font-size: 0.8rem;
-    /* Fonte menor para telas pequenas */
     max-height: calc(1.4 * 0.8rem * 3);
-    /* Ajusta altura para fonte menor */
   }
 
   .event-date {
@@ -1717,7 +1708,6 @@ section h2 {
   flex-shrink: 0;
 }
 
-/* Regras especiais para zoom alto ou altura muito pequena */
 @media (max-height: 500px), (max-height: 600px) and (min-width: 640px) {
   .modal-overlay {
     align-items: flex-start !important;
@@ -1752,7 +1742,6 @@ section h2 {
   }
 }
 
-/* Regras para casos extremos - zoom muito alto ou resoluções muito baixas */
 @media (max-height: 400px) {
   .modal-overlay {
     align-items: flex-start !important;
@@ -1815,7 +1804,6 @@ section h2 {
   }
 }
 
-/* Garantia de scroll em telas pequenas */
 @media (max-width: 480px) {
   .add-event-modal,
   .edit-profile-modal,
@@ -1830,7 +1818,6 @@ section h2 {
   }
 }
 
-/* Força scroll sempre que conteúdo ultrapasse a altura */
 .modal-overlay.is-visible .add-event-modal,
 .modal-overlay.is-visible .edit-profile-modal,
 .modal-overlay.is-visible .edit-event-modal,
@@ -1843,7 +1830,6 @@ section h2 {
   overscroll-behavior: contain;
 }
 
-/* Garantia de scroll touch em dispositivos móveis */
 @supports (-webkit-overflow-scrolling: touch) {
   .add-event-modal,
   .edit-profile-modal,
@@ -1856,7 +1842,6 @@ section h2 {
   }
 }
 
-/* Garante que os button-groups fiquem sempre na parte inferior dos modais */
 .add-event-modal h2,
 .edit-profile-modal h2,
 .edit-event-modal h2,
@@ -1880,8 +1865,6 @@ section h2 {
 .button-group {
   align-self: flex-end;
 }
-
-/* Estilos dos botões do modal */
 
 .modal .btn-primary {
   background-color: var(--primary-color);
@@ -1913,7 +1896,6 @@ section h2 {
   background-color: #b91c1c;
 }
 
-/* Ajustes no layout do modal */
 .modal {
   display: flex;
   flex-direction: column;
@@ -1949,7 +1931,6 @@ section h2 {
   background: var(--gray-400);
 }
 
-/* Ajustes nos grupos de botões */
 .modal .button-group {
   display: flex;
   justify-content: flex-end;
@@ -1975,7 +1956,6 @@ section h2 {
   }
 }
 
-/* Estilos específicos para modais de visualização */
 .view-service-request-modal .modal-content-view,
 .view-event-modal .modal-content-view {
   background-color: var(--gray-50);
@@ -2008,7 +1988,6 @@ section h2 {
   gap: 8px;
 }
 
-/* Estilos específicos para modais de edição */
 .edit-service-request-modal .form-group,
 .edit-event-modal .form-group,
 .add-service-request-modal .form-group,
@@ -2055,7 +2034,6 @@ section h2 {
   outline: none;
 }
 
-/* Ajustes para inputs de redes sociais */
 .modal .form-group input[type="url"] {
   padding: 14px 18px;
   background-repeat: no-repeat;

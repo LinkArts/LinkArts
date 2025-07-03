@@ -6,7 +6,6 @@ const { User, Event, Music, Album } = require('../models');
 
 
 
-// Upload de foto de perfil de usuário
 router.post('/profile/photo', 
     checkAuth,
     upload.single('profilePhoto'),
@@ -20,7 +19,6 @@ router.post('/profile/photo',
                 });
             }
 
-            // Atualizar URL no banco de dados
             await User.update(
                 { imageUrl: req.uploadedFile.url },
                 { where: { id: req.session.userid } }
@@ -46,7 +44,6 @@ router.post('/profile/photo',
     }
 );
 
-// Upload de imagem de evento
 router.post('/event/photo',
     checkAuth,
     upload.single('eventPhoto'),
@@ -60,7 +57,6 @@ router.post('/event/photo',
                 });
             }
 
-            // Se eventId foi fornecido, salvar no banco automaticamente
             if (req.body.eventId) {
                 const event = await Event.findByPk(req.body.eventId);
                 if (event) {
@@ -88,7 +84,6 @@ router.post('/event/photo',
     }
 );
 
-// Upload de capa de música
 router.post('/music/cover',
     checkAuth,
     upload.single('musicCover'),
@@ -102,7 +97,6 @@ router.post('/music/cover',
                 });
             }
 
-            // Se musicId foi fornecido, salvar no banco automaticamente
             if (req.body.musicId) {
                 const music = await Music.findByPk(req.body.musicId);
                 if (music) {
@@ -130,7 +124,6 @@ router.post('/music/cover',
     }
 );
 
-// Upload de capa de álbum
 router.post('/album/cover',
     checkAuth,
     upload.single('albumCover'),
@@ -144,7 +137,6 @@ router.post('/album/cover',
                 });
             }
 
-            // Se albumId foi fornecido, salvar no banco automaticamente
             if (req.body.albumId) {
                 const album = await Album.findByPk(req.body.albumId);
                 if (album) {
@@ -172,15 +164,11 @@ router.post('/album/cover',
     }
 );
 
-// Endpoint para deletar imagem
 router.delete('/delete/:bucket/:path(*)',
     checkAuth,
     async (req, res) => {
         try {
             const { bucket, path } = req.params;
-            
-            // Verificar se o usuário tem permissão para deletar
-            // (aqui você pode adicionar lógica de verificação específica)
             
             const success = await deleteFromSupabase(bucket, path);
             
@@ -205,7 +193,6 @@ router.delete('/delete/:bucket/:path(*)',
     }
 );
 
-// Endpoint de teste para verificar se o sistema está funcionando
 router.get('/test', checkAuth, (req, res) => {
     res.json({
         success: true,

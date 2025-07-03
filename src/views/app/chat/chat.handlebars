@@ -102,7 +102,6 @@
         </div>
     </div>
 
-    <!-- Modal de Proposta (baseado na agenda) -->
     <div class="modal-overlay" id="send-proposal-modal-overlay">
         <div class="modal-send-proposal" id="send-proposal-modal">
             <div class="modal-header">
@@ -158,7 +157,6 @@
             const messageInput = document.querySelector(".message-input");
             const sendButton = document.querySelector(".send-button");
 
-            // Elementos de modal removidos temporariamente
             const loggedInUserIdInput = document.getElementById("loggedInUserId");
             const loadingIndicator = messagesContainer.querySelector(".loading-indicator");
             const chatUserHeader = document.getElementById("chat-user-header");
@@ -610,14 +608,11 @@
             }
             
             function showToast(message, type = 'success') {
-                // Remove toasts existentes
                 document.querySelectorAll('.toast.show').forEach(t => t.remove());
                 
-                // Cria novo toast
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
                 
-                // Define ícone baseado no tipo
                 let iconSvg = '';
                 if (type === 'success') {
                     iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>`;
@@ -630,11 +625,9 @@
                 toast.innerHTML = `${iconSvg} <span>${message}</span>`;
                 document.body.appendChild(toast);
                 
-                // Força reflow para animação
                 toast.getBoundingClientRect();
                 toast.classList.add('show');
                 
-                // Remove toast após 3.5 segundos
                 setTimeout(() => {
                     toast.classList.remove('show');
                     toast.addEventListener('transitionend', () => {
@@ -694,7 +687,6 @@
                     return;
                 }
 
-                // Lembrar se era a primeira vez entrando em um chat (se não havia chat ativo antes)
                 const isFirstChatSelection = currentChatId === null;
 
                 document.querySelectorAll(".user-conversation").forEach(conv => conv.classList.remove("active"));
@@ -727,10 +719,7 @@
 
                 loadChatHtml(chatId);
 
-                // Abrir automaticamente a coluna de perfil se for a primeira seleção de chat
-                // Isso melhora a experiência do usuário mostrando informações do contato imediatamente
                 if (isFirstChatSelection && !isProfileColumnVisible) {
-                    // Aguardar um pouco para que o HTML do chat seja carregado antes de abrir o perfil
                     setTimeout(() => {
                         toggleProfileColumn();
                     }, 500);
@@ -841,7 +830,6 @@
                 try {
                     const conversationElement = document.querySelector(`[data-chat-id="${chatId}"]`);
                     if (conversationElement) {
-                        // O evento de clique já vai lidar com a abertura automática da coluna de perfil
                         conversationElement.click();
                     } else {
                         console.warn('Chat não encontrado na lista:', chatId);
@@ -853,9 +841,7 @@
                 }
             }
 
-            // Funcionalidade do modal de proposta
             function setupProposalButton() {
-                // Função global para ser chamada pelo botão no profile.handlebars
                 window.openProposalModal = function() {
                     if (!currentOtherUserId) {
                         showToast('Selecione uma conversa para enviar proposta', 'warning');
@@ -865,7 +851,6 @@
                     openSendProposalModal();
                 };
                 
-                // Configurar eventos do modal uma única vez
                 setupProposalModalEvents();
             }
 
@@ -895,14 +880,12 @@
             }
 
             function setupProposalModalEvents() {
-                // Aguardar o DOM estar totalmente carregado
                 setTimeout(() => {
                     const closeSendProposalModalBtn = document.getElementById('close-send-proposal-modal');
                     const cancelSendProposalModalBtn = document.getElementById('cancel-send-proposal-modal');
                     const sendProposalModalOverlay = document.getElementById('send-proposal-modal-overlay');
                     const sendProposalForm = document.getElementById('send-proposal-form');
 
-                    // Configurar botões de fechar
                     if (closeSendProposalModalBtn) {
                         closeSendProposalModalBtn.addEventListener('click', closeSendProposalModal);
                     }
@@ -911,7 +894,6 @@
                         cancelSendProposalModalBtn.addEventListener('click', closeSendProposalModal);
                     }
                     
-                    // Fechar ao clicar no overlay
                     if (sendProposalModalOverlay) {
                         sendProposalModalOverlay.addEventListener('click', (e) => {
                             if (e.target === sendProposalModalOverlay) {
@@ -920,7 +902,6 @@
                         });
                     }
 
-                    // Configurar envio do formulário
                     if (sendProposalForm) {
                         sendProposalForm.addEventListener('submit', async (e) => {
                             e.preventDefault();
@@ -969,10 +950,9 @@
                             }
                         });
                     }
-                }, 100); // Pequeno delay para garantir que os elementos existam
+                }, 100);
             }
 
-            // Funcionalidade do modal de denúncia
             function setupReportButton() {
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.report-button')) {
@@ -1031,12 +1011,10 @@
                 const closeBtn = overlay.querySelector('.modal-close-btn');
                 const cancelBtn = overlay.querySelector('.btn-cancel');
 
-                // Mostrar modal com animação
                 setTimeout(() => {
                     overlay.classList.add('is-visible');
                 }, 10);
 
-                // Eventos de fechar modal
                 closeBtn.addEventListener('click', closeReportModal);
                 cancelBtn.addEventListener('click', closeReportModal);
                 overlay.addEventListener('click', function(e) {
@@ -1045,10 +1023,8 @@
                     }
                 });
 
-                // Evento de escape para fechar
                 document.addEventListener('keydown', handleEscapeKey);
 
-                // Evento de envio do formulário
                 form.addEventListener('submit', async function(e) {
                     e.preventDefault();
 
@@ -1088,7 +1064,6 @@
                     }
                 });
 
-                // Remover erro quando selecionar um motivo
                 reasonSelect.addEventListener('change', () => {
                     reasonSelect.classList.remove('input-error');
                 });
@@ -1109,10 +1084,8 @@
                 }
             }
 
-            // Inicializar funcionalidade de denúncia
             setupReportButton();
             
-            // Inicializar funcionalidade de proposta
             setupProposalButton();
         });
     </script>

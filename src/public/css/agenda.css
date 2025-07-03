@@ -488,7 +488,6 @@
     margin-top: auto;
 }
 
-/* Estilização da barra de scroll para modais da agenda */
 .modal-view::-webkit-scrollbar,
 .modal-send-proposal::-webkit-scrollbar {
     width: 6px;
@@ -867,7 +866,6 @@
     }
 }
 
-/* Regras especiais para zoom alto ou altura muito pequena */
 @media (max-height: 500px),
 (max-height: 600px) and (min-width: 640px) {
     .modal-overlay {
@@ -899,7 +897,6 @@
     }
 }
 
-/* Regras para casos extremos - zoom muito alto ou resoluções muito baixas */
 @media (max-height: 400px) {
     .modal-overlay {
         align-items: flex-start !important;
@@ -955,7 +952,6 @@
     }
 }
 
-/* Garantia de scroll em telas pequenas */
 @media (max-width: 480px) {
 
     .modal-view,
@@ -966,13 +962,11 @@
     }
 }
 
-/* Garante flexibilidade nos elementos */
 .modal-view .modal-header,
 .modal-send-proposal .modal-header {
     flex-shrink: 0;
 }
 
-/* Força scroll sempre que conteúdo ultrapasse a altura */
 .modal-view.active,
 .modal-send-proposal.active {
     overflow-y: auto !important;
@@ -980,7 +974,6 @@
     overscroll-behavior: contain;
 }
 
-/* Garantia de scroll touch em dispositivos móveis */
 @supports (-webkit-overflow-scrolling: touch) {
 
     .modal-view,
@@ -989,13 +982,11 @@
     }
 }
 
-/* Força altura mínima para ativar scroll quando necessário */
 .modal-view.active,
 .modal-send-proposal.active {
     min-height: 300px;
 }
 
-/* Garante que os footers fiquem sempre na parte inferior */
 .modal-view .modal-header,
 .modal-send-proposal .modal-header {
     flex-shrink: 0;

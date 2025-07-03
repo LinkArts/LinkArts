@@ -50,11 +50,9 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             {{#if isFavorite}}
-            <!-- Ícone X para remover -->
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
             {{else}}
-            <!-- Ícone coração para adicionar -->
             <path
               d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             {{/if}}
@@ -215,7 +213,6 @@
   </div>
 </div>
 
-<!-- Modal Overlay para denúncia de perfil -->
 <div class="modal-overlay report-profile-overlay">
   <div class="report-profile-modal modal"></div>
 </div>
@@ -227,12 +224,10 @@
     let availableAlbums = [];
     let availableTags = [];
     
-    // Capturar se o usuário é o dono do perfil
     const isOwner = {{#if isOwner}}true{{else}}false{{/if}};
 
     const Selectors = {
       profileName: document.getElementById('profile-name') ?? document.querySelector('.profile-details h1'),
-      //profileTag: document.getElementById('profile-tag') ?? document.querySelector('.profile-tag'),
       profileLocation: document.getElementById('profile-location') ?? document.querySelector('.profile-location'),
       profileAbout: document.getElementById('profile-about') ?? document.querySelector('.about-section p'),
       profileImage: document.getElementById('profile-main-image') ?? document.querySelector('.profile-img img'),
@@ -246,11 +241,9 @@
       albumContainer: document.querySelector('.albums-container'),
     };
 
-    // Função para converter URL do YouTube para embed
     function getYouTubeEmbedUrl(url) {
       if (!url) return null;
       
-      // Diferentes formatos de URL do YouTube
       const patterns = [
         /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/,
         /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([a-zA-Z0-9_-]+)/,
@@ -267,7 +260,6 @@
       return null;
     }
 
-    // Função para verificar se é URL do YouTube
     function isYouTubeUrl(url) {
       if (!url) return false;
       return url.includes('youtube.com') || url.includes('youtu.be');
@@ -291,7 +283,6 @@
         const data = await response.json();
         
         if (response.ok) {
-          // Atualizar o botão baseado na resposta
           updateFavoriteButton(button, !data.removed);
           
           if (data.removed) {
@@ -314,18 +305,15 @@
       const svg = button.querySelector('svg');
       const textNode = button.childNodes[button.childNodes.length - 1];
       
-      // Atualizar o data attribute
       button.dataset.isFavorite = isFavorite;
       
       if (isFavorite) {
-        // Mudar para ícone X e texto "Remover dos Favoritos"
         svg.innerHTML = `
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         `;
         textNode.textContent = 'Remover dos Favoritos';
       } else {
-        // Mudar para ícone coração e texto "Adicionar aos Favoritos"
         svg.innerHTML = `
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
         `;
@@ -472,7 +460,6 @@
       }
     }
 
-    // Função openModal copiada do perfil de estabelecimento e tornada global
     function openModal(overlaySelector, modalClass, modalHTMLContent, triggerButton) {
       window.lastFocusedElement = triggerButton || document.activeElement;
       const existingOverlay = document.querySelector(overlaySelector);
@@ -488,7 +475,6 @@
       const modal = document.createElement('div');
       modal.className = modalClass;
       modal.innerHTML = modalHTMLContent;
-      // Impede que cliques dentro do modal fechem o overlay
       modal.addEventListener('click', (e) => { e.stopPropagation(); });
 
       const titleElement = modal.querySelector('h2');
@@ -513,8 +499,6 @@
       modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) { closeModal(modalOverlay); }
       });
-
-      //setTimeout(() => { modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')?.focus(); }, 100);
 
       return modal;
     }
@@ -548,7 +532,6 @@
       selectEl.innerHTML = '';
       selectEl.disabled = false;
       
-      // Adicionar álbuns disponíveis
       if (availableAlbums?.length > 0) {
         availableAlbums.forEach(album => {
           const option = document.createElement('option');
@@ -558,7 +541,6 @@
         });
       }
       
-      // Inicializar Select2 para seleção múltipla
       $(selectEl).select2({
         placeholder: 'Selecione os álbuns (opcional)',
         allowClear: true,
@@ -566,9 +548,7 @@
         width: '100%'
       });
       
-      // Selecionar os álbuns apropriados
       if (selectedAlbums && Array.isArray(selectedAlbums) && selectedAlbums.length > 0) {
-        // Filtrar apenas álbuns que ainda existem
         const validAlbums = selectedAlbums.filter(albumName => 
           availableAlbums?.some(album => album.name === albumName)
         );
@@ -577,12 +557,6 @@
         $(selectEl).val([]).trigger('change');
       }
     }
-
-    // Função removida - não atualizar preview até salvar
-    // function updateMusicImagePreview(musicId, imageUrl, musicTitle) {
-    //   // Esta função foi removida para implementar o novo comportamento:
-    //   // Preview apenas no modal do uploader, sem atualizar cards até salvar
-    // }
 
     function getCreateAlbumModalHTML()
     {
@@ -725,7 +699,6 @@
 
     function getEditMusicModalHTML(song, readOnly = false)
     {
-      // Se for readonly, mostrar os álbuns como texto, senão mostrar o select normalmente
       let albumFieldHtml;
       if (readOnly) {
         let albumsText = '';
@@ -808,7 +781,6 @@
       const form = modalElement.querySelector('#create-album-form');
       const nameInput = modalElement.querySelector('#new-album-name');
 
-      // Inicializar upload de capa
       setTimeout(() => {
         const albumCoverUploader = createImageUploader({
           containerId: 'album-cover-uploader',
@@ -884,7 +856,6 @@
         {
           console.error("Erro ao verificar álbum:", err);
           
-          // Verificar se é erro de rede
           if (err instanceof TypeError && err.message.includes('fetch')) {
             showToast('Erro de conexão. Verifique sua internet e tente novamente.', 'error');
           } else if (err.message.includes('401')) {
@@ -902,7 +873,6 @@
         {
           let finalImageUrl = null;
           
-          // Fazer upload da imagem se houver alguma pendente
           if (form.albumCoverUploader?.hasPendingUpload()) {
             const uploadResult = await form.albumCoverUploader.uploadPendingImage();
             if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
@@ -956,7 +926,6 @@
             const errorData = await response.json();
             errorMessage = errorData.message || errorMessage;
           } catch (e) {
-            // Se não conseguir fazer parse do JSON, usa mensagem padrão
           }
           
           throw new Error(errorMessage);
@@ -991,7 +960,6 @@
             const errorData = await response.json();
             errorMessage = errorData.message || errorMessage;
           } catch (e) {
-            // Se não conseguir fazer parse do JSON, usa mensagem padrão
           }
           
           throw new Error(errorMessage);
@@ -1034,7 +1002,6 @@
           {
             setupPlayButtons(modalElement);
             
-            // Inicializar upload de capa apenas para o dono do perfil
             setTimeout(() => {
               let albumCoverUploader = null;
               
@@ -1054,14 +1021,12 @@
                 modalElement.albumCoverUploader = albumCoverUploader;
               }
               modalElement.albumId = albumid;
-              
-              // Adicionar evento para remover classe de erro do campo de nome
+
               const albumNameInput = modalElement.querySelector('#edit-album-name');
               albumNameInput?.addEventListener('input', () => {
                 albumNameInput.classList.remove('input-error');
               });
               
-              // Configurar botões de remoção de música do álbum (apenas para o dono)
               if (isOwner) {
                 const removeButtons = modalElement.querySelectorAll('.remove-from-album-btn');
                 removeButtons.forEach(btn => {
@@ -1097,10 +1062,8 @@
                       const result = await response.json();
                       
                       if (result.success) {
-                        // Remover o card da música do modal
                         songCard.remove();
                         
-                        // Verificar se ainda há músicas no álbum
                         const remainingSongs = modalElement.querySelectorAll('.song-card');
                         if (remainingSongs.length === 0) {
                           const modalBody = modalElement.querySelector('.modal-body-scrollable');
@@ -1119,7 +1082,6 @@
                 });
               }
               
-              // Configurar botão de salvar apenas para o dono do perfil
               if (isOwner && albumCoverUploader) {
                 const saveBtn = modalElement.querySelector('#save-album-changes');
                 saveBtn?.addEventListener('click', async () => {
@@ -1127,7 +1089,6 @@
                   const albumNameInput = modalElement.querySelector('#edit-album-name');
                   const newAlbumName = albumNameInput.value.trim();
                   
-                  // Validar nome do álbum
                   if (!newAlbumName) {
                     showToast('Nome do álbum é obrigatório.', 'error');
                     albumNameInput.classList.add('input-error');
@@ -1145,7 +1106,6 @@
                   let finalImageUrl = albumCoverUploader.getCurrentImageUrl();
                   let imageUpdated = false;
                   
-                  // Se há upload pendente, fazer o upload primeiro
                   if (albumCoverUploader.hasPendingUpload()) {
                     const uploadResult = await albumCoverUploader.uploadPendingImage();
                     if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
@@ -1156,12 +1116,10 @@
                     }
                   }
                   
-                  // Atualizar nome do álbum se foi alterado
                   if (newAlbumName !== albumName) {
                     await updateAlbumName(albumid, newAlbumName);
                   }
                   
-                  // Atualizar capa se necessário
                   if (imageUpdated && !finalImageUrl.startsWith('data:') && !finalImageUrl.startsWith('blob:')) {
                     await updateAlbumCover(albumid, finalImageUrl);
                   }
@@ -1169,18 +1127,15 @@
                   closeModal(modalElement.closest('.modal-overlay'));
                   showToast('Álbum atualizado com sucesso!', 'success');
                   
-                  // Atualizar o card do álbum no DOM
                   const albumCard = document.querySelector(`[data-id="${albumid}"]`);
                   if (albumCard) {
-                    // Atualizar nome (truncar se necessário para exibição)
                     const nameElement = albumCard.querySelector('.album-name');
                     if (nameElement) {
                       const displayName = newAlbumName.length > 20 ? newAlbumName.substring(0, 20) + '...' : newAlbumName;
                       nameElement.textContent = displayName;
-                      nameElement.title = newAlbumName; // Tooltip com nome completo
+                      nameElement.title = newAlbumName;
                     }
                     
-                    // Atualizar imagem se foi alterada
                     if (imageUpdated) {
                       const img = albumCard.querySelector('img');
                       if (img) img.src = finalImageUrl;
@@ -1193,7 +1148,6 @@
               });
               }
               
-              // Configurar botão de excluir álbum apenas para o dono do perfil
               if (isOwner) {
                 const deleteBtn = modalElement.querySelector('#delete-album-btn');
                 deleteBtn?.addEventListener('click', async () => {
@@ -1223,16 +1177,13 @@
                   const result = await response.json();
                   
                   if (result.success) {
-                    // Fechar modal
                     closeModal(modalElement.closest('.modal-overlay'));
                     
-                    // Remover card do álbum do DOM
                     const albumCard = document.querySelector(`[data-id="${albumid}"]`);
                     if (albumCard) {
                       albumCard.remove();
                     }
                     
-                    // Atualizar dropdown de álbuns se estiver aberto
                     const albumSelects = document.querySelectorAll('#song-album, #edit-song-album');
                     albumSelects.forEach(select => {
                       const optionToRemove = select.querySelector(`option[value="${albumName}"]`);
@@ -1250,7 +1201,7 @@
                   showToast(`Erro ao excluir álbum: ${error.message}`, 'error');
                 }
               });
-              } // Fim do segundo if (isOwner) - botão excluir
+              }
             }, 100);
           }
         })
@@ -1272,12 +1223,10 @@
           {
             $('.js-example-basic-multiple').select2();
             
-            // Inicializar upload de imagem da música
             const musicImageUploader = createImageUploader({
               containerId: 'music-image-uploader',
               uploadEndpoint: '/upload/music/cover',
               currentImageUrl: '/img/placeholder.svg',
-              // Removido onImageSelect para nova música - preview só dentro do uploader
               onSuccess: (result) => {
                 console.log('Upload de imagem da música bem-sucedido:', result);
               },
@@ -1339,7 +1288,6 @@
               tagInput.classList.add('input-error');
               if (!firstInvalid) firstInvalid = tagInput;
             }
-            // Álbuns não são obrigatórios
             if (!isValid)
             {
               showToast('Por favor, preencha todos os campos.', 'warning');
@@ -1350,7 +1298,6 @@
             let id = null;
             let albumid = null;
             
-            // Fazer upload da imagem se houver
             let finalImageUrl = null;
             if (modalElement.musicImageUploader?.hasPendingUpload()) {
               const uploadResult = await modalElement.musicImageUploader.uploadPendingImage();
@@ -1380,7 +1327,6 @@
                   const errorData = await response.json();
                   errorMessage = errorData.message || errorMessage;
                 } catch (e) {
-                  // Se não conseguir fazer parse do JSON, usa mensagem padrão
                 }
                 
                 throw new Error(errorMessage);
@@ -1392,14 +1338,13 @@
             } catch (err) {
               console.error("Erro ao criar música:", err);
               showToast(`Erro ao criar música: ${err.message}`, 'error');
-              return; // Não continua se houve erro
+              return;
             }
 
             const selectedTags = availableTags
               .filter(t => tag.includes(t.id.toString()))
               .map(tag => tag.name);
 
-            // Criar novo card de música
             const songCard = document.createElement('div');
             songCard.className = 'song-card';
             songCard.dataset.id = id;
@@ -1419,7 +1364,6 @@
                 <p>Tags: ${selectedTags.join(', ')}</p>
               </div>`;
               
-            // Adicionar ao container
             if (Selectors.musicContainer) {
               Selectors.musicContainer.prepend(songCard);
               songCard.addEventListener('click', handleSongCardClick);
@@ -1441,18 +1385,16 @@
 
     async function openEditMusicModal(songData, triggerElement = null)
     {
-      const isReadOnly = !isOwner; // NOVO: Só pode editar se for dono
+      const isReadOnly = !isOwner;
       const modalElement = openModal('.edit-music-overlay', 'edit-music-modal', getEditMusicModalHTML(songData, isReadOnly), triggerElement)
       setTimeout(() =>
       {
         $('.js-example-basic-multiple').select2();
 
-        // Definir tags selecionadas após inicialização do Select2
         if (songData.tags && songData.tags.length > 0) {
           $('#edit-song-tag').val(songData.tags).trigger('change');
         }
 
-        // Inicializar upload de imagem da música SOMENTE SE NÃO FOR READONLY
         if (!isReadOnly) {
           const currentImageUrl = songData.image || '/img/placeholder.svg';
           const editMusicImageUploader = createImageUploader({
@@ -1460,10 +1402,8 @@
             uploadEndpoint: '/upload/music/cover',
             currentImageUrl: currentImageUrl,
             onImageSelect: (imageUrl) => {
-              // NÃO atualizar cards até salvar - apenas preview interno do uploader
             },
             onSuccess: (result) => {
-              // Upload concluído com sucesso
             },
             onError: (error) => {
               console.error('Erro no upload de imagem da música:', error);
@@ -1481,7 +1421,6 @@
         const option = document.createElement('option');
         option.value = tag.id;
         option.textContent = tag.name;
-        // Selecionar tag se estiver nas tags da música
         if (songData.tags && songData.tags.includes(tag.id.toString())) {
           option.selected = true;
         }
@@ -1503,25 +1442,20 @@
       await populateAlbumDropdown('edit-song-album', songData.albums);
       const id = songData.id;
 
-      // Só focar no input se não for readonly
       if (!isReadOnly) {
         setTimeout(() => titleInput?.focus(), 100);
       }
 
       const allInputs = [titleInput, linkInput, tagInput, albumSelect].filter(input => input !== null);
 
-      // NOVO: Se não for dono, tornar campos readonly/disabled e esconder botões de salvar/excluir
       if (isReadOnly) {
         titleInput.readOnly = true;
         tagInput.disabled = true;
-        //albumSelect.disabled = true;
         if (deleteBtn) deleteBtn.style.display = 'none';
         if (saveBtn) saveBtn.style.display = 'none';
-        // Desabilitar uploader de imagem
         if (modalElement.editMusicImageUploader) {
           modalElement.editMusicImageUploader.disable?.();
         }
-        // Desabilitar Select2
         $('#edit-song-tag').prop('disabled', true).trigger('change');
         $('#edit-song-album').prop('disabled', true).trigger('change');
       }
@@ -1563,7 +1497,6 @@
           tagInput.classList.add('input-error');
           if (!firstInvalid) firstInvalid = tagInput;
         }
-        // Álbum não é obrigatório - "Nenhum" (valor vazio) é uma opção válida
 
         if (!isValid)
         {
@@ -1575,13 +1508,11 @@
         const originalTitle = originalTitleInput.value;
         const originalAlbums = originalAlbumsInput.value.split(',').filter(a => a.trim());
 
-        // Declarar variáveis fora do try para usar depois
         let finalImageUrl = undefined;
         let res = null;
 
         try
         {
-          // Fazer upload da imagem se houver
           if (modalElement.editMusicImageUploader?.hasPendingUpload()) {
             const uploadResult = await modalElement.editMusicImageUploader.uploadPendingImage();
             if (uploadResult && uploadResult.success && uploadResult.imageUrl) {
@@ -1590,13 +1521,10 @@
               throw new Error('Falha no upload da imagem');
             }
           } else if (modalElement.editMusicImageUploader) {
-            // Se não há upload pendente, usar a imagem atual (apenas se não for preview local)
             const currentUrl = modalElement.editMusicImageUploader.getCurrentImageUrl();
-            // Não passar URLs locais (blob/data) para o servidor
             if (currentUrl && !currentUrl.startsWith('data:') && !currentUrl.startsWith('blob:')) {
               finalImageUrl = currentUrl === '/img/placeholder.svg' ? null : currentUrl;
             } else {
-              // Se é preview local, manter imagem original
               finalImageUrl = songData.image || null;
             }
           }
@@ -1625,17 +1553,14 @@
           return;
         }
 
-        // Atualizar card principal no container de músicas
         const existingSongCard = Selectors.musicContainer?.querySelector(`.song-card[data-id="${id}"]`);
 
         if (existingSongCard) {
-          // Atualizar título
           const titleElement = existingSongCard.querySelector('h3');
           if (titleElement) {
             titleElement.textContent = newTitle;
           }
           
-          // Atualizar imagem - usar a URL final da resposta ou a URL processada
           const songIcon = existingSongCard.querySelector('.song-icon');
           if (songIcon) {
             if (finalImageUrl && finalImageUrl !== '/img/placeholder.svg') {
@@ -1650,7 +1575,6 @@
             }
           }
           
-          // Atualizar tags
           const tagNames = availableTags
             .filter(t => newTags.includes(t.id.toString()))
             .map(tag => tag.name);
@@ -1660,18 +1584,15 @@
           }
         }
 
-        // Atualizar cards em modais de álbum que possam estar abertos
         const modalScrollable = document.querySelector('.modal-body-scrollable');
         const modalCard = modalScrollable?.querySelector(`.song-card[data-id="${id}"]`);
 
         if (modalCard) {
-          // Atualizar título
           const titleElement = modalCard.querySelector('h3');
           if (titleElement) {
             titleElement.textContent = newTitle;
           }
           
-          // Atualizar imagem
           const songIcon = modalCard.querySelector('.song-icon');
           if (songIcon) {
             if (finalImageUrl && finalImageUrl !== '/img/placeholder.svg') {
@@ -1686,7 +1607,6 @@
             }
           }
           
-          // Atualizar tags
           const tagNames = availableTags
             .filter(t => newTags.includes(t.id.toString()))
             .map(tag => tag.name);
@@ -1696,10 +1616,8 @@
           }
         }
 
-        // Mostrar toast de sucesso APÓS atualizar interface
         showToast(res.message || 'Música atualizada com sucesso!', 'success');
         
-        // Fechar modal automaticamente após sucesso
         closeModal(modalElement.closest('.modal-overlay'));
       });
 
@@ -1727,13 +1645,11 @@
         }
 
 
-        // Remover card principal
         const existingSongCard = Selectors.musicContainer?.querySelector(`.song-card[data-id="${id}"]`);
         if (existingSongCard) {
           existingSongCard.remove();
         }
 
-        // Remover cards em modais
         const modalScrollable = document.querySelector('.modal-body-scrollable');
         const modalCard = modalScrollable?.querySelector(`.song-card[data-id="${id}"]`);
         if (modalCard) {
@@ -1742,12 +1658,6 @@
 
         closeModal(modalElement.closest('.modal-overlay'));
       });
-
-      /*allInputs.forEach(input =>
-      {
-        const eventType = input.tagName === 'SELECT' ? 'change' : 'input';
-        input?.addEventListener(eventType, () => input.classList.remove('input-error'));
-      });*/
     }
 
     async function renderAlbumCard(albumName, imageUrl = null)
@@ -1782,7 +1692,7 @@
         } catch (err) {
           console.error("Erro ao criar album:", err);
           showToast(`Erro ao criar álbum: ${err.message}`, 'error');
-          throw err; // Re-throw para que o modal possa tratar o erro
+          throw err;
         }
 
         const noAlbumsMessage = Selectors.albumContainer.querySelector('p.modal-empty-state');
@@ -1812,8 +1722,8 @@
     {
       containerElement.querySelectorAll('.song-card').forEach(songCard =>
       {
-        songCard.removeEventListener('click', handleSongCardClick); // NOVO: Remover o listener de clique no card
-        songCard.querySelector('.play-button')?.removeEventListener('click', handlePlayButtonClick); // NOVO: Remover listener do play button
+        songCard.removeEventListener('click', handleSongCardClick);
+        songCard.querySelector('.play-button')?.removeEventListener('click', handlePlayButtonClick);
 
         songCard.addEventListener('click', handleSongCardClick);
 
@@ -1846,12 +1756,10 @@
 
         const values = res.data;
         
-        // Verificação segura para os álbuns - pode não existir se foram excluídos
         const albumNames = values.Albums && values.Albums.length > 0 
           ? values.Albums.map(album => album.name) 
           : [];
         
-        // Extrair IDs das tags da música
         const tagIds = values.Tags && values.Tags.length > 0 
           ? values.Tags.map(tag => tag.id.toString()) 
           : [];
@@ -1862,8 +1770,8 @@
           albums: albumNames,
           tags: tagIds,
           id: songCard.dataset.id,
-          image: values.image, // Adicionar a imagem da música
-          link: values.link // Adicionar o link da música
+          image: values.image,
+          link: values.link
         }, songCard);
       }
       catch (error)
@@ -1877,7 +1785,6 @@
     {
       const albumCard = event.currentTarget;
       const albumNameElement = albumCard.querySelector('.album-name');
-      // Usar o title (nome completo) ao invés do textContent (que pode estar truncado)
       const albumName = albumNameElement?.title || albumNameElement?.textContent;
       const albumid = albumCard.dataset.id;
       if (albumName)
@@ -1893,7 +1800,7 @@
     {
       document.querySelectorAll('.album-card').forEach(albumCard =>
       {
-        albumCard.removeEventListener('click', handleAlbumCardClick); // Evita duplicidade
+        albumCard.removeEventListener('click', handleAlbumCardClick);
         albumCard.addEventListener('click', handleAlbumCardClick);
       });
     }
@@ -1912,7 +1819,6 @@
       }
     }
 
-    // Variável para armazenar o profileUploader no escopo da função
     let profileUploader = null;
 
     async function setupEditProfileModal()
@@ -1921,7 +1827,7 @@
       {
         Selectors.editProfileBtn.addEventListener('click', async () =>
         {
-          const requiredElements = [Selectors.profileName/*, Selectors.profileTag*/, Selectors.profileLocation, Selectors.profileAbout, Selectors.profileImage];
+          const requiredElements = [Selectors.profileName, Selectors.profileLocation, Selectors.profileAbout, Selectors.profileImage];
           if (requiredElements.some(el => !el))
           {
             showToast("Erro: Elementos do perfil não encontrados na página.", 'error');
@@ -1959,19 +1865,16 @@
             instagramInput.value = userData.instagram || '';
             facebookInput.value = userData.facebook || '';
 
-            // Inicializar componente de upload de imagem
             profileUploader = createImageUploader({
               containerId: 'profile-image-uploader',
               uploadEndpoint: '/upload/profile/photo',
               currentImageUrl: userData.imageUrl,
               onSuccess: (result) => {
                 console.log('Upload de perfil bem-sucedido:', result);
-                // Atualizar imagem de perfil na página imediatamente
                 if (Selectors.profileImage && result.imageUrl) {
                   Selectors.profileImage.src = result.imageUrl;
                   Selectors.profileImage.alt = `Foto de ${userData.name}`;
                 }
-                // Atualizar foto na navbar também
                 if (window.updateNavbarProfilePhoto) {
                   window.updateNavbarProfilePhoto(result.imageUrl);
                 }
@@ -1981,7 +1884,6 @@
               }
             });
 
-            // Após preencher os campos, popular o select de tags
             const tagsSelect = modalElement.querySelector('#edit-profile-tags');
             if (tagsSelect) {
               tagsSelect.innerHTML = '';
@@ -1995,7 +1897,6 @@
                   tagsSelect.appendChild(option);
                 });
               }
-              // Destruir Select2 anterior, se houver
               if (window.$ && $(tagsSelect).data('select2')) {
                 $(tagsSelect).select2('destroy');
               }
@@ -2011,7 +1912,6 @@
   }
                 });
               }
-              // Pré-selecionar as tags do usuário, se houver
               if (userData.tags && Array.isArray(userData.tags)) {
                 const tagIds = userData.tags.map(t => t.id.toString());
                 $(tagsSelect).val(tagIds).trigger('change');
@@ -2086,7 +1986,6 @@
 
               try
               {
-                // Fazer upload da imagem se houver uma pendente
                 if (profileUploader && profileUploader.hasPendingUpload()) {
                   const uploadResult = await profileUploader.uploadPendingImage();
                   if (!uploadResult.success) {
@@ -2120,7 +2019,6 @@
                     const errorData = await response.json();
                     errorMessage = errorData.message || errorMessage;
                   } catch (e) {
-                    // Se não conseguir fazer parse do JSON, usa mensagem padrão
                   }
                   
                   throw new Error(errorMessage);
@@ -2135,7 +2033,6 @@
                 showToast('Perfil atualizado com sucesso!', 'success');
                 closeModal(modalElement.closest('.modal-overlay'));
 
-                // Atualizar as tags do perfil na tela
                 const tagsContainer = document.querySelector('.tags');
                 if (tagsContainer) {
                   tagsContainer.innerHTML = '';
@@ -2185,21 +2082,15 @@
       }
     });
 
-    // Função para configurar scroll horizontal com roda do mouse
     function setupHorizontalScroll() {
       const scrollContainers = document.querySelectorAll('.scroll-container');
       
       scrollContainers.forEach(container => {
         container.addEventListener('wheel', (e) => {
-          // Prevenir o scroll vertical padrão
           e.preventDefault();
           
-          // Calcular a quantidade de scroll horizontal
-          // deltaY positivo = scroll para baixo = mover para direita
-          // deltaY negativo = scroll para cima = mover para esquerda
           const scrollAmount = e.deltaY;
           
-          // Aplicar scroll horizontal
           container.scrollLeft += scrollAmount;
         }, { passive: false });
       });
@@ -2226,7 +2117,6 @@
       setupAddAlbumModal();
       setupEditProfileModal();
       
-      // Configurar scroll horizontal
       //setupHorizontalScroll();
     }
 
@@ -2264,7 +2154,6 @@
       }
     });
 
-    // Funcionalidade para lidar com reviews
     const viewAllReviewsBtn = document.getElementById('view-all-reviews-btn');
     if (viewAllReviewsBtn) {
       viewAllReviewsBtn.addEventListener('click', async function() {
@@ -2320,7 +2209,6 @@
 
     initialize();
 
-    // Scroll automático para avaliações se hash for #avaliacoes
     if (window.location.hash === '#avaliacoes') {
       const avaliacoesSection = document.getElementById('avaliacoes');
       if (avaliacoesSection) {

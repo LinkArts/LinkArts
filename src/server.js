@@ -9,15 +9,13 @@ const { initWebSocket, setupChatHandlers, setupServiceHandlers } = require("./we
 const path = require("path");
 const os = require("os");
 
-// Suprimir erros EPERM específicos de arquivos de sessão
 const originalConsoleError = console.error;
 console.error = function (...args)
 {
   const message = args.join(' ');
-  // Filtrar apenas erros EPERM relacionados a arquivos de sessão
   if (message.includes('EPERM') && message.includes('sessions') && message.includes('operation not permitted'))
   {
-    return; // Não exibir esses erros específicos
+    return;
   }
   originalConsoleError.apply(console, args);
 };
@@ -204,7 +202,6 @@ app.engine(
         let v = valor.trim();
         if (v.startsWith('@')) v = v.slice(1);
         if (v.startsWith('http')) return v;
-        // Se já começa com www. ou contém o domínio, adiciona https:// se não tiver
         if (tipo === 'linkedin')
         {
           if (v.includes('linkedin.com'))
@@ -247,16 +244,16 @@ app.set('trust proxy', 1); //para o render
 app.use(
   session({
     name: "session",
-    secret: process.env.SESSION_SECRET, // Trocar para variável de ambiente em produção
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     rolling: true,
     store: new FileStore({
-      logFn: function () { }, // Suprimir todos os logs do FileStore
+      logFn: function () { },
       path: path.join(os.tmpdir(), "sessions"),
     }),
     cookie: {
-      secure: false, // Definir como true em produção com HTTPS
+      secure: true,
       maxAge: 60 * 60 * 1000, // 1 hora
       httpOnly: true,
     },
@@ -289,7 +286,6 @@ app.use((req, res, next) =>
   next();
 });
 
-// Middleware para carregar dados do usuário logado para a navbar
 app.use(async (req, res, next) =>
 {
   if (req.session.userid)

@@ -2,9 +2,6 @@ const NotificationHelper = require('../utils/notificationHelper');
 const { Notification } = require('../models/index');
 
 module.exports = class NotificationController {
-    /**
-     * Busca todas as notificações do usuário logado
-     */
     static async getNotifications(req, res) {
         try {
             const userId = req.session.userid;
@@ -15,7 +12,6 @@ module.exports = class NotificationController {
 
             const notifications = await NotificationHelper.getUserNotifications(userId);
             
-            // Buscar todos os sender_user_id únicos
             const senderIds = [...new Set(notifications.map(n => n.sender_user_id).filter(Boolean))];
             let senders = {};
             if (senderIds.length > 0) {
@@ -29,7 +25,6 @@ module.exports = class NotificationController {
                 });
             }
 
-            // Buscar dados extras para notificações de nova proposta
             const { ServiceProposal, User } = require('../models/index');
             let proposals = {};
             let proposalClients = {};
@@ -43,7 +38,6 @@ module.exports = class NotificationController {
                 foundProposals.forEach(p => {
                     proposals[p.id] = p;
                 });
-                // Buscar clientes dessas propostas (usar senderUserid)
                 const clientIds = [...new Set(foundProposals.map(p => p.senderUserid))];
                 if (clientIds.length > 0) {
                     const clients = await User.findAll({
@@ -61,7 +55,6 @@ module.exports = class NotificationController {
                     let sender_name = notification.sender_user_id && senders[notification.sender_user_id] ? senders[notification.sender_user_id].name : null;
                     let sender_image_url = notification.sender_user_id && senders[notification.sender_user_id] ? senders[notification.sender_user_id].imageUrl : null;
                     let proposal_title = null;
-                    // Se for nova proposta, sobrescrever com dados do cliente da proposta
                     if (notification.type === 'new_proposal' && notification.reference_id && proposals[notification.reference_id]) {
                         const proposal = proposals[notification.reference_id];
                         proposal_title = proposal.name;
@@ -271,10 +264,8 @@ module.exports = class NotificationController {
                 return res.status(404).json({ success: false, message: 'Notificação não encontrada' });
             }
 
-            // Marcar como lida
             await notification.update({ is_read: true });
 
-            // Determinar URL de redirecionamento baseada no tipo
             let redirectUrl = '/dashboard';
 
             switch (notification.type) {

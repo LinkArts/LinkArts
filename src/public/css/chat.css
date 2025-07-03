@@ -1284,7 +1284,6 @@
     }
   }
 
-  /* Report Modal Styles */
   .report-modal-overlay {
     position: fixed;
     top: 0;
@@ -1485,7 +1484,6 @@
     }
   }
 
-  /* Proposal Modal Styles (based on agenda.css) */
   #send-proposal-modal-overlay {
     position: fixed;
     top: 0;
@@ -1654,7 +1652,6 @@
     }
   }
 
-  /* Garantia de scroll em telas pequenas */
   @media (max-width: 480px) {
     .modal-send-proposal,
     .report-modal {
@@ -1708,7 +1705,6 @@
     }
   }
 
-  /* Regras especiais para zoom alto ou altura muito pequena */
   @media (max-height: 500px), (max-height: 600px) and (min-width: 640px) {
     #send-proposal-modal-overlay {
       align-items: flex-start !important;
@@ -1741,7 +1737,6 @@
     }
   }
 
-  /* Regras para casos extremos - zoom muito alto ou resoluções muito baixas */
   @media (max-height: 400px) {
     #send-proposal-modal-overlay {
       align-items: flex-start !important;
@@ -1787,7 +1782,6 @@
     }
   }
 
-  /* Regras para landscape em dispositivos móveis */
   @media (max-height: 500px) and (orientation: landscape) {
     #send-proposal-modal-overlay,
     .report-modal-overlay {
@@ -1828,7 +1822,6 @@
     }
   }
 
-  /* Força o scroll nos modais quando necessário */
   .modal-send-proposal,
   .report-modal {
     contain: layout style;
@@ -1839,18 +1832,15 @@
     will-change: scroll-position;
   }
 
-  /* Garante que o conteúdo seja scrollável mesmo com pouco conteúdo */
   .modal-send-proposal .modal-body {
     min-height: 150px;
   }
 
-  /* Reset de altura para forçar recálculo */
   .modal-send-proposal.active .modal-body {
     height: auto;
     max-height: calc(100vh - 200px);
   }
 
-  /* Força scroll sempre que conteúdo ultrapasse a altura */
   .modal-send-proposal {
     position: relative;
   }
@@ -1865,7 +1855,6 @@
     overflow-x: hidden !important;
   }
 
-  /* Garantia de scroll touch em dispositivos móveis */
   @supports (-webkit-overflow-scrolling: touch) {
     .modal-send-proposal,
     .report-modal,
@@ -1874,19 +1863,16 @@
     }
   }
 
-  /* Força altura mínima para ativar scroll */
   .modal-send-proposal.active {
     min-height: 400px;
   }
 
-  /* Garante que o modal body tenha scroll interno quando necessário */
   .modal-send-proposal .modal-body {
     overflow-y: auto !important;
     overflow-x: hidden !important;
     overscroll-behavior: contain;
   }
 
-  /* Garante que os botões fiquem sempre na parte inferior */
   .modal-send-proposal .modal-header {
     flex-shrink: 0;
   }

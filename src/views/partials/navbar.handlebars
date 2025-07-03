@@ -27,7 +27,6 @@
             <h3 class="popup-title">Favoritos</h3>
           </div>
           <div class="popup-content" id="navbar-favorites-content">
-            <!-- Conteúdo será carregado dinamicamente via JavaScript -->
             <div class="popup-item">
               <div class="popup-item-content">
                 <p style="text-align: center; color: #666; padding: 1rem;">Carregando favoritos...</p>
@@ -47,7 +46,6 @@
             <h3 class="popup-title">Mensagens Recentes</h3>
           </div>
           <div class="popup-content" id="navbar-messages-content">
-            <!-- Conteúdo será carregado dinamicamente via JavaScript -->
             <div class="popup-item">
               <div class="popup-item-content">
                 <p style="text-align: center; color: #666; padding: 1rem;">Carregando mensagens...</p>
@@ -148,7 +146,6 @@
         
         if (icon === 'bell' && popupElement.classList.contains('active')) {
           loadNavbarNotifications();
-          // Remover indicador de novas notificações quando o popup é aberto
           removeNewNotificationIndicator();
         }
       });
@@ -250,7 +247,6 @@
     window.location.href = `/chat/{{session.userid}}#chat-${chatId}`;
   }
 
-  // Funções para gerenciar notificações
   async function loadNavbarNotifications() {
     const notificationsList = document.getElementById('notifications-list');
     const markAllReadContainer = document.getElementById('mark-all-read-container');
@@ -267,7 +263,6 @@
       }
       const data = await response.json();
       const notifications = data.notifications || [];
-      // Exibir botão só se houver notificações não-lidas
       const hasUnread = notifications.some(n => !n.is_read);
       if (hasUnread) {
         markAllReadContainer.innerHTML = `<button class='mark-all-read-btn' onclick='event.stopPropagation(); markAllNotificationsAsRead()'>Marcar todas como lidas</button>`;
@@ -326,7 +321,6 @@
   }
 
   function getNotificationIcon(type) {
-    // Remover emojis, pode retornar uma string vazia ou um SVG simples
     return '';
   }
 
@@ -337,7 +331,7 @@
         const data = await response.json();
         if (data.success && data.redirectUrl) {
           document.getElementById('bell-popup').classList.remove('active');
-          updateNotificationCount(); // Atualiza o contador após clicar
+          updateNotificationCount();
           window.location.href = data.redirectUrl;
         }
       }
@@ -410,10 +404,8 @@
   {
     setupPopups();
     
-    // Inicializar contador de notificações
     updateNotificationCount();
     
-    // Configurar WebSocket para notificações
     setupNotificationWebSocket();
   });
 
@@ -428,7 +420,6 @@
     });
   });
 
-  // Função para atualizar a foto de perfil na navbar
   function updateNavbarProfilePhoto(newImageUrl) {
     const userIcon = document.getElementById('user-icon');
     const existingPhoto = userIcon.querySelector('.user-profile-photo img');
@@ -436,7 +427,6 @@
     if (existingPhoto) {
       existingPhoto.src = newImageUrl;
     } else {
-      // Se não existe foto, criar o elemento
       const svg = userIcon.querySelector('svg');
       if (svg) {
         const photoDiv = document.createElement('div');
@@ -452,10 +442,8 @@
     }
   }
 
-  // Tornar a função global para uso em outras partes da aplicação
   window.updateNavbarProfilePhoto = updateNavbarProfilePhoto;
 
-  // Configurar WebSocket para notificações em tempo real
   function setupNotificationWebSocket() {
     if (typeof io !== 'undefined') {
       const socket = io();
@@ -467,21 +455,17 @@
         });
 
         socket.on('new_notification', (notification) => {
-          // Atualizar contador
           updateNotificationCount();
 
-          // Mostrar badge imediatamente
           const counter = document.getElementById('notification-counter');
           if (counter) {
             counter.classList.remove('hidden');
           }
           showNewNotificationIndicator();
 
-          // Se o popup estiver aberto, recarregar lista
           const bellPopup = document.getElementById('bell-popup');
           if (bellPopup && bellPopup.classList.contains('active')) {
             loadNavbarNotifications();
-            // Se estiver aberto, não mostrar o indicador
             removeNewNotificationIndicator();
           }
         });
@@ -503,7 +487,6 @@
     }
   }
 
-  // Forçar cursor default na área do email
   document.addEventListener('DOMContentLoaded', () => {
     const userInfo = document.querySelector('.popup-user-info[data-no-click]');
     const userEmail = document.querySelector('.popup-user-email[data-no-click]');
@@ -523,7 +506,6 @@
     }
   });
 
-  // Adicionar função deleteNotification
   function deleteNotification(notificationId, event) {
     event.stopPropagation();
     if (!confirm('Tem certeza que deseja excluir esta notificação?')) return;
@@ -542,7 +524,6 @@
       .catch(() => alert('Erro ao excluir notificação'));
   }
 
-  // Adicionar função updateNotificationCount para atualizar o contador de notificações
   async function updateNotificationCount() {
     try {
       const response = await fetch('/notifications/unread/count');
@@ -553,11 +534,9 @@
         if (count > 0) {
           counter.textContent = count > 99 ? '99+' : count;
           counter.classList.remove('hidden');
-          // Mostrar indicador de novas notificações se houver notificações não lidas
           showNewNotificationIndicator();
         } else {
           counter.classList.add('hidden');
-          // Remover indicador se não houver notificações
           removeNewNotificationIndicator();
         }
       }
@@ -574,7 +553,7 @@
       .then(response => response.json())
       .then(data => {
         loadNavbarNotifications();
-        updateNotificationCount(); // Atualiza o contador após marcar todas como lidas
+        updateNotificationCount();
       })
       .catch(() => alert('Erro ao marcar todas como lidas'));
   }

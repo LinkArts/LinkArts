@@ -58,11 +58,9 @@ module.exports = class ProfileController
             }
 
             if (user.Artist) {
-                // Ordenar músicas por updatedAt DESC
                 user.Artist.Musics = (user.Artist.Musics || []).sort(
                     (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
                 );
-                // Ordenar álbuns por updatedAt DESC
                 user.Artist.Albums = (user.Artist.Albums || []).sort(
                     (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
                 );
@@ -75,7 +73,6 @@ module.exports = class ProfileController
 
             const isOwner = user.dataValues.id === req.session.userid
 
-            // Verificar se o perfil está nos favoritos do usuário logado
             let isFavorite = false;
             if (req.session.userid && !isOwner)
             {
@@ -88,7 +85,6 @@ module.exports = class ProfileController
                 isFavorite = !!favorite;
             }
 
-            // Calcular métricas de avaliação
             const totalRatings = await Rating.count({ where: { receiverUserid: id } });
             const averageRating = await Rating.findOne({
                 where: { receiverUserid: id },
@@ -98,7 +94,6 @@ module.exports = class ProfileController
                 ? parseFloat(averageRating.dataValues.averageRating).toFixed(1)
                 : '0.0';
 
-            // Buscar as últimas 4 reviews
             const recentReviews = await Rating.findAll({
                 where: { receiverUserid: id },
                 include: [
@@ -124,7 +119,6 @@ module.exports = class ProfileController
 
             if (user.Establishment)
             {
-                // Mostrar todos os eventos independente da data
                 const eventsToShow = user.toJSON().Establishment.Events;
 
                 const values = {
@@ -132,8 +126,8 @@ module.exports = class ProfileController
                     ...user.Establishment.dataValues,
                     events: eventsToShow,
                     serviceRequests: user.toJSON().Establishment.ServiceRequests,
-                    imageUrl: user.imageUrl, // Incluir imageUrl do usuário
-                    tags: user.Tags?.map(tag => tag.dataValues) || [], // Incluir tags do usuário
+                    imageUrl: user.imageUrl,
+                    tags: user.Tags?.map(tag => tag.dataValues) || [],
                     totalRatings: totalRatings,
                     averageRating: averageRatingValue,
                     reviews: reviewsData
@@ -150,8 +144,8 @@ module.exports = class ProfileController
                         ...album.dataValues,
                         imageUrl: album.imageUrl || '/img/default-album.png'
                     })) || [],
-                    imageUrl: user.imageUrl, // Incluir imageUrl do usuário
-                    tags: user.Tags?.map(tag => tag.dataValues) || [], // Incluir tags do usuário
+                    imageUrl: user.imageUrl,
+                    tags: user.Tags?.map(tag => tag.dataValues) || [],
                     totalRatings: totalRatings,
                     averageRating: averageRatingValue,
                     reviews: reviewsData
@@ -190,7 +184,6 @@ module.exports = class ProfileController
     {
         const { albumName, imageUrl } = req.body
 
-        // Validar o nome do álbum
         if (!albumName || albumName.trim().length === 0)
         {
             return res.status(400).json({ message: "Nome do álbum é obrigatório!" })
@@ -235,7 +228,6 @@ module.exports = class ProfileController
         {
             console.error("Erro ao criar álbum:", err)
 
-            // Verificar se é erro de limite de caracteres
             if (err.name === 'SequelizeDatabaseError' && err.original && err.original.code === '22001')
             {
                 return res.status(400).json({
@@ -243,7 +235,6 @@ module.exports = class ProfileController
                 })
             }
 
-            // Verificar se é erro de validação do Sequelize
             if (err.name === 'SequelizeValidationError')
             {
                 return res.status(400).json({
@@ -283,7 +274,6 @@ module.exports = class ProfileController
     {
         const { albumId, name } = req.body
 
-        // Validar o nome do álbum
         if (!name || name.trim().length === 0)
         {
             return res.status(400).json({ message: "Nome do álbum é obrigatório!" })
@@ -298,13 +288,11 @@ module.exports = class ProfileController
 
         try
         {
-            // Verificar se o usuário está logado
             if (!req.session.userid)
             {
                 return res.status(401).json({ message: "Usuário não autenticado!" })
             }
 
-            // Buscar o álbum
             const album = await Album.findByPk(albumId)
 
             if (!album)
@@ -312,7 +300,6 @@ module.exports = class ProfileController
                 return res.status(404).json({ message: "Álbum não encontrado!" })
             }
 
-            // Verificar se o usuário logado é o dono do álbum
             const user = await User.findOne({
                 where: { id: req.session.userid },
                 include: [{ model: Artist }]
@@ -323,18 +310,16 @@ module.exports = class ProfileController
                 return res.status(403).json({ message: "Usuário não é um artista!" })
             }
 
-            // Verificar se o álbum pertence ao artista logado
             if (album.userid !== user.Artist.cpf)
             {
                 return res.status(403).json({ message: "Você não tem permissão para editar este álbum!" })
             }
 
-            // Verificar se já existe outro álbum com o mesmo nome
             const existingAlbum = await Album.findOne({
                 where: {
                     name: name,
                     userid: user.Artist.cpf,
-                    id: { [Op.ne]: albumId } // Excluir o álbum atual da busca
+                    id: { [Op.ne]: albumId }
                 }
             })
 
@@ -343,7 +328,6 @@ module.exports = class ProfileController
                 return res.status(400).json({ message: "Já existe um álbum com este nome!" })
             }
 
-            // Atualizar o nome do álbum
             await album.update({ name })
 
             return res.json({ message: "Nome do álbum atualizado com sucesso!" })
@@ -352,7 +336,6 @@ module.exports = class ProfileController
         {
             console.error("Erro ao atualizar nome do álbum:", err)
 
-            // Verificar se é erro de limite de caracteres
             if (err.name === 'SequelizeDatabaseError' && err.original && err.original.code === '22001')
             {
                 return res.status(400).json({
@@ -360,7 +343,6 @@ module.exports = class ProfileController
                 })
             }
 
-            // Verificar se é erro de validação do Sequelize
             if (err.name === 'SequelizeValidationError')
             {
                 return res.status(400).json({
@@ -385,7 +367,6 @@ module.exports = class ProfileController
                 return res.status(404).json({ message: "Música não encontrada!" })
             }
 
-            // Verificar se o usuário é o dono da música
             const user = await User.findOne({
                 where: { id: req.session.userid },
                 include: [{ model: Artist }]
@@ -395,9 +376,6 @@ module.exports = class ProfileController
             {
                 return res.status(403).json({ message: "Usuário não é um artista!" })
             }
-
-            // Aqui você pode adicionar verificação se a música pertence ao artista
-            // dependendo de como está estruturado o relacionamento
 
             await music.update({ image: imageUrl })
 
@@ -416,7 +394,6 @@ module.exports = class ProfileController
 
         try
         {
-            // Buscar o álbum
             const album = await Album.findByPk(id)
 
             if (!album)
@@ -427,7 +404,6 @@ module.exports = class ProfileController
                 })
             }
 
-            // Verificar se o usuário logado é o dono do álbum
             const userFromSession = await User.findOne({
                 where: { id: req.session.userid },
                 include: [{ model: Artist }]
@@ -441,7 +417,6 @@ module.exports = class ProfileController
                 })
             }
 
-            // Verificar se o álbum pertence ao artista logado
             if (album.userid !== userFromSession.Artist.cpf)
             {
                 return res.status(403).json({
@@ -450,7 +425,6 @@ module.exports = class ProfileController
                 })
             }
 
-            // Buscar músicas relacionadas para informação
             const albumWithMusics = await Album.findOne({
                 where: { id: id },
                 include: [{ 
@@ -462,13 +436,10 @@ module.exports = class ProfileController
 
             const musicCount = albumWithMusics && albumWithMusics.Musics ? albumWithMusics.Musics.length : 0
 
-            // O Sequelize cuida automaticamente dos relacionamentos com CASCADE
-            // Remover todas as associações antes de deletar o álbum
             if (musicCount > 0) {
                 await albumWithMusics.setMusics([]);
             }
 
-            // Excluir o álbum
             await album.destroy()
 
             return res.json({
@@ -503,9 +474,7 @@ module.exports = class ProfileController
                     include: [{
                         model: Album,
                         where: {
-                            [Op.and]: [
-                                where(fn('lower', col('name')), decodedName.toLowerCase())
-                            ]
+                            name: { [Op.iLike]: decodedName }
                         },
                         required: false
                     }]
@@ -637,7 +606,6 @@ module.exports = class ProfileController
         const { id } = req.params
         const { title, tags, albums, imageUrl, link } = req.body
 
-        // Validar o título da música
         if (!title || title.trim().length === 0)
         {
             return res.status(400).json({ message: "Título da música é obrigatório!" })
@@ -681,25 +649,20 @@ module.exports = class ProfileController
                 link: link !== undefined ? link : music.link,
             })
 
-            // Atualizar álbuns da música
             if (albums && albums.length > 0)
             {
-                // Buscar álbuns válidos
                 const validAlbums = await Album.findAll({
                     where: {
                         name: albums
                     }
                 });
 
-                // Associar música aos novos álbuns
                 await updatedMusic.setAlbums(validAlbums.map(album => album.id));
             } else
             {
-                // Remover música de todos os álbuns
                 await updatedMusic.setAlbums([]);
             }
 
-            // Atualizar tags
             if (tags && tags.length > 0)
             {
                 await updatedMusic.setTags([]);
@@ -715,7 +678,6 @@ module.exports = class ProfileController
         {
             console.error("Erro ao atualizar música:", error)
 
-            // Verificar se é erro de limite de caracteres
             if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001')
             {
                 return res.status(400).json({
@@ -723,7 +685,6 @@ module.exports = class ProfileController
                 })
             }
 
-            // Verificar se é erro de validação do Sequelize
             if (error.name === 'SequelizeValidationError')
             {
                 return res.status(400).json({
@@ -740,7 +701,6 @@ module.exports = class ProfileController
     {
         const { title, tag, albums, imageUrl, link } = req.body
 
-        // Validar o título da música
         if (!title || title.trim().length === 0)
         {
             return res.status(400).json({ message: "Título da música é obrigatório!" })
@@ -783,19 +743,17 @@ module.exports = class ProfileController
                 userid: user.Artist.cpf
             })
 
-            // Adicionar tags à música
             if (tag && tag.length > 0)
             {
                 await savedMusic.addTags(tag.map(Number))
             }
 
-            // Adicionar música aos álbuns selecionados
             if (albums && albums.length > 0)
             {
                 const selectedAlbums = await Album.findAll({
                     where: {
                         name: albums,
-                        userid: user.Artist.cpf // Garantir que os álbuns pertencem ao artista
+                        userid: user.Artist.cpf
                     }
                 });
 
@@ -811,7 +769,6 @@ module.exports = class ProfileController
         {
             console.error("Erro ao criar música:", error)
 
-            // Verificar se é erro de limite de caracteres
             if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001')
             {
                 return res.status(400).json({
@@ -819,7 +776,6 @@ module.exports = class ProfileController
                 })
             }
 
-            // Verificar se é erro de validação do Sequelize
             if (error.name === 'SequelizeValidationError')
             {
                 return res.status(400).json({
@@ -874,7 +830,6 @@ module.exports = class ProfileController
         const id = req.session.userid
         const { name, city, description, linkedin, instagram, facebook, tags } = req.body
 
-        // Validar o nome do perfil
         if (!name || name.trim().length === 0)
         {
             return res.status(400).json({ message: "Nome do perfil é obrigatório!" })
@@ -887,7 +842,6 @@ module.exports = class ProfileController
             })
         }
 
-        // Validar cidade se fornecida
         if (city && city.length > 30)
         {
             return res.status(400).json({
@@ -895,7 +849,6 @@ module.exports = class ProfileController
             })
         }
 
-        // Validar descrição se fornecida
         if (description && description.length > 500)
         {
             return res.status(400).json({
@@ -921,7 +874,6 @@ module.exports = class ProfileController
                 linkedin: linkedin
             })
 
-            // Atualizar tags do perfil
             if (tags !== undefined)
             {
                 if (tags && tags.length > 0)
@@ -939,7 +891,6 @@ module.exports = class ProfileController
         {
             console.error("Erro ao atualizar perfil:", error)
 
-            // Verificar se é erro de limite de caracteres
             if (error.name === 'SequelizeDatabaseError' && error.original && error.original.code === '22001')
             {
                 return res.status(400).json({
@@ -947,7 +898,6 @@ module.exports = class ProfileController
                 })
             }
 
-            // Verificar se é erro de validação do Sequelize
             if (error.name === 'SequelizeValidationError')
             {
                 return res.status(400).json({
@@ -963,13 +913,11 @@ module.exports = class ProfileController
     {
         try
         {
-            // Buscar o estabelecimento do usuário logado
             const user = await User.findOne({
                 where: { id: req.session.userid },
                 include: { model: Establishment }
             })
 
-            // Se o usuário não for um estabelecimento, retorna array vazio
             if (!user || !user.Establishment)
             {
                 return res.status(200).json([])
@@ -977,7 +925,6 @@ module.exports = class ProfileController
 
             const establishmentid = user.Establishment.dataValues.cnpj
 
-            // Buscar todos os eventos do estabelecimento, independente da data
             const events = await Event.findAll({
                 where: { establishmentid: establishmentid },
                 order: [['date', 'DESC'], ['id', 'DESC']]
@@ -1106,13 +1053,11 @@ module.exports = class ProfileController
     {
         try
         {
-            // Buscar o estabelecimento do usuário logado
             const user = await User.findOne({
                 where: { id: req.session.userid },
                 include: { model: Establishment }
             })
 
-            // Se o usuário não for um estabelecimento, retorna array vazio
             if (!user || !user.Establishment)
             {
                 return res.status(200).json([])
@@ -1120,7 +1065,6 @@ module.exports = class ProfileController
 
             const establishmentid = user.Establishment.dataValues.cnpj
 
-            // Buscar apenas pedidos de serviço do estabelecimento
             const requests = await ServiceRequest.findAll({
                 where: { establishmentid: establishmentid },
                 include: {
@@ -1336,9 +1280,9 @@ module.exports = class ProfileController
         {
             const user = await User.findByPk(userid, {
                 include: {
-                    model: User, // Inclui os dados completos dos usuários favoritados
-                    as: 'FavoritedUsers', // Usa o alias único configurado na associação
-                    attributes: ['id', 'name', 'description', 'city', 'state', 'imageUrl'] // Incluindo explicitamente imageUrl
+                    model: User,
+                    as: 'FavoritedUsers',
+                    attributes: ['id', 'name', 'description', 'city', 'state', 'imageUrl']
                 }
             });
 
@@ -1378,12 +1322,10 @@ module.exports = class ProfileController
 
             if (favorite)
             {
-                // Remove o favorito
                 await favorite.destroy();
                 return res.status(200).json({ message: "Favorito removido com sucesso!", removed: true });
             } else
             {
-                // Adiciona o favorito
                 await Favorite.create({ userid: userid, favoriteid: favoriteid });
                 return res.status(200).json({ message: "Favorito adicionado com sucesso!", removed: false });
             }
@@ -1400,7 +1342,6 @@ module.exports = class ProfileController
 
         try
         {
-            // Verificar se o usuário é dono do álbum
             const user = await User.findOne({
                 where: { id: req.session.userid },
                 include: [{ model: Artist }]
@@ -1414,7 +1355,6 @@ module.exports = class ProfileController
                 });
             }
 
-            // Verificar se o álbum pertence ao artista
             const album = await Album.findOne({
                 where: {
                     id: albumId,
@@ -1430,7 +1370,6 @@ module.exports = class ProfileController
                 });
             }
 
-            // Verificar se a música existe
             const music = await Music.findByPk(musicId);
             if (!music)
             {
@@ -1440,7 +1379,6 @@ module.exports = class ProfileController
                 });
             }
 
-            // Remover a música do álbum (apenas o relacionamento)
             await album.removeMusic(music);
 
             return res.json({

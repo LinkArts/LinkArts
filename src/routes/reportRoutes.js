@@ -13,7 +13,6 @@ const handleValidationErrors = (req, res, next) => {
     next();
 };
 
-// Criar nova denúncia
 router.post(
     "/api/reports",
     checkAuth,
@@ -46,7 +45,6 @@ router.post(
     ReportController.createReport
 );
 
-// Listar denúncias do usuário
 router.get("/api/reports", checkAuth, ReportController.getReports);
 
 module.exports = router; 

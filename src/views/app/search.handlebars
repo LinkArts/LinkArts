@@ -243,7 +243,7 @@
                 .then(data =>
                 {
                     alert(data.message || 'Cadastro realizado com sucesso!');
-                    updateButton(serviceRequestId, true); // Atualiza o botão para "Esquecer"
+                    updateButton(serviceRequestId, true);
                 })
                 .catch(error =>
                 {
@@ -274,7 +274,7 @@
                 .then(data =>
                 {
                     alert(data.message || 'Interesse removido com sucesso!');
-                    updateButton(serviceRequestId, false); // Atualiza o botão para "Cadastrar"
+                    updateButton(serviceRequestId, false);
                 })
                 .catch(error =>
                 {
@@ -305,7 +305,6 @@
     {
         try
         {
-            // Formatar a data
             const date = new Date(dateString);
             const formattedDate = date.toLocaleDateString('pt-BR', {
                 day: '2-digit',
@@ -313,7 +312,6 @@
                 year: 'numeric'
             });
 
-            // Formatar a hora
             const formattedStartTime = new Date(`1970-01-01T${ startTime }`).toLocaleTimeString('pt-BR', {
                 hour: '2-digit',
                 minute: '2-digit'
@@ -327,7 +325,7 @@
         } catch (error)
         {
             console.error('Erro ao formatar data e hora:', error);
-            return `${ dateString } | ${ startTime } - ${ endTime }`; // Retorna o original em caso de erro
+            return `${ dateString } | ${ startTime } - ${ endTime }`;
         }
     }
 </script>

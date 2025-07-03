@@ -28,7 +28,6 @@
     scrollbar-width: thin;
 }
 
-/* Estilo base do card */
 .card {
     display: flex;
     flex-direction: column;

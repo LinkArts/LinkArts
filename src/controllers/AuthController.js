@@ -537,7 +537,6 @@ module.exports = class AuthController
 
             user.update({ password: hashedPassword })
 
-            // Notificar sobre alteração de senha
             try
             {
                 await NotificationHelper.notifyPasswordChange(user.id);

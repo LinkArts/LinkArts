@@ -27,21 +27,19 @@ module.exports = class AgendaController
                 });
             }
 
-            // Determina o tipo de usuário
             const isArtist = !!user.Artist;
             const isEstablishment = !!user.Establishment;
 
-            // Define o campo de status com base no tipo de usuário
             const statusField = isArtist ? 'artistStatus' : 'establishmentStatus';
 
             const services = await Service.findAll({
                 where: {
                     [Op.and]: [
-                        { [statusField]: 'pending' }, // Filtra serviços com status "pending"
+                        { [statusField]: 'pending' },
                         {
                             [Op.or]: [
-                                { userid: id }, // Serviços recebidos
-                                { senderid: id } // Serviços enviados e aceitos
+                                { userid: id },
+                                { senderid: id }
                             ]
                         }
                     ]
@@ -52,12 +50,12 @@ module.exports = class AgendaController
                     {
                         model: User,
                         as: 'Sender',
-                        attributes: ['id', 'name', 'city'] // Inclui informações do remetente
+                        attributes: ['id', 'name', 'city']
                     },
                     {
                         model: User,
                         as: 'Receiver',
-                        attributes: ['id', 'name', 'city'] // Inclui informações do destinatário
+                        attributes: ['id', 'name', 'city']
                     }
                 ]
             });
@@ -71,7 +69,6 @@ module.exports = class AgendaController
                     ? serviceData.ServiceNotes[0].content
                     : '';
 
-                // Determina quem é o outro usuário relacionado ao serviço
                 const otherUser = serviceData.userid === parseInt(id)
                     ? serviceData.Sender
                     : serviceData.Receiver;
@@ -194,7 +191,6 @@ module.exports = class AgendaController
                 status: 'pending' // pending, accepted, rejected
             });
 
-            // Notificar o usuário que recebeu a proposta
             try {
                 await NotificationHelper.notifyNewProposal(parseInt(userid), {
                     id: proposal.id,
@@ -227,7 +223,7 @@ module.exports = class AgendaController
                     {
                         model: User,
                         as: 'Sender',
-                        attributes: ['name', 'city'] // Inclui nome e cidade do remetente
+                        attributes: ['name', 'city']
                     }
                 ]
             });
@@ -238,7 +234,7 @@ module.exports = class AgendaController
                     {
                         model: User,
                         as: 'Receiver',
-                        attributes: ['name', 'city'] // Inclui nome e cidade do destinatário
+                        attributes: ['name', 'city']
                     }
                 ]
             });*/
@@ -338,9 +334,7 @@ module.exports = class AgendaController
                     endTime: proposal.endTime
                 });
 
-                // Notificar o remetente da proposta que ela foi aceita
                 try {
-                    // Buscar usuário completo do remetente
                     const senderUser = await User.findByPk(proposal.senderUserid);
                     await NotificationHelper.notifyStatusUpdate(proposal.senderUserid, {
                         id: service.id,
@@ -355,9 +349,7 @@ module.exports = class AgendaController
             {
                 await proposal.update({ status: 'rejected' });
                 
-                // Notificar o remetente da proposta que ela foi rejeitada
                 try {
-                    // Buscar usuário completo do remetente
                     const senderUser = await User.findByPk(proposal.senderUserid);
                     await NotificationHelper.notifyStatusUpdate(proposal.senderUserid, {
                         id: proposal.id,
@@ -544,7 +536,6 @@ module.exports = class AgendaController
             const isOwner = req.session.userid === parseInt(id);
             const isNotOwner = !isOwner;
 
-            // Verifica se o tipo de usuário é o mesmo
             const isSameType =
                 (user.Artist && loggedUser.Artist) ||
                 (user.Establishment && loggedUser.Establishment);
@@ -554,7 +545,7 @@ module.exports = class AgendaController
                 user: user,
                 isOwner,
                 isNotOwner,
-                isSameType, // Envia o boolean ao frontend
+                isSameType,
                 css: 'agenda.css'
             });
         } catch (err)

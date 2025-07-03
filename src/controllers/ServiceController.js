@@ -59,11 +59,9 @@ module.exports = class ServiceController
                 });
             }
 
-            // Identifica o artista e o estabelecimento
             const artist = service.Sender.Artist ? service.Sender : service.Receiver;
             const establishment = service.Sender.Establishment ? service.Sender : service.Receiver;
 
-            // Verifica se o usuário logado é o artista ou o estabelecimento
             const isArtist = !!artist && artist.id === loggedUserId;
             const isEstablishment = !!establishment && establishment.id === loggedUserId;
 
@@ -72,7 +70,6 @@ module.exports = class ServiceController
                 return res.redirect('/dashboard');
             }
 
-            // Calcula média e total de avaliações para o artista
             const totalRatingsArtist = await Rating.count({ where: { receiverUserid: artist.id } }) || 0;
             const averageRatingArtist = await Rating.findOne({
                 where: { receiverUserid: artist.id },
@@ -82,7 +79,6 @@ module.exports = class ServiceController
                 ? parseFloat(averageRatingArtist.dataValues.averageRating).toFixed(1)
                 : 0;
 
-            // Calcula média e total de avaliações para o estabelecimento
             const totalRatingsEstablishment = await Rating.count({ where: { receiverUserid: establishment.id } }) || 0;
             const averageRatingEstablishment = await Rating.findOne({
                 where: { receiverUserid: establishment.id },
@@ -197,11 +193,9 @@ module.exports = class ServiceController
                 return res.status(404).json({ message: 'Serviço não encontrado!' });
             }
 
-            // Identifica o artista e o estabelecimento
             const artist = service.Sender.Artist ? service.Sender : service.Receiver;
             const establishment = service.Sender.Establishment ? service.Sender : service.Receiver;
 
-            // Atualiza o status com base no tipo de usuário (artista ou estabelecimento)
             if (artist.id === loggedUserId)
             {
                 service.artistStatus = action === 'confirm' ? 'confirmed' : 'cancelled';
@@ -215,11 +209,9 @@ module.exports = class ServiceController
 
             await service.save();
 
-            // Verifica se ambos confirmaram ou cancelaram
             const isConfirmed = service.artistStatus === 'confirmed' && service.establishmentStatus === 'confirmed';
             const isCancelled = service.artistStatus === 'cancelled' || service.establishmentStatus === 'cancelled';
 
-            // Emite atualização via WebSocket para todos os usuários conectados ao serviço
             emitServiceUpdate(service.id, {
                 artistStatus: service.artistStatus,
                 establishmentStatus: service.establishmentStatus,
@@ -228,7 +220,6 @@ module.exports = class ServiceController
                 timestamp: new Date()
             });
 
-            // Notificar sobre mudança de status
             try {
                 const statusMessage = isConfirmed 
                     ? 'confirmado por ambas as partes' 
@@ -238,18 +229,14 @@ module.exports = class ServiceController
                             ? 'confirmado' 
                             : 'cancelado';
 
-                // Notificar o artista se o estabelecimento fez a ação
                 if (establishment.id === loggedUserId) {
-                    // Buscar usuário completo do estabelecimento
                     const establishmentUser = await User.findByPk(establishment.id);
                     await NotificationHelper.notifyStatusUpdate(artist.id, {
                         id: service.id,
                         name: service.name
                     }, statusMessage, establishmentUser);
                 }
-                // Notificar o estabelecimento se o artista fez a ação
                 else if (artist.id === loggedUserId) {
-                    // Buscar usuário completo do artista
                     const artistUser = await User.findByPk(artist.id);
                     await NotificationHelper.notifyStatusUpdate(establishment.id, {
                         id: service.id,
@@ -281,9 +268,9 @@ module.exports = class ServiceController
     {
         try
         {
-            const { id } = req.params; // ID do serviço
-            const { rating, comment } = req.body; // Dados da avaliação
-            const userid = req.session.userid; // ID do usuário logado
+            const { id } = req.params;
+            const { rating, comment } = req.body;
+            const userid = req.session.userid;
 
             const service = await Service.findOne({
                 where: { id: id },
@@ -294,7 +281,6 @@ module.exports = class ServiceController
                 return res.status(404).json({ message: 'Serviço não encontrado!' });
             }
 
-            // Verifica se o usuário já avaliou o serviço
             const existingRating = await Rating.findOne({
                 where: { serviceid: id, senderUserid: userid },
             });
@@ -304,20 +290,19 @@ module.exports = class ServiceController
                 return res.status(400).json({ message: 'Você já avaliou este serviço!' });
             }
 
-            // Cria a avaliação
             await Rating.create({
                 rate: rating,
                 description: comment,
                 receiverUserid: service.userid === userid ? service.senderid : service.userid,
                 senderUserid: userid,
-                serviceid: id, // Preenche o campo serviceid com o ID do serviço
+                serviceid: id,
             });
 
             const receiverUser = await User.findByPk(service.userid === userid ? service.senderid : service.userid);
             const senderUser = await User.findByPk(userid);
             if (receiverUser && senderUser) {
                 await NotificationHelper.notifyNewRating(receiverUser.id, {
-                    id: null, // rating ainda não tem id
+                    id: null,
                     serviceid: id,
                     rate: rating,
                     description: comment
@@ -336,10 +321,9 @@ module.exports = class ServiceController
     {
         try
         {
-            const { id } = req.params; // ID do ServiceRequest
-            const loggedUserId = req.session.userid; // ID do usuário logado
+            const { id } = req.params;
+            const loggedUserId = req.session.userid;
 
-            // Verifica se o usuário logado é um artista
             const artist = await Artist.findOne({
                 where: { userid: loggedUserId },
             });
@@ -349,7 +333,6 @@ module.exports = class ServiceController
                 return res.json({ message: 'Apenas artistas podem demonstrar interesse em pedidos de serviço!' });
             }
 
-            // Verifica se o ServiceRequest existe
             const serviceRequest = await ServiceRequest.findOne({
                 where: { id: id },
             });
@@ -359,7 +342,6 @@ module.exports = class ServiceController
                 return res.json({ message: 'Pedido de serviço não encontrado!' });
             }
 
-            // Verifica se o artista já está associado ao ServiceRequest
             const existingAssociation = await serviceRequest.hasArtist(artist.dataValues.cpf);
 
             if (existingAssociation)
@@ -367,7 +349,6 @@ module.exports = class ServiceController
                 return res.json({ message: 'Você já demonstrou interesse neste pedido de serviço!' });
             }
 
-            // Associa o artista ao ServiceRequest
             await serviceRequest.addArtist(artist);
 
             return res.json({ message: 'Interesse demonstrado com sucesso!' });
@@ -382,10 +363,9 @@ module.exports = class ServiceController
     {
         try
         {
-            const { id } = req.params; // ID do ServiceRequest
-            const loggedUserId = req.session.userid; // ID do usuário logado
+            const { id } = req.params;
+            const loggedUserId = req.session.userid;
 
-            // Verifica se o usuário logado é um artista
             const artist = await Artist.findOne({
                 where: { userid: loggedUserId },
             });
@@ -395,7 +375,6 @@ module.exports = class ServiceController
                 return res.json({ message: 'Apenas artistas podem remover interesse em pedidos de serviço!' });
             }
 
-            // Verifica se o ServiceRequest existe
             const serviceRequest = await ServiceRequest.findOne({
                 where: { id: id },
             });
@@ -405,7 +384,6 @@ module.exports = class ServiceController
                 return res.json({ message: 'Pedido de serviço não encontrado!' });
             }
 
-            // Verifica se o artista está associado ao ServiceRequest
             const existingAssociation = await serviceRequest.hasArtist(artist);
 
             if (!existingAssociation)
@@ -413,7 +391,6 @@ module.exports = class ServiceController
                 return res.json({ message: 'Você não demonstrou interesse neste pedido de serviço!' });
             }
 
-            // Remove a associação entre o artista e o ServiceRequest
             await serviceRequest.removeArtist(artist);
 
             return res.json({ message: 'Interesse removido com sucesso!' });
@@ -436,7 +413,6 @@ module.exports = class ServiceController
                 return res.status(401).json({ isInterested: false, message: 'Usuário não autenticado.' });
             }
 
-            // Verificar se o usuário é um artista
             const artist = await Artist.findOne({
                 where: { userid: userId }
             });
@@ -446,7 +422,6 @@ module.exports = class ServiceController
                 return res.status(200).json({ isInterested: false, message: 'Usuário não é um artista.' });
             }
 
-            // Buscar o pedido de serviço
             const serviceRequest = await ServiceRequest.findByPk(serviceRequestId);
 
             if (!serviceRequest)
@@ -454,7 +429,6 @@ module.exports = class ServiceController
                 return res.status(404).json({ isInterested: false, message: 'Pedido de serviço não encontrado.' });
             }
 
-            // Verificar se o artista está interessado
             const isInterested = await serviceRequest.hasArtist(artist);
 
             return res.status(200).json({ isInterested: isInterested });
@@ -471,7 +445,6 @@ module.exports = class ServiceController
         {
             const { id } = req.params;
 
-            // Busca simples sem includes complexos primeiro
             const serviceRequest = await ServiceRequest.findByPk(id);
 
             if (!serviceRequest)
@@ -481,7 +454,6 @@ module.exports = class ServiceController
                 });
             }
 
-            // Busca establishment separadamente
             const establishment = await Establishment.findByPk(serviceRequest.establishmentid, {
                 include: [{ model: User }]
             });
@@ -493,7 +465,6 @@ module.exports = class ServiceController
                 });
             }
 
-            // Buscar artistas interessados separadamente
             let artists = [];
             try
             {
@@ -527,7 +498,7 @@ module.exports = class ServiceController
                                 : 0;
                         } catch (ratingError)
                         {
-                            // Erro silencioso ao buscar ratings
+
                         }
 
                         return {
@@ -545,7 +516,6 @@ module.exports = class ServiceController
                 artists = [];
             }
 
-            // Buscar ratings do estabelecimento
             let totalRatingsEstablishment = 0;
             let averageRatingEstablishment = 0;
             try
@@ -560,10 +530,9 @@ module.exports = class ServiceController
                     : 0;
             } catch (ratingError)
             {
-                // Erro silencioso ao buscar ratings do estabelecimento
+
             }
 
-            // Formatação de data e hora
             const formatTime = (timeString) =>
             {
                 if (!timeString) return '';
@@ -617,7 +586,7 @@ module.exports = class ServiceController
     {
         try
         {
-            const { id } = req.params; // ID do ServiceRequest
+            const { id } = req.params;
 
             const serviceRequest = await ServiceRequest.findOne({ where: { id: id } });
 
@@ -640,8 +609,8 @@ module.exports = class ServiceController
     {
         try
         {
-            const { id } = req.params; // ID do ServiceRequest
-            const { artistId } = req.body; // ID do artista escolhido
+            const { id } = req.params;
+            const { artistId } = req.body;
 
             const serviceRequest = await ServiceRequest.findOne({
                 where: { id: id },
@@ -660,7 +629,6 @@ module.exports = class ServiceController
                 return res.status(404).json({ message: 'Artista não encontrado!' });
             }
 
-            // Cria o serviço
             const newService = await Service.create({
                 name: serviceRequest.name,
                 description: serviceRequest.description,
@@ -672,18 +640,16 @@ module.exports = class ServiceController
                 userid: artist.userid
             });
 
-            // Notificar o artista sobre a nova proposta
             try {
                 await NotificationHelper.notifyNewProposal(
-                    artist.userid, // quem vai receber a notificação
+                    artist.userid,
                     { id: newService.id, name: newService.name },
-                    { id: serviceRequest.Establishment.userid } // quem está enviando a proposta
+                    { id: serviceRequest.Establishment.userid }
                 );
             } catch (notificationError) {
                 console.error('Erro ao enviar notificação de nova proposta:', notificationError);
             }
 
-            // Remove o pedido de serviço
             await serviceRequest.destroy();
 
             return res.json({ message: 'Serviço criado com sucesso!' });

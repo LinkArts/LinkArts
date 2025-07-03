@@ -19,7 +19,6 @@ module.exports = class DashboardController
 
             if (isArtist)
             {
-                // Obtém as tags do artista atual
                 const userTags = isArtist.User.Tags.map(tag => tag.id);
 
                 const establishments = await Establishment.findAll({
@@ -79,7 +78,6 @@ module.exports = class DashboardController
                     }
                 });
 
-                // Busca pedidos de serviço que tenham tags em comum com o artista
                 const services = await ServiceRequest.findAll({
                     attributes: [
                         'id',
@@ -142,7 +140,6 @@ module.exports = class DashboardController
                             attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
                         });
 
-                        // Calcula quantas tags em comum tem com o usuário
                         const commonTags = x.User.Tags.filter(tag => userTags.includes(tag.id)).length;
 
                         return {
@@ -156,7 +153,6 @@ module.exports = class DashboardController
                     })
                 );
 
-                // Ordena por número de tags em comum
                 const sortedEstablishments = establishmentPlain.sort((a, b) => b.commonTags - a.commonTags);
 
                 const servicesPlain = await Promise.all(
@@ -169,7 +165,6 @@ module.exports = class DashboardController
 
                         const isInterested = await x.hasArtist(isArtist);
 
-                        // Calcula quantas tags em comum tem com o usuário
                         const commonTags = x.Tags.filter(tag => userTags.includes(tag.id)).length;
 
                         return {
@@ -194,7 +189,6 @@ module.exports = class DashboardController
                     })
                 );
 
-                // Ordena os serviços por número de tags em comum
                 const sortedServices = servicesPlain.sort((a, b) => b.commonTags - a.commonTags);
 
                 const agendadosPlain = agendados.map(x => x.toJSON());
@@ -219,7 +213,6 @@ module.exports = class DashboardController
 
             if (isEstablishment)
             {
-                // Obtém as tags do estabelecimento atual
                 const userTags = isEstablishment.User.Tags.map(tag => tag.id);
 
                 const artists = await Artist.findAll({
@@ -267,7 +260,7 @@ module.exports = class DashboardController
                 const agendados = await Service.findAll({
                     where: {
                         [Op.and]: [
-                            { establishmentStatus: 'pending' }, // Filtra serviços com status "pending" para estabelecimentos
+                            { establishmentStatus: 'pending' },
                             {
                                 [Op.or]: [
                                     { userid: isEstablishment.userid },
@@ -287,7 +280,6 @@ module.exports = class DashboardController
                             attributes: [[Sequelize.fn('AVG', Sequelize.col('rate')), 'averageRating']]
                         });
 
-                        // Calcula quantas tags em comum tem com o usuário
                         const commonTags = x.User.Tags.filter(tag => userTags.includes(tag.id)).length;
 
                         return {
@@ -301,7 +293,6 @@ module.exports = class DashboardController
                     })
                 );
 
-                // Ordena por número de tags em comum
                 const sortedArtists = artistsPlain.sort((a, b) => b.commonTags - a.commonTags);
 
                 const agendadosPlain = agendados.map(x => x.toJSON());

@@ -1,4 +1,3 @@
-/* Animações para notificações de status em tempo real */
 @keyframes slideIn {
     from {
         transform: translateX(100%);
@@ -32,7 +31,6 @@
     animation: slideOut 0.3s ease-out;
 }
 
-/* Transições suaves para mudanças de status */
 .status-text {
     transition: all 0.3s ease-in-out;
 }
@@ -49,7 +47,6 @@
     max-height: 1000px;
 }
 
-/* Efeito de destaque para status confirmado */
 .status-text.success {
     animation: pulse 1s ease-in-out;
 }
@@ -66,13 +63,11 @@
     }
 }
 
-/* Melhorias na seção de avaliação */
 .review-section h3 {
     color: #28a745;
     margin-bottom: 20px;
 }
 
-/* Destaque para mensagem de avaliação única */
 .feedback-message.success {
     position: relative;
     border-left: 4px solid #28a745;
@@ -89,7 +84,6 @@
     51%, 100% { opacity: 0.7; }
 }
 
-/* Notificação especial para serviço confirmado */
 .status-notification.confirmed-service {
     font-weight: 600;
     font-size: 15px;
@@ -114,7 +108,6 @@
     border: 1px solid #c3e6cb;
 }
 
-/* Indicador de carregamento para mudanças de status */
 .status-loading {
     position: relative;
 }

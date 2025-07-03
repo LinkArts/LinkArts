@@ -168,27 +168,21 @@
 
         let currentRating = 0;
 
-        // Configuração do WebSocket
         const socket = io();
         
-        // Entrar na sala do serviço
         socket.emit('join_service', serviceData.id);
         
-        // Listener para atualizações de serviço via WebSocket
         socket.on('service_updated', (data) => {
             if (data.serviceId == serviceData.id) {
-                // Atualiza os dados locais
                 serviceData.artistStatus = data.serviceData.artistStatus;
                 serviceData.establishmentStatus = data.serviceData.establishmentStatus;
                 
-                // Atualiza a interface
                 updateStatusDisplay();
                 updateActionButtons();
                 updateReviewSectionVisibility();
             }
         });
         
-        // Cleanup ao sair da página
         window.addEventListener('beforeunload', () => {
             socket.emit('leave_service', serviceData.id);
         });
@@ -234,15 +228,12 @@
 
         function updateActionButtons()
         {
-            // Remove mensagens anteriores
             const existingMessages = serviceActionButtons.parentNode.querySelectorAll('.feedback-message:not(#confirmation-message)');
             existingMessages.forEach(msg => msg.remove());
 
-            // Verifica se o usuário é artista ou estabelecimento
             const isArtist = {{{json isArtist}}};
             const isEstablishment = {{{json isEstablishment}}};
 
-            // Se ambos confirmaram - serviço confirmado
             if (serviceData.artistStatus === 'confirmed' && serviceData.establishmentStatus === 'confirmed')
             {
                 serviceActionButtons.style.display = 'none';
@@ -258,7 +249,6 @@
                 return;
             }
 
-            // Se foi cancelado por alguém
             if (serviceData.artistStatus === 'cancelled' || serviceData.establishmentStatus === 'cancelled')
             {
                 serviceActionButtons.style.display = 'none';
@@ -269,15 +259,12 @@
                 return;
             }
 
-            // Lógica para ARTISTA
             if (isArtist) {
                 if (serviceData.artistStatus === 'pending') {
-                    // Artista ainda não respondeu - mostra botões
                     serviceActionButtons.style.display = 'flex';
                     if (confirmServiceBtn) confirmServiceBtn.disabled = false;
                     if (cancelServiceBtn) cancelServiceBtn.disabled = false;
                 } else if (serviceData.artistStatus === 'confirmed') {
-                    // Artista já confirmou - aguarda estabelecimento
                     serviceActionButtons.style.display = 'none';
                     const feedbackMessage = document.createElement('p');
                     feedbackMessage.className = 'feedback-message success';
@@ -286,15 +273,12 @@
                 }
             }
 
-            // Lógica para ESTABELECIMENTO
             if (isEstablishment) {
                 if (serviceData.establishmentStatus === 'pending') {
-                    // Estabelecimento ainda não respondeu - mostra botões
                     serviceActionButtons.style.display = 'flex';
                     if (confirmServiceBtn) confirmServiceBtn.disabled = false;
                     if (cancelServiceBtn) cancelServiceBtn.disabled = false;
                 } else if (serviceData.establishmentStatus === 'confirmed') {
-                    // Estabelecimento já confirmou - aguarda artista
                     serviceActionButtons.style.display = 'none';
                     const feedbackMessage = document.createElement('p');
                     feedbackMessage.className = 'feedback-message success';
@@ -327,7 +311,6 @@
             {
                 if (confirm('Tem certeza que deseja CONFIRMAR este serviço?'))
                 {
-                    // Adiciona indicador de carregamento
                     serviceCurrentStatusElem.classList.add('status-loading');
                     confirmServiceBtn.disabled = true;
                     cancelServiceBtn.disabled = true;
@@ -354,7 +337,6 @@
                         console.error('Erro:', error);
                         alert('Erro ao confirmar serviço. Tente novamente.');
                     } finally {
-                        // Remove indicador de carregamento
                         serviceCurrentStatusElem.classList.remove('status-loading');
                         confirmServiceBtn.disabled = false;
                         cancelServiceBtn.disabled = false;
@@ -369,7 +351,6 @@
             {
                 if (confirm('Tem certeza que deseja CANCELAR este serviço?'))
                 {
-                    // Adiciona indicador de carregamento
                     serviceCurrentStatusElem.classList.add('status-loading');
                     confirmServiceBtn.disabled = true;
                     cancelServiceBtn.disabled = true;
@@ -395,7 +376,6 @@
                         console.error('Erro:', error);
                         alert('Erro ao cancelar serviço. Tente novamente.');
                     } finally {
-                        // Remove indicador de carregamento
                         serviceCurrentStatusElem.classList.remove('status-loading');
                         confirmServiceBtn.disabled = false;
                         cancelServiceBtn.disabled = false;
@@ -442,17 +422,14 @@
 
                 serviceData.hasBeenReviewed = true;
 
-                // Desativa os campos de avaliação
                 reviewForm.querySelectorAll('input, textarea, button').forEach(field => {
                     field.disabled = true;
                 });
 
-                // Exibe a mensagem de sucesso permanentemente
                 reviewFeedbackMessage.textContent = 'Avaliação enviada com sucesso!';
                 reviewFeedbackMessage.className = 'feedback-message success';
                 reviewFeedbackMessage.style.display = 'block';
 
-                // Remove interatividade das estrelas
                 starRatingContainer.removeEventListener('mouseover', handleStarHover);
                 starRatingContainer.removeEventListener('click', handleStarClick);
                 starRatingContainer.removeEventListener('mouseout', handleStarMouseOut);
@@ -468,7 +445,6 @@
             }
         });
 
-        // Funções para manipular estrelas
         function handleStarHover(e)
         {
             if (e.target.classList.contains('star'))
@@ -502,7 +478,6 @@
             });
         }
 
-        // Adiciona eventos às estrelas
         starRatingContainer.addEventListener('mouseover', handleStarHover);
         starRatingContainer.addEventListener('click', handleStarClick);
         starRatingContainer.addEventListener('mouseout', handleStarMouseOut);
@@ -518,7 +493,6 @@
             }, 5000);
         }
 
-        // Inicialização
         updateStatusDisplay();
         updateActionButtons();
         updateReviewSectionVisibility();

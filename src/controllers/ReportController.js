@@ -10,7 +10,6 @@ module.exports = class ReportController {
         const { reportedUserId, chatId, reason, description, type = 'profile' } = req.body;
 
         try {
-            // Validar se é denúncia de perfil ou chat
             if (type === 'profile' && !reportedUserId) {
                 return res.status(400).json({ message: "ID do usuário denunciado é obrigatório para denúncia de perfil." });
             }
@@ -19,12 +18,10 @@ module.exports = class ReportController {
                 return res.status(400).json({ message: "ID do chat é obrigatório para denúncia de conversa." });
             }
 
-            // Verificar se o usuário não está denunciando a si mesmo
             if (type === 'profile' && reportedUserId === reporterUserId) {
                 return res.status(400).json({ message: "Você não pode denunciar seu próprio perfil." });
             }
 
-            // Se for denúncia de chat, verificar se o usuário faz parte da conversa
             if (type === 'chat') {
                 const chat = await Chat.findOne({
                     where: { id: chatId },
@@ -40,17 +37,14 @@ module.exports = class ReportController {
                     return res.status(404).json({ message: "Chat não encontrado ou você não tem acesso a ele." });
                 }
 
-                // Para denúncia de chat, encontrar o outro usuário da conversa
                 const chatUsers = await chat.getUsers({ attributes: ['id'] });
                 const otherUser = chatUsers.find(user => user.id !== reporterUserId);
                 
                 if (otherUser) {
-                    // Adicionar o reportedUserId automaticamente
                     req.body.reportedUserId = otherUser.id;
                 }
             }
 
-            // Verificar se já existe denúncia similar
             const existingReport = await Report.findOne({
                 where: {
                     reporterUserId: reporterUserId,
@@ -97,8 +91,6 @@ module.exports = class ReportController {
             return res.status(401).json({ message: "Não autorizado" });
         }
 
-        // Esta função seria para administradores listarem denúncias
-        // Por ora, vamos retornar apenas as denúncias do usuário atual
         const userId = req.session.userid;
 
         try {
