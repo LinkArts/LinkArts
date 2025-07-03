@@ -1502,6 +1502,7 @@
 
   #send-proposal-modal-overlay.active {
     display: flex;
+    align-items: center;
   }
 
   .modal-send-proposal {

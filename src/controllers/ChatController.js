@@ -661,11 +661,10 @@ module.exports = class ChatController {
                         attributes: ["message", "createdAt"]
                     }
                 ],
-                limit: 4,
                 order: [["updatedAt", "DESC"]]
             });
 
-            const formattedChats = chats.map(chat => {
+            const formattedChats = chats.filter(chat => chat.Messages && chat.Messages.length > 0).map(chat => {
                 const otherUser = chat.Users.find(u => u.id !== userId);
                 const latestMessage = chat.Messages.length > 0 ? chat.Messages[0] : null;
 
@@ -686,7 +685,7 @@ module.exports = class ChatController {
                         createdAt: null
                     }
                 };
-            });
+            }).slice(0, 4);
 
             return res.status(200).json(formattedChats);
 
